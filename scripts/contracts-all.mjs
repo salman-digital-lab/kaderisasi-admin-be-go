@@ -1,7 +1,7 @@
 import {spawn} from 'node:child_process';
 import {once} from 'node:events';
 import {root} from './env.mjs';
-const available=['reference','authorization','auth','admin','members','activities','registrations','clubs','club-members','achievements','templates','certificates','google','images','route-edges','query-edges','protocol'];
+import {contractGroups as available} from './contract-groups.mjs';
 const requested=process.argv.find(arg=>arg.startsWith('--groups='));
 const groups=requested?requested.slice('--groups='.length).split(','):available;
 if(groups.some(group=>!available.includes(group)))throw new Error('Unknown contract group');

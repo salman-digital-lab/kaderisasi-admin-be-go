@@ -75,16 +75,12 @@ func TestHTTPAuthAndImage(t *testing.T) {
 		return os.WriteFile(ledger, data, 0600)
 	}
 	defer func() {
-		failed := false
 		for _, key := range keys {
 			if err := store.Delete(ctx, key); err != nil {
 				t.Error(err)
-				failed = true
 			}
 		}
-		if !failed {
-			_ = os.Remove(ledger)
-		}
+		// The harness verifies absence with HeadObject and archives this journal.
 	}()
 	app := &Server{Config: c, Pool: pool, Auth: &auth.Service{Pool: pool, Key: c.AppKey}, Storage: store, Logger: slog.New(slog.NewTextHandler(io.Discard, nil))}
 	handler := app.Handler()

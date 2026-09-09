@@ -13,7 +13,7 @@ const child = spawnSync('pg_dump', ['--schema-only', '--no-owner', '--no-privile
 if (child.status !== 0) throw new Error('Schema-only export failed');
 mkdirSync(resolve(root, 'database/queries'), { recursive: true });
 const sql = child.stdout.replaceAll(schema, 'public').split('\n').filter(line => !/^\\|^SET |^SELECT pg_catalog.set_config|^CREATE SCHEMA |^COMMENT ON SCHEMA/.test(line)).join('\n');
-writeFileSync(resolve(root, 'database/schema.sql'), '-- GENERATED FROM ACE MIGRATIONS. sqlc input only; never execute as a migration.\n' + sql);
+writeFileSync(resolve(root, 'database/schema.sql'), '-- GENERATED FROM ACE MIGRATIONS. sqlc input only; never execute as a migration.\n' + sql.trimEnd()+'\n');
 const columns={};
 for(const match of sql.matchAll(/CREATE TABLE public\.(\w+) \(([\s\S]*?)\n\);/g)){
   columns[match[1]]=[...match[2].matchAll(/^    ([a-z_]+)\s+/gm)].map(x=>x[1]);

@@ -40,17 +40,9 @@ func (s Service) changeImages(ctx context.Context, id int32, change func([]strin
 	if err != nil {
 		return row, nil, err
 	}
-	config := map[string]json.RawMessage{}
-	if len(row.AdditionalConfig) > 0 && string(row.AdditionalConfig) != "null" {
-		if err = json.Unmarshal(row.AdditionalConfig, &config); err != nil {
-			return row, nil, err
-		}
-	}
-	images := []string{}
-	if raw, ok := config["images"]; ok {
-		if err = json.Unmarshal(raw, &images); err != nil {
-			return row, nil, err
-		}
+	config, images, err := imagesFrom(row.AdditionalConfig)
+	if err != nil {
+		return row, nil, err
 	}
 	images, err = change(images)
 	if err != nil {

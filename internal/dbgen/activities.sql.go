@@ -86,6 +86,31 @@ func (q *Queries) CertificateTemplateByID(ctx context.Context, id int32) (Certif
 	return i, err
 }
 
+const certificateTemplateByIdentifier = `-- name: CertificateTemplateByIdentifier :one
+SELECT id, name, description, background_image, template_data, is_active, created_at, updated_at, lifecycle_status, version, background_asset_version, published_at, archived_at FROM certificate_templates WHERE id=CAST(CAST($1 AS text) AS integer)
+`
+
+func (q *Queries) CertificateTemplateByIdentifier(ctx context.Context, identifier string) (CertificateTemplate, error) {
+	row := q.db.QueryRow(ctx, certificateTemplateByIdentifier, identifier)
+	var i CertificateTemplate
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.BackgroundImage,
+		&i.TemplateData,
+		&i.IsActive,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.LifecycleStatus,
+		&i.Version,
+		&i.BackgroundAssetVersion,
+		&i.PublishedAt,
+		&i.ArchivedAt,
+	)
+	return i, err
+}
+
 const countActivitiesFiltered = `-- name: CountActivitiesFiltered :one
 SELECT count(*) FROM activities a WHERE a.name ILIKE '%' || $1::text || '%'
 AND ($2::text IS NULL OR a.activity_category=CAST(CAST($2 AS text) AS integer))
@@ -116,6 +141,80 @@ func (q *Queries) CountActivitiesFiltered(ctx context.Context, arg CountActiviti
 	var count int64
 	err := row.Scan(&count)
 	return count, err
+}
+
+const createActivity = `-- name: CreateActivity :one
+INSERT INTO activities(name,description,badge,activity_start,activity_end,registration_start,registration_end,selection_start,selection_end,minimum_level,activity_type,activity_category,is_published,is_registration_open,slug,club_id,certificate_template_id,additional_config,created_at,updated_at)
+VALUES ($1::text,$2::text,$3::text,CAST(CAST($4 AS text) AS date),CAST(CAST($5 AS text) AS date),CAST(CAST($6 AS text) AS date),CAST(CAST($7 AS text) AS date),CAST(CAST($8 AS text) AS date),CAST(CAST($9 AS text) AS date),COALESCE(CAST(CAST($10 AS text) AS integer),0),CAST(CAST($11 AS text) AS integer),CAST(CAST($12 AS text) AS integer),COALESCE(CAST(CAST($13 AS text) AS boolean),false),COALESCE($14::boolean,true),$15::text,CAST(CAST($16 AS text) AS integer),CAST(CAST($17 AS text) AS integer),COALESCE($18::jsonb,'{"images":[],"mandatory_profile_data":[],"custom_selection_status":[],"additional_questionnaire":[]}'::jsonb),now(),now()) RETURNING id, name, slug, description, badge, activity_start, activity_end, registration_start, registration_end, selection_start, selection_end, activity_type, activity_category, additional_config, minimum_level, is_published, created_at, updated_at, is_registration_open, club_id, certificate_template_id
+`
+
+type CreateActivityParams struct {
+	Name                  *string `json:"name"`
+	Description           *string `json:"description"`
+	Badge                 *string `json:"badge"`
+	ActivityStart         *string `json:"activity_start"`
+	ActivityEnd           *string `json:"activity_end"`
+	RegistrationStart     *string `json:"registration_start"`
+	RegistrationEnd       *string `json:"registration_end"`
+	SelectionStart        *string `json:"selection_start"`
+	SelectionEnd          *string `json:"selection_end"`
+	MinimumLevel          *string `json:"minimum_level"`
+	ActivityType          *string `json:"activity_type"`
+	ActivityCategory      *string `json:"activity_category"`
+	IsPublished           *string `json:"is_published"`
+	IsRegistrationOpen    *bool   `json:"is_registration_open"`
+	Slug                  string  `json:"slug"`
+	ClubID                *string `json:"club_id"`
+	CertificateTemplateID *string `json:"certificate_template_id"`
+	AdditionalConfig      []byte  `json:"additional_config"`
+}
+
+func (q *Queries) CreateActivity(ctx context.Context, arg CreateActivityParams) (Activity, error) {
+	row := q.db.QueryRow(ctx, createActivity,
+		arg.Name,
+		arg.Description,
+		arg.Badge,
+		arg.ActivityStart,
+		arg.ActivityEnd,
+		arg.RegistrationStart,
+		arg.RegistrationEnd,
+		arg.SelectionStart,
+		arg.SelectionEnd,
+		arg.MinimumLevel,
+		arg.ActivityType,
+		arg.ActivityCategory,
+		arg.IsPublished,
+		arg.IsRegistrationOpen,
+		arg.Slug,
+		arg.ClubID,
+		arg.CertificateTemplateID,
+		arg.AdditionalConfig,
+	)
+	var i Activity
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Slug,
+		&i.Description,
+		&i.Badge,
+		&i.ActivityStart,
+		&i.ActivityEnd,
+		&i.RegistrationStart,
+		&i.RegistrationEnd,
+		&i.SelectionStart,
+		&i.SelectionEnd,
+		&i.ActivityType,
+		&i.ActivityCategory,
+		&i.AdditionalConfig,
+		&i.MinimumLevel,
+		&i.IsPublished,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.IsRegistrationOpen,
+		&i.ClubID,
+		&i.CertificateTemplateID,
+	)
+	return i, err
 }
 
 const deleteActivity = `-- name: DeleteActivity :execrows
@@ -212,4 +311,98 @@ func (q *Queries) ListActivitiesFiltered(ctx context.Context, arg ListActivities
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateActivity = `-- name: UpdateActivity :one
+UPDATE activities SET
+name = COALESCE($1::text,name),
+description = COALESCE($2::text,description),
+badge = COALESCE($3::text,badge),
+activity_start = COALESCE(CAST(CAST($4 AS text) AS date),activity_start),
+activity_end = COALESCE(CAST(CAST($5 AS text) AS date),activity_end),
+registration_start = COALESCE(CAST(CAST($6 AS text) AS date),registration_start),
+registration_end = COALESCE(CAST(CAST($7 AS text) AS date),registration_end),
+selection_start = COALESCE(CAST(CAST($8 AS text) AS date),selection_start),
+selection_end = COALESCE(CAST(CAST($9 AS text) AS date),selection_end),
+minimum_level = COALESCE(CAST(CAST($10 AS text) AS integer),minimum_level),
+activity_type = COALESCE(CAST(CAST($11 AS text) AS integer),activity_type),
+activity_category = COALESCE(CAST(CAST($12 AS text) AS integer),activity_category),
+is_published = COALESCE(CAST(CAST($13 AS text) AS boolean),is_published),
+is_registration_open = COALESCE($14::boolean,is_registration_open),
+club_id=CASE WHEN $15::boolean THEN CAST(CAST($16 AS text) AS integer) ELSE club_id END,
+certificate_template_id=CASE WHEN $17::boolean THEN CAST(CAST($18 AS text) AS integer) ELSE certificate_template_id END,
+additional_config = $19::jsonb,updated_at=now() WHERE id = $20::integer RETURNING id, name, slug, description, badge, activity_start, activity_end, registration_start, registration_end, selection_start, selection_end, activity_type, activity_category, additional_config, minimum_level, is_published, created_at, updated_at, is_registration_open, club_id, certificate_template_id
+`
+
+type UpdateActivityParams struct {
+	Name                  *string `json:"name"`
+	Description           *string `json:"description"`
+	Badge                 *string `json:"badge"`
+	ActivityStart         *string `json:"activity_start"`
+	ActivityEnd           *string `json:"activity_end"`
+	RegistrationStart     *string `json:"registration_start"`
+	RegistrationEnd       *string `json:"registration_end"`
+	SelectionStart        *string `json:"selection_start"`
+	SelectionEnd          *string `json:"selection_end"`
+	MinimumLevel          *string `json:"minimum_level"`
+	ActivityType          *string `json:"activity_type"`
+	ActivityCategory      *string `json:"activity_category"`
+	IsPublished           *string `json:"is_published"`
+	IsRegistrationOpen    *bool   `json:"is_registration_open"`
+	ClubPresent           bool    `json:"club_present"`
+	ClubID                *string `json:"club_id"`
+	TemplatePresent       bool    `json:"template_present"`
+	CertificateTemplateID *string `json:"certificate_template_id"`
+	AdditionalConfig      []byte  `json:"additional_config"`
+	ID                    int32   `json:"id"`
+}
+
+func (q *Queries) UpdateActivity(ctx context.Context, arg UpdateActivityParams) (Activity, error) {
+	row := q.db.QueryRow(ctx, updateActivity,
+		arg.Name,
+		arg.Description,
+		arg.Badge,
+		arg.ActivityStart,
+		arg.ActivityEnd,
+		arg.RegistrationStart,
+		arg.RegistrationEnd,
+		arg.SelectionStart,
+		arg.SelectionEnd,
+		arg.MinimumLevel,
+		arg.ActivityType,
+		arg.ActivityCategory,
+		arg.IsPublished,
+		arg.IsRegistrationOpen,
+		arg.ClubPresent,
+		arg.ClubID,
+		arg.TemplatePresent,
+		arg.CertificateTemplateID,
+		arg.AdditionalConfig,
+		arg.ID,
+	)
+	var i Activity
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Slug,
+		&i.Description,
+		&i.Badge,
+		&i.ActivityStart,
+		&i.ActivityEnd,
+		&i.RegistrationStart,
+		&i.RegistrationEnd,
+		&i.SelectionStart,
+		&i.SelectionEnd,
+		&i.ActivityType,
+		&i.ActivityCategory,
+		&i.AdditionalConfig,
+		&i.MinimumLevel,
+		&i.IsPublished,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.IsRegistrationOpen,
+		&i.ClubID,
+		&i.CertificateTemplateID,
+	)
+	return i, err
 }

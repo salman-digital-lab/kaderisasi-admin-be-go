@@ -1,9 +1,9 @@
-import { spawnSync } from 'node:child_process';
+import { spawnSync,execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 import assert from 'node:assert/strict';
-import { root, testEnvironment } from './env.mjs';
+import { root, legacy, testEnvironment } from './env.mjs';
 import { fixtureDatabase, resetFixture, snapshotFixture, legacyRequire, fixturePassword, fixtureKey } from './fixture-db.mjs';
 import { borrowWorkspacePort, startServer } from './server-process.mjs';
 import { referenceCases, authorizationCases, authCases } from './contract-cases.mjs';
@@ -23,19 +23,25 @@ import { routeEdgeCases } from './contract-route-edges.mjs';
 import {protocolCases} from './contract-protocol.mjs';
 import { queryEdgeCases } from './contract-query-edges.mjs';
 import { cleanStorageJournal } from './storage-cleanup.mjs';
+import {contractGroups} from './contract-groups.mjs';
+import {sourceEvidence} from './source-evidence.mjs';
 import { acquireFixtureLease } from './fixture-lease.mjs';
 
 acquireFixtureLease();
 
 const group=process.argv.find(arg=>arg.startsWith('--group='))?.split('=')[1]??'reference';
-if(!['reference','authorization','auth','admin','members','activities','registrations','clubs','club-members','achievements','templates','certificates','google','images','route-edges','query-edges','protocol'].includes(group))throw new Error('Unknown contract group');
+if(!contractGroups.includes(group))throw new Error('Unknown contract group');
 const routes=JSON.parse(readFileSync(resolve(root,'internal/httpapi/routes.json'),'utf8'));
 const jwt=legacyRequire('jsonwebtoken');
 const {Scrypt}=legacyRequire('@adonisjs/hash/drivers/scrypt');
 const passwordHash=await new Scrypt({}).make(fixturePassword);
 const artifacts=resolve(root,'.artifacts/contracts');mkdirSync(artifacts,{recursive:true});
+const adonisRevision=execFileSync('git',['rev-parse','HEAD'],{cwd:legacy,encoding:'utf8'}).trim();
+assert.equal(adonisRevision,JSON.parse(readFileSync(resolve(root,'docs/BASELINE.json'),'utf8')).revision,'Adonis baseline changed; refresh the inventory and compatibility scenarios');
+const source=sourceEvidence();
 const build=spawnSync('go',['build',...(['google','images','query-edges','protocol'].includes(group)?['-tags=integration']:[]),'-o',resolve(root,'.artifacts/admin-api'),'./cmd/api'],{cwd:root,stdio:'inherit'});
 if(build.status!==0)throw new Error('Go build failed');
+assert.equal(sourceEvidence().sha256,source.sha256,'Go sources changed during compilation; rerun the suite');
 const restore=await borrowWorkspacePort(3334,process.argv.includes('--borrow-workspace'));
 const results={};
 const keys=group==='google'?await googleFixture():null;
@@ -120,7 +126,7 @@ for(let i=0;i<results.adonis.length;i++) {
   const baseline=results.adonis[i],candidate=results.go[i];
   if(!isDeepStrictEqual(baseline,candidate))differences.push({name:baseline.name,baseline,candidate});
 }
-const report={group,environment:['images','query-edges','protocol'].includes(group)?'production':'test',scenarios:results.adonis.length,passed:results.adonis.length-differences.length,failed:differences.length,differences};
+const report={group,source,adonis_revision:adonisRevision,environment:['images','query-edges','protocol'].includes(group)?'production':'test',scenarios:results.adonis.length,passed:results.adonis.length-differences.length,failed:differences.length,differences};
 writeFileSync(resolve(artifacts,`${group}-report.json`),JSON.stringify(report,null,2),{mode:0o600});
 console.log(`${group}: ${report.passed}/${report.scenarios} equivalent; ${report.failed} differences`);
 if(differences.length){console.log(differences.map(row=>row.name).join('\n'));process.exitCode=1;}

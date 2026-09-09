@@ -2,6 +2,8 @@ import {execFileSync} from 'node:child_process';
 import {mkdirSync,readFileSync,readdirSync,writeFileSync,existsSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {root} from './env.mjs';
+import {sourceEvidence} from './source-evidence.mjs';
+import {contractGroups} from './contract-groups.mjs';
 
 const routes=JSON.parse(execFileSync('go',['run','./cmd/inventory'],{cwd:root,encoding:'utf8'}));
 const baseline=JSON.parse(readFileSync(resolve(root,'docs/BASELINE.json'),'utf8'));
@@ -45,10 +47,13 @@ const matrix=routes.map(route=>{
   if(route.permission&&!scenarios.permission.length)pending.push('permission');
   return {...route,scenarios,pending};
 });
-const report={baseline:baseline.revision,route_count:matrix.length,implemented:matrix.filter(r=>r.implemented).length,success_covered:matrix.filter(r=>r.scenarios.success.length).length,contract_scenarios:reports.reduce((n,r)=>n+r.scenarios,0),contract_failures:reports.reduce((n,r)=>n+r.failed,0),routes:matrix,scope:'Success/authentication/permission gates; invalid-input and missing-resource applicability still requires completion review.'};
+const currentSource=sourceEvidence();
+const staleGroups=reports.filter(report=>report.source?.sha256!==currentSource.sha256||report.adonis_revision!==baseline.revision).map(report=>report.group);
+const missingGroups=contractGroups.filter(group=>!reports.some(report=>report.group===group));
+const report={source:currentSource,stale_groups:staleGroups,missing_groups:missingGroups,baseline:baseline.revision,route_count:matrix.length,implemented:matrix.filter(r=>r.implemented).length,success_covered:matrix.filter(r=>r.scenarios.success.length).length,contract_scenarios:reports.reduce((n,r)=>n+r.scenarios,0),contract_failures:reports.reduce((n,r)=>n+r.failed,0),routes:matrix,scope:'Success/authentication/permission gates; invalid-input and missing-resource applicability still requires completion review.'};
 writeFileSync(resolve(artifacts,'route-coverage.json'),JSON.stringify(report,null,2)+'\n');
 const cell=cases=>cases.length?cases.map(c=>`${c.group}:${c.name} (${c.status})`).join('<br>'):'—';
 const rows=matrix.map(r=>`| ${r.method} ${r.path} | ${r.controller}.${r.action} | ${r.permission||(r.auth?'authenticated':'public')} | ${cell(r.scenarios.success)} | ${r.scenarios.authentication.length} / ${r.scenarios.permission.length} | ${cell(r.scenarios.invalid_input)} | ${cell(r.scenarios.missing_resource)} |`);
 writeFileSync(resolve(root,'docs/COMPATIBILITY.md'),`# API compatibility matrix\n\nAdopted Adonis revision: \`${baseline.revision}\`. Original: \`${baseline.original_revision}\`.\n\nThis matrix is generated from registered Go handlers and passing direct Adonis/Go comparisons. Routes are matched with static-segment precedence. ${report.success_covered}/${matrix.length} routes have a successful comparison; ${report.contract_scenarios} scenarios have run. Authentication and permission columns count passing denials. A dash in invalid-input or missing-resource coverage remains subject to applicability review; it is not a claimed exemption. PostgreSQL state is compared after every mutation.\n\n| Route | Go owner | Access | Successful evidence | Auth / permission denials | Invalid input evidence | Missing resource evidence |\n|---|---|---|---|---|---|---|\n${rows.join('\n')}\n\nScheduled jobs: \`internal/jobs.Runner\` owns all three. Calendar boundary, repeated execution, cancellation, and database failure checks run against PostgreSQL. All three commands have passed direct Adonis/Go state comparison and repeat execution (six scenarios; .artifacts/job-contracts.json).\n`);
-console.log(JSON.stringify({routes:matrix.length,implemented:report.implemented,success_covered:report.success_covered,contract_scenarios:report.contract_scenarios,pending:matrix.filter(r=>r.pending.length).map(r=>({route:r.method+' '+r.path,pending:r.pending}))},null,2));
-if(process.argv.includes('--check')&&(report.contract_failures||matrix.some(r=>r.pending.length)))process.exitCode=1;
+console.log(JSON.stringify({routes:matrix.length,implemented:report.implemented,success_covered:report.success_covered,contract_scenarios:report.contract_scenarios,stale_groups:staleGroups,missing_groups:missingGroups,pending:matrix.filter(r=>r.pending.length).map(r=>({route:r.method+' '+r.path,pending:r.pending}))},null,2));
+if(process.argv.includes('--check')&&(staleGroups.length||missingGroups.length||report.contract_failures||matrix.some(r=>r.pending.length)))process.exitCode=1;

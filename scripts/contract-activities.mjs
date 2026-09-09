@@ -27,4 +27,11 @@ export async function activityCases(h){
   await h.call('activity:upload-empty','POST','/v2/activities/1/images',{});
   await h.upload('activity:upload-malformed','/v2/activities/1/images',{},Buffer.from('malformed image'));
   await h.upload('activity:upload-oversized','/v2/activities/1/images',{},Buffer.alloc((1<<20)+1,65));
+  await h.call('activity:minimal-create','POST','/v2/activities',{name:'Minimal activity'});
+  await h.call('activity:minimal-update','PUT','/v2/activities/3',{});
+  await h.call('activity:clear-club','PUT','/v2/activities/1',{club_id:null});
+  await h.call('activity:dates-update','PUT','/v2/activities/1',{activity_start:'2026-10-01',registration_end:'2026-09-30'});
+  await h.call('activity:zero-template-create','POST','/v2/activities',{name:'Zero template',certificate_template_id:0});
+  await h.call('activity:zero-template-update','PUT','/v2/activities/1',{certificate_template_id:0});
+  await h.call('activity:zero-levels','PUT','/v2/activities/1',{minimum_level:0,activity_type:0,activity_category:0,is_published:0,is_registration_open:false});
 }

@@ -44,6 +44,10 @@ func ManagedAsset(id int32, value string) bool {
 	return strings.Contains(value, prefix)
 }
 func CheckReadiness(template database.Object) Readiness {
+	return CheckReadinessValues(template.ID("id"), template.String("name"), template["template_data"])
+}
+
+func CheckReadinessValues(id int32, name string, raw []byte) Readiness {
 	result := Readiness{Errors: []string{}}
 	seen := map[string]bool{}
 	add := func(message string) {
@@ -52,11 +56,11 @@ func CheckReadiness(template database.Object) Readiness {
 			seen[message] = true
 		}
 	}
-	if strings.TrimSpace(template.String("name")) == "" {
+	if strings.TrimSpace(name) == "" {
 		add("TEMPLATE_NAME_REQUIRED")
 	}
 	var data *TemplateData
-	if err := json.Unmarshal(template["template_data"], &data); err != nil || data == nil {
+	if err := json.Unmarshal(raw, &data); err != nil || data == nil {
 		add("TEMPLATE_DATA_REQUIRED")
 		return result
 	}
@@ -95,7 +99,7 @@ func CheckReadiness(template database.Object) Readiness {
 		if e.Type == "image" || e.Type == "signature" {
 			if e.ImageURL == "" {
 				add("ELEMENT_ASSET_REQUIRED")
-			} else if !ManagedAsset(template.ID("id"), e.ImageURL) {
+			} else if !ManagedAsset(id, e.ImageURL) {
 				add("ELEMENT_MUST_USE_MANAGED_ASSET")
 			}
 		}

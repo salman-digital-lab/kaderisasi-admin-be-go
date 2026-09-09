@@ -228,3 +228,21 @@ handlers, unexecuted required scenarios, test skips, and unfinished cleanup.
 - Formatting, vet, compilation, dependency integrity and query generation passed
   after the parser changes (`.artifacts/check-protocol.log`). Native packaging and
   startup validation passed again (`.artifacts/package-protocol.log`).
+
+## Saved checkpoint and current activity work
+
+- Initial application/harness checkpoint committed as `6011b6a`, including
+  `go.mod`, `go.sum`, and `package-lock.json`. It explicitly remains incomplete.
+- Activity create/update requests, response projections, template assignment and
+  slug handling now use typed services and generated queries. All 34 activity
+  comparisons pass, including zero-valued template IDs, default records, date
+  updates and nullable club assignment (`.artifacts/activity-crud-typed.log`).
+- Activity media upload/reorder/delete business logic now lives in the activity
+  service. Its affected race tests and certificate workflows pass; see
+  `.artifacts/go-race-activity-types.jsonl` and
+  `.artifacts/go-race-activity-upload-service.jsonl`.
+- Contract reports now record the source fingerprint and adopted Adonis revision.
+  Coverage rejects missing groups and stale reports. A fresh complete contract
+  run is next; prior group reports remain historical evidence only.
+- The last HTTP image fixture now retains its object journal for the harness to
+  verify and archive, matching the other Go storage fixtures.

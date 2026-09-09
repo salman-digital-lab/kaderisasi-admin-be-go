@@ -112,7 +112,10 @@ Integration targets create or reuse three recorded schemas in the configured
 shared **test** database. They run Ace migrations and deterministic synthetic
 fixtures. Ownership comments and explicit search paths protect shared tables.
 Only recorded UUID storage objects may be deleted. A process lease prevents
-concurrent fixture resets. Never run these suites concurrently.
+concurrent fixture resets. Never run these suites concurrently. Contract reports record
+the compiled source fingerprint and adopted Adonis revision; stale reports cannot
+pass the coverage gate. For an affected subset, run
+`node scripts/contracts-all.mjs --groups=members,activities --borrow-workspace`.
 
 By default, API/browser targets temporarily suspend recognized workspace tmux
 services and restore them afterward. Set `BORROW_WORKSPACE=` to require free ports.
