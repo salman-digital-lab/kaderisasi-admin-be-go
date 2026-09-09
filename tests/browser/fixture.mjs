@@ -7,7 +7,16 @@ export const test=base.extend({
   fixture:[async({},use)=>{
     if(process.env.GO_REWRITE_BROWSER!=='1')throw new Error('Run through scripts/browser.mjs to isolate fixture resources');
     const fixture=await fixtureDatabase('candidate');
-    try{await resetFixture(fixture.db,fixture.schema,passwordHash);await use(fixture);}finally{await fixture.db.end();}
+    try{
+      await resetFixture(fixture.db,fixture.schema,passwordHash);
+      if(process.env.GO_REWRITE_PUBLIC_BROWSER==='1') {
+        // Next caches reference catalogs across requests. Keep the same catalog
+        // in every isolated public scenario, including the build-time fixture.
+        await api('POST','/provinces',{name:'Browser Province'});
+        await api('POST','/cities',{name:'Browser City',province_id:1});
+      }
+      await use(fixture);
+    }finally{await fixture.db.end();}
   },{auto:true}],
 });
 export {expect};

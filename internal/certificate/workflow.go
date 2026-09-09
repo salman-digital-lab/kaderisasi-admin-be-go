@@ -212,7 +212,7 @@ func (s Issuance) Recipients(ctx context.Context, id int32, options RecipientOpt
 	a.Set("id", id)
 	a.Set("name", activity.String("name"))
 	for _, row := range page.Data {
-		database.Timestamps(row, time.UTC, "created_at")
+		database.UTCTimestamps(row, "created_at")
 	}
 	return Recipients{Activity: a, Template: template, Counts: counts, Meta: page.Meta.Raw(), Data: page.Data}, nil
 }

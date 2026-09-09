@@ -16,7 +16,7 @@ type Response struct {
 }
 
 func View(row dbgen.Club) Response {
-	return Response{Club: row, Media: row.Media, RegistrationInfo: row.RegistrationInfo, CreatedAt: domain.Timestamp(row.CreatedAt, time.Local), UpdatedAt: domain.Timestamp(row.UpdatedAt, time.Local)}
+	return Response{Club: row, Media: row.Media, RegistrationInfo: row.RegistrationInfo, CreatedAt: domain.ModelTimestamp(row.CreatedAt, time.Local), UpdatedAt: domain.ModelTimestamp(row.UpdatedAt, time.Local)}
 }
 func FromRelation(raw []byte) (*Response, error) {
 	var row *struct {

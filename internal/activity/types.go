@@ -24,5 +24,24 @@ type Summary struct {
 }
 
 func View(row dbgen.Activity) Response {
-	return Response{Activity: row, AdditionalConfig: row.AdditionalConfig, CreatedAt: domain.Timestamp(row.CreatedAt, time.Local), UpdatedAt: domain.Timestamp(row.UpdatedAt, time.Local)}
+	return Response{Activity: row, AdditionalConfig: row.AdditionalConfig, CreatedAt: domain.ModelTimestamp(row.CreatedAt, time.Local), UpdatedAt: domain.ModelTimestamp(row.UpdatedAt, time.Local)}
+}
+
+// FromRelation decodes JSONB columns as JSON, rather than Go's []byte base64 encoding.
+func FromRelation(raw []byte) (*Response, error) {
+	var row *struct {
+		dbgen.Activity
+		AdditionalConfig json.RawMessage `json:"additional_config"`
+	}
+	if len(raw) > 0 {
+		if err := json.Unmarshal(raw, &row); err != nil {
+			return nil, err
+		}
+	}
+	if row == nil {
+		return nil, nil
+	}
+	row.Activity.AdditionalConfig = row.AdditionalConfig
+	view := View(row.Activity)
+	return &view, nil
 }

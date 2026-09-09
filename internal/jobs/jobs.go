@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jackc/pgx/v5/pgtype"
 	"kaderisasi/admin/internal/dbgen"
+	"kaderisasi/admin/internal/domain"
 	"log/slog"
 	"time"
 )
@@ -35,7 +36,11 @@ func Cutoff(now time.Time, location *time.Location, month bool) time.Time {
 	return time.Date(now.Year(), now.Month(), day, 0, 0, 0, 0, location)
 }
 func (r Runner) Run(ctx context.Context, name string, now time.Time) (Result, error) {
-	cutoff := Cutoff(now, r.Location, name == "clubs:update-visibility")
+	location := r.Location
+	if name == "clubs:close-registration" {
+		location = domain.Jakarta()
+	}
+	cutoff := Cutoff(now, location, name == "clubs:update-visibility")
 	date := pgtype.Date{Time: cutoff, Valid: true}
 	result := Result{Job: name, Cutoff: cutoff.Format("2006-01-02"), IDs: []int32{}}
 	q := dbgen.New(r.DB)

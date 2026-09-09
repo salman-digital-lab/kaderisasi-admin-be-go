@@ -15,7 +15,9 @@ Adonis revision: `9e5a57182d123736e271adcb9417126a00981f2c`.
 The source advanced independently to `d1cc1b146ea0c2b0458292f0a0f6b0ac718b1b35`
 during implementation. Its added certificate lookup endpoint and array-query fix
 are now included: 139 routes and 54 schemas (48 file exports and six inline).
-The adopted revision is recorded in `docs/BASELINE.json`; regeneration checks it.
+The source has since advanced to `dd8d0ff409c34eaaebb8c2e3ec8a046efbf11356`
+with club export and Jakarta deadline fixes. These are adopted without changing
+the 139-route inventory. `docs/BASELINE.json` records the revisions.
 
 ## Phase ledger
 
@@ -268,3 +270,69 @@ handlers, unexecuted required scenarios, test skips, and unfinished cleanup.
 - Rerun route-edges, query-edges and protocol, then check coverage for the current
   source. Registration DTO/query drafts are in `.artifacts/next-registration/`;
   they have not been applied or counted as implementation.
+
+## Registration continuation
+
+- All 17 contract groups finished against the prior Go source: 139 routes,
+  1,042 scenarios, no stale/missing groups and no pending success/auth/permission
+  coverage. Evidence: `.artifacts/coverage-current-source.json`. Adonis restoration
+  was recorded. This is a historical checkpoint once registration sources change.
+- Registration creation, detail, statistics, status changes and deletion now use
+  typed requests/responses and generated queries in a dedicated activity service.
+  IDs pass through PostgreSQL conversion without narrowing to zero. Preserved
+  null-user duplicate rules, profile-level/badge effects, transaction rollback,
+  first-activity semantics and timestamp behavior.
+- The list now has typed filters/results, generated count/sort/page queries and
+  explicit dynamic profile-column projection. It preserves raw-query date formats,
+  profile fields overriding guest values and exposed database diagnostics.
+- Expanded registration comparisons passed 87/87, including direct assertions of
+  profile upgrades, rollback and unchanged timestamps, all sort fields, malformed
+  pagination/IDs/configuration and dynamic profile columns. Evidence:
+  `.artifacts/registration-list-contract.log`.
+- Excel export now uses typed registrant/profile/guest records and generated
+  relationship/form/location queries. Its expanded comparison suite is running.
+  Formatting, vet, builds, module verification, query drift and harness syntax
+  pass in `.artifacts/check-registration-types.log`. Affected race tests and
+  related groups must run after the final export fixes.
+
+## Latest club changes and registration checkpoint
+
+- Reviewed the latest admin-be (`dd8d0ff`), web-be (`d366303`) and public frontend
+  (`9144a84`) commits. Go now preserves null club-export dates and formats valid
+  dates in Asia/Jakarta. The club closing job uses the Jakarta calendar regardless
+  of the host timezone. Embedded timezone data supports native packaging.
+- Club and club-member comparisons pass at `TZ=UTC`: 46/46 and 33/33. They caught
+  and fixed model timestamps requiring `+00:00`, while raw JavaScript Date fields
+  retain `Z`. Three recorded storage objects per backend were removed and checked
+  absent. Evidence: `.artifacts/contracts-new-club-utc.log`.
+- Shared Go/web-be tests pass 53 checks, including immutable club answers,
+  duplicate submission, owner-only cancellation, approval visibility, member
+  roles, closed registration, and required active forms. The new source club
+  workflow tests also pass against owned schemas in both Adonis applications,
+  with no skipped tests and rolled-back fixture rows verified absent.
+  Evidence: `.artifacts/shared-database-club-update.log` and
+  `.artifacts/source-club-workflows.log`.
+- All three job commands and repeated execution match Adonis (six comparisons).
+  The club CLI comparison runs under UTC. Boundary tests exercise leap/year
+  changes, null dates, and immutable zero/false answers.
+- Expanded registration export comparisons pass 92/92, including real Excel
+  headers/cells, guest and profile locations, education/history, active custom
+  form precedence and legacy fallback. Participant ordering assertions were
+  ported into real HTTP/database tests for four lists and pass in both directions
+  with null dates and pagination. Further malformed stored JSON and wide-ID
+  diagnostics remain to be reviewed; this is not full edge-case completion.
+- All four public browser workflows pass on desktop/mobile against the production
+  Next build and actual Go/web-be APIs. Added required checkbox and whitespace
+  validation, zero-valued answers, cancellation/resubmission, and Go approval.
+  An initial combined run caught inconsistent reference fixtures interacting with
+  Next's cache; the fixture setup was fixed and all four tests rerun. Screenshots
+  were inspected. Evidence: `.artifacts/browser/2026-09-09T23-35-48-618Z/`.
+  The latest public club request-time rendering and success loading changes were
+  committed before this run. Workspace backend ports are restored.
+- Twelve original application checks passed on the new club baseline. Their
+  pre-existing opt-in skips are reported separately; the new source club tests
+  were explicitly enabled and executed. No frontend product files were changed.
+- Full current-source race tests passed 661 test cases with no failed or
+  skipped tests in `.artifacts/go-race-club-complete.jsonl`. All 12 recorded
+  storage objects were removed and checked absent. Final aggregate contracts,
+  architecture review and the image-backed admin PDF browser check remain incomplete.

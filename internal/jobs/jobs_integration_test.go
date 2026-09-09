@@ -76,7 +76,11 @@ func TestJobsDateBoundariesAndRepeatedExecution(t *testing.T) {
 						}
 					}
 					var output bytes.Buffer
-					runner := Runner{DB: tx, Location: location, Logger: slog.New(slog.NewJSONHandler(&output, nil))}
+					processLocation := location
+					if name == "clubs:close-registration" {
+						processLocation = time.UTC
+					} // Deadline is explicitly Jakarta even on a UTC host.
+					runner := Runner{DB: tx, Location: processLocation, Logger: slog.New(slog.NewJSONHandler(&output, nil))}
 					result, err := runner.Run(ctx, name, now)
 					if err != nil {
 						t.Fatal(err)

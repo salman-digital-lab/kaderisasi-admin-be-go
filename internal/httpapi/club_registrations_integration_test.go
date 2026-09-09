@@ -14,6 +14,7 @@ import (
 )
 
 func TestClubRegistrationRolesAndExport(t *testing.T) {
+	t.Setenv("TZ", "UTC")
 	f := newHTTPFixture(t)
 	ctx := context.Background()
 	users := []int32{}
@@ -56,10 +57,20 @@ func TestClubRegistrationRolesAndExport(t *testing.T) {
 	f.call("PUT", "/v2/club-registrations/bulk-update", map[string]interface{}{"registrations": []interface{}{map[string]interface{}{"id": reg.ID("id"), "status": "REJECTED"}, map[string]interface{}{"id": reg.ID("id"), "status": "APPROVED"}}}, f.token, 400)
 	f.call("PUT", "/v2/club-registrations/bulk-update", map[string]interface{}{"registrations": []interface{}{map[string]interface{}{"id": reg.ID("id"), "status": "REJECTED"}, map[string]interface{}{"id": 2147483647, "status": "APPROVED"}}}, f.token, 404)
 	after := objectData(t, f.call("GET", regPath, nil, f.token, 200))
+	var preserved map[string]interface{}
+	if err := json.Unmarshal(after["additional_data"], &preserved); err != nil {
+		t.Fatal(err)
+	}
+	if preserved["available"] != false || preserved["count"] != float64(0) {
+		t.Fatalf("review changed submitted answers: %v", preserved)
+	}
 	if after.String("status") != "APPROVED" {
 		t.Fatal("bulk missing ID changed other registrations")
 	}
 	f.call("PUT", "/v2/club-registrations/bulk-update", map[string]interface{}{"registrations": []interface{}{map[string]interface{}{"id": reg.ID("id"), "status": "REJECTED"}}}, f.token, 200)
+	if _, err := f.pool.Exec(ctx, "UPDATE club_registrations SET created_at='2026-02-28T17:00:00Z' WHERE id=$1", reg.ID("id")); err != nil {
+		t.Fatal(err)
+	}
 	r := httptest.NewRequest("GET", clubPath+"/registrations/export", nil)
 	r.Header.Set("Authorization", "Bearer "+f.token)
 	w := httptest.NewRecorder()
@@ -87,6 +98,26 @@ func TestClubRegistrationRolesAndExport(t *testing.T) {
 	}
 	if cells["Available"] != "Tidak" || cells["Count"] != "0" || cells["Old question"] != "A, B" {
 		t.Fatalf("export answer values %v", cells)
+	}
+	if cells["Tanggal Pendaftaran"] != "2026-03-01 00:00:00" {
+		t.Fatalf("export ignored Jakarta timezone: %v", cells)
+	}
+	if _, err := f.pool.Exec(ctx, "UPDATE club_registrations SET created_at=NULL WHERE id=$1", reg.ID("id")); err != nil {
+		t.Fatal(err)
+	}
+	legacy := httptest.NewRecorder()
+	f.handler.ServeHTTP(legacy, r.Clone(ctx))
+	if legacy.Code != 200 {
+		t.Fatalf("legacy date export: %d %s", legacy.Code, legacy.Body)
+	}
+	legacyBook, err := excelize.OpenReader(bytes.NewReader(legacy.Body.Bytes()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer legacyBook.Close()
+	date, err := legacyBook.GetCellValue("Registrations", "L2")
+	if err != nil || date != "" {
+		t.Fatalf("missing registration date: %q %v", date, err)
 	}
 	f.call("DELETE", fmt.Sprintf("/v2/club-registrations/member-roles/%d", secondary.ID("id")), nil, f.token, 200)
 	f.call("DELETE", regPath, nil, f.token, 200)

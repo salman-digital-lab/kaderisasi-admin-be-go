@@ -77,7 +77,7 @@ func (s Service) Create(ctx context.Context, data Input, canManage bool) (Create
 	if err != nil {
 		return Created{}, err
 	}
-	return Created{Input: data, ID: row.ID, Slug: row.Slug, CreatedAt: domain.Timestamp(row.CreatedAt, time.Local), UpdatedAt: domain.Timestamp(row.UpdatedAt, time.Local)}, nil
+	return Created{Input: data, ID: row.ID, Slug: row.Slug, CreatedAt: domain.ModelTimestamp(row.CreatedAt, time.Local), UpdatedAt: domain.ModelTimestamp(row.UpdatedAt, time.Local)}, nil
 }
 func sameTemplate(value *json.Number, current *int32) bool {
 	if value == nil || current == nil {

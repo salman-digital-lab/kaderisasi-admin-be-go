@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict';
 export async function clubMemberCases(h){
   await h.call('membership:club','POST','/v2/clubs',{name:'Membership fixture'});
   await h.call('membership:member','POST','/v2/members',{name:'Club member',email:'club-member@example.test'});
@@ -24,7 +25,13 @@ export async function clubMemberCases(h){
   await h.call('membership:bulk-empty','PUT','/v2/club-registrations/bulk-update',{registrations:[]});
   await h.call('membership:bulk-update','PUT','/v2/club-registrations/bulk-update',{registrations:[{id:2,status:'APPROVED',additional_data:{motivation:{value:'Help',label:'Helping'}}},{id:1,status:'REJECTED'}]});
   await h.call('membership:form','POST','/v2/custom-forms',{formName:'Member questions',isActive:true,featureType:'club_registration',featureId:1,formSchema:{fields:[{section_name:'Info',fields:[{key:'motivation',label:'Motivasi',required:true,type:'text'}]}]}});
-  await h.call('membership:export','GET','/v2/clubs/1/registrations/export');
+  await h.seed("UPDATE club_registrations SET created_at=CASE WHEN id=1 THEN NULL ELSE '2026-02-28T17:00:00Z'::timestamptz END,additional_data=additional_data||'{\"experience\":0,\"consent\":false}'::jsonb");
+  const exported=await h.call('membership:export','GET','/v2/clubs/1/registrations/export');
+  const sheet=exported.sheets[0],headers=sheet.rows[0];
+  assert.ok(sheet.rows.slice(1).some(row=>row[11]==='2026-03-01 00:00:00'),'registration dates use Jakarta independently of process TZ');
+  assert.ok(sheet.rows.slice(1).some(row=>row[11]===''),'missing legacy registration dates export as empty cells');
+  assert.equal(sheet.rows[1][headers.indexOf('Experience')],0);
+  assert.equal(sheet.rows[1][headers.indexOf('Consent')],'Tidak');
   await h.call('membership:approved-list','GET','/v2/clubs/1/members');
   await h.call('role:approved-list','GET','/v2/clubs/1/member-roles');
   await h.call('role:delete','DELETE','/v2/club-registrations/member-roles/2');

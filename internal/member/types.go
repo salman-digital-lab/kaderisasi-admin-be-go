@@ -62,7 +62,7 @@ func memberTime(value pgtype.Timestamptz) *string {
 	if !value.Valid {
 		return nil
 	}
-	text := value.Time.In(time.Local).Format("2006-01-02T15:04:05.000Z07:00")
+	text := value.Time.In(time.Local).Format("2006-01-02T15:04:05.000-07:00")
 	return &text
 }
 

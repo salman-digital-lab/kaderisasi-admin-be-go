@@ -22,7 +22,7 @@ for(const [kind,suffix] of [['adonis','baseline'],['go','candidate']]){
     }
     const steps=[];
     for(const job of jobs)for(const iteration of [1,2]){
-      const env=testEnvironment({NODE_ENV:'test',APP_KEY:fixtureKey,DB_SCHEMA:f.schema,PGOPTIONS:`-c search_path=${f.schema}`,TZ:'Asia/Jakarta',LOG_LEVEL:'info'});
+      const env=testEnvironment({NODE_ENV:'test',APP_KEY:fixtureKey,DB_SCHEMA:f.schema,PGOPTIONS:`-c search_path=${f.schema}`,TZ:job==='clubs:close-registration'?'UTC':'Asia/Jakarta',LOG_LEVEL:'info'});
       const result=kind==='adonis'?spawnSync('node',['ace',job],{cwd:legacy,env,encoding:'utf8',timeout:30000}):spawnSync(resolve(root,'.artifacts/admin-jobs'),[job],{cwd:root,env,encoding:'utf8',timeout:30000});
       writeFileSync(resolve(root,`.artifacts/job-${kind}-${job.replaceAll(':','-')}-${iteration}.log`),(result.stdout??'')+(result.stderr??''));
       assert.equal(result.status,0,`${kind} ${job} ${iteration} exited unsuccessfully`);
@@ -39,5 +39,5 @@ for(const [kind,suffix] of [['adonis','baseline'],['go','candidate']]){
   }finally{await f.db.end();}
 }
 assert.deepEqual(results.go,results.adonis,'Adonis and Go job effects');
-writeFileSync(resolve(root,'.artifacts/job-contracts.json'),JSON.stringify({status:'passed',timezone:'Asia/Jakarta',day:day.toISODate(),scenarios:6,results},null,2));
+writeFileSync(resolve(root,'.artifacts/job-contracts.json'),JSON.stringify({status:'passed',timezone:'Asia/Jakarta',club_deadline_process_timezone:'UTC',day:day.toISODate(),scenarios:6,results},null,2));
 console.log('All three job commands match Adonis, including repeated execution');

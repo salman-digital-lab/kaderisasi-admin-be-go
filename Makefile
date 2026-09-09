@@ -24,6 +24,7 @@ fixtures:
 
 test-integration: fixtures
 	node scripts/test-fixture-disconnect.mjs
+	node scripts/source-club-workflows.mjs
 	node scripts/test-go.mjs ./...
 
 test-contract: fixtures

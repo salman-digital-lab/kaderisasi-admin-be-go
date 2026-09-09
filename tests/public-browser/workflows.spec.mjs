@@ -3,8 +3,6 @@ import {test,expect,evidence,api} from '../browser/fixture.mjs';
 import {fixturePassword} from '../../scripts/fixture-db.mjs';
 
 test('public login, Go reference data, profile update, registration and certificate lifecycle',async({page,fixture,browser},testInfo)=>{
-  await api('POST','/provinces',{name:'Browser Province'});
-  await api('POST','/cities',{name:'Browser City',province_id:1});
   const member=await api('POST','/members',{name:'Public browser member',email:'public-browser@example.test',password:fixturePassword,gender:'F'});
   await api('POST','/activities',{name:'Public browser activity',activity_start:'2026-02-28',is_published:1,additional_config:{custom_selection_status:[],mandatory_profile_data:[],additional_questionnaire:[]}});
   await api('POST','/activities/1/registrations',{user_id:member.profile.id,questionnaire_answer:{}});

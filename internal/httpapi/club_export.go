@@ -3,6 +3,7 @@ package httpapi
 import (
 	"errors"
 	"github.com/jackc/pgx/v5"
+	"kaderisasi/admin/internal/domain"
 	"kaderisasi/admin/internal/export"
 	"net/http"
 	"strings"
@@ -45,15 +46,19 @@ func (s *Server) exportClubRegistrations(w http.ResponseWriter, r *http.Request)
 				level = label
 			}
 		}
-		created, err := time.Parse(time.RFC3339Nano, registration.String("created_at"))
-		if err != nil {
-			return err
+		registeredAt := ""
+		if !registration.Null("created_at") {
+			created, err := time.Parse(time.RFC3339Nano, registration.String("created_at"))
+			if err != nil {
+				return err
+			}
+			registeredAt = created.In(domain.Jakarta()).Format("2006-01-02 15:04:05")
 		}
 		var intake interface{} = ""
 		if p.ID("intake_year") != 0 {
 			intake = p.ID("intake_year")
 		}
-		row := []interface{}{i + 1, p.String("name"), m.String("email"), p.String("whatsapp"), p.String("personal_id"), registration.String("province"), registration.String("university"), p.String("major"), intake, level, registration.String("status"), created.In(s.Config.Location).Format("2006-01-02 15:04:05")}
+		row := []interface{}{i + 1, p.String("name"), m.String("email"), p.String("whatsapp"), p.String("personal_id"), registration.String("province"), registration.String("university"), p.String("major"), intake, level, registration.String("status"), registeredAt}
 		answers := nestedObject(registration, "additional_data")
 		for _, question := range questions {
 			row = append(row, export.ClubAnswer(answers[question.Key]))

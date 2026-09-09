@@ -10,7 +10,7 @@ This is an implementation ledger, not a completed architecture review.
 | Administrators | Create/update/password DTOs, response/identity/page DTOs, sqlc reads/writes | Final aggregate verification |
 | Access grants | Typed optional changes and ticket request/response types; separate ticket workflow service; generated locking/count/update queries | Final aggregate verification |
 | Members/profiles | Explicit member/profile request and response types; sqlc creation, account, filtering, relations and mutation queries; dedicated profile/credential services | Final aggregate verification and wider path identifier diagnostics |
-| Activities/registrations | Typed activity CRUD/list/detail, requests and response projections, club relations, template readiness and all image services; generated queries | Registration request/response/query adapters and final verification remain |
+| Activities/registrations | Typed activity and registration CRUD/list/detail/status requests, response projections, sorting/filters, transaction services, template readiness, image services and Excel records; generated queries | 92 export/workflow comparisons and affected race tests pass; malformed stored JSON, identifier diagnostics and final verification remain |
 | Clubs/forms/roles | Dedicated form/club services, transaction protection | Generic request, response and JSON query adapters remain |
 | Counseling/achievements/leaderboards | Business workflows and real database comparisons | Generic request, response and JSON query adapters remain |
 | Certificates | Typed issuance/snapshot responses, generated locking/issuance queries | Template/list/preparation JSON adapters and request DTOs |

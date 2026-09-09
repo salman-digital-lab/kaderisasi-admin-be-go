@@ -66,7 +66,7 @@ export async function startAdminFrontend(environment) {
 export async function startServer(kind,schema,label=kind,options={}) {
   if(listeners(3334).length)throw new Error('Port 3334 must be free before sequential comparison');
   const logPath=resolve(root,`.artifacts/${label}-server.log`),fd=openSync(logPath,'w',0o600);
-  const env=testEnvironment({NODE_ENV:'test',TZ:'Asia/Jakarta',PORT:'3334',HOST:'127.0.0.1',APP_KEY:fixtureKey,DB_SCHEMA:schema,PGOPTIONS:`-c search_path=${schema}`,GOOGLE_CLIENT_ID:'synthetic-client',ADMIN_CORS_ORIGINS:'http://localhost:3005',LOG_LEVEL:'error'});
+  const env=testEnvironment({NODE_ENV:'test',TZ:options.timezone??'Asia/Jakarta',PORT:'3334',HOST:'127.0.0.1',APP_KEY:fixtureKey,DB_SCHEMA:schema,PGOPTIONS:`-c search_path=${schema}`,GOOGLE_CLIENT_ID:'synthetic-client',ADMIN_CORS_ORIGINS:'http://localhost:3005',LOG_LEVEL:'error'});
   if(options.journal)env.GO_REWRITE_STORAGE_LEDGER=options.journal;
   if(options.googleKeys)env.GO_REWRITE_GOOGLE_KEYS_URL=options.googleKeys;
   if(options.origins)env.ADMIN_CORS_ORIGINS=options.origins;

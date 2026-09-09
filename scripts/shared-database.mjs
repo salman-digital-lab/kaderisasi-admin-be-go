@@ -2,7 +2,10 @@ import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
-import {root} from './env.mjs';
+import {root,workspace,legacy} from './env.mjs';
+import {sharedClubChecks} from './shared-clubs.mjs';
+import {sourceEvidence} from './source-evidence.mjs';
+import {execFileSync} from 'node:child_process';
 import {fixtureDatabase,resetFixture,legacyRequire,fixtureKey,fixturePassword} from './fixture-db.mjs';
 import {acquireFixtureLease} from './fixture-lease.mjs';
 import {borrowWorkspacePort,startServer,startWebBackend} from './server-process.mjs';
@@ -12,12 +15,13 @@ const fixture=await fixtureDatabase('cross');
 const checks=[],restorations=[];
 let go,web;
 const adminToken=legacyRequire('jsonwebtoken').sign({userId:1,email:'super@example.test'},fixtureKey,{expiresIn:'15m'});
-async function call(backend,label,method,path,body,{token,status=200}={}){
+async function call(backend,label,method,path,body,{token,status=200,message}={}){
   const headers={'Content-Type':'application/json',Accept:'application/json'};
   if(backend==='go')headers.Authorization=`Bearer ${adminToken}`;
   if(token)headers.Authorization=`Bearer ${token}`;
   const response=await fetch(`http://127.0.0.1:${backend==='go'?3334:3333}/v2${path}`,{method,headers,body:body===undefined?undefined:JSON.stringify(body),signal:AbortSignal.timeout(15000)});
   const data=await response.json();assert.equal(response.status,status,`${label}: ${JSON.stringify(data)}`);
+  if(message)assert.equal(data.message,message,`${label}: message`);
   checks.push({backend,label,method,path,status});return data.data;
 }
 try{
@@ -66,7 +70,9 @@ try{
   const revoked=await call('web','Public verification reflects Go revocation','GET',`/certificates/verify/${code}`);
   assert.equal(revoked.valid,false);assert.equal(revoked.state,'issued_revoked');
   await call('web','Reject download after Go revocation','GET',`/certificates/code/${code}/download`,undefined,{token,status:410});
-  writeFileSync(resolve(root,'.artifacts/shared-database.json'),JSON.stringify({status:'passed',schema:fixture.schema,checks},null,2));
+  await sharedClubChecks({call,db:fixture.db,token,otherToken:other.token.token});
+  const revisions=Object.fromEntries([['admin-be',legacy],['web-be',resolve(workspace,'kaderisasi-web-be')]].map(([name,cwd])=>[name,execFileSync('git',['rev-parse','HEAD'],{cwd,encoding:'utf8'}).trim()]));
+  writeFileSync(resolve(root,'.artifacts/shared-database.json'),JSON.stringify({status:'passed',source:sourceEvidence(),revisions,schema:fixture.schema,checks},null,2));
   console.log(`Shared database: ${checks.length} checks passed against real Go and web-be APIs`);
 }finally{
   const failures=[];

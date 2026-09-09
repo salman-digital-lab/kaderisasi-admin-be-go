@@ -1,7 +1,18 @@
 {
   "original_revision": "9e5a57182d123736e271adcb9417126a00981f2c",
   "original_route_count": 138,
-  "revision": "d1cc1b146ea0c2b0458292f0a0f6b0ac718b1b35",
+  "revision": "dd8d0ff409c34eaaebb8c2e3ec8a046efbf11356",
   "route_count": 139,
-  "reason": "Adopted the new certificate JSON lookup endpoint and array-query parsing fix committed independently during the rewrite. No database schema changes."
+  "reason": "Adopted new club Excel export null-date handling and explicit Asia/Jakarta export/deadline timezone. Route, validator and schema counts unchanged.",
+  "history": [
+    {
+      "revision": "d1cc1b146ea0c2b0458292f0a0f6b0ac718b1b35",
+      "reason": "Adopted the new certificate JSON lookup endpoint and array-query parsing fix committed independently during the rewrite. No database schema changes."
+    }
+  ],
+  "related_revisions": {
+    "web-be": "d3663039e812075bba4595b1c432b684b996f6ae",
+    "web-fe": "9144a84513e55e90a363de9e3aef2ebd787afe4c",
+    "admin-fe": "a044e1bf23fa839bc13c5194551ceebd32732ce6"
+  }
 }

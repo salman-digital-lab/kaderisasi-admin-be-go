@@ -29,6 +29,8 @@ import { acquireFixtureLease } from './fixture-lease.mjs';
 
 acquireFixtureLease();
 
+const timezone=process.argv.find(arg=>arg.startsWith('--timezone='))?.slice('--timezone='.length)??'Asia/Jakarta';
+assert.ok(['UTC','Asia/Jakarta','America/Los_Angeles'].includes(timezone),'unsupported contract timezone');
 const group=process.argv.find(arg=>arg.startsWith('--group='))?.split('=')[1]??'reference';
 if(!contractGroups.includes(group))throw new Error('Unknown contract group');
 const routes=JSON.parse(readFileSync(resolve(root,'internal/httpapi/routes.json'),'utf8'));
@@ -54,7 +56,7 @@ try {
     try {
       const tables=await resetFixture(db,schema,passwordHash);
       if(['activities','clubs','templates','images','route-edges','query-edges'].includes(group)) {journal=resolve(root,`.artifacts/storage-contract-${group}-${kind}.json`);writeFileSync(journal,'[]',{flag:'wx',mode:0o600});}
-      server=await startServer(kind,schema,`${kind}-${group}`,{journal,googleKeys:keys?.url,productionContract:['images','query-edges','protocol'].includes(group)});
+      server=await startServer(kind,schema,`${kind}-${group}`,{journal,timezone,googleKeys:keys?.url,productionContract:['images','query-edges','protocol'].includes(group)});
       const responses=[];
       const normalizer=new ContractNormalizer(started);
       const verifiedHashes=new Set([passwordHash]);
@@ -133,7 +135,7 @@ for(let i=0;i<results.adonis.length;i++) {
   const baseline=results.adonis[i],candidate=results.go[i];
   if(!isDeepStrictEqual(baseline,candidate))differences.push({name:baseline.name,baseline,candidate});
 }
-const report={group,source,adonis_revision:adonisRevision,environment:['images','query-edges','protocol'].includes(group)?'production':'test',scenarios:results.adonis.length,passed:results.adonis.length-differences.length,failed:differences.length,differences};
+const report={group,source,timezone,adonis_revision:adonisRevision,environment:['images','query-edges','protocol'].includes(group)?'production':'test',scenarios:results.adonis.length,passed:results.adonis.length-differences.length,failed:differences.length,differences};
 writeFileSync(resolve(artifacts,`${group}-report.json`),JSON.stringify(report,null,2),{mode:0o600});
 console.log(`${group}: ${report.passed}/${report.scenarios} equivalent; ${report.failed} differences`);
 if(differences.length){console.log(differences.map(row=>row.name).join('\n'));process.exitCode=1;}
