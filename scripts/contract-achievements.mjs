@@ -1,0 +1,32 @@
+export async function achievementCases(h){
+  await h.call('counseling:member','POST','/v2/members',{name:'Achievement member',gender:'F',email:'achievement@example.test'});
+  await h.seed("INSERT INTO ruang_curhats(user_id,counselor_id,problem_description,created_at,updated_at) VALUES(1,1,'Synthetic counseling','2024-01-01','2024-01-01')");
+  await h.call('counseling:list','GET','/v2/ruang-curhat');
+  await h.call('counseling:filtered','GET','/v2/ruang-curhat?name=Achievement&gender=F&status=0&admin_display_name=Super');
+  await h.call('counseling:show','GET','/v2/ruang-curhat/1');
+  await h.call('counseling:update','PUT','/v2/ruang-curhat/1',{counselor_id:2,status:1,additional_notes:'Synthetic notes'});
+  await h.call('counseling:invalid','PUT','/v2/ruang-curhat/1',{status:'wrong'});
+  await h.call('counseling:missing','GET','/v2/ruang-curhat/999999');
+  await h.seed("INSERT INTO achievements(user_id,name,type,score,achievement_date,created_at,updated_at) VALUES(1,'Synthetic award',2,10,'2026-02-28','2024-01-01','2024-01-01'),(1,'Other award',0,5,'2025-12-31','2024-01-02','2024-01-02')");
+  await h.call('achievement:list','GET','/v2/achievements');
+  await h.call('achievement:filtered','GET','/v2/achievements?name=Achievement&type=2&status=0&email=achievement@example.test&sort_by=achievement_date&sort_order=asc');
+  await h.call('achievement:show','GET','/v2/achievements/1');
+  await h.call('achievement:update','PUT','/v2/achievements/1',{description:'Synthetic description',score:15});
+  await h.call('achievement:invalid','PUT','/v2/achievements/1',{score:-1,type:1.5});
+  await h.call('achievement:missing-status','PUT','/v2/achievements/1/approve-reject',{score:20});
+  await h.call('achievement:approve','PUT','/v2/achievements/1/approve-reject',{status:1,score:20});
+  await h.call('achievement:show-approved','GET','/v2/achievements/1');
+  await h.call('achievement:repeat-approve','PUT','/v2/achievements/1/approve-reject',{status:1,score:20});
+  await h.call('achievement:reject','PUT','/v2/achievements/1/approve-reject',{status:2,remark:'Synthetic rejection'});
+  await h.call('achievement:approve-update','PUT','/v2/achievements/2',{status:1});
+  await h.call('achievement:list-reviewed','GET','/v2/achievements');
+  await h.call('leaderboard:monthly','GET','/v2/leaderboards/monthly');
+  await h.call('leaderboard:monthly-filter','GET','/v2/leaderboards/monthly?month=2&year=2026&name=Achievement&email=achievement');
+  await h.call('leaderboard:year','GET','/v2/leaderboards/monthly?year=2026');
+  await h.call('leaderboard:empty-month','GET','/v2/leaderboards/monthly?month=1&year=2026');
+  await h.call('leaderboard:lifetime','GET','/v2/leaderboards/lifetime?name=Achievement');
+  await h.call('achievement:export','GET','/v2/achievements/export');
+  await h.call('achievement:missing','GET','/v2/achievements/999999');
+  await h.call('achievement:missing-update','PUT','/v2/achievements/999999',{name:'Missing'});
+  await h.call('achievement:missing-review','PUT','/v2/achievements/999999/approve-reject',{status:1});
+}

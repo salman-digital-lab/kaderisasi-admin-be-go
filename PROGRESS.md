@@ -1,0 +1,230 @@
+# Go rewrite progress
+
+Status: in progress. This file is not a completion report.
+
+## Agreed scope
+
+Separate Go API and job binaries; Adonis retains migrations and seeders. Preserve
+the existing API and shared schema. Use only isolated schemas and owned objects
+in the configured test environment. No production deployment.
+
+## Baseline
+
+Adonis revision: `9e5a57182d123736e271adcb9417126a00981f2c`.
+138 route declarations, 22 controllers, 16 services, 23 models, 34 migrations.
+The source advanced independently to `d1cc1b146ea0c2b0458292f0a0f6b0ac718b1b35`
+during implementation. Its added certificate lookup endpoint and array-query fix
+are now included: 139 routes and 54 schemas (48 file exports and six inline).
+The adopted revision is recorded in `docs/BASELINE.json`; regeneration checks it.
+
+## Phase ledger
+
+- A — inventory and baseline checks: captured the original 138 routes and 16 roles;
+  expanded to the adopted baseline above. All original eight checks passed.
+- B — Go foundation, authentication, images, isolated fixture harness: core gates
+  passed, including signed Google tokens with controlled key responses and live
+  Adonis/Go password, access-token, and refresh-cookie transfer in both directions.
+- C — all listed business modules are implemented: reference data, dashboard,
+  administrators/access requests, members/profiles, activities/registrations,
+  clubs/membership/roles, custom forms, counseling, achievements/leaderboards.
+  Their Go HTTP/database workflow tests and all module differential comparisons pass.
+- D — all certificate handlers and the three separate scheduled jobs are implemented.
+  Template lifecycle, real asset duplication, copy-failure rollback, issuance races,
+  immutable snapshots, revocation, preparation, and 1,000-recipient bulk issuance
+  pass. Template changes pause bulk work without losing progress; resume passes.
+  Job calendar-boundary, idempotence, cancellation, and failure tests pass.
+- E — complete contracts, integration, browser verification, cleanup: pending.
+
+## Completion rule
+
+All inventoried endpoints and jobs must be implemented and their required checks
+must pass. Missing tests and externally blocked checks remain incomplete.
+
+## Next action
+
+Complete invalid-input/missing-resource applicability review, numeric identifier
+boundaries, explicit DTO/query design, file edge cases, native packaging, and final
+aggregate verification. Real image-backed admin PDF testing is waiting for approval
+to temporarily add local frontend CORS origins to the shared test bucket; it currently
+has no CORS rules. The proposed rule and guarded restoration script are reviewable.
+No bucket setting has been changed. All three owned schemas remain live.
+
+## Current continuation
+
+- Added image boundary comparisons: 38/38 pass in production HTTP mode, using
+  the real test bucket and isolated schemas. Orientation, unsupported GIFs,
+  truncated JPEGs, pixel caps, individual file limits and total multipart limits
+  are covered on all five upload routes. Both runs' five objects were deleted
+  and checked absent. Framework debug stacks are absent in production mode.
+- Added 157 route-edge comparisons for missing path resources and invalid bodies;
+  all pass. Fixed custom-form and club validation error envelopes, record validation
+  rule naming, JSON values submitted as files, and combined image-field errors.
+  Export missing-resource diagnostics retain the error identity and actual Go
+  stack; the comparator validates stack shape and the export call site before
+  normalizing source paths, line numbers and runtime frames.
+- Certificate wide-identifier cases expanded issuance comparisons to 74/74.
+  The full race run after those fixes and the image fixes passed 390 tests with
+  no failed or skipped tests (`.artifacts/go-race-current.jsonl`).
+- Reference data, dashboard and administrators now use explicit request/response
+  types and generated sqlc queries. The access-change service also uses typed
+  updates and preserves its advisory lock and last-active-Super-Admin rule.
+  Reference 54/54 and administrator/access-request 34/34 comparisons pass.
+  Their affected race-enabled workflow and concurrency tests pass (7.734 seconds).
+- Other business modules still contain generic JSON query/DTO code; the requested
+  typed design is not complete. Its completion review remains pending.
+- LOG_LEVEL now controls structured logging. Omitted, null and false PATCH values
+  have a typed representation that preserves all three states.
+- Cleanup now retains Go test storage journals until HeadObject verifies absence.
+  Schema creation records intended names before atomically creating the schema
+  and its ownership marker. Cleanup archives schema-removal evidence and can
+  restore only a previously recorded, approved temporary CORS change.
+- Pagination boundaries initially exposed 67 differences, then passed 98/98 after
+  fixes. Added pagination unit assertions and expanded real Vine fixtures from 318
+  to 486, all passing. The all-group rerun includes ten further query cases for
+  unattached forms and certificate recipients and is still running.
+- Typed-design progress and remaining adapters are recorded in `docs/TYPE_DESIGN.md`.
+- The 16-group run reached 966/967 passing comparisons. The one new failure was
+  the missing SQL diagnostic prefix for negative limits on unattached forms;
+  that fix passed the affected group at 108/108. Current group reports therefore
+  contain 967 passing scenarios. No required browser check has been waived.
+- Access-request creation, cancellation and review now live in a separate typed
+  service using sqlc queries. Their 34 comparisons and race-enabled permission/
+  transaction checks pass (6.195 seconds). Login and Google use explicit DTOs;
+  the login/session group reran at 28/28. Member creation/account generation also
+  use typed requests, responses and queries; all 24 member comparisons pass.
+- The fresh complete race run (`.artifacts/go-race-typed.jsonl`) failed four
+  storage-dependent tests because system DNS cannot resolve `nos.wjv-1.neo.id`.
+  Required cleanup verification also failed; the ownership journals are retained.
+  This is an external blocker, not a passing run. Public DNS resolves the host,
+  but no system DNS configuration or bucket settings have been changed. DNS later
+  recovered; all four retained journals were cleaned and each key checked absent.
+- Profile reads now use explicit response types and generated filtered/relation
+  queries. All 29 member/profile comparisons pass, including legacy JSON and
+  nullable users. The latest native package build and smoke check pass.
+  Profile updates, regional assignments and credential edits now also use explicit
+  DTOs and generated queries; all 44 comparisons pass, including empty/null values,
+  dates, arrays, legacy JSON merges and unchanged-value timestamp preservation.
+
+## Verified foundation
+
+- Go 1.26.8, sqlc 1.31.1, govips/libvips installed; dependencies pinned in go.mod/go.sum.
+- Ace migrated 25 tables into each of three isolated schemas. Ownership is recorded
+  in `.artifacts/schemas.json`; these schemas are still in use and must be cleaned
+  at the end. Never drop shared public tables.
+- Bidirectional Adonis/Go password, JWT, and signed-cookie tests passed.
+- Real PostgreSQL session lifecycle, replay detection, concurrent refresh, logout,
+  and inactive-account tests passed with the race detector.
+- Real S3 upload/read/copy/delete and image preset tests passed; owned test files
+  were removed by test cleanup.
+- HTTP login, refresh, protected reads, stale-cookie isolation, and image upload
+  with a verified database effect passed.
+- 318 validation fixtures generated from the actual Vine validators pass in Go,
+  including all six inline certificate schemas and the newly added lookup schema.
+- Reference CRUD, dashboard/permission catalog, administrator lifecycle, and
+  access-request approve/reject/cancel workflows pass against isolated PostgreSQL.
+- Member creation, duplicate protection, account generation, password reset,
+  profile filtering/merging, and regional assignments pass with the race detector.
+- Activity slug collisions, date fields, configuration merging, image order,
+  member/guest registration reads, status changes, level/badge updates, and Excel
+  content checks pass with the race detector. Additional image boundary and failure scenarios remain to be reviewed.
+- Club logo replacement, image upload/delete, YouTube deduplication, form open-state
+  protection, concurrent attachment, member approval, primary roles, bulk-update
+  rollback, and Excel answers pass. Recorded storage objects were cleaned.
+- Counseling updates, achievement approval/rejection attribution, monthly/lifetime
+  score effects, filtering, and achievement export values pass.
+- The combined `node scripts/test-go.mjs ./...` race-enabled run passed after Phase C.
+- `go vet ./...` passed after template handlers were added.
+- Direct sequential comparisons now run on port 3334. The harness suspends only
+  the recognized tmux workspace API and restores it afterward, including recreating
+  its pane if the original launcher exits on Ctrl-C. Working env files are unchanged.
+- `.artifacts/contracts/`: reference 54/54, authorization 243/243, auth 28/28,
+  administrators/access requests 34/34, members 24/24, activities 23/23,
+  registrations 21/21, clubs/forms 46/46, and club membership/roles 33/33
+  achievements/counseling/leaderboards 28/28, templates 38/38, issuance 50/50,
+  and signed Google login 18/18 scenarios match Adonis, including
+  database effects for mutations. All 139 routes have a successful differential case.
+- `.artifacts/session-transfer.json`: 12 live password/session-transfer checks pass
+  across both API implementations using the same owned cross-backend schema.
+- Last-Super-Admin concurrent self-demotion passes with one success and one conflict;
+  the database retains exactly one active Super Admin.
+- Validation fixtures now compare full metadata and error order as well as values.
+- A process lease prevents integration and comparison commands from clearing the
+  same fixture schema concurrently. Resets are limited to recorded, ownership-marked
+  schemas; there is no fallback to shared public tables.
+
+## Compatibility decisions
+
+Adonis allows overlapping parameter paths that net/http.ServeMux rejects.
+The Go HTTP adapter therefore uses an ordered static-segment-first dispatcher
+while preserving the inventory's methods, paths, and middleware requirements.
+
+## Coverage limits
+
+All 139 adopted routes have registered Go handlers. This is implementation coverage,
+not proof of compatibility. The aggregate completion gate must reject missing
+handlers, unexecuted required scenarios, test skips, and unfinished cleanup.
+
+- Real storage contract runs now instrument the actual Adonis AWS SDK and Go
+  adapter before every write or copy. Recorded objects are deleted and checked
+  absent after each backend run, including failures. Club/form and activity
+  comparisons also check WebP dimensions, content types, and MinIO public ACLs.
+
+- Full race-enabled Go integration run passed again after all module contract fixes.
+  HTTP workflows took 152.961 seconds; authentication, certificate, image/storage,
+  jobs, form, export, and validation packages also passed. See
+  `.artifacts/go-race-full.log`.
+- Google differential checks use real cryptographic validators and a loopback
+  key-response server. The Go transport fixture is compiled only with the
+  integration build tag; the production executable has no key override option.
+
+## Latest verification evidence
+
+- All 13 differential groups reran successfully together: 640/640 scenarios.
+  See `.artifacts/contracts-all.log` and generated `docs/COMPATIBILITY.md`.
+- Admin browser login, access review, members, activity/club registration, custom-form
+  attachment, and Excel downloads pass at desktop and mobile sizes. Certificate
+  upload/publication/issuance work; real image-backed PDF download fails because the
+  shared test bucket has no CORS policy. No browser bypass or storage mock is used.
+- Public browser end-to-end passes on desktop and mobile against a production Next
+  build and real Go/web-be APIs, including references, profile updates, registrations,
+  owner PDF download, public verification, and revocation. Successful evidence:
+  use per-run `report.json` files under `.artifacts/browser/` for preserved evidence.
+- `.artifacts/shared-database.json`: 27 real cross-backend checks pass.
+- `.artifacts/job-contracts.json`: all three job commands match Adonis and remain
+  idempotent; six direct command scenarios pass.
+- Admin FE lint and public FE lint/types/unit checks pass (`.artifacts/frontend-baseline`).
+- `.artifacts/performance.json`: two rounds with reversed backend order, four concurrent
+  requests, compiled applications, 220 measured requests plus 20 warmups per round.
+  Go RSS: 37–38 MiB; Adonis: 189–190 MiB. Member medians: Go 30–31 ms, Adonis 57–61 ms;
+  dashboard: Go 19–20 ms, Adonis 40–42 ms. Reference requests approximately 8–9 ms.
+  Results are bounded observations on this host and remote test database.
+- Workspace `--admin-go` option added; default remains Adonis. Shell syntax/help pass.
+- Runnable Make targets and an aggregate verifier were added. The verifier refuses
+  success while explicit completion reviews remain pending and cleans recorded
+  fixture resources even when a required suite fails.
+
+## Request parsing continuation
+
+- Added production HTTP protocol comparisons. The first run exposed 37 differences
+  across 44 cases; all 44 pass after moving parsing before named middleware and
+  matching JSON/form/content-type behavior, query precedence, compression errors,
+  size limits and bodyless commands.
+- Added 60 fixtures from the installed qs parser and 29 Node JSON syntax diagnostics.
+  All pass after correcting nested-form merging and diagnostic positions/messages.
+- The full race run in `.artifacts/go-race-protocol.jsonl` passed 648 test cases
+  and failed eight workflows because the test helper sent JSON null for no-body
+  requests. No tests were skipped. After correcting the helper, all eight affected
+  workflows passed in `.artifacts/go-race-empty-body-fix.jsonl` and
+  `.artifacts/go-race-empty-body-remaining.jsonl`; recorded storage cleanup passed.
+  Explicit JSON-null rejection remains covered by the production comparisons.
+
+- Activity list/detail responses and filters now use typed responses/sqlc queries.
+  Four new club-relation cases exposed and fixed JSONB relation decoding. The
+  expanded 27 activity comparisons, 44 protocol cases and 38 real upload cases pass
+  together (`.artifacts/contracts-parser-activities.log`), with cleanup verified.
+- Image reorder/delete now have typed requests and a separate transaction service
+  using generated queries. Their affected workflow is the next check. Activity
+  creation/update and other remaining adapters are still tracked as incomplete.
+- Formatting, vet, compilation, dependency integrity and query generation passed
+  after the parser changes (`.artifacts/check-protocol.log`). Native packaging and
+  startup validation passed again (`.artifacts/package-protocol.log`).

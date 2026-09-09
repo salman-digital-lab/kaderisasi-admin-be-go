@@ -1,0 +1,7 @@
+.env*
+!.env.example
+.artifacts/
+.tools/
+bin/
+node_modules/
+coverage.out

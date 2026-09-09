@@ -1,0 +1,5320 @@
+{
+  "updateAchievementValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "name": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "description": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "type": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "score": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "positive",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "proof": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "status": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "remark": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "activityValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "name": {
+          "kind": "string",
+          "args": [],
+          "chain": []
+        },
+        "description": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "activity_start": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "activity_end": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "registration_start": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "registration_end": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "selection_start": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "selection_end": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "minimum_level": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "positive",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "activity_type": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "positive",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "certificate_template_id": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "positive",
+              "args": []
+            },
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "club_id": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "positive",
+              "args": []
+            },
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "additional_config": {
+          "kind": "object",
+          "args": [
+            {
+              "custom_selection_status": {
+                "kind": "array",
+                "args": [
+                  {
+                    "kind": "string",
+                    "args": [],
+                    "chain": []
+                  }
+                ],
+                "chain": []
+              },
+              "mandatory_profile_data": {
+                "kind": "array",
+                "args": [
+                  {
+                    "kind": "object",
+                    "args": [
+                      {
+                        "name": {
+                          "kind": "string",
+                          "args": [],
+                          "chain": []
+                        },
+                        "required": {
+                          "kind": "boolean",
+                          "args": [],
+                          "chain": []
+                        }
+                      }
+                    ],
+                    "chain": []
+                  }
+                ],
+                "chain": []
+              },
+              "additional_questionnaire": {
+                "kind": "array",
+                "args": [
+                  {
+                    "kind": "any",
+                    "args": [],
+                    "chain": []
+                  }
+                ],
+                "chain": []
+              },
+              "status_visibility": {
+                "kind": "object",
+                "args": [
+                  {
+                    "is_visible": {
+                      "kind": "boolean",
+                      "args": [],
+                      "chain": []
+                    },
+                    "visible_at": {
+                      "kind": "string",
+                      "args": [],
+                      "chain": [
+                        {
+                          "method": "optional",
+                          "args": []
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "chain": [
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
+              },
+              "certificate_template_id": {
+                "kind": "number",
+                "args": [],
+                "chain": [
+                  {
+                    "method": "withoutDecimals",
+                    "args": []
+                  },
+                  {
+                    "method": "positive",
+                    "args": []
+                  },
+                  {
+                    "method": "nullable",
+                    "args": []
+                  },
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
+              },
+              "allow_guest_registration": {
+                "kind": "boolean",
+                "args": [],
+                "chain": [
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
+              }
+            }
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "is_published": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "is_registration_open": {
+          "kind": "boolean",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "activity_category": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "positive",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "badge": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "updateActivityValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "name": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "description": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "activity_start": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "activity_end": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "registration_start": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "registration_end": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "selection_start": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "selection_end": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "minimum_level": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "positive",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "activity_type": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "positive",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "certificate_template_id": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "positive",
+              "args": []
+            },
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "club_id": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "positive",
+              "args": []
+            },
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "additional_config": {
+          "kind": "object",
+          "args": [
+            {
+              "custom_selection_status": {
+                "kind": "array",
+                "args": [
+                  {
+                    "kind": "string",
+                    "args": [],
+                    "chain": []
+                  }
+                ],
+                "chain": []
+              },
+              "mandatory_profile_data": {
+                "kind": "array",
+                "args": [
+                  {
+                    "kind": "object",
+                    "args": [
+                      {
+                        "name": {
+                          "kind": "string",
+                          "args": [],
+                          "chain": []
+                        },
+                        "required": {
+                          "kind": "boolean",
+                          "args": [],
+                          "chain": []
+                        }
+                      }
+                    ],
+                    "chain": []
+                  }
+                ],
+                "chain": []
+              },
+              "additional_questionnaire": {
+                "kind": "array",
+                "args": [
+                  {
+                    "kind": "any",
+                    "args": [],
+                    "chain": []
+                  }
+                ],
+                "chain": []
+              },
+              "status_visibility": {
+                "kind": "object",
+                "args": [
+                  {
+                    "is_visible": {
+                      "kind": "boolean",
+                      "args": [],
+                      "chain": []
+                    },
+                    "visible_at": {
+                      "kind": "string",
+                      "args": [],
+                      "chain": [
+                        {
+                          "method": "optional",
+                          "args": []
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "chain": [
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
+              },
+              "certificate_template_id": {
+                "kind": "number",
+                "args": [],
+                "chain": [
+                  {
+                    "method": "withoutDecimals",
+                    "args": []
+                  },
+                  {
+                    "method": "positive",
+                    "args": []
+                  },
+                  {
+                    "method": "nullable",
+                    "args": []
+                  },
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
+              },
+              "allow_guest_registration": {
+                "kind": "boolean",
+                "args": [],
+                "chain": [
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
+              }
+            }
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "is_published": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "is_registration_open": {
+          "kind": "boolean",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "activity_category": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "positive",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "badge": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "imageValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "file": {
+          "kind": "file",
+          "args": [
+            {
+              "size": "1mb",
+              "extnames": [
+                "jpg",
+                "png",
+                "jpeg",
+                "webp"
+              ]
+            }
+          ],
+          "chain": []
+        }
+      }
+    ],
+    "chain": []
+  },
+  "deleteActivityImageValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "image": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "minLength",
+              "args": [
+                1
+              ]
+            },
+            {
+              "method": "maxLength",
+              "args": [
+                1024
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "reorderActivityImagesValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "images": {
+          "kind": "array",
+          "args": [
+            {
+              "kind": "string",
+              "args": [],
+              "chain": [
+                {
+                  "method": "trim",
+                  "args": []
+                },
+                {
+                  "method": "minLength",
+                  "args": [
+                    1
+                  ]
+                },
+                {
+                  "method": "maxLength",
+                  "args": [
+                    1024
+                  ]
+                }
+              ]
+            }
+          ],
+          "chain": [
+            {
+              "method": "maxLength",
+              "args": [
+                8
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "storeActivityRegistration": {
+    "kind": "object",
+    "args": [
+      {
+        "user_id": {
+          "kind": "number",
+          "args": [],
+          "chain": []
+        },
+        "questionnaire_answer": {
+          "kind": "record",
+          "args": [
+            {
+              "kind": "any",
+              "args": [],
+              "chain": []
+            }
+          ],
+          "chain": []
+        }
+      }
+    ],
+    "chain": []
+  },
+  "updateActivityRegistrations": {
+    "kind": "object",
+    "args": [
+      {
+        "status": {
+          "kind": "string",
+          "args": [],
+          "chain": []
+        },
+        "registrations_id": {
+          "kind": "array",
+          "args": [
+            {
+              "kind": "number",
+              "args": [],
+              "chain": []
+            }
+          ],
+          "chain": []
+        }
+      }
+    ],
+    "chain": []
+  },
+  "bulkUpdateActivityRegistrations": {
+    "kind": "object",
+    "args": [
+      {
+        "name": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "current_status": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "new_status": {
+          "kind": "string",
+          "args": [],
+          "chain": []
+        }
+      }
+    ],
+    "chain": []
+  },
+  "updateActivityRegistrationsByEmail": {
+    "kind": "object",
+    "args": [
+      {
+        "emails": {
+          "kind": "array",
+          "args": [
+            {
+              "kind": "string",
+              "args": [],
+              "chain": [
+                {
+                  "method": "email",
+                  "args": []
+                }
+              ]
+            }
+          ],
+          "chain": []
+        },
+        "status": {
+          "kind": "string",
+          "args": [],
+          "chain": []
+        }
+      }
+    ],
+    "chain": []
+  },
+  "registerValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "displayName": {
+          "kind": "string",
+          "args": [],
+          "chain": []
+        },
+        "email": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "email",
+              "args": []
+            }
+          ]
+        },
+        "password": {
+          "kind": "string",
+          "args": [],
+          "chain": []
+        },
+        "role_code": {
+          "kind": "enum",
+          "args": [
+            [
+              "super_admin",
+              "admin",
+              "asmen",
+              "kapro",
+              "konselor",
+              "leaderboard",
+              "operations_admin",
+              "member_manager",
+              "activity_manager",
+              "club_manager",
+              "certificate_manager",
+              "achievement_reviewer",
+              "counselor",
+              "reference_data_manager",
+              "form_manager",
+              "access_reviewer"
+            ]
+          ],
+          "chain": [
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "loginValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "email": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "email",
+              "args": []
+            }
+          ]
+        },
+        "password": {
+          "kind": "string",
+          "args": [],
+          "chain": []
+        }
+      }
+    ],
+    "chain": []
+  },
+  "googleLoginValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "credential": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "minLength",
+              "args": [
+                20
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "editPublicUserValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "email": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "email",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "password": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "editPasswordValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "password": {
+          "kind": "string",
+          "args": [],
+          "chain": []
+        }
+      }
+    ],
+    "chain": []
+  },
+  "editAdminUser": {
+    "kind": "object",
+    "args": [
+      {
+        "role_code": {
+          "kind": "enum",
+          "args": [
+            [
+              "super_admin",
+              "admin",
+              "asmen",
+              "kapro",
+              "konselor",
+              "leaderboard",
+              "operations_admin",
+              "member_manager",
+              "activity_manager",
+              "club_manager",
+              "certificate_manager",
+              "achievement_reviewer",
+              "counselor",
+              "reference_data_manager",
+              "form_manager",
+              "access_reviewer"
+            ]
+          ],
+          "chain": [
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "isActive": {
+          "kind": "boolean",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "certificateTemplateValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "name": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "minLength",
+              "args": [
+                1
+              ]
+            },
+            {
+              "method": "maxLength",
+              "args": [
+                255
+              ]
+            }
+          ]
+        },
+        "description": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "templateData": {
+          "kind": "object",
+          "args": [
+            {
+              "backgroundUrl": {
+                "kind": "string",
+                "args": [],
+                "chain": [
+                  {
+                    "method": "maxLength",
+                    "args": [
+                      4096
+                    ]
+                  },
+                  {
+                    "method": "nullable",
+                    "args": []
+                  },
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
+              },
+              "elements": {
+                "kind": "array",
+                "args": [
+                  {
+                    "kind": "object",
+                    "args": [
+                      {
+                        "id": {
+                          "kind": "string",
+                          "args": [],
+                          "chain": []
+                        },
+                        "type": {
+                          "kind": "enum",
+                          "args": [
+                            [
+                              "static-text",
+                              "variable-text",
+                              "image",
+                              "qr-code",
+                              "signature"
+                            ]
+                          ],
+                          "chain": []
+                        },
+                        "name": {
+                          "kind": "string",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "maxLength",
+                              "args": [
+                                255
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "x": {
+                          "kind": "number",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "range",
+                              "args": [
+                                [
+                                  0,
+                                  5000
+                                ]
+                              ]
+                            }
+                          ]
+                        },
+                        "y": {
+                          "kind": "number",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "range",
+                              "args": [
+                                [
+                                  0,
+                                  5000
+                                ]
+                              ]
+                            }
+                          ]
+                        },
+                        "width": {
+                          "kind": "number",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "range",
+                              "args": [
+                                [
+                                  1,
+                                  5000
+                                ]
+                              ]
+                            }
+                          ]
+                        },
+                        "height": {
+                          "kind": "number",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "range",
+                              "args": [
+                                [
+                                  1,
+                                  5000
+                                ]
+                              ]
+                            }
+                          ]
+                        },
+                        "content": {
+                          "kind": "string",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "maxLength",
+                              "args": [
+                                10000
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "variable": {
+                          "kind": "string",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "maxLength",
+                              "args": [
+                                100
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "fontSize": {
+                          "kind": "number",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "range",
+                              "args": [
+                                [
+                                  1,
+                                  500
+                                ]
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "fontFamily": {
+                          "kind": "string",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "maxLength",
+                              "args": [
+                                255
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "color": {
+                          "kind": "string",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "maxLength",
+                              "args": [
+                                64
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "textAlign": {
+                          "kind": "enum",
+                          "args": [
+                            [
+                              "left",
+                              "center",
+                              "right"
+                            ]
+                          ],
+                          "chain": [
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "verticalAlign": {
+                          "kind": "enum",
+                          "args": [
+                            [
+                              "top",
+                              "middle",
+                              "bottom"
+                            ]
+                          ],
+                          "chain": [
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "fontWeight": {
+                          "kind": "enum",
+                          "args": [
+                            [
+                              "normal",
+                              "bold"
+                            ]
+                          ],
+                          "chain": [
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "fontStyle": {
+                          "kind": "enum",
+                          "args": [
+                            [
+                              "normal",
+                              "italic"
+                            ]
+                          ],
+                          "chain": [
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "textDecoration": {
+                          "kind": "enum",
+                          "args": [
+                            [
+                              "none",
+                              "underline"
+                            ]
+                          ],
+                          "chain": [
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "lineHeight": {
+                          "kind": "number",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "range",
+                              "args": [
+                                [
+                                  0.1,
+                                  10
+                                ]
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "letterSpacing": {
+                          "kind": "number",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "range",
+                              "args": [
+                                [
+                                  -100,
+                                  500
+                                ]
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "imageUrl": {
+                          "kind": "string",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "maxLength",
+                              "args": [
+                                4096
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "opacity": {
+                          "kind": "number",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "range",
+                              "args": [
+                                [
+                                  0,
+                                  100
+                                ]
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "rotation": {
+                          "kind": "number",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "range",
+                              "args": [
+                                [
+                                  -360,
+                                  360
+                                ]
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "borderRadius": {
+                          "kind": "number",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "range",
+                              "args": [
+                                [
+                                  0,
+                                  2500
+                                ]
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "objectFit": {
+                          "kind": "enum",
+                          "args": [
+                            [
+                              "contain",
+                              "cover",
+                              "fill"
+                            ]
+                          ],
+                          "chain": [
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "visible": {
+                          "kind": "boolean",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "locked": {
+                          "kind": "boolean",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "chain": []
+                  }
+                ],
+                "chain": [
+                  {
+                    "method": "maxLength",
+                    "args": [
+                      200
+                    ]
+                  },
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
+              },
+              "canvasWidth": {
+                "kind": "number",
+                "args": [],
+                "chain": [
+                  {
+                    "method": "range",
+                    "args": [
+                      [
+                        100,
+                        5000
+                      ]
+                    ]
+                  },
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
+              },
+              "canvasHeight": {
+                "kind": "number",
+                "args": [],
+                "chain": [
+                  {
+                    "method": "range",
+                    "args": [
+                      [
+                        100,
+                        5000
+                      ]
+                    ]
+                  },
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
+              }
+            }
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "status": {
+          "kind": "enum",
+          "args": [
+            [
+              "draft",
+              "published",
+              "archived"
+            ]
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "isActive": {
+          "kind": "boolean",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "updateCertificateTemplateValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "expectedVersion": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "positive",
+              "args": []
+            }
+          ]
+        },
+        "name": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "minLength",
+              "args": [
+                1
+              ]
+            },
+            {
+              "method": "maxLength",
+              "args": [
+                255
+              ]
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "description": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "templateData": {
+          "kind": "object",
+          "args": [
+            {
+              "backgroundUrl": {
+                "kind": "string",
+                "args": [],
+                "chain": [
+                  {
+                    "method": "maxLength",
+                    "args": [
+                      4096
+                    ]
+                  },
+                  {
+                    "method": "nullable",
+                    "args": []
+                  },
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
+              },
+              "elements": {
+                "kind": "array",
+                "args": [
+                  {
+                    "kind": "object",
+                    "args": [
+                      {
+                        "id": {
+                          "kind": "string",
+                          "args": [],
+                          "chain": []
+                        },
+                        "type": {
+                          "kind": "enum",
+                          "args": [
+                            [
+                              "static-text",
+                              "variable-text",
+                              "image",
+                              "qr-code",
+                              "signature"
+                            ]
+                          ],
+                          "chain": []
+                        },
+                        "name": {
+                          "kind": "string",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "maxLength",
+                              "args": [
+                                255
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "x": {
+                          "kind": "number",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "range",
+                              "args": [
+                                [
+                                  0,
+                                  5000
+                                ]
+                              ]
+                            }
+                          ]
+                        },
+                        "y": {
+                          "kind": "number",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "range",
+                              "args": [
+                                [
+                                  0,
+                                  5000
+                                ]
+                              ]
+                            }
+                          ]
+                        },
+                        "width": {
+                          "kind": "number",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "range",
+                              "args": [
+                                [
+                                  1,
+                                  5000
+                                ]
+                              ]
+                            }
+                          ]
+                        },
+                        "height": {
+                          "kind": "number",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "range",
+                              "args": [
+                                [
+                                  1,
+                                  5000
+                                ]
+                              ]
+                            }
+                          ]
+                        },
+                        "content": {
+                          "kind": "string",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "maxLength",
+                              "args": [
+                                10000
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "variable": {
+                          "kind": "string",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "maxLength",
+                              "args": [
+                                100
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "fontSize": {
+                          "kind": "number",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "range",
+                              "args": [
+                                [
+                                  1,
+                                  500
+                                ]
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "fontFamily": {
+                          "kind": "string",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "maxLength",
+                              "args": [
+                                255
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "color": {
+                          "kind": "string",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "maxLength",
+                              "args": [
+                                64
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "textAlign": {
+                          "kind": "enum",
+                          "args": [
+                            [
+                              "left",
+                              "center",
+                              "right"
+                            ]
+                          ],
+                          "chain": [
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "verticalAlign": {
+                          "kind": "enum",
+                          "args": [
+                            [
+                              "top",
+                              "middle",
+                              "bottom"
+                            ]
+                          ],
+                          "chain": [
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "fontWeight": {
+                          "kind": "enum",
+                          "args": [
+                            [
+                              "normal",
+                              "bold"
+                            ]
+                          ],
+                          "chain": [
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "fontStyle": {
+                          "kind": "enum",
+                          "args": [
+                            [
+                              "normal",
+                              "italic"
+                            ]
+                          ],
+                          "chain": [
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "textDecoration": {
+                          "kind": "enum",
+                          "args": [
+                            [
+                              "none",
+                              "underline"
+                            ]
+                          ],
+                          "chain": [
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "lineHeight": {
+                          "kind": "number",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "range",
+                              "args": [
+                                [
+                                  0.1,
+                                  10
+                                ]
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "letterSpacing": {
+                          "kind": "number",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "range",
+                              "args": [
+                                [
+                                  -100,
+                                  500
+                                ]
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "imageUrl": {
+                          "kind": "string",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "maxLength",
+                              "args": [
+                                4096
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "opacity": {
+                          "kind": "number",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "range",
+                              "args": [
+                                [
+                                  0,
+                                  100
+                                ]
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "rotation": {
+                          "kind": "number",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "range",
+                              "args": [
+                                [
+                                  -360,
+                                  360
+                                ]
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "borderRadius": {
+                          "kind": "number",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "range",
+                              "args": [
+                                [
+                                  0,
+                                  2500
+                                ]
+                              ]
+                            },
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "objectFit": {
+                          "kind": "enum",
+                          "args": [
+                            [
+                              "contain",
+                              "cover",
+                              "fill"
+                            ]
+                          ],
+                          "chain": [
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "visible": {
+                          "kind": "boolean",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        },
+                        "locked": {
+                          "kind": "boolean",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "chain": []
+                  }
+                ],
+                "chain": [
+                  {
+                    "method": "maxLength",
+                    "args": [
+                      200
+                    ]
+                  },
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
+              },
+              "canvasWidth": {
+                "kind": "number",
+                "args": [],
+                "chain": [
+                  {
+                    "method": "range",
+                    "args": [
+                      [
+                        100,
+                        5000
+                      ]
+                    ]
+                  },
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
+              },
+              "canvasHeight": {
+                "kind": "number",
+                "args": [],
+                "chain": [
+                  {
+                    "method": "range",
+                    "args": [
+                      [
+                        100,
+                        5000
+                      ]
+                    ]
+                  },
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
+              }
+            }
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "backgroundImage": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "maxLength",
+              "args": [
+                1024
+              ]
+            },
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "status": {
+          "kind": "enum",
+          "args": [
+            [
+              "draft",
+              "published",
+              "archived"
+            ]
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "isActive": {
+          "kind": "boolean",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "mutateCertificateTemplateLifecycleValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "expectedVersion": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "positive",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "backgroundImageValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "file": {
+          "kind": "file",
+          "args": [
+            {
+              "size": "5mb",
+              "extnames": [
+                "jpg",
+                "png",
+                "jpeg",
+                "webp"
+              ]
+            }
+          ],
+          "chain": []
+        }
+      }
+    ],
+    "chain": []
+  },
+  "certificateAssetValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "file": {
+          "kind": "file",
+          "args": [
+            {
+              "size": "5mb",
+              "extnames": [
+                "jpg",
+                "png",
+                "jpeg",
+                "webp"
+              ]
+            }
+          ],
+          "chain": []
+        }
+      }
+    ],
+    "chain": []
+  },
+  "lookupCertificatesValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "activity_id": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "range",
+              "args": [
+                [
+                  1,
+                  9007199254740991
+                ]
+              ]
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "registration_ids": {
+          "kind": "array",
+          "args": [
+            {
+              "kind": "number",
+              "args": [],
+              "chain": [
+                {
+                  "method": "withoutDecimals",
+                  "args": []
+                },
+                {
+                  "method": "range",
+                  "args": [
+                    [
+                      1,
+                      9007199254740991
+                    ]
+                  ]
+                }
+              ]
+            }
+          ],
+          "chain": [
+            {
+              "method": "minLength",
+              "args": [
+                1
+              ]
+            },
+            {
+              "method": "maxLength",
+              "args": [
+                100
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "storeClubMemberRoleValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "club_registration_id": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "positive",
+              "args": []
+            }
+          ]
+        },
+        "role_name": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "minLength",
+              "args": [
+                2
+              ]
+            },
+            {
+              "method": "maxLength",
+              "args": [
+                150
+              ]
+            }
+          ]
+        },
+        "start_date": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "end_date": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "is_primary": {
+          "kind": "boolean",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "sort_order": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "updateClubMemberRoleValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "role_name": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "minLength",
+              "args": [
+                2
+              ]
+            },
+            {
+              "method": "maxLength",
+              "args": [
+                150
+              ]
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "start_date": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "end_date": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "is_primary": {
+          "kind": "boolean",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "sort_order": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "storeClubRegistrationValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "member_id": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "positive",
+              "args": []
+            }
+          ]
+        },
+        "additional_data": {
+          "kind": "record",
+          "args": [
+            {
+              "kind": "any",
+              "args": [],
+              "chain": []
+            }
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "updateClubRegistrationValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "status": {
+          "kind": "enum",
+          "args": [
+            [
+              "PENDING",
+              "APPROVED",
+              "REJECTED"
+            ]
+          ],
+          "chain": []
+        },
+        "additional_data": {
+          "kind": "record",
+          "args": [
+            {
+              "kind": "any",
+              "args": [],
+              "chain": []
+            }
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "bulkUpdateClubRegistrationsValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "registrations": {
+          "kind": "array",
+          "args": [
+            {
+              "kind": "object",
+              "args": [
+                {
+                  "id": {
+                    "kind": "number",
+                    "args": [],
+                    "chain": [
+                      {
+                        "method": "positive",
+                        "args": []
+                      }
+                    ]
+                  },
+                  "status": {
+                    "kind": "enum",
+                    "args": [
+                      [
+                        "PENDING",
+                        "APPROVED",
+                        "REJECTED"
+                      ]
+                    ],
+                    "chain": []
+                  },
+                  "additional_data": {
+                    "kind": "record",
+                    "args": [
+                      {
+                        "kind": "any",
+                        "args": [],
+                        "chain": []
+                      }
+                    ],
+                    "chain": [
+                      {
+                        "method": "optional",
+                        "args": []
+                      }
+                    ]
+                  }
+                }
+              ],
+              "chain": []
+            }
+          ],
+          "chain": [
+            {
+              "method": "minLength",
+              "args": [
+                1
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "updateClubRegistrationInfoValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "registration_info": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "clubValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "name": {
+          "kind": "string",
+          "args": [],
+          "chain": []
+        },
+        "club_type": {
+          "kind": "enum",
+          "args": [
+            [
+              "UNIT",
+              "CLUB_KEPROFESIAN",
+              "CLUB_BAHASA",
+              "AVISMAN_REGIONAL"
+            ]
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "description": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "short_description": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "maxLength",
+              "args": [
+                200
+              ]
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "logo": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "media": {
+          "kind": "object",
+          "args": [
+            {
+              "items": {
+                "kind": "array",
+                "args": [
+                  {
+                    "kind": "object",
+                    "args": [
+                      {
+                        "media_url": {
+                          "kind": "string",
+                          "args": [],
+                          "chain": []
+                        },
+                        "media_type": {
+                          "kind": "enum",
+                          "args": [
+                            [
+                              "image",
+                              "video"
+                            ]
+                          ],
+                          "chain": []
+                        },
+                        "video_source": {
+                          "kind": "enum",
+                          "args": [
+                            [
+                              "youtube"
+                            ]
+                          ],
+                          "chain": [
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "chain": []
+                  }
+                ],
+                "chain": []
+              }
+            }
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "start_period": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "end_period": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "is_show": {
+          "kind": "boolean",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "is_registration_open": {
+          "kind": "boolean",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "registration_end_date": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "updateClubValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "name": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "club_type": {
+          "kind": "enum",
+          "args": [
+            [
+              "UNIT",
+              "CLUB_KEPROFESIAN",
+              "CLUB_BAHASA",
+              "AVISMAN_REGIONAL"
+            ]
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "description": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "short_description": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "maxLength",
+              "args": [
+                200
+              ]
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "logo": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "media": {
+          "kind": "object",
+          "args": [
+            {
+              "items": {
+                "kind": "array",
+                "args": [
+                  {
+                    "kind": "object",
+                    "args": [
+                      {
+                        "media_url": {
+                          "kind": "string",
+                          "args": [],
+                          "chain": []
+                        },
+                        "media_type": {
+                          "kind": "enum",
+                          "args": [
+                            [
+                              "image",
+                              "video"
+                            ]
+                          ],
+                          "chain": []
+                        },
+                        "video_source": {
+                          "kind": "enum",
+                          "args": [
+                            [
+                              "youtube"
+                            ]
+                          ],
+                          "chain": [
+                            {
+                              "method": "optional",
+                              "args": []
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "chain": []
+                  }
+                ],
+                "chain": []
+              }
+            }
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "start_period": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "end_period": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "is_show": {
+          "kind": "boolean",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "is_registration_open": {
+          "kind": "boolean",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "registration_end_date": {
+          "kind": "date",
+          "args": [],
+          "chain": [
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "logoValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "file": {
+          "kind": "file",
+          "args": [
+            {
+              "size": "2mb",
+              "extnames": [
+                "jpg",
+                "png",
+                "jpeg",
+                "webp"
+              ]
+            }
+          ],
+          "chain": []
+        }
+      }
+    ],
+    "chain": []
+  },
+  "imageMediaValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "file": {
+          "kind": "file",
+          "args": [
+            {
+              "size": "5mb",
+              "extnames": [
+                "jpg",
+                "png",
+                "jpeg",
+                "webp"
+              ]
+            }
+          ],
+          "chain": []
+        },
+        "media_type": {
+          "kind": "literal",
+          "args": [
+            "image"
+          ],
+          "chain": []
+        }
+      }
+    ],
+    "chain": []
+  },
+  "youtubeMediaValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "media_url": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "url",
+              "args": []
+            }
+          ]
+        },
+        "media_type": {
+          "kind": "literal",
+          "args": [
+            "video"
+          ],
+          "chain": []
+        },
+        "video_source": {
+          "kind": "literal",
+          "args": [
+            "youtube"
+          ],
+          "chain": []
+        }
+      }
+    ],
+    "chain": []
+  },
+  "deleteClubMediaValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "media_url": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "minLength",
+              "args": [
+                1
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "customFormValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "formName": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "minLength",
+              "args": [
+                1
+              ]
+            },
+            {
+              "method": "maxLength",
+              "args": [
+                255
+              ]
+            }
+          ]
+        },
+        "formDescription": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "transform",
+              "args": [
+                "(value) => (value === '' ? null : value)"
+              ]
+            },
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "postSubmissionInfo": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "transform",
+              "args": [
+                "(value) => (value === '' ? null : value)"
+              ]
+            },
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "featureType": {
+          "kind": "enum",
+          "args": [
+            [
+              "activity_registration",
+              "club_registration",
+              "independent_form"
+            ]
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "featureId": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "positive",
+              "args": []
+            },
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "formSchema": {
+          "kind": "object",
+          "args": [
+            {
+              "fields": {
+                "kind": "array",
+                "args": [
+                  {
+                    "kind": "object",
+                    "args": [
+                      {
+                        "section_name": {
+                          "kind": "string",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "trim",
+                              "args": []
+                            },
+                            {
+                              "method": "minLength",
+                              "args": [
+                                1
+                              ]
+                            }
+                          ]
+                        },
+                        "fields": {
+                          "kind": "array",
+                          "args": [
+                            {
+                              "kind": "object",
+                              "args": [
+                                {
+                                  "key": {
+                                    "kind": "string",
+                                    "args": [],
+                                    "chain": [
+                                      {
+                                        "method": "trim",
+                                        "args": []
+                                      },
+                                      {
+                                        "method": "minLength",
+                                        "args": [
+                                          1
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  "label": {
+                                    "kind": "string",
+                                    "args": [],
+                                    "chain": [
+                                      {
+                                        "method": "trim",
+                                        "args": []
+                                      },
+                                      {
+                                        "method": "minLength",
+                                        "args": [
+                                          1
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  "required": {
+                                    "kind": "boolean",
+                                    "args": [],
+                                    "chain": []
+                                  },
+                                  "type": {
+                                    "kind": "string",
+                                    "args": [],
+                                    "chain": [
+                                      {
+                                        "method": "trim",
+                                        "args": []
+                                      },
+                                      {
+                                        "method": "minLength",
+                                        "args": [
+                                          1
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  "placeholder": {
+                                    "kind": "string",
+                                    "args": [],
+                                    "chain": [
+                                      {
+                                        "method": "optional",
+                                        "args": []
+                                      }
+                                    ]
+                                  },
+                                  "helpText": {
+                                    "kind": "string",
+                                    "args": [],
+                                    "chain": [
+                                      {
+                                        "method": "optional",
+                                        "args": []
+                                      }
+                                    ]
+                                  },
+                                  "description": {
+                                    "kind": "string",
+                                    "args": [],
+                                    "chain": [
+                                      {
+                                        "method": "optional",
+                                        "args": []
+                                      }
+                                    ]
+                                  },
+                                  "options": {
+                                    "kind": "array",
+                                    "args": [
+                                      {
+                                        "kind": "object",
+                                        "args": [
+                                          {
+                                            "label": {
+                                              "kind": "string",
+                                              "args": [],
+                                              "chain": [
+                                                {
+                                                  "method": "trim",
+                                                  "args": []
+                                                },
+                                                {
+                                                  "method": "minLength",
+                                                  "args": [
+                                                    1
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            "value": {
+                                              "kind": "any",
+                                              "args": [],
+                                              "chain": []
+                                            },
+                                            "disabled": {
+                                              "kind": "boolean",
+                                              "args": [],
+                                              "chain": [
+                                                {
+                                                  "method": "optional",
+                                                  "args": []
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ],
+                                        "chain": []
+                                      }
+                                    ],
+                                    "chain": [
+                                      {
+                                        "method": "optional",
+                                        "args": []
+                                      }
+                                    ]
+                                  },
+                                  "validation": {
+                                    "kind": "object",
+                                    "args": [
+                                      {
+                                        "min": {
+                                          "kind": "number",
+                                          "args": [],
+                                          "chain": [
+                                            {
+                                              "method": "optional",
+                                              "args": []
+                                            }
+                                          ]
+                                        },
+                                        "max": {
+                                          "kind": "number",
+                                          "args": [],
+                                          "chain": [
+                                            {
+                                              "method": "optional",
+                                              "args": []
+                                            }
+                                          ]
+                                        },
+                                        "minLength": {
+                                          "kind": "number",
+                                          "args": [],
+                                          "chain": [
+                                            {
+                                              "method": "optional",
+                                              "args": []
+                                            }
+                                          ]
+                                        },
+                                        "maxLength": {
+                                          "kind": "number",
+                                          "args": [],
+                                          "chain": [
+                                            {
+                                              "method": "optional",
+                                              "args": []
+                                            }
+                                          ]
+                                        },
+                                        "pattern": {
+                                          "kind": "string",
+                                          "args": [],
+                                          "chain": [
+                                            {
+                                              "method": "optional",
+                                              "args": []
+                                            }
+                                          ]
+                                        },
+                                        "customMessage": {
+                                          "kind": "string",
+                                          "args": [],
+                                          "chain": [
+                                            {
+                                              "method": "optional",
+                                              "args": []
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ],
+                                    "chain": [
+                                      {
+                                        "method": "optional",
+                                        "args": []
+                                      }
+                                    ]
+                                  },
+                                  "defaultValue": {
+                                    "kind": "any",
+                                    "args": [],
+                                    "chain": [
+                                      {
+                                        "method": "optional",
+                                        "args": []
+                                      }
+                                    ]
+                                  },
+                                  "hidden": {
+                                    "kind": "boolean",
+                                    "args": [],
+                                    "chain": [
+                                      {
+                                        "method": "optional",
+                                        "args": []
+                                      }
+                                    ]
+                                  },
+                                  "disabled": {
+                                    "kind": "boolean",
+                                    "args": [],
+                                    "chain": [
+                                      {
+                                        "method": "optional",
+                                        "args": []
+                                      }
+                                    ]
+                                  }
+                                }
+                              ],
+                              "chain": []
+                            }
+                          ],
+                          "chain": []
+                        }
+                      }
+                    ],
+                    "chain": []
+                  }
+                ],
+                "chain": []
+              }
+            }
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "isActive": {
+          "kind": "boolean",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "updateCustomFormValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "formName": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "minLength",
+              "args": [
+                1
+              ]
+            },
+            {
+              "method": "maxLength",
+              "args": [
+                255
+              ]
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "formDescription": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "transform",
+              "args": [
+                "(value) => (value === '' ? null : value)"
+              ]
+            },
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "postSubmissionInfo": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "transform",
+              "args": [
+                "(value) => (value === '' ? null : value)"
+              ]
+            },
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "featureType": {
+          "kind": "enum",
+          "args": [
+            [
+              "activity_registration",
+              "club_registration",
+              "independent_form"
+            ]
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "featureId": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "positive",
+              "args": []
+            },
+            {
+              "method": "nullable",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "formSchema": {
+          "kind": "object",
+          "args": [
+            {
+              "fields": {
+                "kind": "array",
+                "args": [
+                  {
+                    "kind": "object",
+                    "args": [
+                      {
+                        "section_name": {
+                          "kind": "string",
+                          "args": [],
+                          "chain": [
+                            {
+                              "method": "trim",
+                              "args": []
+                            },
+                            {
+                              "method": "minLength",
+                              "args": [
+                                1
+                              ]
+                            }
+                          ]
+                        },
+                        "fields": {
+                          "kind": "array",
+                          "args": [
+                            {
+                              "kind": "object",
+                              "args": [
+                                {
+                                  "key": {
+                                    "kind": "string",
+                                    "args": [],
+                                    "chain": [
+                                      {
+                                        "method": "trim",
+                                        "args": []
+                                      },
+                                      {
+                                        "method": "minLength",
+                                        "args": [
+                                          1
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  "label": {
+                                    "kind": "string",
+                                    "args": [],
+                                    "chain": [
+                                      {
+                                        "method": "trim",
+                                        "args": []
+                                      },
+                                      {
+                                        "method": "minLength",
+                                        "args": [
+                                          1
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  "required": {
+                                    "kind": "boolean",
+                                    "args": [],
+                                    "chain": []
+                                  },
+                                  "type": {
+                                    "kind": "string",
+                                    "args": [],
+                                    "chain": [
+                                      {
+                                        "method": "trim",
+                                        "args": []
+                                      },
+                                      {
+                                        "method": "minLength",
+                                        "args": [
+                                          1
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  "placeholder": {
+                                    "kind": "string",
+                                    "args": [],
+                                    "chain": [
+                                      {
+                                        "method": "optional",
+                                        "args": []
+                                      }
+                                    ]
+                                  },
+                                  "helpText": {
+                                    "kind": "string",
+                                    "args": [],
+                                    "chain": [
+                                      {
+                                        "method": "optional",
+                                        "args": []
+                                      }
+                                    ]
+                                  },
+                                  "description": {
+                                    "kind": "string",
+                                    "args": [],
+                                    "chain": [
+                                      {
+                                        "method": "optional",
+                                        "args": []
+                                      }
+                                    ]
+                                  },
+                                  "options": {
+                                    "kind": "array",
+                                    "args": [
+                                      {
+                                        "kind": "object",
+                                        "args": [
+                                          {
+                                            "label": {
+                                              "kind": "string",
+                                              "args": [],
+                                              "chain": [
+                                                {
+                                                  "method": "trim",
+                                                  "args": []
+                                                },
+                                                {
+                                                  "method": "minLength",
+                                                  "args": [
+                                                    1
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            "value": {
+                                              "kind": "any",
+                                              "args": [],
+                                              "chain": []
+                                            },
+                                            "disabled": {
+                                              "kind": "boolean",
+                                              "args": [],
+                                              "chain": [
+                                                {
+                                                  "method": "optional",
+                                                  "args": []
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ],
+                                        "chain": []
+                                      }
+                                    ],
+                                    "chain": [
+                                      {
+                                        "method": "optional",
+                                        "args": []
+                                      }
+                                    ]
+                                  },
+                                  "validation": {
+                                    "kind": "object",
+                                    "args": [
+                                      {
+                                        "min": {
+                                          "kind": "number",
+                                          "args": [],
+                                          "chain": [
+                                            {
+                                              "method": "optional",
+                                              "args": []
+                                            }
+                                          ]
+                                        },
+                                        "max": {
+                                          "kind": "number",
+                                          "args": [],
+                                          "chain": [
+                                            {
+                                              "method": "optional",
+                                              "args": []
+                                            }
+                                          ]
+                                        },
+                                        "minLength": {
+                                          "kind": "number",
+                                          "args": [],
+                                          "chain": [
+                                            {
+                                              "method": "optional",
+                                              "args": []
+                                            }
+                                          ]
+                                        },
+                                        "maxLength": {
+                                          "kind": "number",
+                                          "args": [],
+                                          "chain": [
+                                            {
+                                              "method": "optional",
+                                              "args": []
+                                            }
+                                          ]
+                                        },
+                                        "pattern": {
+                                          "kind": "string",
+                                          "args": [],
+                                          "chain": [
+                                            {
+                                              "method": "optional",
+                                              "args": []
+                                            }
+                                          ]
+                                        },
+                                        "customMessage": {
+                                          "kind": "string",
+                                          "args": [],
+                                          "chain": [
+                                            {
+                                              "method": "optional",
+                                              "args": []
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ],
+                                    "chain": [
+                                      {
+                                        "method": "optional",
+                                        "args": []
+                                      }
+                                    ]
+                                  },
+                                  "defaultValue": {
+                                    "kind": "any",
+                                    "args": [],
+                                    "chain": [
+                                      {
+                                        "method": "optional",
+                                        "args": []
+                                      }
+                                    ]
+                                  },
+                                  "hidden": {
+                                    "kind": "boolean",
+                                    "args": [],
+                                    "chain": [
+                                      {
+                                        "method": "optional",
+                                        "args": []
+                                      }
+                                    ]
+                                  },
+                                  "disabled": {
+                                    "kind": "boolean",
+                                    "args": [],
+                                    "chain": [
+                                      {
+                                        "method": "optional",
+                                        "args": []
+                                      }
+                                    ]
+                                  }
+                                }
+                              ],
+                              "chain": []
+                            }
+                          ],
+                          "chain": []
+                        }
+                      }
+                    ],
+                    "chain": []
+                  }
+                ],
+                "chain": []
+              }
+            }
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "isActive": {
+          "kind": "boolean",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "attachCustomFormToClubValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "clubId": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "positive",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "createMemberValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "name": {
+          "kind": "string",
+          "args": [],
+          "chain": []
+        },
+        "email": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "email",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "password": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "member_id": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "gender": {
+          "kind": "enum",
+          "args": [
+            [
+              "M",
+              "F"
+            ]
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "personal_id": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "whatsapp": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "instagram": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "tiktok": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "linkedin": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "line": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "birth_date": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "province_id": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "city_id": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "country": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "generateAccountValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "email": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "email",
+              "args": []
+            }
+          ]
+        },
+        "password": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "minLength",
+              "args": [
+                8
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "regionalAssignmentValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "alumni_regional_assignment": {
+          "kind": "array",
+          "args": [
+            {
+              "kind": "string",
+              "args": [],
+              "chain": []
+            }
+          ],
+          "chain": []
+        }
+      }
+    ],
+    "chain": []
+  },
+  "updateProfileValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "name": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "gender": {
+          "kind": "enum",
+          "args": [
+            [
+              "M",
+              "F"
+            ]
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "personal_id": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "badges": {
+          "kind": "array",
+          "args": [
+            {
+              "kind": "string",
+              "args": [],
+              "chain": []
+            }
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "whatsapp": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "line": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "instagram": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "tiktok": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "linkedin": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "province_id": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "city_id": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "level": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "birth_date": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "password": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "origin_province_id": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "origin_city_id": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "country": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "education_history": {
+          "kind": "array",
+          "args": [
+            {
+              "kind": "object",
+              "args": [
+                {
+                  "degree": {
+                    "kind": "enum",
+                    "args": [
+                      [
+                        "bachelor",
+                        "master",
+                        "doctoral"
+                      ]
+                    ],
+                    "chain": []
+                  },
+                  "institution": {
+                    "kind": "string",
+                    "args": [],
+                    "chain": []
+                  },
+                  "faculty": {
+                    "kind": "string",
+                    "args": [],
+                    "chain": []
+                  },
+                  "major": {
+                    "kind": "string",
+                    "args": [],
+                    "chain": []
+                  },
+                  "intake_year": {
+                    "kind": "number",
+                    "args": [],
+                    "chain": []
+                  }
+                }
+              ],
+              "chain": []
+            }
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "work_history": {
+          "kind": "array",
+          "args": [
+            {
+              "kind": "object",
+              "args": [
+                {
+                  "job_title": {
+                    "kind": "string",
+                    "args": [],
+                    "chain": []
+                  },
+                  "company": {
+                    "kind": "string",
+                    "args": [],
+                    "chain": []
+                  },
+                  "start_year": {
+                    "kind": "number",
+                    "args": [],
+                    "chain": [
+                      {
+                        "method": "optional",
+                        "args": []
+                      }
+                    ]
+                  },
+                  "end_year": {
+                    "kind": "number",
+                    "args": [],
+                    "chain": [
+                      {
+                        "method": "optional",
+                        "args": []
+                      }
+                    ]
+                  }
+                }
+              ],
+              "chain": []
+            }
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "extra_data": {
+          "kind": "object",
+          "args": [
+            {
+              "preferred_name": {
+                "kind": "string",
+                "args": [],
+                "chain": [
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
+              },
+              "salman_activity_history": {
+                "kind": "array",
+                "args": [
+                  {
+                    "kind": "string",
+                    "args": [],
+                    "chain": []
+                  }
+                ],
+                "chain": [
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
+              },
+              "current_activity_focus": {
+                "kind": "array",
+                "args": [
+                  {
+                    "kind": "enum",
+                    "args": [
+                      [
+                        "professional",
+                        "academic",
+                        "social",
+                        "entrepreneur",
+                        "politics",
+                        "other"
+                      ]
+                    ],
+                    "chain": []
+                  }
+                ],
+                "chain": [
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
+              },
+              "alumni_regional_assignment": {
+                "kind": "array",
+                "args": [
+                  {
+                    "kind": "string",
+                    "args": [],
+                    "chain": []
+                  }
+                ],
+                "chain": [
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
+              }
+            }
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "provinceValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "name": {
+          "kind": "string",
+          "args": [],
+          "chain": []
+        }
+      }
+    ],
+    "chain": []
+  },
+  "cityValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "province_id": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "name": {
+          "kind": "string",
+          "args": [],
+          "chain": []
+        }
+      }
+    ],
+    "chain": []
+  },
+  "storeRoleValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "role_name": {
+          "kind": "string",
+          "args": [],
+          "chain": []
+        }
+      }
+    ],
+    "chain": []
+  },
+  "UpdateRuangCurhatValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "counselor_id": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "status": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "additional_notes": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "createAccessRequestValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "role_code": {
+          "kind": "enum",
+          "args": [
+            [
+              "super_admin",
+              "admin",
+              "asmen",
+              "kapro",
+              "konselor",
+              "leaderboard",
+              "operations_admin",
+              "member_manager",
+              "activity_manager",
+              "club_manager",
+              "certificate_manager",
+              "achievement_reviewer",
+              "counselor",
+              "reference_data_manager",
+              "form_manager",
+              "access_reviewer"
+            ]
+          ],
+          "chain": []
+        },
+        "reason": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "minLength",
+              "args": [
+                3
+              ]
+            },
+            {
+              "method": "maxLength",
+              "args": [
+                4000
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "rejectTicketValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "rejection_reason": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "minLength",
+              "args": [
+                3
+              ]
+            },
+            {
+              "method": "maxLength",
+              "args": [
+                4000
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "UniversityValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "name": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "minLength",
+              "args": [
+                2
+              ]
+            }
+          ]
+        },
+        "provinceId": {
+          "kind": "number",
+          "args": [],
+          "chain": []
+        }
+      }
+    ],
+    "chain": []
+  },
+  "generateCertificatesValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "activity_id": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "positive",
+              "args": []
+            }
+          ]
+        },
+        "status": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "maxLength",
+              "args": [
+                50
+              ]
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "registrationCertificateValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "registration_id": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "positive",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "issueBulkCertificateValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "expected": {
+          "kind": "object",
+          "args": [
+            {
+              "activity_id": {
+                "kind": "number",
+                "args": [],
+                "chain": [
+                  {
+                    "method": "positive",
+                    "args": []
+                  },
+                  {
+                    "method": "withoutDecimals",
+                    "args": []
+                  }
+                ]
+              },
+              "template_id": {
+                "kind": "number",
+                "args": [],
+                "chain": [
+                  {
+                    "method": "positive",
+                    "args": []
+                  },
+                  {
+                    "method": "withoutDecimals",
+                    "args": []
+                  }
+                ]
+              },
+              "template_version": {
+                "kind": "number",
+                "args": [],
+                "chain": [
+                  {
+                    "method": "positive",
+                    "args": []
+                  },
+                  {
+                    "method": "withoutDecimals",
+                    "args": []
+                  }
+                ]
+              }
+            }
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "response_mode": {
+          "kind": "enum",
+          "args": [
+            [
+              "full",
+              "compact"
+            ]
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "registration_ids": {
+          "kind": "array",
+          "args": [
+            {
+              "kind": "number",
+              "args": [],
+              "chain": [
+                {
+                  "method": "withoutDecimals",
+                  "args": []
+                },
+                {
+                  "method": "positive",
+                  "args": []
+                }
+              ]
+            }
+          ],
+          "chain": [
+            {
+              "method": "minLength",
+              "args": [
+                1
+              ]
+            },
+            {
+              "method": "maxLength",
+              "args": [
+                100
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "prepareValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "activity_id": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "positive",
+              "args": []
+            },
+            {
+              "method": "withoutDecimals",
+              "args": []
+            }
+          ]
+        },
+        "registration_ids": {
+          "kind": "array",
+          "args": [
+            {
+              "kind": "number",
+              "args": [],
+              "chain": [
+                {
+                  "method": "positive",
+                  "args": []
+                },
+                {
+                  "method": "withoutDecimals",
+                  "args": []
+                }
+              ]
+            }
+          ],
+          "chain": [
+            {
+              "method": "minLength",
+              "args": [
+                1
+              ]
+            },
+            {
+              "method": "maxLength",
+              "args": [
+                100000
+              ]
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "recipientsValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "page": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "positive",
+              "args": []
+            },
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "per_page": {
+          "kind": "number",
+          "args": [],
+          "chain": [
+            {
+              "method": "range",
+              "args": [
+                [
+                  1,
+                  100
+                ]
+              ]
+            },
+            {
+              "method": "withoutDecimals",
+              "args": []
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "sort_order": {
+          "kind": "enum",
+          "args": [
+            [
+              "asc",
+              "desc"
+            ]
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "search": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "maxLength",
+              "args": [
+                255
+              ]
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "state": {
+          "kind": "enum",
+          "args": [
+            [
+              "eligible_not_issued",
+              "not_eligible",
+              "issued_active",
+              "issued_revoked"
+            ]
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "registration_ids": {
+          "kind": "array",
+          "args": [
+            {
+              "kind": "number",
+              "args": [],
+              "chain": [
+                {
+                  "method": "positive",
+                  "args": []
+                },
+                {
+                  "method": "withoutDecimals",
+                  "args": []
+                }
+              ]
+            }
+          ],
+          "chain": [
+            {
+              "method": "maxLength",
+              "args": [
+                200
+              ]
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  },
+  "revokeCertificateValidator": {
+    "kind": "object",
+    "args": [
+      {
+        "reason": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "minLength",
+              "args": [
+                3
+              ]
+            },
+            {
+              "method": "maxLength",
+              "args": [
+                1000
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "chain": []
+  }
+}

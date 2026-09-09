@@ -1,0 +1,35 @@
+import {test,expect,login,evidence} from './fixture.mjs';
+import {fixturePassword,legacyRequire} from '../../scripts/fixture-db.mjs';
+
+test('create member, update profile, and create interoperable account',async({page,fixture},testInfo)=>{
+  await login(page);
+  await page.goto('/member');
+  await page.getByRole('button',{name:/Tambah Anggota$/}).click();
+  const dialog=page.getByRole('dialog');
+  await dialog.getByLabel('Nama Lengkap',{exact:true}).fill('Browser member');
+  await dialog.getByRole('combobox').click();
+  await page.getByText('Perempuan',{exact:true}).click();
+  await dialog.getByRole('button',{name:/Simpan$/}).click();
+  await expect(dialog).not.toBeVisible();
+  await expect(page.getByRole('cell',{name:/^Browser member\b/})).toBeVisible();
+  const profile=(await fixture.db.query('SELECT id,user_id FROM profiles WHERE name=$1',['Browser member'])).rows[0];
+  await page.goto(`/member/${profile.user_id}`);
+  await page.getByRole('button',{name:/Ubah$/}).click();
+  await page.getByLabel('Nama Lengkap',{exact:true}).fill('Updated browser member');
+  await page.getByLabel('Whatsapp',{exact:true}).fill('081234567890');
+  await page.getByRole('button',{name:/Simpan$/}).click();
+  await expect(page.getByRole('button',{name:/Ubah$/})).toBeVisible();
+  const updated=(await fixture.db.query('SELECT name,whatsapp FROM profiles WHERE id=$1',[profile.id])).rows[0];
+  expect(updated).toEqual({name:'Updated browser member',whatsapp:'081234567890'});
+  await page.getByRole('button',{name:/Buat Akun$/}).click();
+  await dialog.getByLabel('Email',{exact:true}).fill('browser-member@example.test');
+  await dialog.getByLabel('Password',{exact:true}).fill(fixturePassword);
+  await dialog.getByRole('button',{name:/Buat Akun$/}).click();
+  await expect(dialog).not.toBeVisible();
+  await expect(page.getByRole('button',{name:/Ubah Email dan Password$/})).toBeVisible();
+  const user=(await fixture.db.query('SELECT password,account_status,email FROM public_users WHERE id=$1',[profile.user_id])).rows[0];
+  expect(user.account_status).toBe('active');expect(user.email).toBe('browser-member@example.test');
+  const {Scrypt}=legacyRequire('@adonisjs/hash/drivers/scrypt');
+  expect(await new Scrypt({}).verify(user.password,fixturePassword)).toBe(true);
+  await evidence(page,testInfo,'updated-member-account');
+});

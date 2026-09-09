@@ -1,0 +1,7 @@
+{
+  "name": "kaderisasi-admin-go-verification",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24 <25" },
+  "devDependencies": { "@playwright/test": "1.63.0" }
+}

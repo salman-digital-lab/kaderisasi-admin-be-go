@@ -1,0 +1,30 @@
+export async function activityCases(h){
+  const body={name:'Fixture café — 2026',activity_start:'2026-09-10',activity_end:'2026-09-11',is_published:1,activity_type:1,minimum_level:1,additional_config:{custom_selection_status:['LULUS'],mandatory_profile_data:[],additional_questionnaire:[],allow_guest_registration:true}};
+  await h.call('activity:invalid','POST','/v2/activities',{});
+  await h.call('activity:create','POST','/v2/activities',body);
+  await h.call('activity:slug-collision','POST','/v2/activities',body);
+  await h.call('activity:show','GET','/v2/activities/1');
+  await h.call('activity:list','GET','/v2/activities');
+  await h.call('activity:filtered','GET','/v2/activities?search=Fixture&activity_type=1&minimum_level=1&is_published=1');
+  const club=await h.call('activity:seed-club','POST','/v2/clubs',{name:'Activity related club',start_period:'2026-01-01',end_period:'2026-12-31'});
+  await h.call('activity:assign-club','PUT','/v2/activities/1',{club_id:club.data.id});
+  await h.call('activity:related-club-show','GET','/v2/activities/1');
+  await h.call('activity:related-club-list','GET','/v2/activities?club_id=1');
+  await h.call('activity:rename','PUT','/v2/activities/1',{name:'Renamed activity',is_registration_open:true});
+  await h.call('activity:missing-show','GET','/v2/activities/999999');
+  await h.call('activity:missing-update','PUT','/v2/activities/999999',{name:'Missing'});
+  await h.call('activity:bad-template','PUT','/v2/activities/1',{certificate_template_id:999999});
+  await h.call('activity:empty-order','PUT','/v2/activities/1/reorder-images',{images:[]});
+  const first=await h.upload('activity:image-first','/v2/activities/1/images');
+  const second=await h.upload('activity:image-second','/v2/activities/1/images');
+  await h.inspectObject(first.data.image,{width:640,height:480});
+  await h.call('activity:reorder','PUT','/v2/activities/1/reorder-images',{images:[second.data.image,first.data.image]});
+  await h.call('activity:image-delete','PUT','/v2/activities/1/delete-image',{image:first.data.image});
+  await h.call('activity:foreign-order','PUT','/v2/activities/1/reorder-images',{images:['foreign-object']});
+  await h.call('activity:missing-image','PUT','/v2/activities/1/delete-image',{image:'foreign-object'});
+  await h.call('activity:missing-order','PUT','/v2/activities/999999/reorder-images',{images:[]});
+  await h.upload('activity:upload-missing','/v2/activities/999999/images');
+  await h.call('activity:upload-empty','POST','/v2/activities/1/images',{});
+  await h.upload('activity:upload-malformed','/v2/activities/1/images',{},Buffer.from('malformed image'));
+  await h.upload('activity:upload-oversized','/v2/activities/1/images',{},Buffer.alloc((1<<20)+1,65));
+}

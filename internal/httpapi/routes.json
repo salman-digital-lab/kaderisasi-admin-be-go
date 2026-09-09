@@ -1,0 +1,1253 @@
+[
+  {
+    "method": "POST",
+    "path": "/v2/auth/login",
+    "controller": "auth_controller",
+    "action": "login",
+    "auth": false,
+    "trusted_origin": true,
+    "permission": ""
+  },
+  {
+    "method": "POST",
+    "path": "/v2/auth/google",
+    "controller": "auth_controller",
+    "action": "google",
+    "auth": false,
+    "trusted_origin": true,
+    "permission": ""
+  },
+  {
+    "method": "POST",
+    "path": "/v2/auth/refresh",
+    "controller": "auth_controller",
+    "action": "refresh",
+    "auth": false,
+    "trusted_origin": true,
+    "permission": ""
+  },
+  {
+    "method": "POST",
+    "path": "/v2/auth/session/migrate",
+    "controller": "auth_controller",
+    "action": "migrate",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": ""
+  },
+  {
+    "method": "GET",
+    "path": "/v2/auth/me",
+    "controller": "auth_controller",
+    "action": "me",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": ""
+  },
+  {
+    "method": "POST",
+    "path": "/v2/auth/logout",
+    "controller": "auth_controller",
+    "action": "logout",
+    "auth": false,
+    "trusted_origin": true,
+    "permission": ""
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/auth/logout",
+    "controller": "auth_controller",
+    "action": "logout",
+    "auth": false,
+    "trusted_origin": true,
+    "permission": ""
+  },
+  {
+    "method": "GET",
+    "path": "/v2/admin-users",
+    "controller": "adminusers_controller",
+    "action": "index",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "admin_users.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/admin-users/:id",
+    "controller": "adminusers_controller",
+    "action": "show",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "admin_users.read"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/admin-users",
+    "controller": "adminusers_controller",
+    "action": "create",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "admin_users.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/admin-users/:id",
+    "controller": "adminusers_controller",
+    "action": "update",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "admin_users.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/admin-users/:id/password",
+    "controller": "adminusers_controller",
+    "action": "editPassword",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "admin_users.manage"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/rbac/permissions",
+    "controller": "rbac_permissions_controller",
+    "action": "index",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "rbac.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/rbac/requestable-targets",
+    "controller": "rbac_permissions_controller",
+    "action": "requestableTargets",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": ""
+  },
+  {
+    "method": "GET",
+    "path": "/v2/rbac/roles",
+    "controller": "rbac_roles_controller",
+    "action": "index",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "rbac.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/rbac/roles/:code",
+    "controller": "rbac_roles_controller",
+    "action": "show",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "rbac.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/access-requests",
+    "controller": "access_requests_controller",
+    "action": "ownIndex",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": ""
+  },
+  {
+    "method": "POST",
+    "path": "/v2/access-requests",
+    "controller": "access_requests_controller",
+    "action": "store",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": ""
+  },
+  {
+    "method": "GET",
+    "path": "/v2/access-requests/:id",
+    "controller": "access_requests_controller",
+    "action": "ownShow",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": ""
+  },
+  {
+    "method": "POST",
+    "path": "/v2/access-requests/:id/cancel",
+    "controller": "access_requests_controller",
+    "action": "cancel",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": ""
+  },
+  {
+    "method": "GET",
+    "path": "/v2/tickets/review",
+    "controller": "access_requests_controller",
+    "action": "reviewIndex",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "tickets.review"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/tickets/review/:id",
+    "controller": "access_requests_controller",
+    "action": "reviewShow",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "tickets.review"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/tickets/review/:id/approve",
+    "controller": "access_requests_controller",
+    "action": "approve",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "tickets.review"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/tickets/review/:id/reject",
+    "controller": "access_requests_controller",
+    "action": "reject",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "tickets.review"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/dashboard/stats",
+    "controller": "dashboard_controller",
+    "action": "stats",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "dashboard.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/dashboard/profiles",
+    "controller": "dashboard_controller",
+    "action": "CountProfiles",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "dashboard.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/dashboard/gender",
+    "controller": "dashboard_controller",
+    "action": "CountUsersGender",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "dashboard.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/universities",
+    "controller": "universities_controller",
+    "action": "index",
+    "auth": false,
+    "trusted_origin": false,
+    "permission": ""
+  },
+  {
+    "method": "GET",
+    "path": "/v2/universities/:id",
+    "controller": "universities_controller",
+    "action": "show",
+    "auth": false,
+    "trusted_origin": false,
+    "permission": ""
+  },
+  {
+    "method": "POST",
+    "path": "/v2/universities",
+    "controller": "universities_controller",
+    "action": "store",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "reference_data.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/universities/:id",
+    "controller": "universities_controller",
+    "action": "update",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "reference_data.manage"
+  },
+  {
+    "method": "DELETE",
+    "path": "/v2/universities/:id",
+    "controller": "universities_controller",
+    "action": "delete",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "reference_data.manage"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/profiles/user/:id",
+    "controller": "profiles_controller",
+    "action": "showByUserId",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "members.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/profiles/:id",
+    "controller": "profiles_controller",
+    "action": "show",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "members.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/profiles",
+    "controller": "profiles_controller",
+    "action": "index",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "members.read"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/profiles/:id",
+    "controller": "profiles_controller",
+    "action": "update",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "members.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/profiles/:id/regional-assignment",
+    "controller": "profiles_controller",
+    "action": "updateRegionalAssignment",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "members.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/profiles/auth/:id",
+    "controller": "auth_controller",
+    "action": "updateMember",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "members.credentials.manage"
+  },
+  {
+    "method": "DELETE",
+    "path": "/v2/profiles/:id",
+    "controller": "profiles_controller",
+    "action": "delete",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "members.manage"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/members",
+    "controller": "members_controller",
+    "action": "store",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "members.manage"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/members/:id/generate-account",
+    "controller": "members_controller",
+    "action": "generateAccount",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "members.credentials.manage"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/activities",
+    "controller": "activities_controller",
+    "action": "index",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "activities.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/activities/:id",
+    "controller": "activities_controller",
+    "action": "show",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "activities.read"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/activities",
+    "controller": "activities_controller",
+    "action": "store",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "activities.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/activities/:id",
+    "controller": "activities_controller",
+    "action": "update",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "activities.manage"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/activities/:id/images",
+    "controller": "activities_controller",
+    "action": "uploadImage",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "activities.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/activities/:id/delete-image",
+    "controller": "activities_controller",
+    "action": "deleteImage",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "activities.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/activities/:id/reorder-images",
+    "controller": "activities_controller",
+    "action": "reorderImages",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "activities.manage"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/activities/:id/registrations",
+    "controller": "activity_registrations_controller",
+    "action": "index",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "activity_registrations.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/activities/:id/registrations/statistics",
+    "controller": "activity_registrations_controller",
+    "action": "statistics",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "activity_registrations.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/activities/:id/registrations-export",
+    "controller": "activity_registrations_controller",
+    "action": "export",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "activity_registrations.export"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/activities/:id/registrations/status-by-email",
+    "controller": "activity_registrations_controller",
+    "action": "updateStatusByListOfEmail",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "activity_registrations.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/activities/:id/registrations",
+    "controller": "activity_registrations_controller",
+    "action": "updateStatusBulk",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "activity_registrations.manage"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/activities/:id/registrations",
+    "controller": "activity_registrations_controller",
+    "action": "store",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "activity_registrations.manage"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/activity-registrations/user/:id",
+    "controller": "activity_registrations_controller",
+    "action": "getActivityByUserId",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "activity_registrations.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/activity-registrations/:id",
+    "controller": "activity_registrations_controller",
+    "action": "show",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "activity_registrations.read"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/activity-registrations",
+    "controller": "activity_registrations_controller",
+    "action": "updateStatus",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "activity_registrations.manage"
+  },
+  {
+    "method": "DELETE",
+    "path": "/v2/activity-registrations/:id",
+    "controller": "activity_registrations_controller",
+    "action": "delete",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "activity_registrations.manage"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/ruang-curhat",
+    "controller": "ruang_curhats_controller",
+    "action": "index",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "counseling.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/ruang-curhat/:id",
+    "controller": "ruang_curhats_controller",
+    "action": "show",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "counseling.read"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/ruang-curhat/:id",
+    "controller": "ruang_curhats_controller",
+    "action": "update",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "counseling.manage"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/provinces",
+    "controller": "provinces_controller",
+    "action": "index",
+    "auth": false,
+    "trusted_origin": false,
+    "permission": ""
+  },
+  {
+    "method": "GET",
+    "path": "/v2/provinces/:id/cities",
+    "controller": "cities_controller",
+    "action": "getByProvinceId",
+    "auth": false,
+    "trusted_origin": false,
+    "permission": ""
+  },
+  {
+    "method": "GET",
+    "path": "/v2/provinces/:id",
+    "controller": "provinces_controller",
+    "action": "show",
+    "auth": false,
+    "trusted_origin": false,
+    "permission": ""
+  },
+  {
+    "method": "POST",
+    "path": "/v2/provinces",
+    "controller": "provinces_controller",
+    "action": "store",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "reference_data.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/provinces/:id",
+    "controller": "provinces_controller",
+    "action": "update",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "reference_data.manage"
+  },
+  {
+    "method": "DELETE",
+    "path": "/v2/provinces/:id",
+    "controller": "provinces_controller",
+    "action": "delete",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "reference_data.manage"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/cities",
+    "controller": "cities_controller",
+    "action": "index",
+    "auth": false,
+    "trusted_origin": false,
+    "permission": ""
+  },
+  {
+    "method": "GET",
+    "path": "/v2/cities/:id",
+    "controller": "cities_controller",
+    "action": "show",
+    "auth": false,
+    "trusted_origin": false,
+    "permission": ""
+  },
+  {
+    "method": "POST",
+    "path": "/v2/cities",
+    "controller": "cities_controller",
+    "action": "store",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "reference_data.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/cities/:id",
+    "controller": "cities_controller",
+    "action": "update",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "reference_data.manage"
+  },
+  {
+    "method": "DELETE",
+    "path": "/v2/cities/:id",
+    "controller": "cities_controller",
+    "action": "delete",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "reference_data.manage"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/countries",
+    "controller": "countries_controller",
+    "action": "index",
+    "auth": false,
+    "trusted_origin": false,
+    "permission": ""
+  },
+  {
+    "method": "GET",
+    "path": "/v2/achievements/export",
+    "controller": "leaderboards_controller",
+    "action": "export",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "achievements.export"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/achievements",
+    "controller": "leaderboards_controller",
+    "action": "index",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "achievements.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/achievements/:id",
+    "controller": "leaderboards_controller",
+    "action": "show",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "achievements.read"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/achievements/:id",
+    "controller": "leaderboards_controller",
+    "action": "update",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "achievements.review"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/achievements/:id/approve-reject",
+    "controller": "leaderboards_controller",
+    "action": "approveReject",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "achievements.review"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/leaderboards/monthly",
+    "controller": "leaderboards_controller",
+    "action": "monthlyLeaderboard",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "leaderboards.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/leaderboards/lifetime",
+    "controller": "leaderboards_controller",
+    "action": "lifetimeLeaderboard",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "leaderboards.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/clubs",
+    "controller": "clubs_controller",
+    "action": "index",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "clubs.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/clubs/:id",
+    "controller": "clubs_controller",
+    "action": "show",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "clubs.read"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/clubs",
+    "controller": "clubs_controller",
+    "action": "store",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "clubs.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/clubs/:id",
+    "controller": "clubs_controller",
+    "action": "update",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "clubs.manage"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/clubs/:id/logo",
+    "controller": "clubs_controller",
+    "action": "uploadLogo",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "clubs.manage"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/clubs/:id/media/image",
+    "controller": "clubs_controller",
+    "action": "uploadImageMedia",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "clubs.manage"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/clubs/:id/media/youtube",
+    "controller": "clubs_controller",
+    "action": "addYoutubeMedia",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "clubs.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/clubs/:id/delete-media",
+    "controller": "clubs_controller",
+    "action": "deleteMedia",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "clubs.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/clubs/:id/registration-info",
+    "controller": "clubs_controller",
+    "action": "updateRegistrationInfo",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "clubs.manage"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/clubs/:id/members",
+    "controller": "club_registrations_controller",
+    "action": "members",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "club_registrations.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/clubs/:id/registrations",
+    "controller": "club_registrations_controller",
+    "action": "index",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "club_registrations.read"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/clubs/:id/registrations",
+    "controller": "club_registrations_controller",
+    "action": "store",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "club_registrations.manage"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/clubs/:id/registrations/export",
+    "controller": "club_registrations_controller",
+    "action": "export",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "club_registrations.export"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/clubs/:id/member-roles",
+    "controller": "club_member_roles_controller",
+    "action": "index",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "club_registrations.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/clubs/:id/member-role-suggestions",
+    "controller": "club_member_roles_controller",
+    "action": "suggestions",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "club_registrations.read"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/clubs/:id/member-roles",
+    "controller": "club_member_roles_controller",
+    "action": "store",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "club_registrations.manage"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/club-registrations/:id",
+    "controller": "club_registrations_controller",
+    "action": "show",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "club_registrations.read"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/club-registrations/member-roles/:id",
+    "controller": "club_member_roles_controller",
+    "action": "update",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "club_registrations.manage"
+  },
+  {
+    "method": "DELETE",
+    "path": "/v2/club-registrations/member-roles/:id",
+    "controller": "club_member_roles_controller",
+    "action": "destroy",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "club_registrations.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/club-registrations/bulk-update",
+    "controller": "club_registrations_controller",
+    "action": "bulkUpdate",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "club_registrations.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/club-registrations/:id",
+    "controller": "club_registrations_controller",
+    "action": "update",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "club_registrations.manage"
+  },
+  {
+    "method": "DELETE",
+    "path": "/v2/club-registrations/:id",
+    "controller": "club_registrations_controller",
+    "action": "delete",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "club_registrations.manage"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/custom-forms",
+    "controller": "custom_forms_controller",
+    "action": "index",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "custom_forms.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/custom-forms/by-feature",
+    "controller": "custom_forms_controller",
+    "action": "getByFeature",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "custom_forms.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/custom-forms/unattached",
+    "controller": "custom_forms_controller",
+    "action": "getUnattachedForms",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "custom_forms.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/custom-forms/available-activities",
+    "controller": "custom_forms_controller",
+    "action": "getAvailableActivities",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "custom_forms.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/custom-forms/available-clubs",
+    "controller": "custom_forms_controller",
+    "action": "getAvailableClubs",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "custom_forms.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/custom-forms/:id",
+    "controller": "custom_forms_controller",
+    "action": "show",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "custom_forms.read"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/custom-forms",
+    "controller": "custom_forms_controller",
+    "action": "store",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "custom_forms.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/custom-forms/:id",
+    "controller": "custom_forms_controller",
+    "action": "update",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "custom_forms.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/custom-forms/:id/attach-club",
+    "controller": "custom_forms_controller",
+    "action": "attachToClub",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "custom_forms.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/custom-forms/:id/detach-club",
+    "controller": "custom_forms_controller",
+    "action": "detachFromClub",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "custom_forms.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/custom-forms/:id/attach-activity",
+    "controller": "custom_forms_controller",
+    "action": "attachToActivity",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "custom_forms.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/custom-forms/:id/detach-activity",
+    "controller": "custom_forms_controller",
+    "action": "detachFromActivity",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "custom_forms.manage"
+  },
+  {
+    "method": "DELETE",
+    "path": "/v2/custom-forms/:id",
+    "controller": "custom_forms_controller",
+    "action": "destroy",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "custom_forms.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/custom-forms/:id/toggle-active",
+    "controller": "custom_forms_controller",
+    "action": "toggleActive",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "custom_forms.manage"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/certificate-templates",
+    "controller": "certificate_templates_controller",
+    "action": "index",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.template.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/certificate-templates/:id",
+    "controller": "certificate_templates_controller",
+    "action": "show",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.template.read"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/certificate-templates",
+    "controller": "certificate_templates_controller",
+    "action": "store",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.template.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/certificate-templates/:id",
+    "controller": "certificate_templates_controller",
+    "action": "update",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.template.manage"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/certificate-templates/:id/duplicate",
+    "controller": "certificate_templates_controller",
+    "action": "duplicate",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.template.manage"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/certificate-templates/:id/publish",
+    "controller": "certificate_templates_controller",
+    "action": "publish",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.template.manage"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/certificate-templates/:id/archive",
+    "controller": "certificate_templates_controller",
+    "action": "archive",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.template.manage"
+  },
+  {
+    "method": "DELETE",
+    "path": "/v2/certificate-templates/:id",
+    "controller": "certificate_templates_controller",
+    "action": "destroy",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.template.manage"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/certificate-templates/:id/background",
+    "controller": "certificate_templates_controller",
+    "action": "uploadBackground",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.template.manage"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/certificate-templates/:id/assets",
+    "controller": "certificate_templates_controller",
+    "action": "uploadAsset",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.template.manage"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/certificates/code/:code",
+    "controller": "certificates_controller",
+    "action": "showByCode",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/certificates/verify/:code",
+    "controller": "certificates_controller",
+    "action": "verify",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/certificates/activities/:activityId/recipients",
+    "controller": "certificates_controller",
+    "action": "recipients",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.read"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/certificates/prepare-issuance",
+    "controller": "certificates_controller",
+    "action": "prepare",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.issue"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/certificates/issue-single",
+    "controller": "certificates_controller",
+    "action": "issueSingle",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.issue"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/certificates/issue-bulk",
+    "controller": "certificates_controller",
+    "action": "issueBulk",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.issue"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/certificates/generate",
+    "controller": "certificates_controller",
+    "action": "generate",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.read"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/certificates/generate-single",
+    "controller": "certificates_controller",
+    "action": "generateSingle",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/certificates",
+    "controller": "certificates_controller",
+    "action": "index",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.read"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/certificates/lookup",
+    "controller": "certificates_controller",
+    "action": "lookup",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/certificates/:id",
+    "controller": "certificates_controller",
+    "action": "show",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.read"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/certificates/:id/revoke",
+    "controller": "certificates_controller",
+    "action": "revoke",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.revoke"
+  },
+  {
+    "method": "GET",
+    "path": "/health",
+    "controller": "health",
+    "action": "health",
+    "auth": false,
+    "trusted_origin": false,
+    "permission": ""
+  }
+]

@@ -1,0 +1,316 @@
+[
+  {
+    "code": "super_admin",
+    "name": "Super Admin",
+    "description": "Mengelola akun admin, penetapan role, dan seluruh fitur admin.",
+    "is_requestable": false,
+    "permissions": [
+      "achievements.export",
+      "achievements.read",
+      "achievements.review",
+      "activities.manage",
+      "activities.read",
+      "activity_registrations.export",
+      "activity_registrations.manage",
+      "activity_registrations.read",
+      "admin_users.manage",
+      "admin_users.read",
+      "certificate.issue",
+      "certificate.read",
+      "certificate.revoke",
+      "certificate.template.manage",
+      "certificate.template.read",
+      "club_registrations.export",
+      "club_registrations.manage",
+      "club_registrations.read",
+      "clubs.manage",
+      "clubs.read",
+      "counseling.manage",
+      "counseling.read",
+      "custom_forms.manage",
+      "custom_forms.read",
+      "dashboard.read",
+      "leaderboards.read",
+      "members.credentials.manage",
+      "members.manage",
+      "members.read",
+      "rbac.read",
+      "reference_data.manage",
+      "tickets.review"
+    ]
+  },
+  {
+    "code": "admin",
+    "name": "Admin",
+    "description": "Mengelola konseling, anggota, kegiatan, data referensi, peringkat, formulir, klub, dan sertifikat.",
+    "is_requestable": true,
+    "permissions": [
+      "achievements.export",
+      "achievements.read",
+      "achievements.review",
+      "activities.manage",
+      "activities.read",
+      "activity_registrations.export",
+      "activity_registrations.manage",
+      "activity_registrations.read",
+      "certificate.issue",
+      "certificate.read",
+      "certificate.revoke",
+      "certificate.template.manage",
+      "certificate.template.read",
+      "club_registrations.export",
+      "club_registrations.manage",
+      "club_registrations.read",
+      "clubs.manage",
+      "clubs.read",
+      "counseling.manage",
+      "counseling.read",
+      "custom_forms.manage",
+      "custom_forms.read",
+      "dashboard.read",
+      "leaderboards.read",
+      "members.credentials.manage",
+      "members.manage",
+      "members.read",
+      "reference_data.manage"
+    ]
+  },
+  {
+    "code": "asmen",
+    "name": "Asmen",
+    "description": "Mengelola anggota, kegiatan, prestasi, peringkat, formulir, klub, dan penerbitan sertifikat.",
+    "is_requestable": true,
+    "permissions": [
+      "achievements.export",
+      "achievements.read",
+      "achievements.review",
+      "activities.manage",
+      "activities.read",
+      "activity_registrations.export",
+      "activity_registrations.manage",
+      "activity_registrations.read",
+      "certificate.issue",
+      "certificate.read",
+      "certificate.template.read",
+      "club_registrations.export",
+      "club_registrations.manage",
+      "club_registrations.read",
+      "clubs.manage",
+      "clubs.read",
+      "custom_forms.manage",
+      "custom_forms.read",
+      "dashboard.read",
+      "leaderboards.read",
+      "members.credentials.manage",
+      "members.manage",
+      "members.read"
+    ]
+  },
+  {
+    "code": "kapro",
+    "name": "Kapro",
+    "description": "Mengelola kegiatan, pendaftaran, formulir, klub, dan penerbitan sertifikat.",
+    "is_requestable": true,
+    "permissions": [
+      "activities.manage",
+      "activities.read",
+      "activity_registrations.export",
+      "activity_registrations.manage",
+      "activity_registrations.read",
+      "certificate.issue",
+      "certificate.read",
+      "certificate.template.read",
+      "club_registrations.export",
+      "club_registrations.manage",
+      "club_registrations.read",
+      "clubs.manage",
+      "clubs.read",
+      "custom_forms.manage",
+      "custom_forms.read",
+      "dashboard.read"
+    ]
+  },
+  {
+    "code": "konselor",
+    "name": "Konselor",
+    "description": "Melihat dan menanggapi permintaan konseling.",
+    "is_requestable": true,
+    "permissions": [
+      "counseling.manage",
+      "counseling.read",
+      "dashboard.read"
+    ]
+  },
+  {
+    "code": "leaderboard",
+    "name": "Leaderboard",
+    "description": "Meninjau dan mengekspor data prestasi serta mengelola peringkat.",
+    "is_requestable": true,
+    "permissions": [
+      "achievements.export",
+      "achievements.read",
+      "achievements.review",
+      "dashboard.read",
+      "leaderboards.read"
+    ]
+  },
+  {
+    "code": "operations_admin",
+    "name": "Operations Admin",
+    "description": "Mengelola seluruh fitur operasional, kecuali pengelolaan akun admin dan hak akses.",
+    "is_requestable": true,
+    "permissions": [
+      "achievements.export",
+      "achievements.read",
+      "achievements.review",
+      "activities.manage",
+      "activities.read",
+      "activity_registrations.export",
+      "activity_registrations.manage",
+      "activity_registrations.read",
+      "certificate.issue",
+      "certificate.read",
+      "certificate.revoke",
+      "certificate.template.manage",
+      "certificate.template.read",
+      "club_registrations.export",
+      "club_registrations.manage",
+      "club_registrations.read",
+      "clubs.manage",
+      "clubs.read",
+      "counseling.manage",
+      "counseling.read",
+      "custom_forms.manage",
+      "custom_forms.read",
+      "dashboard.read",
+      "leaderboards.read",
+      "members.credentials.manage",
+      "members.manage",
+      "members.read",
+      "reference_data.manage"
+    ]
+  },
+  {
+    "code": "member_manager",
+    "name": "Member Manager",
+    "description": "Mengelola profil anggota, pembuatan akun, serta email dan kata sandi anggota.",
+    "is_requestable": true,
+    "permissions": [
+      "dashboard.read",
+      "members.credentials.manage",
+      "members.manage",
+      "members.read"
+    ]
+  },
+  {
+    "code": "activity_manager",
+    "name": "Activity Manager",
+    "description": "Mengelola kegiatan, peserta, ekspor data pendaftaran, formulir, dan penerbitan sertifikat.",
+    "is_requestable": true,
+    "permissions": [
+      "activities.manage",
+      "activities.read",
+      "activity_registrations.export",
+      "activity_registrations.manage",
+      "activity_registrations.read",
+      "certificate.issue",
+      "certificate.read",
+      "certificate.template.read",
+      "custom_forms.manage",
+      "custom_forms.read",
+      "dashboard.read",
+      "members.read"
+    ]
+  },
+  {
+    "code": "club_manager",
+    "name": "Club Manager",
+    "description": "Mengelola klub, keanggotaan, ekspor data pendaftaran, dan formulir pendaftaran.",
+    "is_requestable": true,
+    "permissions": [
+      "club_registrations.export",
+      "club_registrations.manage",
+      "club_registrations.read",
+      "clubs.manage",
+      "clubs.read",
+      "custom_forms.manage",
+      "custom_forms.read",
+      "dashboard.read",
+      "members.read"
+    ]
+  },
+  {
+    "code": "certificate_manager",
+    "name": "Certificate Manager",
+    "description": "Mendesain dan menerbitkan template sertifikat serta menerbitkan dan mencabut sertifikat.",
+    "is_requestable": true,
+    "permissions": [
+      "activities.read",
+      "activity_registrations.read",
+      "certificate.issue",
+      "certificate.read",
+      "certificate.revoke",
+      "certificate.template.manage",
+      "certificate.template.read",
+      "dashboard.read",
+      "members.read"
+    ]
+  },
+  {
+    "code": "achievement_reviewer",
+    "name": "Achievement Reviewer",
+    "description": "Meninjau dan mengekspor data prestasi serta mengelola peringkat.",
+    "is_requestable": true,
+    "permissions": [
+      "achievements.export",
+      "achievements.read",
+      "achievements.review",
+      "dashboard.read",
+      "leaderboards.read"
+    ]
+  },
+  {
+    "code": "counselor",
+    "name": "Counselor",
+    "description": "Melihat dan menanggapi permintaan konseling.",
+    "is_requestable": true,
+    "permissions": [
+      "counseling.manage",
+      "counseling.read",
+      "dashboard.read"
+    ]
+  },
+  {
+    "code": "reference_data_manager",
+    "name": "Reference Data Manager",
+    "description": "Mengelola data referensi provinsi, kota, dan perguruan tinggi.",
+    "is_requestable": true,
+    "permissions": [
+      "dashboard.read",
+      "reference_data.manage"
+    ]
+  },
+  {
+    "code": "form_manager",
+    "name": "Form Manager",
+    "description": "Mengelola formulir digital serta menghubungkannya dengan kegiatan dan klub.",
+    "is_requestable": true,
+    "permissions": [
+      "activities.read",
+      "clubs.read",
+      "custom_forms.manage",
+      "custom_forms.read",
+      "dashboard.read"
+    ]
+  },
+  {
+    "code": "access_reviewer",
+    "name": "Access Reviewer",
+    "description": "Meninjau permintaan hak akses. Role ini hanya dapat ditetapkan oleh Super Admin.",
+    "is_requestable": false,
+    "permissions": [
+      "dashboard.read",
+      "tickets.review"
+    ]
+  }
+]

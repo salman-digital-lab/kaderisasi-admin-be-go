@@ -1,0 +1,7 @@
+{
+  "original_revision": "9e5a57182d123736e271adcb9417126a00981f2c",
+  "original_route_count": 138,
+  "revision": "d1cc1b146ea0c2b0458292f0a0f6b0ac718b1b35",
+  "route_count": 139,
+  "reason": "Adopted the new certificate JSON lookup endpoint and array-query parsing fix committed independently during the rewrite. No database schema changes."
+}

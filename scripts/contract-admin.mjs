@@ -1,0 +1,32 @@
+export async function adminCases(h,password){
+  for(const path of ['/v2/admin-users','/v2/admin-users/1','/v2/admin-users/999999','/v2/admin-users?search=synthetic&per_page=2'])await h.call(path,'GET',path);
+  await h.call('admin:invalid','POST','/v2/admin-users',{});
+  await h.call('admin:create','POST','/v2/admin-users',{displayName:'New fixture',email:'created@example.test',password,role_code:null});
+  await h.call('admin:duplicate','POST','/v2/admin-users',{displayName:'Duplicate',email:'created@example.test',password});
+  await h.call('admin:show','GET','/v2/admin-users/4');
+  await h.call('admin:role-change','PUT','/v2/admin-users/4',{role_code:'counselor'});
+  await h.call('admin:password','PUT','/v2/admin-users/4/password',{password});
+  await h.call('admin:missing-update','PUT','/v2/admin-users/999999',{role_code:null});
+  await h.call('admin:missing-password','PUT','/v2/admin-users/999999/password',{password});
+  await h.call('admin:self-deactivate','PUT','/v2/admin-users/1',{isActive:false});
+  await h.call('admin:last-super','PUT','/v2/admin-users/1',{role_code:null});
+  await h.call('admin:deactivate','PUT','/v2/admin-users/4',{isActive:false});
+  await h.call('admin:reactivate','PUT','/v2/admin-users/4',{isActive:true});
+  await h.call('ticket:create','POST','/v2/access-requests',{role_code:'club_manager',reason:'Need fixture club access'},'requester');
+  await h.call('ticket:duplicate','POST','/v2/access-requests',{role_code:'club_manager',reason:'Duplicate request'},'requester');
+  await h.call('ticket:own-index','GET','/v2/access-requests',undefined,'requester');
+  await h.call('ticket:own-show','GET','/v2/access-requests/1',undefined,'requester');
+  await h.call('ticket:other-show','GET','/v2/access-requests/1');
+  await h.call('ticket:review-index','GET','/v2/tickets/review?status=open');
+  await h.call('ticket:review-show','GET','/v2/tickets/review/1');
+  await h.call('ticket:approve','POST','/v2/tickets/review/1/approve',{});
+  await h.call('ticket:repeat-approve','POST','/v2/tickets/review/1/approve',{});
+  await h.call('ticket:create-second','POST','/v2/access-requests',{role_code:'counselor',reason:'Second fixture request'},'requester');
+  await h.call('ticket:reject','POST','/v2/tickets/review/2/reject',{rejection_reason:'Synthetic rejection'},'super');
+  await h.call('ticket:create-third','POST','/v2/access-requests',{role_code:'counselor',reason:'Cancelled fixture request'},'requester');
+  await h.call('ticket:cancel','POST','/v2/access-requests/3/cancel',{},'requester');
+  await h.call('ticket:repeat-cancel','POST','/v2/access-requests/3/cancel',{},'requester');
+  await h.call('ticket:non-requestable','POST','/v2/access-requests',{role_code:'super_admin',reason:'Invalid fixture request'},'requester');
+  for(const path of ['/v2/access-requests/999999','/v2/tickets/review/999999'])await h.call(`missing:${path}`,'GET',path,undefined,'requester');
+  await h.call('ticket:invalid','POST','/v2/access-requests',{role_code:'missing',reason:''},'requester');
+}

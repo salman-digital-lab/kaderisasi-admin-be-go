@@ -1,0 +1,36 @@
+export async function clubMemberCases(h){
+  await h.call('membership:club','POST','/v2/clubs',{name:'Membership fixture'});
+  await h.call('membership:member','POST','/v2/members',{name:'Club member',email:'club-member@example.test'});
+  await h.call('membership:member-two','POST','/v2/members',{name:'Second member',email:'club-second@example.test'});
+  await h.call('membership:invalid','POST','/v2/clubs/1/registrations',{});
+  await h.call('membership:create','POST','/v2/clubs/1/registrations',{member_id:1,additional_data:{motivation:'Learn',choice:['A','B'],consent:true}});
+  await h.call('membership:duplicate','POST','/v2/clubs/1/registrations',{member_id:1});
+  await h.call('membership:create-two','POST','/v2/clubs/1/registrations',{member_id:2});
+  await h.seed("UPDATE club_registrations SET created_at='2024-01-01 00:00:00+00'::timestamptz+id*interval '1 day'");
+  await h.call('membership:list','GET','/v2/clubs/1/registrations?status=PENDING&sort_order=asc&limit=1&page=2');
+  await h.call('membership:show','GET','/v2/club-registrations/1');
+  await h.call('role:pending-denied','POST','/v2/clubs/1/member-roles',{club_registration_id:1,role_name:'Leader'});
+  await h.call('membership:approve','PUT','/v2/club-registrations/1',{status:'APPROVED'});
+  await h.call('role:invalid','POST','/v2/clubs/1/member-roles',{club_registration_id:1,role_name:'x'});
+  await h.call('role:create','POST','/v2/clubs/1/member-roles',{club_registration_id:1,role_name:' Leader ',is_primary:true,start_date:'2026-01-01'});
+  await h.call('role:replace-primary','POST','/v2/clubs/1/member-roles',{club_registration_id:1,role_name:'Secretary',is_primary:true,sort_order:2});
+  await h.call('role:update','PUT','/v2/club-registrations/member-roles/1',{role_name:'Chair',is_primary:true,sort_order:-1,end_date:'2026-12-31'});
+  await h.call('role:list','GET','/v2/clubs/1/member-roles');
+  await h.call('role:suggestions','GET','/v2/clubs/1/member-role-suggestions');
+  await h.call('membership:approved-search','GET','/v2/clubs/1/members?search=Club&sort_order=asc');
+  await h.call('membership:show-roles','GET','/v2/club-registrations/1');
+  await h.call('membership:bulk-duplicate','PUT','/v2/club-registrations/bulk-update',{registrations:[{id:1,status:'REJECTED'},{id:1,status:'APPROVED'}]});
+  await h.call('membership:bulk-missing','PUT','/v2/club-registrations/bulk-update',{registrations:[{id:1,status:'REJECTED'},{id:999999,status:'APPROVED'}]});
+  await h.call('membership:bulk-empty','PUT','/v2/club-registrations/bulk-update',{registrations:[]});
+  await h.call('membership:bulk-update','PUT','/v2/club-registrations/bulk-update',{registrations:[{id:2,status:'APPROVED',additional_data:{motivation:{value:'Help',label:'Helping'}}},{id:1,status:'REJECTED'}]});
+  await h.call('membership:form','POST','/v2/custom-forms',{formName:'Member questions',isActive:true,featureType:'club_registration',featureId:1,formSchema:{fields:[{section_name:'Info',fields:[{key:'motivation',label:'Motivasi',required:true,type:'text'}]}]}});
+  await h.call('membership:export','GET','/v2/clubs/1/registrations/export');
+  await h.call('membership:approved-list','GET','/v2/clubs/1/members');
+  await h.call('role:approved-list','GET','/v2/clubs/1/member-roles');
+  await h.call('role:delete','DELETE','/v2/club-registrations/member-roles/2');
+  await h.call('role:delete-missing','DELETE','/v2/club-registrations/member-roles/2');
+  await h.call('membership:delete','DELETE','/v2/club-registrations/1');
+  await h.call('membership:missing','GET','/v2/club-registrations/999999');
+  await h.call('membership:missing-member','POST','/v2/clubs/1/registrations',{member_id:999999});
+  await h.call('membership:missing-club','GET','/v2/clubs/999999/members');
+}

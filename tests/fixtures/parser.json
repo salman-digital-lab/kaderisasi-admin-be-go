@@ -1,0 +1,774 @@
+{
+  "forms": [
+    {
+      "raw": "name=Fixture&country=",
+      "emptyNull": false,
+      "expected": {
+        "name": "Fixture",
+        "country": ""
+      }
+    },
+    {
+      "raw": "name=Fixture&country=",
+      "emptyNull": true,
+      "expected": {
+        "name": "Fixture",
+        "country": null
+      }
+    },
+    {
+      "raw": "a=1&a=2",
+      "emptyNull": false,
+      "expected": {
+        "a": [
+          "1",
+          "2"
+        ]
+      }
+    },
+    {
+      "raw": "a=1&a=2",
+      "emptyNull": true,
+      "expected": {
+        "a": [
+          "1",
+          "2"
+        ]
+      }
+    },
+    {
+      "raw": "badges[]=LMD&badges[]=ALUMNI",
+      "emptyNull": false,
+      "expected": {
+        "badges": [
+          "LMD",
+          "ALUMNI"
+        ]
+      }
+    },
+    {
+      "raw": "badges[]=LMD&badges[]=ALUMNI",
+      "emptyNull": true,
+      "expected": {
+        "badges": [
+          "LMD",
+          "ALUMNI"
+        ]
+      }
+    },
+    {
+      "raw": "extra_data.preferred_name=Fixture",
+      "emptyNull": false,
+      "expected": {
+        "extra_data": {
+          "preferred_name": "Fixture"
+        }
+      }
+    },
+    {
+      "raw": "extra_data.preferred_name=Fixture",
+      "emptyNull": true,
+      "expected": {
+        "extra_data": {
+          "preferred_name": "Fixture"
+        }
+      }
+    },
+    {
+      "raw": "a[0][name]=First&a[0][value]=one&a[1][name]=Second",
+      "emptyNull": false,
+      "expected": {
+        "a": [
+          {
+            "name": "First",
+            "value": "one"
+          },
+          {
+            "name": "Second"
+          }
+        ]
+      }
+    },
+    {
+      "raw": "a[0][name]=First&a[0][value]=one&a[1][name]=Second",
+      "emptyNull": true,
+      "expected": {
+        "a": [
+          {
+            "name": "First",
+            "value": "one"
+          },
+          {
+            "name": "Second"
+          }
+        ]
+      }
+    },
+    {
+      "raw": "a[3]=three&a[1]=one",
+      "emptyNull": false,
+      "expected": {
+        "a": [
+          "one",
+          "three"
+        ]
+      }
+    },
+    {
+      "raw": "a[3]=three&a[1]=one",
+      "emptyNull": true,
+      "expected": {
+        "a": [
+          "one",
+          "three"
+        ]
+      }
+    },
+    {
+      "raw": "a[0]=one&a[0]=two",
+      "emptyNull": false,
+      "expected": {
+        "a": [
+          [
+            "one",
+            "two"
+          ]
+        ]
+      }
+    },
+    {
+      "raw": "a[0]=one&a[0]=two",
+      "emptyNull": true,
+      "expected": {
+        "a": [
+          [
+            "one",
+            "two"
+          ]
+        ]
+      }
+    },
+    {
+      "raw": "a[]=one&a[0]=two",
+      "emptyNull": false,
+      "expected": {
+        "a": [
+          "one",
+          "two"
+        ]
+      }
+    },
+    {
+      "raw": "a[]=one&a[0]=two",
+      "emptyNull": true,
+      "expected": {
+        "a": [
+          "one",
+          "two"
+        ]
+      }
+    },
+    {
+      "raw": "a[20]=twenty&a[21]=twenty-one",
+      "emptyNull": false,
+      "expected": {
+        "a": {
+          "20": "twenty",
+          "21": "twenty-one"
+        }
+      }
+    },
+    {
+      "raw": "a[20]=twenty&a[21]=twenty-one",
+      "emptyNull": true,
+      "expected": {
+        "a": {
+          "20": "twenty",
+          "21": "twenty-one"
+        }
+      }
+    },
+    {
+      "raw": "a[01]=zero-one&a[1]=one",
+      "emptyNull": false,
+      "expected": {
+        "a": {
+          "1": "one",
+          "01": "zero-one"
+        }
+      }
+    },
+    {
+      "raw": "a[01]=zero-one&a[1]=one",
+      "emptyNull": true,
+      "expected": {
+        "a": {
+          "1": "one",
+          "01": "zero-one"
+        }
+      }
+    },
+    {
+      "raw": "a[b]=one&a[]=two",
+      "emptyNull": false,
+      "expected": {
+        "a": {
+          "0": "two",
+          "b": "one"
+        }
+      }
+    },
+    {
+      "raw": "a[b]=one&a[]=two",
+      "emptyNull": true,
+      "expected": {
+        "a": {
+          "0": "two",
+          "b": "one"
+        }
+      }
+    },
+    {
+      "raw": "a=one&a[b]=two",
+      "emptyNull": false,
+      "expected": {
+        "a": [
+          "one",
+          {
+            "b": "two"
+          }
+        ]
+      }
+    },
+    {
+      "raw": "a=one&a[b]=two",
+      "emptyNull": true,
+      "expected": {
+        "a": [
+          "one",
+          {
+            "b": "two"
+          }
+        ]
+      }
+    },
+    {
+      "raw": "a[b]=one&a=two",
+      "emptyNull": false,
+      "expected": {
+        "a": [
+          {
+            "b": "one"
+          },
+          "two"
+        ]
+      }
+    },
+    {
+      "raw": "a[b]=one&a=two",
+      "emptyNull": true,
+      "expected": {
+        "a": [
+          {
+            "b": "one"
+          },
+          "two"
+        ]
+      }
+    },
+    {
+      "raw": "a=one&a[]=two",
+      "emptyNull": false,
+      "expected": {
+        "a": [
+          "one",
+          "two"
+        ]
+      }
+    },
+    {
+      "raw": "a=one&a[]=two",
+      "emptyNull": true,
+      "expected": {
+        "a": [
+          "one",
+          "two"
+        ]
+      }
+    },
+    {
+      "raw": "a[]=one&a[b]=two",
+      "emptyNull": false,
+      "expected": {
+        "a": {
+          "0": "one",
+          "b": "two"
+        }
+      }
+    },
+    {
+      "raw": "a[]=one&a[b]=two",
+      "emptyNull": true,
+      "expected": {
+        "a": {
+          "0": "one",
+          "b": "two"
+        }
+      }
+    },
+    {
+      "raw": "a.b[c]=one",
+      "emptyNull": false,
+      "expected": {
+        "a": {
+          "b": {
+            "c": "one"
+          }
+        }
+      }
+    },
+    {
+      "raw": "a.b[c]=one",
+      "emptyNull": true,
+      "expected": {
+        "a": {
+          "b": {
+            "c": "one"
+          }
+        }
+      }
+    },
+    {
+      "raw": "a[b][c][d][e][f][g]=seven",
+      "emptyNull": false,
+      "expected": {
+        "a": {
+          "b": {
+            "c": {
+              "d": {
+                "e": {
+                  "f": {
+                    "[g]": "seven"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "raw": "a[b][c][d][e][f][g]=seven",
+      "emptyNull": true,
+      "expected": {
+        "a": {
+          "b": {
+            "c": {
+              "d": {
+                "e": {
+                  "f": {
+                    "[g]": "seven"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "raw": "a.b.c.d.e.f.g=seven",
+      "emptyNull": false,
+      "expected": {
+        "a": {
+          "b": {
+            "c": {
+              "d": {
+                "e": {
+                  "f": {
+                    "[g]": "seven"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "raw": "a.b.c.d.e.f.g=seven",
+      "emptyNull": true,
+      "expected": {
+        "a": {
+          "b": {
+            "c": {
+              "d": {
+                "e": {
+                  "f": {
+                    "[g]": "seven"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "raw": "__proto__[polluted]=yes&name=safe",
+      "emptyNull": false,
+      "expected": {
+        "name": "safe"
+      }
+    },
+    {
+      "raw": "__proto__[polluted]=yes&name=safe",
+      "emptyNull": true,
+      "expected": {
+        "name": "safe"
+      }
+    },
+    {
+      "raw": "constructor[prototype][polluted]=yes&name=safe",
+      "emptyNull": false,
+      "expected": {
+        "name": "safe"
+      }
+    },
+    {
+      "raw": "constructor[prototype][polluted]=yes&name=safe",
+      "emptyNull": true,
+      "expected": {
+        "name": "safe"
+      }
+    },
+    {
+      "raw": "a[toString]=ignored&a[safe]=yes",
+      "emptyNull": false,
+      "expected": {
+        "a": {
+          "safe": "yes"
+        }
+      }
+    },
+    {
+      "raw": "a[toString]=ignored&a[safe]=yes",
+      "emptyNull": true,
+      "expected": {
+        "a": {
+          "safe": "yes"
+        }
+      }
+    },
+    {
+      "raw": "a[prototype]=value",
+      "emptyNull": false,
+      "expected": {
+        "a": {
+          "prototype": "value"
+        }
+      }
+    },
+    {
+      "raw": "a[prototype]=value",
+      "emptyNull": true,
+      "expected": {
+        "a": {
+          "prototype": "value"
+        }
+      }
+    },
+    {
+      "raw": "empty=&nil&space=+&encoded=%26%3D&unicode=%E2%98%83",
+      "emptyNull": false,
+      "expected": {
+        "empty": "",
+        "nil": "",
+        "space": " ",
+        "encoded": "&=",
+        "unicode": "☃"
+      }
+    },
+    {
+      "raw": "empty=&nil&space=+&encoded=%26%3D&unicode=%E2%98%83",
+      "emptyNull": true,
+      "expected": {
+        "empty": null,
+        "nil": "",
+        "space": " ",
+        "encoded": "&=",
+        "unicode": "☃"
+      }
+    },
+    {
+      "raw": "bad=%E0%A4%A",
+      "emptyNull": false,
+      "expected": {
+        "bad": "%E0%A4%A"
+      }
+    },
+    {
+      "raw": "bad=%E0%A4%A",
+      "emptyNull": true,
+      "expected": {
+        "bad": "%E0%A4%A"
+      }
+    },
+    {
+      "raw": "a[]=one&a[]=two&a[]=three",
+      "emptyNull": false,
+      "expected": {
+        "a": [
+          "one",
+          "two",
+          "three"
+        ]
+      }
+    },
+    {
+      "raw": "a[]=one&a[]=two&a[]=three",
+      "emptyNull": true,
+      "expected": {
+        "a": [
+          "one",
+          "two",
+          "three"
+        ]
+      }
+    },
+    {
+      "raw": "a[0][x]=one&a[0][y]=two",
+      "emptyNull": false,
+      "expected": {
+        "a": [
+          {
+            "x": "one",
+            "y": "two"
+          }
+        ]
+      }
+    },
+    {
+      "raw": "a[0][x]=one&a[0][y]=two",
+      "emptyNull": true,
+      "expected": {
+        "a": [
+          {
+            "x": "one",
+            "y": "two"
+          }
+        ]
+      }
+    },
+    {
+      "raw": "a[1]=one&a[3]=three&a[2]=two",
+      "emptyNull": false,
+      "expected": {
+        "a": [
+          "one",
+          "two",
+          "three"
+        ]
+      }
+    },
+    {
+      "raw": "a[1]=one&a[3]=three&a[2]=two",
+      "emptyNull": true,
+      "expected": {
+        "a": [
+          "one",
+          "two",
+          "three"
+        ]
+      }
+    },
+    {
+      "raw": "a[2][x]=two&a[0][x]=zero",
+      "emptyNull": false,
+      "expected": {
+        "a": [
+          {
+            "x": "zero"
+          },
+          {
+            "x": "two"
+          }
+        ]
+      }
+    },
+    {
+      "raw": "a[2][x]=two&a[0][x]=zero",
+      "emptyNull": true,
+      "expected": {
+        "a": [
+          {
+            "x": "zero"
+          },
+          {
+            "x": "two"
+          }
+        ]
+      }
+    },
+    {
+      "raw": "a[b]=&a[c][]=one&a[c][]=",
+      "emptyNull": false,
+      "expected": {
+        "a": {
+          "b": "",
+          "c": [
+            "one",
+            ""
+          ]
+        }
+      }
+    },
+    {
+      "raw": "a[b]=&a[c][]=one&a[c][]=",
+      "emptyNull": true,
+      "expected": {
+        "a": {
+          "b": null,
+          "c": [
+            "one",
+            null
+          ]
+        }
+      }
+    },
+    {
+      "raw": "email=super%40example.test&password=Test%2B123",
+      "emptyNull": false,
+      "expected": {
+        "email": "super@example.test",
+        "password": "Test+123"
+      }
+    },
+    {
+      "raw": "email=super%40example.test&password=Test%2B123",
+      "emptyNull": true,
+      "expected": {
+        "email": "super@example.test",
+        "password": "Test+123"
+      }
+    }
+  ],
+  "json": [
+    {
+      "raw": "{",
+      "message": "Expected property name or '}' in JSON at position 1 (line 1 column 2)"
+    },
+    {
+      "raw": "{ ",
+      "message": "Expected property name or '}' in JSON at position 2 (line 1 column 3)"
+    },
+    {
+      "raw": "{\n",
+      "message": "Expected property name or '}' in JSON at position 2 (line 2 column 1)"
+    },
+    {
+      "raw": "{email:1}",
+      "message": "Expected property name or '}' in JSON at position 1 (line 1 column 2)"
+    },
+    {
+      "raw": "{\"a\" 1}",
+      "message": "Expected ':' after property name in JSON at position 5 (line 1 column 6)"
+    },
+    {
+      "raw": "{\"a\":1,}",
+      "message": "Expected double-quoted property name in JSON at position 7 (line 1 column 8)"
+    },
+    {
+      "raw": "{\"a\":1 x}",
+      "message": "Expected ',' or '}' after property value in JSON at position 7 (line 1 column 8)"
+    },
+    {
+      "raw": "[1 x]",
+      "message": "Expected ',' or ']' after array element in JSON at position 3 (line 1 column 4)"
+    },
+    {
+      "raw": "{} {}",
+      "message": "Unexpected non-whitespace character after JSON at position 3 (line 1 column 4)"
+    },
+    {
+      "raw": "[]x",
+      "message": "Unexpected non-whitespace character after JSON at position 2 (line 1 column 3)"
+    },
+    {
+      "raw": "{\"a\":}",
+      "message": "Unexpected token '}', \"{\"a\":}\" is not valid JSON"
+    },
+    {
+      "raw": "[}]",
+      "message": "Unexpected token '}', \"[}]\" is not valid JSON"
+    },
+    {
+      "raw": "[1,]",
+      "message": "Unexpected token ']', \"[1,]\" is not valid JSON"
+    },
+    {
+      "raw": "[",
+      "message": "Unexpected end of JSON input"
+    },
+    {
+      "raw": "[1",
+      "message": "Expected ',' or ']' after array element in JSON at position 2 (line 1 column 3)"
+    },
+    {
+      "raw": "{\"a\":",
+      "message": "Unexpected end of JSON input"
+    },
+    {
+      "raw": "{\"a\":\"unterminated",
+      "message": "Unterminated string in JSON at position 18 (line 1 column 19)"
+    },
+    {
+      "raw": "{\"a\":\"bad\\x\"}",
+      "message": "Bad escaped character in JSON at position 10 (line 1 column 11)"
+    },
+    {
+      "raw": "{\"a\":\"bad\n\"}",
+      "message": "Bad control character in string literal in JSON at position 9 (line 1 column 10)"
+    },
+    {
+      "raw": "{\"a\":01}",
+      "message": "Unexpected number in JSON at position 6 (line 1 column 7)"
+    },
+    {
+      "raw": "{\"a\":-}",
+      "message": "No number after minus sign in JSON at position 6 (line 1 column 7)"
+    },
+    {
+      "raw": "{\"a\":1.}",
+      "message": "Unterminated fractional number in JSON at position 7 (line 1 column 8)"
+    },
+    {
+      "raw": "{\"a\":1e}",
+      "message": "Exponent part is missing a number in JSON at position 7 (line 1 column 8)"
+    },
+    {
+      "raw": "{\"a\":tru}",
+      "message": "Unexpected token '}', \"{\"a\":tru}\" is not valid JSON"
+    },
+    {
+      "raw": "{\"a\":undefined}",
+      "message": "Unexpected token 'u', \"{\"a\":undefined}\" is not valid JSON"
+    },
+    {
+      "raw": "{\"雪\":}",
+      "message": "Unexpected token '}', \"{\"雪\":}\" is not valid JSON"
+    },
+    {
+      "raw": "{\"😀\":}",
+      "message": "Unexpected token '}', \"{\"😀\":}\" is not valid JSON"
+    },
+    {
+      "raw": "{\n\"a\":1,\n bad:2}",
+      "message": "Expected double-quoted property name in JSON at position 10 (line 3 column 2)"
+    },
+    {
+      "raw": "{\"verylongkey\":\"some long text\", \"a\":undefined}",
+      "message": "Unexpected token 'u', ...\"ext\", \"a\":undefined}\" is not valid JSON"
+    }
+  ]
+}

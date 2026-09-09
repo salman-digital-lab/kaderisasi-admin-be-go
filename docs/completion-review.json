@@ -1,0 +1,38 @@
+{
+  "criteria": [
+    {
+      "name": "Every route: invalid-input and missing-resource applicability reviewed with executed evidence",
+      "status": "pending"
+    },
+    {
+      "name": "Explicit request/response types and typed query design reviewed across every business module",
+      "status": "pending"
+    },
+    {
+      "name": "Numeric identifier and pagination boundaries preserve compatibility without narrowing overflow",
+      "status": "pending"
+    },
+    {
+      "name": "Required malformed, oversized, orientation, and storage-failure scenarios verified",
+      "status": "passed",
+      "evidence": [
+        "38 real storage image comparisons, all five routes, .artifacts/contracts/images-report.json",
+        "Template duplication with missing source and cleanup, .artifacts/contracts/templates-report.json",
+        "Race-enabled storage/image lifecycle and failure cleanup tests, .artifacts/go-race-current.jsonl"
+      ]
+    },
+    {
+      "name": "Native runtime packaging verified",
+      "status": "passed",
+      "evidence": [
+        "Native macOS arm64 package build and executable startup validation: .artifacts/package-protocol.log",
+        "Library dependencies and toolchain versions: .artifacts/release/admin-go-darwin-arm64/manifest.json and RUNTIME.txt",
+        "Setup and matching OS/architecture requirements documented in README.md"
+      ]
+    },
+    {
+      "name": "Final verification report reviewed, including dependency locks, browser evidence, and cleanup",
+      "status": "pending"
+    }
+  ]
+}
