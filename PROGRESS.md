@@ -246,3 +246,25 @@ handlers, unexecuted required scenarios, test skips, and unfinished cleanup.
   run is next; prior group reports remain historical evidence only.
 - The last HTTP image fixture now retains its object journal for the harness to
   verify and archive, matching the other Go storage fixtures.
+
+## Current source verification
+
+- Activity/service and evidence-gate changes committed as `7cd6588`.
+- The fresh complete contract run passed reference, authorization, auth,
+  administrators, members, activities, registrations, clubs, club membership,
+  achievements, templates, certificates, Google and image groups. During the Go
+  route-edge run the harness's PostgreSQL client emitted an idle `ETIMEDOUT` error,
+  ending the runner before teardown. The suite did not complete.
+- Verified and stopped only that run's orphan API executable, recreated the
+  workspace Adonis pane, confirmed `/health`, and cleaned its empty recorded
+  journal. `.artifacts/borrowed-3334.json` records successful restoration.
+- Idle PostgreSQL errors are now handled so awaited work rejects and finally
+  blocks run. Contract teardown attempts server stop, DB close and object cleanup
+  independently; group completion also checks the fixture connection.
+- A real failure test terminated only its own uniquely tagged PostgreSQL connection
+  (PID, backend start, application name, user and database all matched). It verified
+  error capture, rejected future queries and a healthy control connection. Evidence:
+  `.artifacts/fixture-disconnect.json`. It is included in integration/aggregate targets.
+- Rerun route-edges, query-edges and protocol, then check coverage for the current
+  source. Registration DTO/query drafts are in `.artifacts/next-registration/`;
+  they have not been applied or counted as implementation.

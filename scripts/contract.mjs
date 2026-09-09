@@ -48,7 +48,7 @@ const keys=group==='google'?await googleFixture():null;
 const started=Date.now();
 try {
   for(const [kind,suffix] of [['adonis','baseline'],['go','candidate']]) {
-    const {db,schema}=await fixtureDatabase(suffix);
+    const {db,schema,assertHealthy}=await fixtureDatabase(suffix);
     let server;
     let journal;
     try {
@@ -114,10 +114,17 @@ try {
         return data;
       }};
       if(group==='protocol')await protocolCases(h,fixturePassword);else if(group==='query-edges')await queryEdgeCases(h);else if(group==='route-edges')await routeEdgeCases(h,routes);else if(group==='images')await imageCases(h);else if(group==='reference')await referenceCases(h);else if(group==='authorization')await authorizationCases(h,routes);else if(group==='admin')await adminCases(h,fixturePassword);else if(group==='members')await memberCases(h,fixturePassword);else if(group==='activities')await activityCases(h);else if(group==='registrations')await registrationCases(h);else if(group==='clubs')await clubCases(h);else if(group==='club-members')await clubMemberCases(h);else if(group==='achievements')await achievementCases(h);else if(group==='templates')await templateCases(h);else if(group==='certificates')await certificateCases(h);else if(group==='google')await googleCases(h,keys);else await authCases(h,fixturePassword);
+      await db.query('SELECT 1');assertHealthy();
       results[kind]=responses;
       writeFileSync(resolve(artifacts,`${group}-${kind}.json`),JSON.stringify(responses,null,2),{mode:0o600});
       console.log(`${kind}: ${responses.length} ${group} scenarios executed`);
-    } finally { if(server)await server.stop();await db.end();if(journal)console.log(`${kind} storage cleanup:`,await cleanStorageJournal(journal)); }
+     } finally {
+      const cleanupErrors=[];
+      for(const clean of [async()=>{if(server)await server.stop()},async()=>{await db.end()},async()=>{if(journal)console.log(`${kind} storage cleanup:`,await cleanStorageJournal(journal))}]){
+        try{await clean()}catch(error){cleanupErrors.push(error)}
+      }
+      if(cleanupErrors.length)throw new AggregateError(cleanupErrors,'Contract teardown failed');
+    }
   }
 } finally { await restore(); if(keys){await keys.close();assert.ok(keys.counts.pem>0&&keys.counts.jwks>0,'both validators must consume real controlled key responses');} }
 

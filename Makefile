@@ -23,6 +23,7 @@ fixtures:
 	node scripts/ensure-fixtures.mjs
 
 test-integration: fixtures
+	node scripts/test-fixture-disconnect.mjs
 	node scripts/test-go.mjs ./...
 
 test-contract: fixtures

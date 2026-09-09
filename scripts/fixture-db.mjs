@@ -15,12 +15,19 @@ export async function fixtureDatabase(suffix) {
   if (!schema || !/^go_rewrite_[a-f0-9]{16}_(baseline|candidate|cross)$/.test(schema)) throw new Error('Unowned fixture schema');
   const env = testEnvironment();
   const db = new Client({host:env.DB_HOST,port:Number(env.DB_PORT),user:env.DB_USER,password:env.DB_PASSWORD,database:env.DB_DATABASE,options:`-c search_path=${schema}`,connectionTimeoutMillis:10000,statement_timeout:30000});
+  let connectionError;
+  // pg emits idle socket failures outside an awaited query. Handle that event so
+  // the next query rejects normally and the harness can run its finally blocks.
+  db.on('error',error=>{
+    connectionError??=error;
+    console.error('Fixture database connection error:',error.code??error.name);
+  });
   try { await db.connect(); } catch(error) { await db.end(); throw new Error('Fixture database connection failed', {cause:error}); }
   const ownership = await db.query('SELECT obj_description(oid) AS comment FROM pg_namespace WHERE nspname=$1', [schema]);
   if (ownership.rows[0]?.comment !== `admin Go rewrite fixture ${manifest.run}`) { await db.end(); throw new Error('Schema ownership mismatch'); }
   const current = await db.query('SELECT current_schema() AS schema, current_schemas(false)=ARRAY[$1]::name[] AS isolated', [schema]);
   if (current.rows[0].schema !== schema || !current.rows[0].isolated) { await db.end(); throw new Error('Unsafe search path'); }
-  return {db,schema,manifest};
+  return {db,schema,manifest,assertHealthy(){if(connectionError)throw new Error('Fixture database connection was lost',{cause:connectionError});}};
 }
 
 export async function emptyFixture(db, schema) {

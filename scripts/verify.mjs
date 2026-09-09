@@ -22,6 +22,7 @@ try{
   await run('unit','go',['test','-json','-race','-count=1','./...']);
   await run('package','node',['scripts/package.mjs']);
   if(!await run('fixtures','node',['scripts/ensure-fixtures.mjs']))throw new Error('Fixture preparation failed');
+  await run('fixture-disconnect','node',['scripts/test-fixture-disconnect.mjs']);
   await run('integration','node',['scripts/test-go.mjs','-json','./...']);
   await run('contracts','node',['scripts/contracts-all.mjs',...process.argv.slice(2)]);
   await run('session-transfer','node',['scripts/session-transfer.mjs',...process.argv.slice(2)]);

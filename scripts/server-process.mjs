@@ -26,7 +26,7 @@ export async function borrowWorkspacePort(port, allowed) {
   spawnSync('tmux',['send-keys','-t',pane[0],'C-c']);
   for(let n=0;n<100&&listeners(port).length;n++)await delay(100);
   if(listeners(port).length)throw new Error('Workspace service did not stop');
-  writeFileSync(resolve(root,`.artifacts/borrowed-${port}.json`),JSON.stringify({port,pane:pane[0],directory,status:'suspended'}));
+  writeFileSync(resolve(root,`.artifacts/borrowed-${port}.json`),JSON.stringify({port,pane:pane[0],target:pane[3],directory,status:'suspended'}));
   return async()=>{
     if(listeners(port).length)throw new Error(`Cannot restore occupied port ${port}`);
     const live=spawnSync('tmux',['list-panes','-a','-F','#{pane_id}'],{encoding:'utf8'}).stdout.trim().split('\n');
@@ -42,7 +42,7 @@ export async function borrowWorkspacePort(port, allowed) {
     }
     for(let n=0;n<150&&!listeners(port).length;n++)await delay(100);
     if(!listeners(port).length)throw new Error(`Workspace service on ${port} did not restart`);
-    writeFileSync(resolve(root,`.artifacts/borrowed-${port}.json`),JSON.stringify({port,pane:pane[0],directory,status:'restored'}));
+    writeFileSync(resolve(root,`.artifacts/borrowed-${port}.json`),JSON.stringify({port,pane:pane[0],target:pane[3],directory,status:'restored'}));
   };
 }
 
