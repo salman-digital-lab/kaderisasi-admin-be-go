@@ -424,6 +424,15 @@
   },
   {
     "method": "GET",
+    "path": "/v2/activities/:id/readiness",
+    "controller": "activities_controller",
+    "action": "readiness",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "activities.read"
+  },
+  {
+    "method": "GET",
     "path": "/v2/activities/:id",
     "controller": "activities_controller",
     "action": "show",

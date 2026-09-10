@@ -24,6 +24,8 @@ type Role struct {
 	Code          string   `json:"code"`
 	Name          string   `json:"name"`
 	Description   string   `json:"description"`
+	Capabilities  []string `json:"capabilities"`
+	Limitation    string   `json:"limitation"`
 	IsRequestable bool     `json:"is_requestable"`
 	Permissions   []string `json:"permissions"`
 }
@@ -52,6 +54,18 @@ func RoleByCode(code string) *Role {
 		}
 	}
 	return nil
+}
+
+// Historical labels are display-only: retired codes never authorize an account.
+func HistoricalRoleName(code string) string {
+	if role := RoleByCode(code); role != nil {
+		return role.Name
+	}
+	labels := map[string]string{"asmen": "Asmen", "kapro": "Kapro", "leaderboard": "Leaderboard", "operations_admin": "Operations Admin", "counselor": "Counselor", "certificate_manager": "Certificate Manager", "achievement_reviewer": "Achievement Reviewer", "reference_data_manager": "Reference Data Manager", "form_manager": "Form Manager", "access_reviewer": "Access Reviewer", "course_manager": "Course Manager"}
+	if name, ok := labels[code]; ok {
+		return name
+	}
+	return code
 }
 func ForRole(code *string, active bool) Authorization {
 	result := Authorization{Permissions: []string{}}

@@ -13,6 +13,14 @@ func (s *Server) registerActivities() {
 	s.registerActivityReads()
 	s.registerActivityMedia()
 	service := activity.Service{Pool: s.Pool, Storage: s.Storage}
+	s.register("activities_controller", "readiness", func(w http.ResponseWriter, r *http.Request) error {
+		result, err := service.Readiness(r.Context(), pathID(r, "id"), auth.ForRole(actor(r).RoleCode, true))
+		if err != nil {
+			return err
+		}
+		reply(w, 200, "GET_DATA_SUCCESS", result)
+		return nil
+	})
 	for _, action := range []string{"store", "update"} {
 		s.register("activities_controller", action, func(w http.ResponseWriter, r *http.Request) error {
 			schema := "activityValidator"
@@ -23,9 +31,9 @@ func (s *Server) registerActivities() {
 			if !ok {
 				return nil
 			}
-			canManage := auth.ForRole(actor(r).RoleCode, true).Allows("certificate.template.manage")
+			permissions := auth.ForRole(actor(r).RoleCode, true)
 			if action == "store" {
-				created, err := service.Create(r.Context(), data, canManage)
+				created, err := service.Create(r.Context(), data, permissions)
 				if err != nil {
 					var d *domain.Error
 					if errors.As(err, &d) {
@@ -36,7 +44,7 @@ func (s *Server) registerActivities() {
 				}
 				reply(w, 200, "CREATE_DATA_SUCCESS", created)
 			} else {
-				updated, err := service.Update(r.Context(), pathID(r, "id"), data, canManage)
+				updated, err := service.Update(r.Context(), pathID(r, "id"), data, permissions)
 				if err != nil {
 					var d *domain.Error
 					if errors.As(err, &d) {

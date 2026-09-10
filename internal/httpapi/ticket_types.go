@@ -46,9 +46,6 @@ type ticketReviewResponse struct {
 }
 
 func ticketView(row dbgen.Ticket) ticketResponse {
-	name := row.RequestedRoleCode
-	if role := auth.RoleByCode(row.RequestedRoleCode); role != nil {
-		name = role.Name
-	}
+	name := auth.HistoricalRoleName(row.RequestedRoleCode)
 	return ticketResponse{ID: row.ID, Number: row.Number, Status: row.Status, Resolution: row.Resolution, RequesterAdminUserID: row.RequesterAdminUserID, RequestedRoleCode: row.RequestedRoleCode, Reason: row.Reason, RejectionReason: row.RejectionReason, ResolvedByAdminUserID: row.ResolvedByAdminUserID, ResolvedAt: timestamp(row.ResolvedAt, time.UTC), CancelledAt: timestamp(row.CancelledAt, time.UTC), CreatedAt: timestamp(row.CreatedAt, time.UTC), UpdatedAt: timestamp(row.UpdatedAt, time.UTC), RoleName: name}
 }

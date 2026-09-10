@@ -48,6 +48,9 @@ func (s Service) changeImages(ctx context.Context, id string, change func([]stri
 	if err != nil {
 		return row, nil, err
 	}
+	if row.IsPublished != nil && *row.IsPublished && len(images) == 0 {
+		return row, nil, domain.Fail(422, "ACTIVITY_POSTER_REQUIRED")
+	}
 	config["images"], err = json.Marshal(images)
 	if err != nil {
 		return row, nil, err

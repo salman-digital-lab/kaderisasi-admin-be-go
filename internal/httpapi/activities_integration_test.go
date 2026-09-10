@@ -20,7 +20,7 @@ func TestActivityLifecycle(t *testing.T) {
 		}
 	}()
 	config := map[string]interface{}{"custom_selection_status": []string{"LULUS"}, "mandatory_profile_data": []interface{}{}, "additional_questionnaire": []interface{}{}, "allow_guest_registration": true}
-	body := map[string]interface{}{"name": "Fixture café — 2026", "activity_start": "2026-09-10", "activity_end": "2026-09-11", "is_published": 1, "additional_config": config, "activity_type": 1, "minimum_level": 1}
+	body := map[string]interface{}{"name": "Fixture café — 2026", "activity_start": "2026-09-10", "activity_end": "2026-09-11", "is_published": 0, "additional_config": config, "activity_type": 1, "minimum_level": 0}
 	f.call("POST", "/v2/activities", map[string]interface{}{}, f.token, 422)
 	one := objectData(t, f.call("POST", "/v2/activities", body, f.token, 200))
 	ids = append(ids, one.ID("id"))
@@ -34,7 +34,7 @@ func TestActivityLifecycle(t *testing.T) {
 	if got.String("activity_start") != "2026-09-10" {
 		t.Fatalf("calendar date %s", got["activity_start"])
 	}
-	updated := objectData(t, f.call("PUT", path, map[string]interface{}{"name": "Renamed activity", "is_registration_open": true}, f.token, 200))
+	updated := objectData(t, f.call("PUT", path, map[string]interface{}{"name": "Renamed activity"}, f.token, 200))
 	if updated.String("slug") != one.String("slug") {
 		t.Fatal("slug changed on rename")
 	}

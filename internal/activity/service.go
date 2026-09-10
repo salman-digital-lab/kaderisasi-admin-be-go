@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/jackc/pgx/v5"
+	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/certificate"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
@@ -40,7 +41,18 @@ func (s Service) checkTemplate(ctx context.Context, id *json.Number, canManage b
 	}
 	return nil
 }
-func (s Service) Create(ctx context.Context, data Input, canManage bool) (Created, error) {
+func (s Service) Create(ctx context.Context, data Input, permissions auth.Authorization) (Created, error) {
+	if err := authorizeTransition(dbgen.Activity{}, data, permissions); err != nil {
+		return Created{}, err
+	}
+	if data.IsPublished != nil && data.IsPublished.String() != "0" || data.IsRegistrationOpen != nil && *data.IsRegistrationOpen {
+		return Created{}, domain.Fail(422, "CREATE_ACTIVITY_AS_DRAFT")
+	}
+	closed := false
+	unpublished := json.Number("0")
+	data.IsRegistrationOpen = &closed
+	data.IsPublished = &unpublished
+	canManage := permissions.Allows("certificate.template.manage")
 	templateID := data.CertificateTemplateID.Value
 	if templateID == nil && data.AdditionalConfig != nil {
 		templateID = data.AdditionalConfig.CertificateTemplateID.Value
@@ -87,12 +99,25 @@ func sameTemplate(value *json.Number, current *int32) bool {
 	parsed, err := value.Float64()
 	return err == nil && parsed == float64(*current)
 }
-func (s Service) Update(ctx context.Context, identifier string, data Input, canManage bool) (Updated, error) {
-	q := dbgen.New(s.Pool)
-	old, err := q.ActivityByIdentifier(ctx, identifier)
+func (s Service) Update(ctx context.Context, identifier string, data Input, permissions auth.Authorization) (Updated, error) {
+	tx, err := s.Pool.Begin(ctx)
+	if err != nil {
+		return Updated{}, err
+	}
+	defer tx.Rollback(ctx)
+	q := dbgen.New(tx)
+	old, err := q.LockActivityByIdentifier(ctx, identifier)
 	err = database.LegacyQueryError(err, `select * from "activities" where "id" = $1 limit $2`)
 	if err != nil {
 		return Updated{}, err
+	}
+	if err = authorizeTransition(old, data, permissions); err != nil {
+		return Updated{}, err
+	}
+	canManage := permissions.Allows("certificate.template.manage")
+	if data.IsPublished != nil && data.IsPublished.String() == "0" && old.IsPublished != nil && *old.IsPublished {
+		closed := false
+		data.IsRegistrationOpen = &closed
 	}
 	assignment := data.CertificateTemplateID
 	if !assignment.Present && data.AdditionalConfig != nil {
@@ -143,6 +168,22 @@ func (s Service) Update(ctx context.Context, identifier string, data Input, canM
 		return Updated{}, err
 	}
 	result := Updated{Response: View(row)}
+	if row.IsPublished != nil && *row.IsPublished && data.Description != nil && !hasDescription(row.Description) {
+		return Updated{}, domain.Fail(422, "ACTIVITY_DESCRIPTION_REQUIRED")
+	}
+	becomingPublic := row.IsPublished != nil && *row.IsPublished && (old.IsPublished == nil || !*old.IsPublished)
+	opening := row.IsRegistrationOpen && !old.IsRegistrationOpen
+	if becomingPublic || opening {
+		form, lookupErr := activeRegistrationForm(ctx, q, row.ID)
+		if lookupErr != nil {
+			return Updated{}, lookupErr
+		}
+		location, _ := time.LoadLocation("Asia/Jakarta")
+		readiness := EvaluateReadiness(row, form, time.Now().In(location))
+		if becomingPublic && !readiness.CanPublish || opening && (!readiness.CanOpenRegistration || row.IsPublished == nil || !*row.IsPublished) {
+			return Updated{}, domain.Details(422, "ACTIVITY_NOT_READY", map[string]interface{}{"readiness": readiness})
+		}
+	}
 	if data.IsPublished != nil {
 		result.IsPublished, err = json.Marshal(data.IsPublished)
 	} else {
@@ -166,5 +207,8 @@ func (s Service) Update(ctx context.Context, identifier string, data Input, canM
 	if data.SelectionEnd != nil {
 		result.SelectionEnd = &row.SelectionEnd
 	}
-	return result, err
+	if err != nil {
+		return Updated{}, err
+	}
+	return result, tx.Commit(ctx)
 }

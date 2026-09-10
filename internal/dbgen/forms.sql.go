@@ -364,6 +364,22 @@ func (q *Queries) LockFormClubs(ctx context.Context, identifiers []string) ([]Cl
 	return items, nil
 }
 
+const otherActivityFormExists = `-- name: OtherActivityFormExists :one
+SELECT EXISTS(SELECT 1 FROM custom_forms WHERE feature_type='activity_registration' AND feature_id=CAST(CAST($1 AS text) AS integer) AND id <> $2::integer)
+`
+
+type OtherActivityFormExistsParams struct {
+	Identifier string `json:"identifier"`
+	FormID     int32  `json:"form_id"`
+}
+
+func (q *Queries) OtherActivityFormExists(ctx context.Context, arg OtherActivityFormExistsParams) (bool, error) {
+	row := q.db.QueryRow(ctx, otherActivityFormExists, arg.Identifier, arg.FormID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const otherClubFormExists = `-- name: OtherClubFormExists :one
 SELECT EXISTS(SELECT 1 FROM custom_forms WHERE feature_type='club_registration' AND feature_id=CAST(CAST($1 AS text) AS integer) AND id <> $2::integer)
 `

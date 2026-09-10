@@ -132,16 +132,21 @@ func (s Service) Create(ctx context.Context, input Input) (Created, error) {
 			return Created{}, err
 		}
 	}
-	q := dbgen.New(s.Pool)
-	var tx pgx.Tx
+	tx, err := s.Pool.Begin(ctx)
+	if err != nil {
+		return Created{}, err
+	}
+	defer tx.Rollback(ctx)
+	q := dbgen.New(tx)
+	active := params.IsActive
+	if active == nil {
+		defaultActive := true
+		active = &defaultActive
+	}
+	if err = guardActivityForm(ctx, q, dbgen.CustomForm{}, dbgen.UpdateFormParams{FeatureType: params.FeatureType, FeatureID: params.FeatureID, IsActive: active, FormSchema: params.FormSchema}); err != nil {
+		return Created{}, err
+	}
 	if id := attachedClub(params.FeatureType, params.FeatureID); id != nil {
-		var err error
-		tx, err = s.Pool.Begin(ctx)
-		if err != nil {
-			return Created{}, err
-		}
-		defer tx.Rollback(ctx)
-		q = q.WithTx(tx)
 		clubs, err := lockClubs(ctx, q, id)
 		if err != nil {
 			return Created{}, err
@@ -195,6 +200,9 @@ func (s Service) Update(ctx context.Context, rawID string, input Input, attach b
 	}
 	next, err := merged(current, input)
 	if err != nil {
+		return Response{}, err
+	}
+	if err = guardActivityForm(ctx, q, current, next); err != nil {
 		return Response{}, err
 	}
 	oldClub, newClub := currentClub(current), attachedClub(next.FeatureType, next.FeatureID)

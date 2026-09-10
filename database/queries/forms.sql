@@ -34,6 +34,9 @@ SELECT * FROM clubs WHERE id=ANY(CAST(@identifiers::text[] AS integer[])) ORDER 
 -- name: OtherClubFormExists :one
 SELECT EXISTS(SELECT 1 FROM custom_forms WHERE feature_type='club_registration' AND feature_id=CAST(CAST(@identifier AS text) AS integer) AND id <> @form_id::integer);
 
+-- name: OtherActivityFormExists :one
+SELECT EXISTS(SELECT 1 FROM custom_forms WHERE feature_type='activity_registration' AND feature_id=CAST(CAST(@identifier AS text) AS integer) AND id <> @form_id::integer);
+
 -- name: CreateForm :one
 INSERT INTO custom_forms(form_name,form_description,post_submission_info,feature_type,feature_id,form_schema,is_active,created_at,updated_at)
 VALUES (@form_name::text,sqlc.narg('form_description')::text,sqlc.narg('post_submission_info')::text,sqlc.narg('feature_type')::text,CAST(CAST(sqlc.narg('feature_id') AS text) AS integer),COALESCE(sqlc.narg('form_schema')::jsonb,'{}'::jsonb),COALESCE(sqlc.narg('is_active')::boolean,true),now(),now()) RETURNING *;

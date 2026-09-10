@@ -61,7 +61,7 @@ func TestPDFBoundaries(t *testing.T) {
 	}
 }
 func TestCoursePermissions(t *testing.T) {
-	for _, code := range []string{"super_admin", "admin", "operations_admin", "course_manager"} {
+	for _, code := range []string{"super_admin", "admin", "club_manager"} {
 		access := auth.ForRole(&code, true)
 		if !access.Allows("courses.read") || !access.Allows("courses.manage") {
 			t.Errorf("%s lacks course access", code)
@@ -70,13 +70,13 @@ func TestCoursePermissions(t *testing.T) {
 			t.Error("inactive administrator can manage courses")
 		}
 	}
-	for _, code := range []string{"asmen", "kapro", "activity_manager", "club_manager", "counselor"} {
+	for _, code := range []string{"asmen", "kapro", "activity_manager", "course_manager", "konselor"} {
 		if auth.ForRole(&code, true).Allows("courses.manage") {
 			t.Errorf("unexpected access for %s", code)
 		}
 	}
-	role := auth.RoleByCode("course_manager")
+	role := auth.RoleByCode("club_manager")
 	if role == nil || !role.IsRequestable {
-		t.Fatal("Course Manager must be requestable")
+		t.Fatal("Pengelola Komunitas must be requestable")
 	}
 }
