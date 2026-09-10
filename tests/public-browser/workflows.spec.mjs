@@ -1,6 +1,6 @@
 import {readFile} from 'node:fs/promises';
 import {test,expect,evidence,api} from '../browser/fixture.mjs';
-import {fixturePassword} from '../../scripts/fixture-db.mjs';
+import {fixturePassword,legacyRequire} from '../../scripts/fixture-db.mjs';
 
 test('public login, Go reference data, profile update, registration and certificate lifecycle',async({page,fixture,browser},testInfo)=>{
   const member=await api('POST','/members',{name:'Public browser member',email:'public-browser@example.test',password:fixturePassword,gender:'F'});
@@ -8,10 +8,17 @@ test('public login, Go reference data, profile update, registration and certific
   await api('POST','/activities/1/registrations',{user_id:member.profile.id,questionnaire_answer:{}});
   await api('PUT','/activity-registrations',{registrations_id:[1],status:'LULUS KEGIATAN'});
   await api('POST','/certificate-templates',{name:'Public browser template',templateData:{backgroundUrl:null,canvasWidth:800,canvasHeight:566,elements:[{id:'name',type:'variable-text',variable:'{{name}}',x:40,y:100,width:720,height:80,fontSize:28,fontFamily:'Arial',color:'#000000',textAlign:'center'}]}});
-  await api('POST','/certificate-templates/1/publish',{expectedVersion:1});
+  const pixels=await legacyRequire('sharp')({create:{width:1200,height:849,channels:3,background:'#e7f0ff'}}).png().toBuffer();
+  const form=new FormData();
+  form.append('file',new Blob([pixels],{type:'image/png'}),'public-certificate-background.png');
+  const background=await api('POST','/certificate-templates/1/background',form);
+  expect(background.templateVersion).toBe(2);
+  await api('POST','/certificate-templates/1/publish',{expectedVersion:background.templateVersion});
   await api('PUT','/activities/1',{certificate_template_id:1});
   const issued=await api('POST','/certificates/issue-single',{registration_id:1});
   const code=issued.certificate.certificate_code;
+  const snapshot=(await fixture.db.query('SELECT template_snapshot FROM issued_certificates WHERE id=$1',[issued.certificate.id])).rows[0].template_snapshot;
+  expect(snapshot.background_image).toBe(background.asset_key);
   await page.goto('http://localhost:3000/login?redirect=/profile');
   await page.getByRole('textbox',{name:'Email',exact:true}).fill('public-browser@example.test');
   await page.getByPlaceholder('Password Anda',{exact:true}).fill(fixturePassword);
@@ -32,13 +39,20 @@ test('public login, Go reference data, profile update, registration and certific
   await page.getByRole('tab',{name:'Kegiatan',exact:true}).click();
   await expect(page.getByText('Public browser activity',{exact:true})).toBeVisible();
   await evidence(page,testInfo,'public-registration');
+  const backgroundResponse=page.waitForResponse(response=>response.url().endsWith(background.asset_key));
   await page.goto(`http://localhost:3000/certificate/${code}`);
+  const imageResponse=await backgroundResponse;
+  expect(imageResponse.ok()).toBe(true);
   await expect(page.getByText('Sertifikat atas nama Public browser member',{exact:true})).toBeVisible();
   const download=page.waitForEvent('download');
   await page.getByRole('button',{name:'Unduh PDF',exact:true}).click();
   const pdf=testInfo.outputPath('public-owner-certificate.pdf');await (await download).saveAs(pdf);
   expect((await readFile(pdf)).subarray(0,5).toString()).toBe('%PDF-');
+  expect(imageResponse.headers()['access-control-allow-origin']).toBe('http://localhost:3000');
   await testInfo.attach('public-owner-certificate',{path:pdf,contentType:'application/pdf'});
+  await expect(page.getByRole('button',{name:'Unduh PDF',exact:true})).toBeEnabled();
+  await expect(page.getByText('PDF sertifikat berhasil dibuat.',{exact:true})).toBeVisible();
+  await expect(page.getByText('PDF sertifikat berhasil dibuat.',{exact:true})).not.toBeVisible();
   await evidence(page,testInfo,'public-issued-certificate');
   const guestContext=await browser.newContext({...testInfo.project.use,locale:'id-ID',timezoneId:'Asia/Jakarta'});
   try{

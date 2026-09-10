@@ -117,6 +117,9 @@ concurrent fixture resets. Never run these suites concurrently. Contract reports
 the compiled source fingerprint and adopted Adonis revision; stale reports cannot
 pass the coverage gate. For an affected subset, run
 `node scripts/contracts-all.mjs --groups=members,activities --borrow-workspace`.
+The Go integration runner allows 30 minutes per package for the 1,000-recipient
+workflow on remote PostgreSQL. Request cancellation and workflow assertions remain
+active; a slow database does not turn a failed assertion into a passing test.
 
 By default, API/browser targets temporarily suspend recognized workspace tmux
 services and restore them afterward. Set `BORROW_WORKSPACE=` to require free ports.
@@ -150,7 +153,7 @@ GO_REWRITE_DIRECT_DNS=1 node scripts/storage-cors.mjs restore
 
 The harness records and verifies the temporary configuration, refuses to overwrite
 another actor's later change, and uses real storage without bypassing browser CORS.
-Certificate editor image requests use the same anonymous CORS mode as the exporter,
+Certificate image requests on both frontends use the same anonymous CORS mode as the exporter,
 preventing immutable cached responses without CORS headers from breaking PDF output.
 
 ## Cutover and return to Adonis

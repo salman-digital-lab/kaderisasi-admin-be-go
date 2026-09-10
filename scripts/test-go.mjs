@@ -17,7 +17,7 @@ const fixture=await fixtureDatabase('candidate');
 try { await emptyFixture(fixture.db,schema); } finally { await fixture.db.end(); }
 const source=sourceEvidence();
 console.log(JSON.stringify({event:'suite_source',source,dns_mode:process.env.GO_REWRITE_DIRECT_DNS==='1'?'direct-storage-fallback':'system'}));
-const child=spawn('go',['test','-tags=integration','-race','-count=1','-p','1',...process.argv.slice(2)],{cwd:root,env:testEnvironment({NODE_ENV:'test',DB_SCHEMA:schema,PGOPTIONS:`-c search_path=${schema}`,GO_REWRITE_ARTIFACTS:resolve(root,'.artifacts')}),stdio:'inherit'});
+const child=spawn('go',['test','-tags=integration','-race','-count=1','-p','1','-timeout=30m',...process.argv.slice(2)],{cwd:root,env:testEnvironment({NODE_ENV:'test',DB_SCHEMA:schema,PGOPTIONS:`-c search_path=${schema}`,GO_REWRITE_ARTIFACTS:resolve(root,'.artifacts')}),stdio:'inherit'});
 try{
   const [code,signal]=await once(child,'exit');process.exitCode=code??1;if(signal)console.error('Tests interrupted:',signal);
 }finally{

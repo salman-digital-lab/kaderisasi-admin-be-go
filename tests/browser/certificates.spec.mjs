@@ -56,6 +56,7 @@ test('upload and publish template, issue, download, and revoke certificate',asyn
   const pdf=testInfo.outputPath('issued-certificate.pdf');await (await download).saveAs(pdf);
   expect((await readFile(pdf)).subarray(0,5).toString()).toBe('%PDF-');
   await testInfo.attach('issued-certificate',{path:pdf,contentType:'application/pdf'});
+  await expect(page.getByRole('button',{name:/Unduh PDF$/})).toBeEnabled();
   await evidence(page,testInfo,'issued-certificate');
   await page.goto('/activity/1/participants');
   if(testInfo.project.name==='mobile')await page.getByRole('article').getByText(/^Detail lainnya/).click();

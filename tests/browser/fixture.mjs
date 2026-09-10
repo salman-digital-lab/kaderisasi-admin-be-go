@@ -22,7 +22,8 @@ export const test=base.extend({
 export {expect};
 export async function api(method,path,body){
   const token=legacyRequire('jsonwebtoken').sign({userId:1,email:'super@example.test'},fixtureKey,{expiresIn:'15m'});
-  const response=await fetch('http://localhost:3334/v2'+path,{method,headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});
+  const multipart=body instanceof FormData;
+  const response=await fetch('http://localhost:3334/v2'+path,{method,headers:{Authorization:`Bearer ${token}`,...(multipart?{}:{'Content-Type':'application/json'})},body:body===undefined?undefined:multipart?body:JSON.stringify(body)});
   const data=await response.json();
   expect(response.ok,JSON.stringify(data)).toBe(true);
   return data.data;

@@ -44,13 +44,15 @@ must pass. Missing tests and externally blocked checks remain incomplete.
 
 ## Next action
 
-Finish affected browser checks, then rerun the aggregate against the current
-frontends. The prior aggregate was incomplete and its run `f76e3007f52dfb7f` was
-cleaned, including verified CORS restoration. The current isolated fixture run is
-`e7d10533e8c70d67`. Use `GO_REWRITE_DIRECT_DNS=1` for this environment's resolver.
-Temporary localhost CORS is user-approved, applied and verified for the affected
-browser run; restore it after testing. Port 3000 currently belongs to another
-task's temporary club preview, and permission to stop/restart it is pending.
+Run the final aggregate with the public image-backed download correction. The
+preceding aggregate passed all 17 automated stages; the strengthened public test
+then found and verified a fix for the public PDF image cache issue. The active
+fixture run is `a62222104353e081`. Approved localhost CORS is applied; the final
+coordinator verifies it and restores it after the aggregate. It also pauses and
+restarts the recorded temporary preview so the public test uses port 3000.
+Do not modify application or harness sources while the aggregate runs. After all
+checks pass, review the final PDFs/screenshots, archive evidence, update the final
+report and completion review, run the finalizer, and commit the documentation.
 
 The sections below preserve earlier checkpoints; their pending items and active
 fixture references are historical unless repeated in this next-action section.
@@ -556,3 +558,31 @@ All 12 existing-application checks now pass in `.artifacts/baseline-frontend-fix
 Formatting, vet, compilation, generated query drift, dependencies, and normalization
 integrity pass. Source evidence v3 now fingerprints the four existing applications
 as well as Go and the harness. A fresh aggregate with these changes is next.
+
+## Public image-backed download correction
+
+Aggregate `.artifacts/verify/2026-09-10T03-33-22-245Z/` passed all 17 automated
+stages: 1,593 unit and 1,634 integration tests/subtests, 2,001 contract comparisons,
+12 transfer checks, 53 shared-database checks, three jobs, 10 admin and four public
+browser workflows, existing checks, performance and cleanup. No tests were skipped.
+Its final review stays pending because an additional public image case was needed.
+Its 48 evidence files were archived under that run's `evidence/` directory. CORS,
+three schemas, recorded objects, and the temporary preview were restored/cleaned.
+
+The strengthened public workflow uploads a real background through Go and checks
+its immutable snapshot and browser CORS response. Before the fix, it reproduced a
+PDF download timeout with a CORS error and EncodingError on the cached image:
+`.artifacts/browser/2026-09-10T04-15-34-282Z/`. Public frontend commit `17a51e9`
+replaces the CSS image request with an anonymous-CORS image while preserving its
+cover geometry. All four public desktop/mobile workflows then passed, including
+image-backed PDFs: `.artifacts/browser/2026-09-10T04-17-17-350Z/`. The downloaded
+landscape A4 PDF and both viewport screenshots were inspected. Both recorded
+backgrounds were deleted and verified absent; the preview was restarted.
+All 71 public unit tests, lint and types pass.
+
+The last race HTTP package took 599.403 seconds, close to Go's default 600-second
+limit on the slower shared database. The integration runner now has a bounded
+30-minute package limit; assertions, cancellation checks and the 1,000-recipient
+workload are unchanged. The current fixture run is `a62222104353e081`; approved
+localhost CORS is applied. A final aggregate must run on the updated source before
+reporting completion.
