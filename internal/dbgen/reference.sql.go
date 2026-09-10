@@ -325,13 +325,13 @@ func (q *Queries) ListProvinces(ctx context.Context) ([]Province, error) {
 const listUniversities = `-- name: ListUniversities :many
 SELECT u.id, u.name, u.province_id, u.is_active, p.id AS parent_id, p.name AS parent_name, p.is_active AS parent_active
 FROM universities u LEFT JOIN provinces p ON p.id = u.province_id
-WHERE u.name ILIKE $1::text ORDER BY u.name ASC LIMIT $3::bigint OFFSET $2::bigint
+WHERE u.name ILIKE $1::text ORDER BY u.name ASC LIMIT CAST($3::text AS bigint) OFFSET CAST($2::text AS bigint)
 `
 
 type ListUniversitiesParams struct {
-	Search     string `json:"search"`
-	PageOffset int64  `json:"page_offset"`
-	PageSize   *int64 `json:"page_size"`
+	Search     string  `json:"search"`
+	PageOffset string  `json:"page_offset"`
+	PageSize   *string `json:"page_size"`
 }
 
 type ListUniversitiesRow struct {

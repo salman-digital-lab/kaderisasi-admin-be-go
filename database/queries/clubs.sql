@@ -10,7 +10,7 @@ WHERE name ILIKE '%' || @search::text || '%'
 AND (sqlc.narg('club_type')::text IS NULL OR club_type=sqlc.narg('club_type'))
 AND (sqlc.narg('is_show')::boolean IS NULL OR is_show=sqlc.narg('is_show'))
 AND (sqlc.narg('is_registration_open')::boolean IS NULL OR is_registration_open=sqlc.narg('is_registration_open'))
-ORDER BY is_show DESC,created_at DESC LIMIT sqlc.narg('page_size')::bigint OFFSET @page_offset::bigint;
+ORDER BY is_show DESC,created_at DESC LIMIT CAST(sqlc.narg('page_size')::text AS bigint) OFFSET CAST(@page_offset::text AS bigint);
 
 -- name: ClubByIdentifier :one
 SELECT * FROM clubs WHERE id=CAST(CAST(@identifier AS text) AS integer);

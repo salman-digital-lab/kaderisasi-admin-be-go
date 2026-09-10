@@ -43,16 +43,20 @@ func TestLucidPaginationBoundaries(t *testing.T) {
 
 func TestKnexPaginationConversion(t *testing.T) {
 	limit, offset, err := SQLPage(9007199254740991, 9007199254740991)
-	if err != nil || limit == nil || *limit != 9007199254740991 || offset != 8 {
-		t.Fatalf("scientific-notation offset conversion: %v %d %v", limit, offset, err)
+	if err != nil || limit == nil || *limit != "9007199254740991" || offset != "8" {
+		t.Fatalf("scientific-notation offset conversion: %v %s %v", limit, offset, err)
 	}
 	limit, offset, err = SQLPage(math.NaN(), math.NaN())
-	if err != nil || limit != nil || offset != 0 {
+	if err != nil || limit != nil || offset != "0" {
 		t.Fatal("invalid numbers must leave SQL limit and offset unset")
 	}
 	limit, offset, err = SQLPage(1.5, 1.5)
-	if err != nil || limit == nil || *limit != 1 || offset != 0 {
+	if err != nil || limit == nil || *limit != "1" || offset != "0" {
 		t.Fatal("SQL bounds must use Knex integer truncation")
+	}
+	limit, offset, err = SQLPage(1, 1e19)
+	if err != nil || limit == nil || *limit != "10000000000000000000" || offset != "0" {
+		t.Fatal("wide SQL bounds must reach PostgreSQL without narrowing")
 	}
 	if _, _, err := SQLPage(0, 10); err == nil {
 		t.Fatal("negative SQL offsets must fail")

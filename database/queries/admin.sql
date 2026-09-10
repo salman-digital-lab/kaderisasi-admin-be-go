@@ -3,7 +3,7 @@ SELECT count(*) FROM admin_users WHERE email ILIKE @search::text OR display_name
 
 -- name: ListAdmins :many
 SELECT * FROM admin_users WHERE email ILIKE @search::text OR display_name ILIKE @search::text
-ORDER BY created_at DESC LIMIT sqlc.narg('page_size')::bigint OFFSET @page_offset::bigint;
+ORDER BY created_at DESC LIMIT CAST(sqlc.narg('page_size')::text AS bigint) OFFSET CAST(@page_offset::text AS bigint);
 
 -- name: AdminIdentities :many
 SELECT provider,email,last_used_at,created_at FROM admin_auth_identities WHERE admin_user_id=$1 ORDER BY id;

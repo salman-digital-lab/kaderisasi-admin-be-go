@@ -12,29 +12,9 @@ import (
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
 	"strings"
-	"time"
 )
 
 type Service struct{ Pool *pgxpool.Pool }
-
-func Public(user database.Object) database.Object {
-	delete(user, "password")
-	return database.Timestamps(user, time.Local, "created_at", "updated_at")
-}
-func Profile(profile database.Object) database.Object {
-	database.Timestamps(profile, time.Local, "created_at", "updated_at")
-	if date, err := time.ParseInLocation("2006-01-02", profile.String("birth_date"), time.Local); err == nil {
-		profile.Set("birth_date", date.UTC().Format("2006-01-02T15:04:05.000Z"))
-	}
-	if profile.Has("publicUser") && !profile.Null("publicUser") {
-		var user database.Object
-		if json.Unmarshal(profile["publicUser"], &user) == nil {
-			profile.Set("publicUser", Public(user))
-		}
-	}
-	profile.Set("badges", normalizeBadges(profile["badges"]))
-	return profile
-}
 
 func normalizeBadges(raw []byte) []string {
 	normalized := []string{}
@@ -126,9 +106,10 @@ func (s Service) Create(ctx context.Context, data CreateRequest) (Created, error
 	return Created{User: PublicView(user), Profile: createdProfile(profile)}, nil
 }
 
-func (s Service) GenerateAccount(ctx context.Context, id int32, email, password string) error {
+func (s Service) GenerateAccount(ctx context.Context, identifier string, email, password string) error {
 	q := dbgen.New(s.Pool)
-	user, err := q.PublicUserByID(ctx, id)
+	user, err := q.PublicUserByIdentifier(ctx, identifier)
+	err = database.LegacyQueryError(err, `select * from "public_users" where "id" = $1 limit $2`)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return domain.Fail(404, "MEMBER_NOT_FOUND")
 	}
@@ -138,7 +119,7 @@ func (s Service) GenerateAccount(ctx context.Context, id int32, email, password 
 	if user.AccountStatus == "active" {
 		return domain.Fail(400, "ACCOUNT_ALREADY_ACTIVE")
 	}
-	_, err = q.OtherPublicUserByEmail(ctx, dbgen.OtherPublicUserByEmailParams{Email: &email, ID: id})
+	_, err = q.OtherPublicUserByEmail(ctx, dbgen.OtherPublicUserByEmailParams{Email: &email, ID: user.ID})
 	if err == nil {
 		return domain.Fail(409, "EMAIL_ALREADY_REGISTERED")
 	}
@@ -149,5 +130,5 @@ func (s Service) GenerateAccount(ctx context.Context, id int32, email, password 
 	if err != nil {
 		return err
 	}
-	return q.ActivateMemberAccount(ctx, dbgen.ActivateMemberAccountParams{ID: id, Email: &email, Password: &hash})
+	return q.ActivateMemberAccount(ctx, dbgen.ActivateMemberAccountParams{ID: user.ID, Email: &email, Password: &hash})
 }

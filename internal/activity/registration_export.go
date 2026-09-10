@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/jackc/pgx/v5"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
@@ -15,7 +16,10 @@ func (s Service) ExportRegistrations(ctx context.Context, identifier string) (ex
 	q := dbgen.New(s.Pool)
 	activity, err := q.RegistrationActivityByIdentifier(ctx, identifier)
 	if err != nil {
-		return export.Document{}, database.LegacyQueryError(err, `select * from "activities" where "id" = $1 limit $2`)
+		if errors.Is(err, pgx.ErrNoRows) {
+			return export.Document{}, err
+		}
+		return export.Document{}, fmt.Errorf("error: %s", database.LegacyQueryError(err, `select * from "activities" where "id" = $1 limit $2`))
 	}
 	rows, err := q.RegistrationExportRows(ctx, &activity.ID)
 	if err != nil {
@@ -36,11 +40,14 @@ func (s Service) ExportRegistrations(ctx context.Context, identifier string) (ex
 	registrations := make([]export.Registration, 0, len(rows))
 	for _, row := range rows {
 		relation := byID[row.ID]
-		record := export.Registration{ID: row.ID, UserID: row.UserID, Email: relation.Email}
+		record := export.Registration{ID: row.ID, UserID: row.UserID, Email: relation.Email, Answers: row.QuestionnaireAnswer}
+		if len(record.Answers) == 0 {
+			record.Answers = json.RawMessage(`null`)
+		}
 		for _, item := range []struct {
 			raw    []byte
 			target interface{}
-		}{{row.GuestData, &record.Guest}, {row.QuestionnaireAnswer, &record.Answers}, {relation.Locations, &record.Locations}} {
+		}{{row.GuestData, &record.Guest}, {relation.Locations, &record.Locations}} {
 			if len(item.raw) > 0 {
 				if err = json.Unmarshal(item.raw, item.target); err != nil {
 					return export.Document{}, err
@@ -63,24 +70,14 @@ func (s Service) ExportRegistrations(ctx context.Context, identifier string) (ex
 		}
 		registrations = append(registrations, record)
 	}
-	questions := []export.Question{}
+	var questions []export.Question
 	form, err := q.RegistrationExportForm(ctx, &activity.ID)
 	if err == nil {
-		questions = export.FormQuestions(form)
+		questions, err = export.RegistrationQuestions(form, true)
 	} else if errors.Is(err, pgx.ErrNoRows) {
-		var config struct {
-			Questions []struct {
-				Name  string `json:"name"`
-				Label string `json:"label"`
-			} `json:"additional_questionnaire"`
-		}
-		if err = json.Unmarshal(activity.AdditionalConfig, &config); err != nil {
-			return export.Document{}, err
-		}
-		for _, question := range config.Questions {
-			questions = append(questions, export.Question{Key: question.Name, Label: question.Label})
-		}
-	} else {
+		questions, err = export.RegistrationQuestions(activity.AdditionalConfig, false)
+	}
+	if err != nil {
 		return export.Document{}, err
 	}
 	if err = registrationExportLocations(ctx, q, registrations); err != nil {
@@ -96,7 +93,10 @@ func (s Service) ExportRegistrations(ctx context.Context, identifier string) (ex
 		badge = *activity.Badge
 	}
 	for i, record := range registrations {
-		cells[i] = export.RegistrationRow(i+1, record, questions, badge)
+		cells[i], err = export.RegistrationRow(i+1, record, questions, badge)
+		if err != nil {
+			return export.Document{}, err
+		}
 	}
 	body, err := export.Workbook("Registrations", headers, cells)
 	return export.Document{Filename: export.Filename(activity.Name), Body: body}, err

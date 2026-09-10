@@ -4,13 +4,18 @@ import (
 	"errors"
 	"github.com/jackc/pgx/v5"
 	"kaderisasi/admin/internal/access"
+	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
 	"net/http"
+	"strconv"
 )
 
-func (s *Server) ticketReply(w http.ResponseWriter, r *http.Request, status int, msg string, id int32) error {
-	row, err := dbgen.New(s.Pool).TicketDetails(r.Context(), id)
+func (s *Server) ticketReply(w http.ResponseWriter, r *http.Request, status int, msg string, id string) error {
+	row, err := dbgen.New(s.Pool).TicketDetailsByIdentifier(r.Context(), id)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return s.frameworkError(err, `select "t".*, "requester"."display_name" as "requester_name", "requester"."email" as "requester_email", "reviewer"."display_name" as "reviewer_name" from "tickets" as "t" inner join "admin_users" as "requester" on "requester"."id" = "t"."requester_admin_user_id" left join "admin_users" as "reviewer" on "reviewer"."id" = "t"."resolved_by_admin_user_id" where "t"."id" = $1 limit $2`)
+	}
 	if errors.Is(err, pgx.ErrNoRows) {
 		return domain.Fail(404, "TICKET_NOT_FOUND")
 	}
@@ -33,7 +38,7 @@ func (s *Server) registerTickets() {
 		if err != nil {
 			return err
 		}
-		return s.ticketReply(w, r, 201, "ACCESS_REQUEST_CREATED", id)
+		return s.ticketReply(w, r, 201, "ACCESS_REQUEST_CREATED", strconv.FormatInt(int64(id), 10))
 	})
 	s.register("access_requests_controller", "ownIndex", func(w http.ResponseWriter, r *http.Request) error {
 		rows, err := q.OwnTickets(r.Context(), actor(r).ID)
@@ -48,7 +53,10 @@ func (s *Server) registerTickets() {
 		return nil
 	})
 	s.register("access_requests_controller", "ownShow", func(w http.ResponseWriter, r *http.Request) error {
-		ticket, err := q.TicketByID(r.Context(), pathID(r, "id"))
+		ticket, err := q.TicketByIdentifier(r.Context(), pathID(r, "id"))
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return s.frameworkError(err, `select * from "tickets" where "id" = $1 limit $2`)
+		}
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.Fail(404, "TICKET_NOT_FOUND")
 		}
@@ -59,7 +67,7 @@ func (s *Server) registerTickets() {
 			policyDenied(w)
 			return nil
 		}
-		return s.ticketReply(w, r, 200, "GET_DATA_SUCCESS", ticket.ID)
+		return s.ticketReply(w, r, 200, "GET_DATA_SUCCESS", strconv.FormatInt(int64(ticket.ID), 10))
 	})
 	s.register("access_requests_controller", "reviewIndex", func(w http.ResponseWriter, r *http.Request) error {
 		rows, err := q.ReviewTickets(r.Context(), r.URL.Query().Get("status"))
@@ -74,7 +82,7 @@ func (s *Server) registerTickets() {
 		return nil
 	})
 	s.register("access_requests_controller", "reviewShow", func(w http.ResponseWriter, r *http.Request) error {
-		return s.ticketReply(w, r, 200, "GET_DATA_SUCCESS", pathID(r, "id"))
+		return s.ticketReply(w, r, 200, "GET_DATA_SUCCESS", database.NumberIdentifier(pathID(r, "id")))
 	})
 	s.register("access_requests_controller", "cancel", func(w http.ResponseWriter, r *http.Request) error {
 		id := pathID(r, "id")
@@ -83,7 +91,7 @@ func (s *Server) registerTickets() {
 				policyDenied(w)
 				return nil
 			}
-			return err
+			return s.frameworkError(err, "")
 		}
 		return s.ticketReply(w, r, 200, "TICKET_CANCELLED", id)
 	})
@@ -103,7 +111,7 @@ func (s *Server) registerTickets() {
 			}
 			id := pathID(r, "id")
 			if err := service.Resolve(r.Context(), id, actor(r).ID, resolution, reason); err != nil {
-				return err
+				return s.frameworkError(err, "")
 			}
 			return s.ticketReply(w, r, 200, msg, id)
 		})

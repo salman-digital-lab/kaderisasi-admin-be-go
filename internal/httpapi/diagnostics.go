@@ -9,10 +9,10 @@ import (
 	"strings"
 )
 
-// The registration export returns a diagnostic stack in its error field. Keep
+// Registration export and user-activity reads return a diagnostic stack in its error field. Keep
 // the error identity and string shape while reporting this implementation's
 // actual call sites, never invented JavaScript frames.
-func exportFailure(w http.ResponseWriter, err error) {
+func diagnosticFailure(w http.ResponseWriter, err error) {
 	identity := err.Error()
 	if errors.Is(err, pgx.ErrNoRows) {
 		identity = "E_ROW_NOT_FOUND: Row not found"

@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"kaderisasi/admin/internal/auth"
+	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
 	"strconv"
@@ -52,8 +53,9 @@ func (service Tickets) Create(ctx context.Context, actor int32, code, reason str
 	return id, tx.Commit(ctx)
 }
 
-func (service Tickets) Cancel(ctx context.Context, id, actor int32) error {
-	ticket, err := dbgen.New(service.Pool).TicketByID(ctx, id)
+func (service Tickets) Cancel(ctx context.Context, id string, actor int32) error {
+	ticket, err := dbgen.New(service.Pool).TicketByIdentifier(ctx, id)
+	err = database.LegacyQueryError(err, `select * from "tickets" where "id" = $1 limit $2`)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return domain.Fail(404, "TICKET_NOT_FOUND")
 	}
@@ -69,20 +71,20 @@ func (service Tickets) Cancel(ctx context.Context, id, actor int32) error {
 	}
 	defer tx.Rollback(ctx)
 	q := dbgen.New(tx)
-	locked, err := q.LockTicket(ctx, id)
+	locked, err := q.LockTicketByIdentifier(ctx, id)
 	if err != nil {
 		return err
 	}
 	if locked.Status != "open" {
 		return domain.Fail(409, "TICKET_ALREADY_TERMINAL")
 	}
-	if err = q.CancelTicket(ctx, id); err != nil {
+	if err = q.CancelTicket(ctx, ticket.ID); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)
 }
 
-func (service Tickets) Resolve(ctx context.Context, id, actor int32, resolution string, reason *string) error {
+func (service Tickets) Resolve(ctx context.Context, id string, actor int32, resolution string, reason *string) error {
 	if resolution != "approved" && resolution != "rejected" {
 		return errors.New("invalid ticket resolution")
 	}
@@ -102,7 +104,8 @@ func (service Tickets) Resolve(ctx context.Context, id, actor int32, resolution 
 	if !auth.ForRole(reviewer.RoleCode, reviewer.IsActive).Allows("tickets.review") {
 		return domain.Fail(403, "FORBIDDEN")
 	}
-	ticket, err := q.LockTicket(ctx, id)
+	ticket, err := q.LockTicketByIdentifier(ctx, id)
+	err = database.LegacyQueryError(err, `select * from "tickets" where "id" = $1 limit $2 for update`)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return domain.Fail(404, "TICKET_NOT_FOUND")
 	}
@@ -120,11 +123,11 @@ func (service Tickets) Resolve(ctx context.Context, id, actor int32, resolution 
 		if role == nil || !role.IsRequestable {
 			return domain.Fail(409, "ROLE_NOT_REQUESTABLE")
 		}
-		if err = Change(ctx, tx, ticket.RequesterAdminUserID, Update{RoleCode: domain.Value(role.Code)}); err != nil {
+		if err = Change(ctx, tx, strconv.FormatInt(int64(ticket.RequesterAdminUserID), 10), Update{RoleCode: domain.Value(role.Code)}); err != nil {
 			return err
 		}
 	}
-	if err = q.ResolveTicket(ctx, dbgen.ResolveTicketParams{ID: id, Resolution: &resolution, RejectionReason: reason, ResolvedByAdminUserID: &actor}); err != nil {
+	if err = q.ResolveTicket(ctx, dbgen.ResolveTicketParams{ID: ticket.ID, Resolution: &resolution, RejectionReason: reason, ResolvedByAdminUserID: &actor}); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)

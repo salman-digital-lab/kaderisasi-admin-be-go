@@ -11,6 +11,28 @@ export class ContractNormalizer {
   constructor(started){this.started=started;this.random=new Map();this.hashes=new Map();}
   response(result){
     const normalized=this.normalize(result);
+    if(result.status===500&&result.body?.frames){
+      assert.equal(result.body.status,500);
+      assert.equal(result.body.name,'error');
+      assert.equal(typeof result.body.message,'string');
+      assert.ok(Array.isArray(result.body.frames)&&result.body.frames.length>0,'development diagnostic frames');
+      for(const frame of result.body.frames){
+        assert.equal(typeof frame.filePath,'string');
+        assert.equal(typeof frame.callee,'string');
+        assert.ok(Number.isInteger(frame.line)&&frame.line>0,'diagnostic source line');
+        for(const field of ['isApp','isModule','isNative'])assert.equal(typeof frame[field],'boolean');
+      }
+      assert.ok(result.body.frames.some(frame=>/pg-protocol|kaderisasi\/admin\/internal\/httpapi/.test(frame.filePath+' '+frame.callee)),'actual database or HTTP diagnostic call site');
+      normalized.body.frames='<validated development diagnostic frames>';
+    }
+    if(result.method==='GET'&&/^\/v2\/(?:activities\/[^/]+\/registrations-export|activity-registrations\/user\/[^/]+)$/.test(result.path.split('?')[0])&&result.status===500){
+      assert.equal(result.body.message,'GENERAL_ERROR');
+      assert.equal(typeof result.body.error,'string');
+      const [identity,...frames]=result.body.error.split('\n');
+      assert.ok(identity.length>0&&frames.length>0&&frames.every(frame=>/^\s+at .+/.test(frame)),'export diagnostic stack format');
+      assert.ok(frames.some(frame=>/ActivityRegistrationsController\.export|httpapi\.\(\*Server\)\.(?:exportRegistrations|registerRegistrations)/.test(frame))||(identity.startsWith('error: select ')&&frames.some(frame=>/pg-protocol/.test(frame))),'actual registration export or database call site');
+      normalized.body.error=identity+'\n<validated export diagnostic stack>';
+    }
     // Adonis ActivityRegistrationsController.export has no ORDER BY on its
     // registrant query. Different update plans can change PostgreSQL heap order.
     // Verify the visible numbering before comparing complete row multisets;
@@ -50,14 +72,6 @@ export class ContractNormalizer {
     // also gives equivalent random references stable identities in both APIs.
     if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b)).map(([key,item])=>[key,this.normalize(item,`${path}/${key}`)]));
     if(typeof value!=='string')return value;
-    if(path==='/body/error'&&value.startsWith('E_ROW_NOT_FOUND: Row not found\n')){
-      const [identity,...frames]=value.split('\n');
-      assert.ok(frames.length>0&&frames.every(frame=>/^\s+at .+/.test(frame)),'export diagnostic stack format');
-      assert.ok(frames.some(frame=>/ActivityRegistrationsController\.export|httpapi\.\(\*Server\)\.exportRegistrations/.test(frame)),'actual registration export call site');
-      // Error identity remains exact. Source paths, line numbers, and runtime
-      // call sites change across builds and languages; validate then normalize.
-      return identity+'\n<validated export diagnostic stack>';
-    }
     if(/CERT-\d{4}-\d+-[A-F0-9]{32}/i.test(value)){
       return value.replace(/CERT-(\d{4})-(\d+)-[A-F0-9]{32}/gi,(code,year,activity)=>{
         assert.equal(Number(year),new Date().getUTCFullYear());assert.ok(Number(activity)>0);

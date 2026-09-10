@@ -55,9 +55,13 @@ func (s *Server) registerProfileReads() {
 		byUser bool
 	}{{"show", false}, {"showByUserId", true}} {
 		s.register("profiles_controller", target.action, func(w http.ResponseWriter, r *http.Request) error {
-			rows, err := q.ProfileDetails(r.Context(), dbgen.ProfileDetailsParams{ID: pathID(r, "id"), ByUser: target.byUser})
+			rows, err := q.ProfileDetailsByIdentifier(r.Context(), dbgen.ProfileDetailsByIdentifierParams{ID: pathID(r, "id"), ByUser: target.byUser})
 			if err != nil {
-				legacyFailure(w, err)
+				column := "id"
+				if target.byUser {
+					column = "user_id"
+				}
+				legacyFailure(w, database.LegacyQueryError(err, `select * from "profiles" where "`+column+`" = $1`))
 				return nil
 			}
 			data := profileDetailsResponse{Profile: make([]member.ProfileDetail, len(rows))}

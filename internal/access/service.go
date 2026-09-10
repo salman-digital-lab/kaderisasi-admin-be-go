@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/jackc/pgx/v5"
 	"kaderisasi/admin/internal/auth"
+	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
 )
@@ -15,9 +16,10 @@ type Update struct {
 }
 
 // Change runs inside the caller's transaction after advisory lock (7411,1).
-func Change(ctx context.Context, tx pgx.Tx, userID int32, change Update) error {
+func Change(ctx context.Context, tx pgx.Tx, identifier string, change Update) error {
 	q := dbgen.New(tx)
-	user, err := q.LockAdmin(ctx, userID)
+	user, err := q.LockAdminByIdentifier(ctx, identifier)
+	err = database.LegacyQueryError(err, `select * from "admin_users" where "id" = $1 limit $2 for update`)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return domain.Fail(404, "USER_NOT_FOUND")
 	}
@@ -42,12 +44,12 @@ func Change(ctx context.Context, tx pgx.Tx, userID int32, change Update) error {
 	if change.IsActive.Value != nil {
 		active = *change.IsActive.Value
 	}
-	if err = q.UpdateAdminAccess(ctx, dbgen.UpdateAdminAccessParams{ID: userID, RolePresent: change.RoleCode.Present, RoleCode: change.RoleCode.Value, ActivePresent: change.IsActive.Present, IsActive: active}); err != nil {
+	if err = q.UpdateAdminAccess(ctx, dbgen.UpdateAdminAccessParams{ID: user.ID, RolePresent: change.RoleCode.Present, RoleCode: change.RoleCode.Value, ActivePresent: change.IsActive.Present, IsActive: active}); err != nil {
 		return err
 	}
 	if deactivate {
 		reason := "account_deactivated"
-		return dbgen.New(tx).RevokeAdminSessions(ctx, dbgen.RevokeAdminSessionsParams{AdminUserID: userID, RevocationReason: &reason})
+		return dbgen.New(tx).RevokeAdminSessions(ctx, dbgen.RevokeAdminSessionsParams{AdminUserID: user.ID, RevocationReason: &reason})
 	}
 	return nil
 }

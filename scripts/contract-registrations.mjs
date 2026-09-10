@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {registrationExportEdges} from './contract-registration-export-edges.mjs';
 export async function registrationCases(h){
   const member=await h.call('registration:member','POST','/v2/members',{name:'Registrant fixture',email:'registrant@example.test'});
   await h.call('registration:activity','POST','/v2/activities',{name:'Registration fixture',activity_type:2,badge:'Fixture SSC',additional_config:{custom_selection_status:[],mandatory_profile_data:[],additional_questionnaire:[{name:'motivation',label:'Motivasi',type:'text'}]}});
@@ -99,4 +100,5 @@ export async function registrationCases(h){
     await h.call(`registration:invalid-path-create:${identifier}`,'POST',`/v2/activities/${identifier}/registrations`,body);
     await h.call(`registration:invalid-path-statistics:${identifier}`,'GET',`/v2/activities/${identifier}/registrations/statistics`);
   }
+  await registrationExportEdges(h,member.data.profile.id,customForm.data.id);
 }

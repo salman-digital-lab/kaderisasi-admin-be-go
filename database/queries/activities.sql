@@ -15,7 +15,7 @@ AND (sqlc.narg('minimum_level')::text IS NULL OR a.minimum_level=CAST(CAST(sqlc.
 AND (sqlc.narg('activity_type')::text IS NULL OR a.activity_type=CAST(CAST(sqlc.narg('activity_type') AS text) AS integer))
 AND (sqlc.narg('is_published')::text IS NULL OR a.is_published=CAST(CAST(sqlc.narg('is_published') AS text) AS boolean))
 AND (sqlc.narg('club_id')::text IS NULL OR a.club_id=CAST(CAST(sqlc.narg('club_id') AS text) AS integer))
-ORDER BY a.is_published DESC,a.created_at DESC LIMIT sqlc.narg('page_size')::bigint OFFSET @page_offset::bigint;
+ORDER BY a.is_published DESC,a.created_at DESC LIMIT CAST(sqlc.narg('page_size')::text AS bigint) OFFSET CAST(@page_offset::text AS bigint);
 
 -- name: ActivityDetails :one
 SELECT sqlc.embed(a),to_jsonb(c) AS club FROM activities a LEFT JOIN clubs c ON c.id=a.club_id WHERE a.id=$1;

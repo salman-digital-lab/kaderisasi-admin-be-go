@@ -57,7 +57,7 @@ func ProfileWithUser(row dbgen.Profile, rawUser []byte) (ProfileSummary, error) 
 	return result, nil
 }
 
-func ProfileWithRelations(row dbgen.ProfileDetailsRow) (ProfileDetail, error) {
+func ProfileWithRelations(row dbgen.ProfileDetailsByIdentifierRow) (ProfileDetail, error) {
 	summary, err := ProfileWithUser(row.Profile, row.PublicUser)
 	result := ProfileDetail{ProfileSummary: summary}
 	if err != nil {

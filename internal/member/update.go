@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/jackc/pgx/v5"
 	"kaderisasi/admin/internal/auth"
+	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
 	"reflect"
@@ -14,9 +15,10 @@ import (
 	"unicode/utf16"
 )
 
-func (s Service) UpdateCredentials(ctx context.Context, id int32, data CredentialRequest) (PublicResponse, error) {
+func (s Service) UpdateCredentials(ctx context.Context, identifier string, data CredentialRequest) (PublicResponse, error) {
 	q := dbgen.New(s.Pool)
-	user, err := q.PublicUserByID(ctx, id)
+	user, err := q.PublicUserByIdentifier(ctx, identifier)
+	err = database.LegacyQueryError(err, `select * from "public_users" where "id" = $1 limit $2`)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return PublicResponse{}, domain.Fail(404, "USER_NOT_FOUND")
 	}
@@ -24,7 +26,7 @@ func (s Service) UpdateCredentials(ctx context.Context, id int32, data Credentia
 		return PublicResponse{}, err
 	}
 	if text(data.Email) != "" {
-		_, err = q.OtherPublicUserByEmail(ctx, dbgen.OtherPublicUserByEmailParams{ID: id, Email: data.Email})
+		_, err = q.OtherPublicUserByEmail(ctx, dbgen.OtherPublicUserByEmailParams{ID: user.ID, Email: data.Email})
 		if err == nil {
 			return PublicResponse{}, domain.Fail(409, "EMAIL_ALREADY_REGISTERED")
 		}
@@ -39,7 +41,7 @@ func (s Service) UpdateCredentials(ctx context.Context, id int32, data Credentia
 		}
 		data.Password = &hash
 	}
-	updated, err := q.UpdateMemberCredentials(ctx, dbgen.UpdateMemberCredentialsParams{ID: id, Email: data.Email, Password: data.Password})
+	updated, err := q.UpdateMemberCredentials(ctx, dbgen.UpdateMemberCredentialsParams{ID: user.ID, Email: data.Email, Password: data.Password})
 	if errors.Is(err, pgx.ErrNoRows) {
 		return PublicView(user), nil
 	}
@@ -93,9 +95,10 @@ func mergeExtra(current, incoming []byte) []byte {
 	return raw
 }
 
-func (s Service) UpdateProfile(ctx context.Context, id int32, data ProfileUpdate) (ProfileResponse, error) {
+func (s Service) UpdateProfile(ctx context.Context, identifier string, data ProfileUpdate) (ProfileResponse, error) {
 	q := dbgen.New(s.Pool)
-	original, err := q.ProfileByID(ctx, id)
+	original, err := q.ProfileByIdentifier(ctx, identifier)
+	err = database.LegacyQueryError(err, `select * from "profiles" where "id" = $1 limit $2`)
 	if err != nil {
 		return ProfileResponse{}, err
 	}
@@ -110,7 +113,7 @@ func (s Service) UpdateProfile(ctx context.Context, id int32, data ProfileUpdate
 			return ProfileResponse{}, err
 		}
 	}
-	params := dbgen.UpdateMemberProfileParams{ID: id, Name: data.Name, Gender: data.Gender, PersonalID: data.PersonalID, Whatsapp: data.Whatsapp, Line: data.Line, Instagram: data.Instagram, Tiktok: data.Tiktok, Linkedin: data.Linkedin, ProvinceID: number(data.ProvinceID), CityID: number(data.CityID), Level: number(data.Level), BirthDate: data.BirthDate, OriginProvinceID: number(data.OriginProvinceID), OriginCityID: number(data.OriginCityID), Country: data.Country, Badges: jsonField(data.Badges), EducationHistory: jsonField(data.EducationHistory), WorkHistory: jsonField(data.WorkHistory)}
+	params := dbgen.UpdateMemberProfileParams{ID: original.ID, Name: data.Name, Gender: data.Gender, PersonalID: data.PersonalID, Whatsapp: data.Whatsapp, Line: data.Line, Instagram: data.Instagram, Tiktok: data.Tiktok, Linkedin: data.Linkedin, ProvinceID: number(data.ProvinceID), CityID: number(data.CityID), Level: number(data.Level), BirthDate: data.BirthDate, OriginProvinceID: number(data.OriginProvinceID), OriginCityID: number(data.OriginCityID), Country: data.Country, Badges: jsonField(data.Badges), EducationHistory: jsonField(data.EducationHistory), WorkHistory: jsonField(data.WorkHistory)}
 	if data.Badges != nil && reflect.DeepEqual(normalizeBadges(original.Badges), *data.Badges) {
 		params.Badges = nil
 	}
@@ -134,16 +137,17 @@ func (s Service) UpdateProfile(ctx context.Context, id int32, data ProfileUpdate
 	return view, nil
 }
 
-func (s Service) UpdateRegionalAssignment(ctx context.Context, id int32, data RegionalRequest) error {
+func (s Service) UpdateRegionalAssignment(ctx context.Context, identifier string, data RegionalRequest) error {
 	q := dbgen.New(s.Pool)
-	original, err := q.ProfileByID(ctx, id)
+	original, err := q.ProfileByIdentifier(ctx, identifier)
+	err = database.LegacyQueryError(err, `select * from "profiles" where "id" = $1 limit $2`)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return domain.Fail(404, "PROFILE_NOT_FOUND")
 	}
 	if err != nil {
 		return err
 	}
-	_, err = q.UpdateMemberProfile(ctx, dbgen.UpdateMemberProfileParams{ID: id, ExtraData: mergeExtra(original.ExtraData, jsonField(&data))})
+	_, err = q.UpdateMemberProfile(ctx, dbgen.UpdateMemberProfileParams{ID: original.ID, ExtraData: mergeExtra(original.ExtraData, jsonField(&data))})
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil
 	}

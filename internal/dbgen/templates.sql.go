@@ -143,14 +143,14 @@ func (q *Queries) DeleteCertificateTemplate(ctx context.Context, id int32) error
 const listCertificateTemplates = `-- name: ListCertificateTemplates :many
 SELECT t.id, t.name, t.description, t.background_image, t.template_data, t.is_active, t.created_at, t.updated_at, t.lifecycle_status, t.version, t.background_asset_version, t.published_at, t.archived_at,(SELECT count(*) FROM activities WHERE certificate_template_id=t.id) AS activity_usage_count,(SELECT count(*) FROM issued_certificates WHERE template_id=t.id) AS issued_certificate_count FROM certificate_templates t
 WHERE ($1::text IS NULL OR t.name ILIKE '%'||$1::text||'%') AND ($2::text IS NULL OR t.lifecycle_status=$2::text)
-ORDER BY t.created_at DESC LIMIT $4::bigint OFFSET $3::bigint
+ORDER BY t.created_at DESC LIMIT CAST($4::text AS bigint) OFFSET CAST($3::text AS bigint)
 `
 
 type ListCertificateTemplatesParams struct {
 	Search     *string `json:"search"`
 	Status     *string `json:"status"`
-	PageOffset int64   `json:"page_offset"`
-	PageSize   *int64  `json:"page_size"`
+	PageOffset string  `json:"page_offset"`
+	PageSize   *string `json:"page_size"`
 }
 
 type ListCertificateTemplatesRow struct {

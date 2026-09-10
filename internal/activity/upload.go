@@ -32,8 +32,8 @@ func imagesFrom(raw []byte) (map[string]json.RawMessage, []string, error) {
 	}
 	return data, images, nil
 }
-func (s Service) UploadImage(ctx context.Context, id int32, body []byte) (*UploadResult, error) {
-	activity, err := dbgen.New(s.Pool).ActivityByID(ctx, id)
+func (s Service) UploadImage(ctx context.Context, id string, body []byte) (*UploadResult, error) {
+	activity, err := dbgen.New(s.Pool).ActivityByIdentifier(ctx, id)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, domain.Fail(404, "ACTIVITY_NOT_FOUND")
 	}
@@ -51,7 +51,7 @@ func (s Service) UploadImage(ctx context.Context, id int32, body []byte) (*Uploa
 	if err != nil {
 		return nil, err
 	}
-	key, err := media.Upload(ctx, s.Storage, body, "activity/"+strconv.FormatInt(int64(id), 10)+"/"+uuid, media.Gallery)
+	key, err := media.Upload(ctx, s.Storage, body, "activity/"+strconv.FormatInt(int64(activity.ID), 10)+"/"+uuid, media.Gallery)
 	if errors.Is(err, media.ErrInvalidImage) {
 		return nil, domain.Fail(422, "INVALID_IMAGE")
 	}
@@ -70,7 +70,7 @@ func (s Service) UploadImage(ctx context.Context, id int32, body []byte) (*Uploa
 	}
 	defer tx.Rollback(ctx)
 	q := dbgen.New(tx)
-	locked, err := q.LockActivity(ctx, id)
+	locked, err := q.LockActivityByIdentifier(ctx, id)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, domain.Fail(404, "ACTIVITY_NOT_FOUND")
 	}
@@ -87,7 +87,7 @@ func (s Service) UploadImage(ctx context.Context, id int32, body []byte) (*Uploa
 	images = append(images, key)
 	data["images"], _ = json.Marshal(images)
 	raw, _ := json.Marshal(data)
-	if err = q.SetActivityConfig(ctx, dbgen.SetActivityConfigParams{ID: id, AdditionalConfig: raw}); err != nil {
+	if err = q.SetActivityConfig(ctx, dbgen.SetActivityConfigParams{ID: locked.ID, AdditionalConfig: raw}); err != nil {
 		return nil, err
 	}
 	if err = tx.Commit(ctx); err != nil {

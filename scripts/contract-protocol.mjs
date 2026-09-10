@@ -7,7 +7,7 @@ export async function protocolCases(h,password){
     await raw(`login-${type}`,'/v2/auth/login',login,{'Content-Type':type},'none');
   for(const [name,body] of Object.entries({truncated:'{',trailing:'{} {}',comma:'{"email":}',key:'{email:1}',array:'[]',null:'null',number:'123',string:'"hello"',true:'true',whitespace:'  \n',empty:'',duplicate:'{"email":"wrong@example.test","email":"super@example.test","password":'+JSON.stringify(password)+'}'}))
     await raw(`json-${name}`,'/v2/auth/login',body,{},'none');
-  for(const [name,path,method] of [['create','/v2/members','POST'],['edit','/v2/profiles/1','PUT'],['delete','/v2/profiles/1','DELETE'],['logout','/v2/auth/logout','POST'],['image','/v2/activities/1/images','POST']]){
+  for(const [name,path,method] of [['create','/v2/members','POST'],['edit','/v2/profiles/1','PUT'],['delete','/v2/profiles/1','DELETE'],['logout','/v2/auth/logout','POST'],['logout-put','/v2/auth/logout','PUT'],['migrate','/v2/auth/session/migrate','POST'],['image','/v2/activities/1/images','POST']]){
     await raw(`malformed-before-auth-${name}`,path,'{',{},'none',method);
     await raw(`malformed-authenticated-${name}`,path,'{',{},'super',method);
   }

@@ -38,4 +38,4 @@ CASE WHEN @sort_by::text='intake_year' AND @ascending::boolean=false THEN p.inta
 CASE WHEN @sort_by::text='major' AND @ascending::boolean=false THEN p.major END DESC NULLS LAST,
 CASE WHEN @sort_by::text='whatsapp' AND @ascending::boolean=false THEN p.whatsapp END DESC NULLS LAST,
 CASE WHEN @ascending::boolean=false THEN ar.id END DESC
-LIMIT sqlc.narg('page_size')::bigint OFFSET @page_offset::bigint;
+LIMIT CAST(sqlc.narg('page_size')::text AS bigint) OFFSET CAST(@page_offset::text AS bigint);

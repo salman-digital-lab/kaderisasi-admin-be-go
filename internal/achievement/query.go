@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
+	"kaderisasi/admin/internal/jscompat"
 	"math"
 	"regexp"
 	"strconv"
@@ -15,7 +16,12 @@ import (
 var integerPrefix = regexp.MustCompile(`^[+-]?(?:0[xX][0-9a-fA-F]+|[0-9]+)`)
 
 func parseInteger(raw string) float64 {
-	text := integerPrefix.FindString(strings.TrimSpace(raw))
+	raw = strings.TrimLeftFunc(raw, jscompat.Whitespace)
+	unsigned := strings.TrimLeft(raw, "+-")
+	if len(unsigned) >= 2 && (unsigned[:2] == "0x" || unsigned[:2] == "0X") && (len(unsigned) == 2 || !strings.ContainsRune("0123456789abcdefABCDEF", rune(unsigned[2]))) {
+		return math.NaN()
+	}
+	text := integerPrefix.FindString(raw)
 	if text == "" {
 		return math.NaN()
 	}

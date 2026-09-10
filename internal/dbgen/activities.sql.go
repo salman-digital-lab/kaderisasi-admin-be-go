@@ -238,7 +238,7 @@ AND ($3::text IS NULL OR a.minimum_level=CAST(CAST($3 AS text) AS integer))
 AND ($4::text IS NULL OR a.activity_type=CAST(CAST($4 AS text) AS integer))
 AND ($5::text IS NULL OR a.is_published=CAST(CAST($5 AS text) AS boolean))
 AND ($6::text IS NULL OR a.club_id=CAST(CAST($6 AS text) AS integer))
-ORDER BY a.is_published DESC,a.created_at DESC LIMIT $8::bigint OFFSET $7::bigint
+ORDER BY a.is_published DESC,a.created_at DESC LIMIT CAST($8::text AS bigint) OFFSET CAST($7::text AS bigint)
 `
 
 type ListActivitiesFilteredParams struct {
@@ -248,8 +248,8 @@ type ListActivitiesFilteredParams struct {
 	ActivityType *string `json:"activity_type"`
 	IsPublished  *string `json:"is_published"`
 	ClubID       *string `json:"club_id"`
-	PageOffset   int64   `json:"page_offset"`
-	PageSize     *int64  `json:"page_size"`
+	PageOffset   string  `json:"page_offset"`
+	PageSize     *string `json:"page_size"`
 }
 
 type ListActivitiesFilteredRow struct {

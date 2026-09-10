@@ -125,7 +125,10 @@ sequentially; shared-data and public-browser checks use web-be on 3333.
 
 `make verify` retains logs and results under `.artifacts/verify/`, runs all required
 suites, then cleans recorded objects and schemas, including on failure. It exits
-unsuccessfully while required completion reviews remain pending. Individual suites
+unsuccessfully while required completion reviews remain pending. After all checks pass
+and the final report is reviewed, `node scripts/finalize-verification.mjs` completes
+that review without rerunning tests. It refuses failed checks, unresolved reviews,
+or a changed source fingerprint. Individual suites
 keep schemas for debugging; finish with `make clean-fixtures`.
 
 Playwright uses the real admin frontend, a production build of the public frontend,

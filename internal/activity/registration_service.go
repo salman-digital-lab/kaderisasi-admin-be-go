@@ -222,5 +222,10 @@ func (s Service) ChangeRegistrationStatusesBulk(ctx context.Context, id string, 
 		tag, err := s.Pool.Exec(ctx, query, args...)
 		return tag.RowsAffected(), database.LegacyQueryError(err, diagnostic)
 	}
-	return dbgen.New(s.Pool).ChangeRegistrationStatusBulk(ctx, dbgen.ChangeRegistrationStatusBulkParams{ActivityID: id, NewStatus: data.NewStatus, CurrentStatus: data.CurrentStatus})
+	count, err := dbgen.New(s.Pool).ChangeRegistrationStatusBulk(ctx, dbgen.ChangeRegistrationStatusBulkParams{ActivityID: id, NewStatus: data.NewStatus, CurrentStatus: data.CurrentStatus})
+	statement := `update "activity_registrations" set "status" = $1 where "activity_id" = $2`
+	if data.CurrentStatus != nil {
+		statement += ` and "status" = $3`
+	}
+	return count, database.LegacyQueryError(err, statement)
 }

@@ -58,4 +58,28 @@ export async function routeEdgeCases(h,routes){
     const path=route.path.replace(/:[^/]+/g,'1');
     await h.call(`edge:invalid-body:${route.method}:${route.path}`,route.method,path,invalid);
   }
+  const numericControllers=new Set(['provinces_controller','cities_controller','universities_controller','profiles_controller','members_controller','auth_controller','activities_controller','adminusers_controller','access_requests_controller']);
+  for(const route of routes.filter(route=>numericControllers.has(route.controller)&&route.path.includes(':id'))){
+    for(const identifier of ['bad','1.5','2147483648','4294967297','%31','0x1']){
+      const path=route.path.replace(':id',identifier);
+      const name=`edge:invalid-identifier:${identifier}:${route.method}:${route.path}`;
+      if(uploads.has(route.action))await h.upload(name,path);
+      else await h.call(name,route.method,path,bodies[route.controller]?.[route.action]);
+    }
+  }
+
+  for(const route of routes.filter(route=>route.path.includes(':id')&&!numericControllers.has(route.controller))){
+    for(const identifier of ['bad','4294967297']){
+      const path=route.path.replace(':id',identifier);
+      const name=`edge:invalid-identifier:${identifier}:${route.method}:${route.path}`;
+      if(uploads.has(route.action))await h.upload(name,path,route.action==='uploadImageMedia'?{media_type:'image'}:{});
+      else await h.call(name,route.method,path,bodies[route.controller]?.[route.action]);
+    }
+  }
+  await h.call('edge:missing-resource:bulk-status','PUT','/v2/activity-registrations',{registrations_id:[999999],status:'DITERIMA'});
+  await h.call('edge:missing-resource:city-province','POST','/v2/cities',{name:'Missing province city',province_id:999999});
+  await h.call('edge:missing-resource:university-province','POST','/v2/universities',{name:'Missing province university',provinceId:999999});
+  await h.call('edge:missing-resource:form-club','POST','/v2/custom-forms',{formName:'Missing club form',featureType:'club_registration',featureId:999999});
+  await h.call('edge:missing-resource:activity-template','POST','/v2/activities',{name:'Missing template activity',certificate_template_id:999999});
+
 }

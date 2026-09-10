@@ -392,7 +392,7 @@ WHERE cr.club_id= $2::integer AND ($3::text IS NULL OR cr.status=$3)
 AND ($4::text IS NULL OR u.email ILIKE '%'||$4::text||'%' OR p.name ILIKE '%'||$4::text||'%')
 ORDER BY CASE WHEN $5::boolean THEN cr.created_at END ASC NULLS LAST,CASE WHEN $5::boolean THEN cr.id END ASC,
 CASE WHEN NOT $5::boolean THEN cr.created_at END DESC NULLS LAST,CASE WHEN NOT $5::boolean THEN cr.id END DESC
-LIMIT $7::bigint OFFSET $6::bigint
+LIMIT CAST($7::text AS bigint) OFFSET CAST($6::text AS bigint)
 `
 
 type ListClubRegistrationsParams struct {
@@ -401,8 +401,8 @@ type ListClubRegistrationsParams struct {
 	Status      *string `json:"status"`
 	Search      *string `json:"search"`
 	Ascending   bool    `json:"ascending"`
-	PageOffset  int64   `json:"page_offset"`
-	PageSize    *int64  `json:"page_size"`
+	PageOffset  string  `json:"page_offset"`
+	PageSize    *string `json:"page_size"`
 }
 
 type ListClubRegistrationsRow struct {

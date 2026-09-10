@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/jackc/pgx/v5"
 	"kaderisasi/admin/internal/certificate"
+	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
 	"time"
@@ -86,9 +87,10 @@ func sameTemplate(value *json.Number, current *int32) bool {
 	parsed, err := value.Float64()
 	return err == nil && parsed == float64(*current)
 }
-func (s Service) Update(ctx context.Context, id int32, data Input, canManage bool) (Updated, error) {
+func (s Service) Update(ctx context.Context, identifier string, data Input, canManage bool) (Updated, error) {
 	q := dbgen.New(s.Pool)
-	old, err := q.ActivityByID(ctx, id)
+	old, err := q.ActivityByIdentifier(ctx, identifier)
+	err = database.LegacyQueryError(err, `select * from "activities" where "id" = $1 limit $2`)
 	if err != nil {
 		return Updated{}, err
 	}
@@ -136,7 +138,7 @@ func (s Service) Update(ctx context.Context, id int32, data Input, canManage boo
 	if err != nil {
 		return Updated{}, err
 	}
-	row, err := q.UpdateActivity(ctx, dbgen.UpdateActivityParams{ID: id, Name: data.Name, Description: data.Description, Badge: data.Badge, ActivityStart: data.ActivityStart, ActivityEnd: data.ActivityEnd, RegistrationStart: data.RegistrationStart, RegistrationEnd: data.RegistrationEnd, SelectionStart: data.SelectionStart, SelectionEnd: data.SelectionEnd, MinimumLevel: numberText(data.MinimumLevel), ActivityType: numberText(data.ActivityType), ActivityCategory: numberText(data.ActivityCategory), IsPublished: numberText(data.IsPublished), IsRegistrationOpen: data.IsRegistrationOpen, ClubPresent: data.ClubID.Present, ClubID: numberText(data.ClubID.Value), TemplatePresent: assignment.Present, CertificateTemplateID: numberText(assignment.Value), AdditionalConfig: raw})
+	row, err := q.UpdateActivity(ctx, dbgen.UpdateActivityParams{ID: old.ID, Name: data.Name, Description: data.Description, Badge: data.Badge, ActivityStart: data.ActivityStart, ActivityEnd: data.ActivityEnd, RegistrationStart: data.RegistrationStart, RegistrationEnd: data.RegistrationEnd, SelectionStart: data.SelectionStart, SelectionEnd: data.SelectionEnd, MinimumLevel: numberText(data.MinimumLevel), ActivityType: numberText(data.ActivityType), ActivityCategory: numberText(data.ActivityCategory), IsPublished: numberText(data.IsPublished), IsRegistrationOpen: data.IsRegistrationOpen, ClubPresent: data.ClubID.Present, ClubID: numberText(data.ClubID.Value), TemplatePresent: assignment.Present, CertificateTemplateID: numberText(assignment.Value), AdditionalConfig: raw})
 	if err != nil {
 		return Updated{}, err
 	}

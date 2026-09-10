@@ -52,7 +52,7 @@ func (s *Server) registerActivities() {
 	}
 	// Kept for source parity; this action has no route declaration.
 	s.register("activities_controller", "delete", func(w http.ResponseWriter, r *http.Request) error {
-		removed, err := dbgen.New(s.Pool).DeleteActivity(r.Context(), pathID(r, "id"))
+		removed, err := dbgen.New(s.Pool).DeleteActivityByIdentifier(r.Context(), pathID(r, "id"))
 		if err != nil {
 			legacyFailure(w, err)
 			return nil

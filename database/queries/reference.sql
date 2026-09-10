@@ -40,7 +40,7 @@ SELECT count(*) FROM universities WHERE name ILIKE @search::text;
 -- name: ListUniversities :many
 SELECT sqlc.embed(u), p.id AS parent_id, p.name AS parent_name, p.is_active AS parent_active
 FROM universities u LEFT JOIN provinces p ON p.id = u.province_id
-WHERE u.name ILIKE @search::text ORDER BY u.name ASC LIMIT sqlc.narg('page_size')::bigint OFFSET @page_offset::bigint;
+WHERE u.name ILIKE @search::text ORDER BY u.name ASC LIMIT CAST(sqlc.narg('page_size')::text AS bigint) OFFSET CAST(@page_offset::text AS bigint);
 
 -- name: UniversityByID :one
 SELECT sqlc.embed(u), p.id AS parent_id, p.name AS parent_name, p.is_active AS parent_active

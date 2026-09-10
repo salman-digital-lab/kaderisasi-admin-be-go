@@ -57,7 +57,8 @@ func (s *Server) registerActivityReads() {
 		return nil
 	})
 	s.register("activities_controller", "show", func(w http.ResponseWriter, r *http.Request) error {
-		row, err := q.ActivityDetails(r.Context(), pathID(r, "id"))
+		row, err := q.ActivityDetailsByIdentifier(r.Context(), pathID(r, "id"))
+		err = database.LegacyQueryError(err, `select * from "activities" where "id" = $1 limit $2`)
 		if errors.Is(err, pgx.ErrNoRows) {
 			reply(w, 200, "GET_DATA_SUCCESS", nil)
 			return nil

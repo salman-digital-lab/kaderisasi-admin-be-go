@@ -114,13 +114,13 @@ func (q *Queries) CreateAdmin(ctx context.Context, arg CreateAdminParams) (Admin
 
 const listAdmins = `-- name: ListAdmins :many
 SELECT id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code FROM admin_users WHERE email ILIKE $1::text OR display_name ILIKE $1::text
-ORDER BY created_at DESC LIMIT $3::bigint OFFSET $2::bigint
+ORDER BY created_at DESC LIMIT CAST($3::text AS bigint) OFFSET CAST($2::text AS bigint)
 `
 
 type ListAdminsParams struct {
-	Search     string `json:"search"`
-	PageOffset int64  `json:"page_offset"`
-	PageSize   *int64 `json:"page_size"`
+	Search     string  `json:"search"`
+	PageOffset string  `json:"page_offset"`
+	PageSize   *string `json:"page_size"`
 }
 
 func (q *Queries) ListAdmins(ctx context.Context, arg ListAdminsParams) ([]AdminUser, error) {

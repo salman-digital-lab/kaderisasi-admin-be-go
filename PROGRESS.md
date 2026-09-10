@@ -44,13 +44,12 @@ must pass. Missing tests and externally blocked checks remain incomplete.
 
 ## Next action
 
-Complete per-route input/resource applicability, remaining identifier and export
-edge review, then final aggregate verification against the current frontends.
+Run the final aggregate verification against the current frontends. All route
+applicability, typed boundary, identifier, and stored-export reviews are complete.
 The active fixture run is `f76e3007f52dfb7f`; its three owned schemas remain available.
 Use `GO_REWRITE_DIRECT_DNS=1` for this environment's storage resolver fallback.
-Image-backed admin PDF testing still has a pending
-request for temporary localhost CORS origins on the shared test bucket; no bucket
-setting was changed. Clean the active schemas and journals after final verification.
+The user approved temporary localhost CORS origins for the image-backed admin PDF
+tests, with restoration afterward. Record and verify both application and restoration. Clean the active schemas and journals after final verification.
 
 ## Current continuation
 
@@ -474,3 +473,36 @@ handlers, unexecuted required scenarios, test skips, and unfinished cleanup.
   it was corrected to JSON null without changing the schema constraint. The
   original failed harness run remains recorded. Scientific-notation pagination
   links now encode the plus sign, matching Adonis; the regression test passes.
+
+## Identifier, stored-export, and final review continuation
+
+- Expanded raw path comparisons to 337; all passed before the final additional
+  module cases. PostgreSQL receives original path values for source actions that
+  do not call Number; image storage keys use the resolved activity ID.
+- Export comparisons include malformed questionnaire/configuration/form documents,
+  null answers, history entries, and text `0`/`false`. One SQL NULL versus absent
+  property mismatch was corrected; affected rerun is in progress.
+- Replaced narrowing pagination bounds with typed text parameters cast by
+  PostgreSQL; added wide, hex, and Unicode whitespace comparisons. Profile SQL
+  diagnostics now include relation and JSON-expression filters.
+- Reviewed all 139 routes in `tests/route-applicability.json`; the coverage gate now
+  requires passing invalid-input and missing-resource evidence wherever applicable.
+- Moved the generic JSON query helper behind the integration build tag. Production
+  business DTO/query review is documented in `docs/TYPE_DESIGN.md`.
+- Generated and passed 1,418 Vine validation fixtures, including Number coercion
+  of boolean/array inputs and hexadecimal/Unicode numeric strings.
+- Adopted independently committed admin frontend revision
+  `37914ab019d03be4b959aaf8e1c5b281852eb78a` for final responsive browser checks.
+  Adonis and web backend club revisions remain unchanged from the adopted baseline.
+
+- All 189 expanded query comparisons and 444 expanded route-edge comparisons now
+  pass. This includes every numeric path family, nonexistent referenced resources,
+  SQL diagnostics, actual runtime stacks, and wide pagination bounds. Each route
+  run removed and verified its recorded storage object; shared bucket settings
+  remain unchanged. Registration/achievement/protocol reruns are finishing before
+  the aggregate verification starts.
+
+- Final affected checks pass: route edges 444/444, registrations 128/128,
+  achievements 116/116, protocol 48/48. Formatting, vet (including integration),
+  builds, module integrity, sqlc drift, and normalizer integrity all pass in
+  `.artifacts/check-complete-boundaries.log`. The final aggregate run is next.

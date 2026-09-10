@@ -11,7 +11,7 @@ AND (sqlc.narg('search')::text IS NULL OR form_name ILIKE '%' || sqlc.narg('sear
 AND (sqlc.narg('feature_type')::text IS NULL OR feature_type=sqlc.narg('feature_type'))
 AND (sqlc.narg('feature_id')::text IS NULL OR feature_id=CAST(CAST(sqlc.narg('feature_id') AS text) AS integer))
 AND (sqlc.narg('is_active')::boolean IS NULL OR is_active=sqlc.narg('is_active'))
-ORDER BY created_at DESC LIMIT sqlc.narg('page_size')::bigint OFFSET @page_offset::bigint;
+ORDER BY created_at DESC LIMIT CAST(sqlc.narg('page_size')::text AS bigint) OFFSET CAST(@page_offset::text AS bigint);
 
 -- name: FormByIdentifier :one
 SELECT * FROM custom_forms WHERE id=CAST(CAST(@identifier AS text) AS integer);

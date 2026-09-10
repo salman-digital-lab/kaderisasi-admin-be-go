@@ -28,15 +28,7 @@ func guestLocationNumber(raw json.RawMessage) (float64, bool) {
 	if value == "true" || value == "false" {
 		return 0, false
 	}
-	var number float64
-	var err error
-	if len(value) > 2 && value[0] == '0' && strings.ContainsAny(value[1:2], "xXoObB") {
-		var integer uint64
-		integer, err = strconv.ParseUint(value, 0, 64)
-		number = float64(integer)
-	} else {
-		number, err = strconv.ParseFloat(value, 64)
-	}
+	number, err := strconv.ParseFloat(database.NumberIdentifier(value), 64)
 	return number, (err == nil || math.IsInf(number, 0)) && !math.IsNaN(number) && number != 0
 }
 

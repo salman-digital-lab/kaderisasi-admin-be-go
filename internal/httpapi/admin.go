@@ -10,6 +10,7 @@ import (
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -35,8 +36,11 @@ func (s *Server) adminView(ctx context.Context, user dbgen.AdminUser) (adminResp
 	a := auth.ForRole(user.RoleCode, user.IsActive)
 	return adminResponse{ID: user.ID, Email: user.Email, NormalizedEmail: user.NormalizedEmail, DisplayName: user.DisplayName, CreatedAt: domain.ModelTimestamp(user.CreatedAt, s.Config.Location), UpdatedAt: domain.ModelTimestamp(user.UpdatedAt, s.Config.Location), IsActive: user.IsActive, RoleCode: user.RoleCode, Role: a.Role, EffectivePermissions: a.Permissions, IsSuperAdmin: a.IsSuperAdmin, AuthenticationMethods: methods, GoogleLinked: google, Identities: views}, nil
 }
-func (s *Server) adminReply(w http.ResponseWriter, r *http.Request, status int, msg string, id int32) error {
-	user, err := dbgen.New(s.Pool).FindAdminByID(r.Context(), id)
+func (s *Server) adminReply(w http.ResponseWriter, r *http.Request, status int, msg string, id string) error {
+	user, err := dbgen.New(s.Pool).FindAdminByIdentifier(r.Context(), id)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		err = s.frameworkError(err, `select * from "admin_users" where "id" = $1 limit $2`)
+	}
 	if errors.Is(err, pgx.ErrNoRows) {
 		return domain.Fail(404, "USER_NOT_FOUND")
 	}
@@ -104,7 +108,7 @@ func (s *Server) registerAdmin() {
 		if err != nil {
 			return err
 		}
-		return s.adminReply(w, r, 201, "REGISTER_SUCCESS", user.ID)
+		return s.adminReply(w, r, 201, "REGISTER_SUCCESS", strconv.FormatInt(int64(user.ID), 10))
 	})
 	s.register("adminusers_controller", "editPassword", func(w http.ResponseWriter, r *http.Request) error {
 		data, ok := inputAs[passwordRequest](w, r, "editPasswordValidator")
@@ -112,7 +116,11 @@ func (s *Server) registerAdmin() {
 			return nil
 		}
 		id := pathID(r, "id")
-		if _, err := dbgen.New(s.Pool).FindAdminByID(r.Context(), id); err != nil {
+		user, err := dbgen.New(s.Pool).FindAdminByIdentifier(r.Context(), id)
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			err = s.frameworkError(err, `select * from "admin_users" where "id" = $1 limit $2`)
+		}
+		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
 				return domain.Fail(404, "USER_NOT_FOUND")
 			}
@@ -122,11 +130,11 @@ func (s *Server) registerAdmin() {
 		if err != nil {
 			return err
 		}
-		if err = dbgen.New(s.Pool).SetAdminPassword(r.Context(), dbgen.SetAdminPasswordParams{ID: id, Password: &hash}); err != nil {
+		if err = dbgen.New(s.Pool).SetAdminPassword(r.Context(), dbgen.SetAdminPasswordParams{ID: user.ID, Password: &hash}); err != nil {
 			return err
 		}
 		reason := "password_reset"
-		if err = dbgen.New(s.Pool).RevokeAdminSessions(r.Context(), dbgen.RevokeAdminSessionsParams{AdminUserID: id, RevocationReason: &reason}); err != nil {
+		if err = dbgen.New(s.Pool).RevokeAdminSessions(r.Context(), dbgen.RevokeAdminSessionsParams{AdminUserID: user.ID, RevocationReason: &reason}); err != nil {
 			return err
 		}
 		message(w, 200, "RESET_PASSWORD_SUCCESS")
@@ -139,7 +147,7 @@ func (s *Server) registerAdmin() {
 		}
 		id := pathID(r, "id")
 		currentActor := actor(r)
-		if data.IsActive.Present && data.IsActive.Value != nil && !*data.IsActive.Value && id == currentActor.ID {
+		if data.IsActive.Present && data.IsActive.Value != nil && !*data.IsActive.Value && database.NumberIdentifier(id) == strconv.FormatInt(int64(currentActor.ID), 10) {
 			return domain.Fail(409, "SELF_DEACTIVATION_NOT_ALLOWED")
 		}
 		change := access.Update{RoleCode: data.RoleCode, IsActive: data.IsActive}
@@ -158,8 +166,8 @@ func (s *Server) registerAdmin() {
 		if !fresh.IsActive || fresh.RoleCode == nil || *fresh.RoleCode != "super_admin" {
 			return domain.Fail(403, "SUPER_ADMIN_REQUIRED")
 		}
-		if err = access.Change(r.Context(), tx, id, change); err != nil {
-			return err
+		if err = access.Change(r.Context(), tx, database.NumberIdentifier(id), change); err != nil {
+			return s.frameworkError(err, "")
 		}
 		if err = tx.Commit(r.Context()); err != nil {
 			return err

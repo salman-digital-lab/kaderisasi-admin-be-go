@@ -250,7 +250,7 @@ AND ($2::text IS NULL OR form_name ILIKE '%' || $2::text || '%')
 AND ($3::text IS NULL OR feature_type=$3)
 AND ($4::text IS NULL OR feature_id=CAST(CAST($4 AS text) AS integer))
 AND ($5::boolean IS NULL OR is_active=$5)
-ORDER BY created_at DESC LIMIT $7::bigint OFFSET $6::bigint
+ORDER BY created_at DESC LIMIT CAST($7::text AS bigint) OFFSET CAST($6::text AS bigint)
 `
 
 type ListFormsFilteredParams struct {
@@ -259,8 +259,8 @@ type ListFormsFilteredParams struct {
 	FeatureType *string `json:"feature_type"`
 	FeatureID   *string `json:"feature_id"`
 	IsActive    *bool   `json:"is_active"`
-	PageOffset  int64   `json:"page_offset"`
-	PageSize    *int64  `json:"page_size"`
+	PageOffset  string  `json:"page_offset"`
+	PageSize    *string `json:"page_size"`
 }
 
 func (q *Queries) ListFormsFiltered(ctx context.Context, arg ListFormsFilteredParams) ([]CustomForm, error) {

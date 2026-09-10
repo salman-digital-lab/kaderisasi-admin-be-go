@@ -15,7 +15,7 @@ WHERE (sqlc.narg('status')::text IS NULL OR rc.status=CAST(CAST(sqlc.narg('statu
 AND (sqlc.narg('name')::text IS NULL OR p.name ILIKE '%'||sqlc.narg('name')::text||'%')
 AND (sqlc.narg('gender')::text IS NULL OR p.gender=sqlc.narg('gender')::text)
 AND (sqlc.narg('admin_name')::text IS NULL OR a.display_name ILIKE '%'||sqlc.narg('admin_name')::text||'%')
-ORDER BY rc.created_at DESC LIMIT sqlc.narg('page_size')::bigint OFFSET @page_offset::bigint;
+ORDER BY rc.created_at DESC LIMIT CAST(sqlc.narg('page_size')::text AS bigint) OFFSET CAST(@page_offset::text AS bigint);
 
 -- name: CounselingDetails :one
 SELECT sqlc.embed(rc),(to_jsonb(u)-'password')::jsonb AS public_user,row_to_json(p) AS profile,(to_jsonb(a)-'password')::jsonb AS admin_user

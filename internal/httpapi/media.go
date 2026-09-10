@@ -9,7 +9,6 @@ import (
 	"kaderisasi/admin/internal/domain"
 	"kaderisasi/admin/internal/validation"
 	"net/http"
-	"strconv"
 	"strings"
 )
 
@@ -80,11 +79,7 @@ func (s *Server) uploadActivityImage(w http.ResponseWriter, r *http.Request) err
 	if err != nil {
 		return err
 	}
-	id, err := strconv.ParseInt(r.PathValue("id"), 10, 32)
-	if err != nil {
-		return domain.Fail(404, "ACTIVITY_NOT_FOUND")
-	}
-	result, err := (activity.Service{Pool: s.Pool, Storage: s.Storage}).UploadImage(r.Context(), int32(id), body)
+	result, err := (activity.Service{Pool: s.Pool, Storage: s.Storage}).UploadImage(r.Context(), r.PathValue("id"), body)
 	if err != nil {
 		return err
 	}

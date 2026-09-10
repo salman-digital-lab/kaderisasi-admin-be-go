@@ -10,7 +10,6 @@ import (
 	"strconv"
 )
 
-func (s *Server) queries() database.JSONQueries { return database.JSONQueries{DB: s.Pool} }
 func input(w http.ResponseWriter, r *http.Request, schema string) (validation.Object, bool) {
 	return validatedInput(w, r, schema, false)
 }
@@ -54,13 +53,7 @@ func inputWithErrors(w http.ResponseWriter, r *http.Request, schema, style strin
 	}
 	return validated, true
 }
-func pathID(r *http.Request, key string) int32 {
-	id, err := strconv.ParseInt(r.PathValue(key), 10, 32)
-	if err != nil {
-		return 0
-	}
-	return int32(id)
-}
+func pathID(r *http.Request, key string) string { return r.PathValue(key) }
 func queryNumber(r *http.Request, key string, fallback float64) float64 {
 	if !r.URL.Query().Has(key) {
 		return fallback
@@ -69,7 +62,7 @@ func queryNumber(r *http.Request, key string, fallback float64) float64 {
 	if value == "" {
 		return 0
 	}
-	number, err := strconv.ParseFloat(value, 64)
+	number, err := strconv.ParseFloat(database.NumberIdentifier(value), 64)
 	if err != nil {
 		return math.NaN()
 	}

@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"errors"
+	"fmt"
 	"kaderisasi/admin/internal/activity"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
@@ -53,7 +54,8 @@ func (s *Server) registerRegistrations() {
 		id := r.PathValue("id")
 		rows, err := dbgen.New(s.Pool).RegistrationsByUser(r.Context(), id)
 		if err != nil {
-			return registrationFailure(w, err)
+			diagnosticFailure(w, fmt.Errorf("error: %s", database.LegacyQueryError(err, `select * from "activity_registrations" where "user_id" = $1`)))
+			return nil
 		}
 		result := make([]activity.UserRegistration, 0, len(rows))
 		for _, row := range rows {

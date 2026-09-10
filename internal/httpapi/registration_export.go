@@ -15,7 +15,7 @@ func sendWorkbook(w http.ResponseWriter, filename string, body []byte) {
 func (s *Server) exportRegistrations(w http.ResponseWriter, r *http.Request) error {
 	document, err := (activity.Service{Pool: s.Pool}).ExportRegistrations(r.Context(), r.PathValue("id"))
 	if err != nil {
-		exportFailure(w, err)
+		diagnosticFailure(w, err)
 		return nil
 	}
 	sendWorkbook(w, document.Filename, document.Body)

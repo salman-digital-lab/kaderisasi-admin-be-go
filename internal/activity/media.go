@@ -26,14 +26,14 @@ type ImageList struct {
 	Images []string `json:"images"`
 }
 
-func (s Service) changeImages(ctx context.Context, id int32, change func([]string) ([]string, error)) (dbgen.Activity, []string, error) {
+func (s Service) changeImages(ctx context.Context, id string, change func([]string) ([]string, error)) (dbgen.Activity, []string, error) {
 	tx, err := s.Pool.Begin(ctx)
 	if err != nil {
 		return dbgen.Activity{}, nil, err
 	}
 	defer tx.Rollback(ctx)
 	q := dbgen.New(tx)
-	row, err := q.LockActivity(ctx, id)
+	row, err := q.LockActivityByIdentifier(ctx, id)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return row, nil, domain.Fail(404, "ACTIVITY_NOT_FOUND")
 	}
@@ -56,7 +56,7 @@ func (s Service) changeImages(ctx context.Context, id int32, change func([]strin
 	if err != nil {
 		return row, nil, err
 	}
-	updated, err := q.UpdateActivityConfig(ctx, dbgen.UpdateActivityConfigParams{ID: id, AdditionalConfig: raw})
+	updated, err := q.UpdateActivityConfig(ctx, dbgen.UpdateActivityConfigParams{ID: row.ID, AdditionalConfig: raw})
 	if errors.Is(err, pgx.ErrNoRows) {
 		updated = row
 		err = nil
@@ -69,7 +69,7 @@ func (s Service) changeImages(ctx context.Context, id int32, change func([]strin
 	}
 	return updated, images, nil
 }
-func (s Service) DeleteImage(ctx context.Context, id int32, data DeleteImageRequest) (ImageList, error) {
+func (s Service) DeleteImage(ctx context.Context, id string, data DeleteImageRequest) (ImageList, error) {
 	_, images, err := s.changeImages(ctx, id, func(images []string) ([]string, error) {
 		index := slices.Index(images, data.Image)
 		if index < 0 {
@@ -83,7 +83,7 @@ func (s Service) DeleteImage(ctx context.Context, id int32, data DeleteImageRequ
 	_ = s.Storage.Delete(ctx, data.Image)
 	return ImageList{Images: images}, nil
 }
-func (s Service) ReorderImages(ctx context.Context, id int32, data ImageOrderRequest) (Response, error) {
+func (s Service) ReorderImages(ctx context.Context, id string, data ImageOrderRequest) (Response, error) {
 	row, _, err := s.changeImages(ctx, id, func(images []string) ([]string, error) {
 		unique := map[string]bool{}
 		for _, key := range data.Images {

@@ -3,6 +3,7 @@ package httpapi
 import (
 	"errors"
 	"github.com/jackc/pgx/v5"
+	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
 	"kaderisasi/admin/internal/member"
@@ -54,7 +55,7 @@ func (s *Server) registerMembers() {
 		}
 		updated, err := service.UpdateCredentials(r.Context(), pathID(r, "id"), data)
 		if err != nil {
-			return err
+			return s.frameworkError(err, "")
 		}
 		reply(w, 200, "UPDATE_MEMBER_SUCCESS", updated)
 		return nil
@@ -90,7 +91,8 @@ func (s *Server) registerMembers() {
 		return nil
 	})
 	s.register("profiles_controller", "delete", func(w http.ResponseWriter, r *http.Request) error {
-		removed, err := dbgen.New(s.Pool).DeleteProfile(r.Context(), pathID(r, "id"))
+		removed, err := dbgen.New(s.Pool).DeleteProfileByIdentifier(r.Context(), pathID(r, "id"))
+		err = database.LegacyQueryError(err, `select * from "profiles" where "id" = $1 limit $2`)
 		if err == nil && removed == 0 {
 			err = pgx.ErrNoRows
 		}

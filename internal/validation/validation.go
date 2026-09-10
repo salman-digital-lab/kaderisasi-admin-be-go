@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"kaderisasi/admin/internal/jscompat"
 	"math"
 	"net/mail"
 	"net/url"
@@ -219,19 +220,14 @@ func validate(rule Rule, raw json.RawMessage, field string) (json.RawMessage, []
 			return nil, issue(field, "string", "The {field} field must be a string")
 		}
 		if has(rule, "trim") {
-			str = strings.TrimSpace(str)
+			str = strings.TrimFunc(str, jscompat.Whitespace)
 		}
 		raw = marshal(str)
 		length = len(utf16.Encode([]rune(str)))
 	case "number":
-		if err := json.Unmarshal(raw, &num); err != nil {
-			if err = json.Unmarshal(raw, &str); err != nil {
-				return nil, issue(field, "number", "The {field} field must be a number")
-			}
-			num, err = strconv.ParseFloat(strings.TrimSpace(str), 64)
-			if err != nil || math.IsNaN(num) || math.IsInf(num, 0) {
-				return nil, issue(field, "number", "The {field} field must be a number")
-			}
+		num = jscompat.JSONNumber(raw)
+		if math.IsNaN(num) || math.IsInf(num, 0) {
+			return nil, issue(field, "number", "The {field} field must be a number")
 		}
 		raw = marshal(num)
 	case "boolean":

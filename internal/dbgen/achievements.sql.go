@@ -333,7 +333,7 @@ ORDER BY CASE WHEN $5::boolean AND $6::boolean THEN a.achievement_date END ASC,
 CASE WHEN $5::boolean AND NOT $6::boolean THEN a.achievement_date END DESC,
 CASE WHEN NOT $5::boolean AND $6::boolean THEN a.created_at END ASC,
 CASE WHEN NOT $5::boolean AND NOT $6::boolean THEN a.created_at END DESC
-LIMIT $8::bigint OFFSET $7::bigint
+LIMIT CAST($8::text AS bigint) OFFSET CAST($7::text AS bigint)
 `
 
 type ListAchievementsParams struct {
@@ -343,8 +343,8 @@ type ListAchievementsParams struct {
 	Kind       *string `json:"kind"`
 	DateOrder  bool    `json:"date_order"`
 	Ascending  bool    `json:"ascending"`
-	PageOffset int64   `json:"page_offset"`
-	PageSize   *int64  `json:"page_size"`
+	PageOffset string  `json:"page_offset"`
+	PageSize   *string `json:"page_size"`
 }
 
 type ListAchievementsRow struct {
@@ -406,14 +406,14 @@ const listLifetimeLeaderboard = `-- name: ListLifetimeLeaderboard :many
 SELECT b.id, b.user_id, b.score_academic, b.score_competition, b.score_organizational, b.score, b.created_at, b.updated_at,(to_jsonb(u)-'password')::jsonb AS public_user,row_to_json(p) AS profile,row_to_json(university) AS university
 FROM lifetime_leaderboards b LEFT JOIN public_users u ON u.id=b.user_id LEFT JOIN profiles p ON p.user_id=u.id LEFT JOIN universities university ON university.id=p.university_id
 WHERE ($1::text IS NULL OR u.email ILIKE '%'||$1::text||'%') AND ($2::text IS NULL OR p.name ILIKE '%'||$2::text||'%')
-ORDER BY b.score DESC LIMIT $4::bigint OFFSET $3::bigint
+ORDER BY b.score DESC LIMIT CAST($4::text AS bigint) OFFSET CAST($3::text AS bigint)
 `
 
 type ListLifetimeLeaderboardParams struct {
 	Email      *string `json:"email"`
 	Name       *string `json:"name"`
-	PageOffset int64   `json:"page_offset"`
-	PageSize   *int64  `json:"page_size"`
+	PageOffset string  `json:"page_offset"`
+	PageSize   *string `json:"page_size"`
 }
 
 type ListLifetimeLeaderboardRow struct {
@@ -466,7 +466,7 @@ FROM monthly_leaderboards b LEFT JOIN public_users u ON u.id=b.user_id LEFT JOIN
 WHERE ($1::text IS NULL OR u.email ILIKE '%'||$1::text||'%') AND ($2::text IS NULL OR p.name ILIKE '%'||$2::text||'%')
 AND (NOT $3::boolean OR b.month IS NOT DISTINCT FROM CAST(CAST($4 AS text) AS date))
 AND (NOT $5::boolean OR b.month BETWEEN CAST(CAST($6 AS text) AS date) AND CAST(CAST($7 AS text) AS date))
-ORDER BY b.score DESC LIMIT $9::bigint OFFSET $8::bigint
+ORDER BY b.score DESC LIMIT CAST($9::text AS bigint) OFFSET CAST($8::text AS bigint)
 `
 
 type ListMonthlyLeaderboardParams struct {
@@ -477,8 +477,8 @@ type ListMonthlyLeaderboardParams struct {
 	FilterYear  bool    `json:"filter_year"`
 	StartDate   *string `json:"start_date"`
 	EndDate     *string `json:"end_date"`
-	PageOffset  int64   `json:"page_offset"`
-	PageSize    *int64  `json:"page_size"`
+	PageOffset  string  `json:"page_offset"`
+	PageSize    *string `json:"page_size"`
 }
 
 type ListMonthlyLeaderboardRow struct {

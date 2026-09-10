@@ -104,7 +104,7 @@ WHERE ($1::text IS NULL OR rc.status=CAST(CAST($1 AS text) AS integer))
 AND ($2::text IS NULL OR p.name ILIKE '%'||$2::text||'%')
 AND ($3::text IS NULL OR p.gender=$3::text)
 AND ($4::text IS NULL OR a.display_name ILIKE '%'||$4::text||'%')
-ORDER BY rc.created_at DESC LIMIT $6::bigint OFFSET $5::bigint
+ORDER BY rc.created_at DESC LIMIT CAST($6::text AS bigint) OFFSET CAST($5::text AS bigint)
 `
 
 type ListCounselingParams struct {
@@ -112,8 +112,8 @@ type ListCounselingParams struct {
 	Name       *string `json:"name"`
 	Gender     *string `json:"gender"`
 	AdminName  *string `json:"admin_name"`
-	PageOffset int64   `json:"page_offset"`
-	PageSize   *int64  `json:"page_size"`
+	PageOffset string  `json:"page_offset"`
+	PageSize   *string `json:"page_size"`
 }
 
 type ListCounselingRow struct {

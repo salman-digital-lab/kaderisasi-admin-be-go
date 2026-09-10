@@ -334,7 +334,7 @@ func (q *Queries) IssuedCertificateByRegistrationIdentifier(ctx context.Context,
 
 const listCertificateRecipients = `-- name: ListCertificateRecipients :many
 SELECT r.id AS registration_id,r.created_at,r.status,c.id AS certificate_id,c.certificate_code,(COALESCE((SELECT NULLIF(p.name,'') FROM profiles p WHERE p.user_id=r.user_id ORDER BY p.id LIMIT 1),NULLIF(r.guest_data->>'name',''),'Peserta'))::text AS name,(CASE WHEN c.revoked_at IS NOT NULL THEN 'issued_revoked' WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status='LULUS KEGIATAN' THEN 'eligible_not_issued' ELSE 'not_eligible' END)::text AS state FROM activity_registrations r LEFT JOIN issued_certificates c ON c.registration_id=r.id WHERE r.activity_id=CAST(CAST($1 AS text) AS integer) AND ($2::text IS NULL OR (COALESCE((SELECT NULLIF(p.name,'') FROM profiles p WHERE p.user_id=r.user_id ORDER BY p.id LIMIT 1),NULLIF(r.guest_data->>'name',''),'Peserta')) ILIKE '%'||$2::text||'%') AND ($3::text IS NULL OR (CASE WHEN c.revoked_at IS NOT NULL THEN 'issued_revoked' WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status='LULUS KEGIATAN' THEN 'eligible_not_issued' ELSE 'not_eligible' END)=$3::text) AND (NOT $4::boolean OR r.id=ANY(CAST(CAST($5 AS text[]) AS integer[])))
-ORDER BY CASE WHEN $6::boolean THEN r.created_at END ASC NULLS LAST,CASE WHEN NOT $6::boolean THEN r.created_at END DESC NULLS LAST,CASE WHEN $6::boolean THEN r.id END ASC,CASE WHEN NOT $6::boolean THEN r.id END DESC LIMIT $8::bigint OFFSET $7::bigint
+ORDER BY CASE WHEN $6::boolean THEN r.created_at END ASC NULLS LAST,CASE WHEN NOT $6::boolean THEN r.created_at END DESC NULLS LAST,CASE WHEN $6::boolean THEN r.id END ASC,CASE WHEN NOT $6::boolean THEN r.id END DESC LIMIT CAST($8::text AS bigint) OFFSET CAST($7::text AS bigint)
 `
 
 type ListCertificateRecipientsParams struct {
@@ -344,8 +344,8 @@ type ListCertificateRecipientsParams struct {
 	FilterSelected  bool     `json:"filter_selected"`
 	RegistrationIds []string `json:"registration_ids"`
 	Ascending       bool     `json:"ascending"`
-	PageOffset      int64    `json:"page_offset"`
-	PageSize        *int64   `json:"page_size"`
+	PageOffset      string   `json:"page_offset"`
+	PageSize        *string  `json:"page_size"`
 }
 
 type ListCertificateRecipientsRow struct {
@@ -397,15 +397,15 @@ func (q *Queries) ListCertificateRecipients(ctx context.Context, arg ListCertifi
 
 const listIssuedCertificates = `-- name: ListIssuedCertificates :many
 SELECT c.id,c.certificate_code,c.registration_id,c.activity_id,c.participant_snapshot,COALESCE(c.template_snapshot->>'name','')::text AS template_name,c.issued_at,c.issued_by,issuer.display_name AS issued_by_name,c.revoked_at,c.revoked_reason,c.revoked_by,revoker.display_name AS revoked_by_name,CASE WHEN c.revoked_at IS NULL THEN 'issued_active' ELSE 'issued_revoked' END::text AS state
-FROM issued_certificates c LEFT JOIN admin_users issuer ON issuer.id=c.issued_by LEFT JOIN admin_users revoker ON revoker.id=c.revoked_by WHERE ($1::text IS NULL OR c.activity_id=CAST(CAST($1 AS text) AS integer)) AND (NOT $2::boolean OR c.registration_id=ANY(CAST(CAST($3 AS text[]) AS integer[]))) ORDER BY c.issued_at DESC LIMIT $5::bigint OFFSET $4::bigint
+FROM issued_certificates c LEFT JOIN admin_users issuer ON issuer.id=c.issued_by LEFT JOIN admin_users revoker ON revoker.id=c.revoked_by WHERE ($1::text IS NULL OR c.activity_id=CAST(CAST($1 AS text) AS integer)) AND (NOT $2::boolean OR c.registration_id=ANY(CAST(CAST($3 AS text[]) AS integer[]))) ORDER BY c.issued_at DESC LIMIT CAST($5::text AS bigint) OFFSET CAST($4::text AS bigint)
 `
 
 type ListIssuedCertificatesParams struct {
 	ActivityID      *string  `json:"activity_id"`
 	FilterSelected  bool     `json:"filter_selected"`
 	RegistrationIds []string `json:"registration_ids"`
-	PageOffset      int64    `json:"page_offset"`
-	PageSize        *int64   `json:"page_size"`
+	PageOffset      string   `json:"page_offset"`
+	PageSize        *string  `json:"page_size"`
 }
 
 type ListIssuedCertificatesRow struct {

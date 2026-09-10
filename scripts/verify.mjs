@@ -3,6 +3,8 @@ import {mkdirSync,writeFileSync,readFileSync} from 'node:fs';
 import {once} from 'node:events';
 import {resolve} from 'node:path';
 import {root} from './env.mjs';
+import {sourceEvidence} from './source-evidence.mjs';
+const source=sourceEvidence();
 
 const directory=resolve(root,'.artifacts/verify',new Date().toISOString().replace(/[:.]/g,'-'));
 mkdirSync(directory,{recursive:true});
@@ -39,8 +41,10 @@ finally{
   await run('cleanup','node',['scripts/cleanup.mjs']);
   const review=JSON.parse(readFileSync(resolve(root,'docs/completion-review.json'),'utf8'));
   const unresolved=review.criteria.filter(criterion=>criterion.status!=='passed');
+  const sourceUnchanged=source.sha256===sourceEvidence().sha256;
+  if(!sourceUnchanged)results.push({name:'source-integrity',status:'failed',error:'Source changed while verification was running'});
   const status=results.every(result=>result.status==='passed')&&!unresolved.length?'passed':'incomplete';
-  const report={status,finished_at:new Date().toISOString(),results,unresolved_review:unresolved};
+  const report={status,source,finished_at:new Date().toISOString(),results,unresolved_review:unresolved};
   writeFileSync(resolve(directory,'results.json'),JSON.stringify(report,null,2));
   writeFileSync(resolve(root,'.artifacts/verify/latest.json'),JSON.stringify({directory,status},null,2));
   if(status!=='passed')process.exitCode=1;

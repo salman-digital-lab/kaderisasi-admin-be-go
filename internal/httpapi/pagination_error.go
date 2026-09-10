@@ -14,7 +14,7 @@ import (
 // aliases, relation loading and bind positions are implementation details.
 func paginationError(r *http.Request, err error) error {
 	var pg *pgconn.PgError
-	if !errors.As(err, &pg) || pg.Code != "2201W" {
+	if !errors.As(err, &pg) || !slices.Contains([]string{"2201W", "22003"}, pg.Code) {
 		return err
 	}
 	params := r.URL.Query()
@@ -33,14 +33,40 @@ func paginationError(r *http.Request, err error) error {
 		table, order = "universities", `"name" asc`
 		add("name", "ilike")
 	case "/v2/profiles":
-		// Relation/expression filters carry additional diagnostic SQL. Their
-		// execution errors remain intact until that serializer is ported.
-		for _, key := range []string{"search", "member_id", "education_institution", "badge"} {
-			if params.Get(key) != "" {
-				return err
-			}
-		}
 		table, order = "profiles", `"name" asc`
+		group := []string{}
+		if params.Get("search") != "" {
+			group = append(group, `"name" ilike `+argument()+` or exists (select * from "public_users" where ("email" ilike `+argument()+` or "member_id" ilike `+argument()+`) and ("public_users"."id" = "profiles"."user_id"))`)
+		}
+		if params.Get("member_id") != "" {
+			group = append(group, `exists (select * from "public_users" where ("member_id" = `+argument()+`) and ("public_users"."id" = "profiles"."user_id"))`)
+		}
+		if params.Get("education_institution") != "" {
+			group = append(group, `EXISTS (
+                SELECT 1 FROM jsonb_array_elements(
+  CASE
+    WHEN jsonb_typeof(education_history) = 'array' THEN education_history
+    ELSE '[]'::jsonb
+  END
+) AS edu
+                WHERE edu->>'institution' ILIKE `+argument()+`
+              )`)
+		}
+		if len(group) > 0 {
+			conditions = append(conditions, "("+strings.Join(group, " and ")+")")
+		}
+		if params.Get("badge") != "" {
+			conditions = append(conditions, `EXISTS (
+          SELECT 1 FROM jsonb_array_elements_text(
+  CASE
+    WHEN jsonb_typeof(badges) = 'array' THEN badges
+    WHEN jsonb_typeof(badges) = 'string' THEN jsonb_build_array(badges #>> '{}')
+    ELSE '[]'::jsonb
+  END
+) badge
+          WHERE badge ILIKE `+argument()+`
+        )`)
+		}
 	case "/v2/activities":
 		table, order = "activities", `"is_published" desc, "created_at" desc`
 		columns = `"id", "name", "activity_start", "activity_end", "registration_start", "registration_end", "selection_start", "selection_end", "activity_type", "activity_category", "club_id", "is_published", "is_registration_open"`

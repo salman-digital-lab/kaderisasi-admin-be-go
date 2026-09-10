@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import {existsSync,readFileSync,writeFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {root} from './env.mjs';
+import {sourceEvidence} from './source-evidence.mjs';
+
+const latestPath=resolve(root,'.artifacts/verify/latest.json');
+const latest=JSON.parse(readFileSync(latestPath,'utf8'));
+const reportPath=resolve(latest.directory,'results.json');
+const report=JSON.parse(readFileSync(reportPath,'utf8'));
+const review=JSON.parse(readFileSync(resolve(root,'docs/completion-review.json'),'utf8'));
+const required=['check','unit','package','fixtures','fixture-disconnect','source-club-workflows','integration','contracts','session-transfer','shared-database','jobs','admin-browser','public-browser','existing-applications','performance','route-coverage','cleanup'];
+for(const name of required)assert.ok(report.results.some(result=>result.name===name&&result.status==='passed'),`Required check has not passed: ${name}`);
+assert.ok(report.results.every(result=>result.status==='passed'),'A verification check failed');
+assert.equal(report.source.sha256,sourceEvidence().sha256,'Source changed after verification');
+assert.ok(review.criteria.every(criterion=>criterion.status==='passed'),'Completion reviews remain unresolved');
+assert.ok(existsSync(resolve(root,'docs/VERIFICATION.md')),'The final verification report is missing');
+report.status='passed';
+report.unresolved_review=[];
+report.reviewed_at=new Date().toISOString();
+writeFileSync(reportPath,JSON.stringify(report,null,2)+'\n');
+writeFileSync(latestPath,JSON.stringify({...latest,status:'passed'},null,2)+'\n');
+console.log(`All executed checks and final reviews pass; evidence: ${latest.directory}`);

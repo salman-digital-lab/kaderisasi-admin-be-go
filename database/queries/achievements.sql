@@ -16,7 +16,7 @@ ORDER BY CASE WHEN @date_order::boolean AND @ascending::boolean THEN a.achieveme
 CASE WHEN @date_order::boolean AND NOT @ascending::boolean THEN a.achievement_date END DESC,
 CASE WHEN NOT @date_order::boolean AND @ascending::boolean THEN a.created_at END ASC,
 CASE WHEN NOT @date_order::boolean AND NOT @ascending::boolean THEN a.created_at END DESC
-LIMIT sqlc.narg('page_size')::bigint OFFSET @page_offset::bigint;
+LIMIT CAST(sqlc.narg('page_size')::text AS bigint) OFFSET CAST(@page_offset::text AS bigint);
 
 -- name: AchievementByIdentifier :one
 SELECT * FROM achievements WHERE id=CAST(CAST(@identifier AS text) AS integer);
@@ -47,7 +47,7 @@ FROM monthly_leaderboards b LEFT JOIN public_users u ON u.id=b.user_id LEFT JOIN
 WHERE (sqlc.narg('email')::text IS NULL OR u.email ILIKE '%'||sqlc.narg('email')::text||'%') AND (sqlc.narg('name')::text IS NULL OR p.name ILIKE '%'||sqlc.narg('name')::text||'%')
 AND (NOT @filter_month::boolean OR b.month IS NOT DISTINCT FROM CAST(CAST(sqlc.narg('month') AS text) AS date))
 AND (NOT @filter_year::boolean OR b.month BETWEEN CAST(CAST(sqlc.narg('start_date') AS text) AS date) AND CAST(CAST(sqlc.narg('end_date') AS text) AS date))
-ORDER BY b.score DESC LIMIT sqlc.narg('page_size')::bigint OFFSET @page_offset::bigint;
+ORDER BY b.score DESC LIMIT CAST(sqlc.narg('page_size')::text AS bigint) OFFSET CAST(@page_offset::text AS bigint);
 
 -- name: FindMonthlyLeaderboard :one
 SELECT * FROM monthly_leaderboards WHERE user_id IS NOT DISTINCT FROM sqlc.narg('user_id')::integer AND month=sqlc.narg('month')::date LIMIT 1;
@@ -66,7 +66,7 @@ WHERE (sqlc.narg('email')::text IS NULL OR u.email ILIKE '%'||sqlc.narg('email')
 SELECT sqlc.embed(b),(to_jsonb(u)-'password')::jsonb AS public_user,row_to_json(p) AS profile,row_to_json(university) AS university
 FROM lifetime_leaderboards b LEFT JOIN public_users u ON u.id=b.user_id LEFT JOIN profiles p ON p.user_id=u.id LEFT JOIN universities university ON university.id=p.university_id
 WHERE (sqlc.narg('email')::text IS NULL OR u.email ILIKE '%'||sqlc.narg('email')::text||'%') AND (sqlc.narg('name')::text IS NULL OR p.name ILIKE '%'||sqlc.narg('name')::text||'%')
-ORDER BY b.score DESC LIMIT sqlc.narg('page_size')::bigint OFFSET @page_offset::bigint;
+ORDER BY b.score DESC LIMIT CAST(sqlc.narg('page_size')::text AS bigint) OFFSET CAST(@page_offset::text AS bigint);
 
 -- name: FindLifetimeLeaderboard :one
 SELECT * FROM lifetime_leaderboards WHERE user_id IS NOT DISTINCT FROM sqlc.narg('user_id')::integer LIMIT 1;

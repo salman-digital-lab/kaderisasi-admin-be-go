@@ -41,35 +41,31 @@ func JSNumber(value float64) string {
 
 // Knex applies parseInt to the JavaScript number's decimal representation.
 // In particular, a scientific-notation offset must not overflow a Go integer.
-func knexInteger(value float64) (*int64, error) {
+func knexInteger(value float64) *string {
 	if math.IsNaN(value) || math.IsInf(value, 0) {
-		return nil, nil
+		return nil
 	}
 	text := JSNumber(value)
 	if end := strings.IndexAny(text, ".e"); end >= 0 {
 		text = text[:end]
 	}
-	parsed, err := strconv.ParseInt(text, 10, 64)
-	return &parsed, err
+	return &text
 }
 
-func SQLPage(page, size float64) (*int64, int64, error) {
+func SQLPage(page, size float64) (*string, string, error) {
 	offset := 0.0
 	if page != 1 {
 		offset = size * (page - 1)
 	}
-	start, err := knexInteger(offset)
-	if err != nil {
-		return nil, 0, err
+	start := knexInteger(offset)
+	if start != nil && strings.HasPrefix(*start, "-") {
+		return nil, "0", errors.New("A non-negative integer must be provided to offset.")
 	}
-	if start != nil && *start < 0 {
-		return nil, 0, errors.New("A non-negative integer must be provided to offset.")
-	}
-	limit, err := knexInteger(size)
+	limit := knexInteger(size)
 	if start == nil {
-		return limit, 0, err
+		return limit, "0", nil
 	}
-	return limit, *start, err
+	return limit, *start, nil
 }
 
 func pageURL(page float64) string {

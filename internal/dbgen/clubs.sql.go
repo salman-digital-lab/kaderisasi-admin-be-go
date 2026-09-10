@@ -151,7 +151,7 @@ WHERE name ILIKE '%' || $1::text || '%'
 AND ($2::text IS NULL OR club_type=$2)
 AND ($3::boolean IS NULL OR is_show=$3)
 AND ($4::boolean IS NULL OR is_registration_open=$4)
-ORDER BY is_show DESC,created_at DESC LIMIT $6::bigint OFFSET $5::bigint
+ORDER BY is_show DESC,created_at DESC LIMIT CAST($6::text AS bigint) OFFSET CAST($5::text AS bigint)
 `
 
 type ListClubsFilteredParams struct {
@@ -159,8 +159,8 @@ type ListClubsFilteredParams struct {
 	ClubType           *string `json:"club_type"`
 	IsShow             *bool   `json:"is_show"`
 	IsRegistrationOpen *bool   `json:"is_registration_open"`
-	PageOffset         int64   `json:"page_offset"`
-	PageSize           *int64  `json:"page_size"`
+	PageOffset         string  `json:"page_offset"`
+	PageSize           *string `json:"page_size"`
 }
 
 type ListClubsFilteredRow struct {

@@ -75,7 +75,7 @@ CASE WHEN $7::text='intake_year' AND $8::boolean=false THEN p.intake_year END DE
 CASE WHEN $7::text='major' AND $8::boolean=false THEN p.major END DESC NULLS LAST,
 CASE WHEN $7::text='whatsapp' AND $8::boolean=false THEN p.whatsapp END DESC NULLS LAST,
 CASE WHEN $8::boolean=false THEN ar.id END DESC
-LIMIT $10::bigint OFFSET $9::bigint
+LIMIT CAST($10::text AS bigint) OFFSET CAST($9::text AS bigint)
 `
 
 type ListRegistrationsFilteredParams struct {
@@ -87,8 +87,8 @@ type ListRegistrationsFilteredParams struct {
 	IntakeYear   *string `json:"intake_year"`
 	SortBy       string  `json:"sort_by"`
 	Ascending    bool    `json:"ascending"`
-	PageOffset   int64   `json:"page_offset"`
-	PageSize     *int64  `json:"page_size"`
+	PageOffset   string  `json:"page_offset"`
+	PageSize     *string `json:"page_size"`
 }
 
 type ListRegistrationsFilteredRow struct {

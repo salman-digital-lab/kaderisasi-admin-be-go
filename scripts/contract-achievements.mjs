@@ -84,6 +84,6 @@ async function achievementBoundaryCases(h){
   await h.call('achievement:legacy-null-read','GET',`/v2/achievements/${lastID}`);
   await h.call('achievement:legacy-null-export','GET','/v2/achievements/export');
   await h.seed("INSERT INTO monthly_leaderboards(user_id,month,score,created_at,updated_at) VALUES(null,null,3,'2024-01-01','2024-01-01')");
-  for(const query of ['year=2026x&month=2x','year=0x7ea&month=0x2','year=2026&month=13','year=2026&month=0','year=bad&month=2','year=2026&month=bad','year=2147483648&month=1','year=0&month=1','year=-1&month=1','year=10000&month=1','year=2026&per_page=-1','year=2026&month=2&email=achievement&name=Achievement&per_page=-1','year=bad'])await h.call('leaderboard:month-boundary:'+query,'GET','/v2/leaderboards/monthly?'+query);
+  for(const query of ['year=0x','year=2026&month=0x','year=%EF%BB%BF2026&month=2','year=2026x&month=2x','year=0x7ea&month=0x2','year=2026&month=13','year=2026&month=0','year=bad&month=2','year=2026&month=bad','year=2147483648&month=1','year=0&month=1','year=-1&month=1','year=10000&month=1','year=2026&per_page=-1','year=2026&month=2&email=achievement&name=Achievement&per_page=-1','year=bad'])await h.call('leaderboard:month-boundary:'+query,'GET','/v2/leaderboards/monthly?'+query);
   for(const query of ['per_page=-1','name=Achievement&per_page=-1','email=achievement&name=Achievement&per_page=-1'])await h.call('leaderboard:lifetime-boundary:'+query,'GET','/v2/leaderboards/lifetime?'+query);
 }

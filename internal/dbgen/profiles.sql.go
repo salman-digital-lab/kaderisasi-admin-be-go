@@ -56,16 +56,16 @@ OR (($1::text = '' OR u.email ILIKE '%' || $1::text || '%' OR u.member_id ILIKE 
 AND ($2::text = '' OR u.member_id = $2::text)
 AND ($3::text = '' OR EXISTS(SELECT 1 FROM jsonb_array_elements(CASE WHEN jsonb_typeof(p.education_history)='array' THEN p.education_history ELSE '[]'::jsonb END) edu WHERE edu->>'institution' ILIKE '%' || $3::text || '%'))))
 AND ($4::text = '' OR EXISTS(SELECT 1 FROM jsonb_array_elements_text(CASE WHEN jsonb_typeof(p.badges)='array' THEN p.badges WHEN jsonb_typeof(p.badges)='string' THEN jsonb_build_array(p.badges #>> '{}') ELSE '[]'::jsonb END) badge WHERE badge ILIKE '%' || $4::text || '%'))
-ORDER BY p.name ASC LIMIT $6::bigint OFFSET $5::bigint
+ORDER BY p.name ASC LIMIT CAST($6::text AS bigint) OFFSET CAST($5::text AS bigint)
 `
 
 type ListProfilesFilteredParams struct {
-	Search       string `json:"search"`
-	MemberNumber string `json:"member_number"`
-	Institution  string `json:"institution"`
-	Badge        string `json:"badge"`
-	PageOffset   int64  `json:"page_offset"`
-	PageSize     *int64 `json:"page_size"`
+	Search       string  `json:"search"`
+	MemberNumber string  `json:"member_number"`
+	Institution  string  `json:"institution"`
+	Badge        string  `json:"badge"`
+	PageOffset   string  `json:"page_offset"`
+	PageSize     *string `json:"page_size"`
 }
 
 type ListProfilesFilteredRow struct {

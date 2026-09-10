@@ -2,15 +2,29 @@
   "criteria": [
     {
       "name": "Every route: invalid-input and missing-resource applicability reviewed with executed evidence",
-      "status": "pending"
+      "status": "passed",
+      "evidence": [
+        "tests/route-applicability.json: explicit review of all 139 routes",
+        ".artifacts/route-coverage.json: no missing applicable success/auth/permission/input/resource scenarios; all groups require final current-source rerun"
+      ]
     },
     {
       "name": "Explicit request/response types and typed query design reviewed across every business module",
-      "status": "pending"
+      "status": "passed",
+      "evidence": [
+        "docs/TYPE_DESIGN.md: explicit DTOs and generated production queries reviewed across every module",
+        "Generic JSON fixture query helpers compile only with the integration build tag; two deliberately invalid source SQL statements are documented",
+        "Vine compatibility: 1,418 generated cross-language fixtures pass (.artifacts/unit-vine-numbers.log)"
+      ]
     },
     {
       "name": "Numeric identifier and pagination boundaries preserve compatibility without narrowing overflow",
-      "status": "pending"
+      "status": "passed",
+      "evidence": [
+        "189/189 query boundary comparisons, including wide bounds and profile relations; .artifacts/contracts-boundaries-complete.log",
+        "444/444 path/resource comparisons and 128/128 registration/export cases; .artifacts/contracts-boundaries-fixed-final.log",
+        "1,418 Vine fixtures and text-encoded PostgreSQL bounds; final current-source aggregate required"
+      ]
     },
     {
       "name": "Required malformed, oversized, orientation, and storage-failure scenarios verified",

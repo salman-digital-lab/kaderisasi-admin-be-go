@@ -1,0 +1,1673 @@
+{
+  "baseline_revision": "dd8d0ff409c34eaaebb8c2e3ec8a046efbf11356",
+  "routes": [
+    {
+      "route": "POST /v2/auth/login",
+      "source": "auth_controller.login",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This action creates a root entity or handles authentication/grant validation without an addressed entity ID; invalid grant codes and unknown credentials are covered as invalid input or authentication."
+      }
+    },
+    {
+      "route": "POST /v2/auth/google",
+      "source": "auth_controller.google",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This action creates a root entity or handles authentication/grant validation without an addressed entity ID; invalid grant codes and unknown credentials are covered as invalid input or authentication."
+      }
+    },
+    {
+      "route": "POST /v2/auth/refresh",
+      "source": "auth_controller.refresh",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This action creates a root entity or handles authentication/grant validation without an addressed entity ID; invalid grant codes and unknown credentials are covered as invalid input or authentication."
+      }
+    },
+    {
+      "route": "POST /v2/auth/session/migrate",
+      "source": "auth_controller.migrate",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This action creates a root entity or handles authentication/grant validation without an addressed entity ID; invalid grant codes and unknown credentials are covered as invalid input or authentication."
+      }
+    },
+    {
+      "route": "GET /v2/auth/me",
+      "source": "auth_controller.me",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "POST /v2/auth/logout",
+      "source": "auth_controller.logout",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This action creates a root entity or handles authentication/grant validation without an addressed entity ID; invalid grant codes and unknown credentials are covered as invalid input or authentication."
+      }
+    },
+    {
+      "route": "PUT /v2/auth/logout",
+      "source": "auth_controller.logout",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This action creates a root entity or handles authentication/grant validation without an addressed entity ID; invalid grant codes and unknown credentials are covered as invalid input or authentication."
+      }
+    },
+    {
+      "route": "GET /v2/admin-users",
+      "source": "adminusers_controller.index",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/admin-users/:id",
+      "source": "adminusers_controller.show",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/admin-users",
+      "source": "adminusers_controller.create",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This action creates a root entity or handles authentication/grant validation without an addressed entity ID; invalid grant codes and unknown credentials are covered as invalid input or authentication."
+      }
+    },
+    {
+      "route": "PUT /v2/admin-users/:id",
+      "source": "adminusers_controller.update",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/admin-users/:id/password",
+      "source": "adminusers_controller.editPassword",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/rbac/permissions",
+      "source": "rbac_permissions_controller.index",
+      "invalid_input": {
+        "applicable": false,
+        "reason": "The action consumes no body, path parameter, or query filters; authentication is gated separately."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/rbac/requestable-targets",
+      "source": "rbac_permissions_controller.requestableTargets",
+      "invalid_input": {
+        "applicable": false,
+        "reason": "The action consumes no body, path parameter, or query filters; authentication is gated separately."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/rbac/roles",
+      "source": "rbac_roles_controller.index",
+      "invalid_input": {
+        "applicable": false,
+        "reason": "The action consumes no body, path parameter, or query filters; authentication is gated separately."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/rbac/roles/:code",
+      "source": "rbac_roles_controller.show",
+      "invalid_input": {
+        "applicable": false,
+        "reason": "The code is an opaque lookup string with no format validator; unknown codes are covered as missing resources."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/access-requests",
+      "source": "access_requests_controller.ownIndex",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "POST /v2/access-requests",
+      "source": "access_requests_controller.store",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This action creates a root entity or handles authentication/grant validation without an addressed entity ID; invalid grant codes and unknown credentials are covered as invalid input or authentication."
+      }
+    },
+    {
+      "route": "GET /v2/access-requests/:id",
+      "source": "access_requests_controller.ownShow",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/access-requests/:id/cancel",
+      "source": "access_requests_controller.cancel",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/tickets/review",
+      "source": "access_requests_controller.reviewIndex",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/tickets/review/:id",
+      "source": "access_requests_controller.reviewShow",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/tickets/review/:id/approve",
+      "source": "access_requests_controller.approve",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/tickets/review/:id/reject",
+      "source": "access_requests_controller.reject",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/dashboard/stats",
+      "source": "dashboard_controller.stats",
+      "invalid_input": {
+        "applicable": false,
+        "reason": "The action consumes no body, path parameter, or query filters; authentication is gated separately."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/dashboard/profiles",
+      "source": "dashboard_controller.CountProfiles",
+      "invalid_input": {
+        "applicable": false,
+        "reason": "The action consumes no body, path parameter, or query filters; authentication is gated separately."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/dashboard/gender",
+      "source": "dashboard_controller.CountUsersGender",
+      "invalid_input": {
+        "applicable": false,
+        "reason": "The action consumes no body, path parameter, or query filters; authentication is gated separately."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/universities",
+      "source": "universities_controller.index",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/universities/:id",
+      "source": "universities_controller.show",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/universities",
+      "source": "universities_controller.store",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/universities/:id",
+      "source": "universities_controller.update",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "DELETE /v2/universities/:id",
+      "source": "universities_controller.delete",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/profiles/user/:id",
+      "source": "profiles_controller.showByUserId",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/profiles/:id",
+      "source": "profiles_controller.show",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/profiles",
+      "source": "profiles_controller.index",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "PUT /v2/profiles/:id",
+      "source": "profiles_controller.update",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/profiles/:id/regional-assignment",
+      "source": "profiles_controller.updateRegionalAssignment",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/profiles/auth/:id",
+      "source": "auth_controller.updateMember",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "DELETE /v2/profiles/:id",
+      "source": "profiles_controller.delete",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/members",
+      "source": "members_controller.store",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This action creates a root entity or handles authentication/grant validation without an addressed entity ID; invalid grant codes and unknown credentials are covered as invalid input or authentication."
+      }
+    },
+    {
+      "route": "POST /v2/members/:id/generate-account",
+      "source": "members_controller.generateAccount",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/activities",
+      "source": "activities_controller.index",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/activities/:id",
+      "source": "activities_controller.show",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/activities",
+      "source": "activities_controller.store",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/activities/:id",
+      "source": "activities_controller.update",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/activities/:id/images",
+      "source": "activities_controller.uploadImage",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/activities/:id/delete-image",
+      "source": "activities_controller.deleteImage",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/activities/:id/reorder-images",
+      "source": "activities_controller.reorderImages",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/activities/:id/registrations",
+      "source": "activity_registrations_controller.index",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/activities/:id/registrations/statistics",
+      "source": "activity_registrations_controller.statistics",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/activities/:id/registrations-export",
+      "source": "activity_registrations_controller.export",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/activities/:id/registrations/status-by-email",
+      "source": "activity_registrations_controller.updateStatusByListOfEmail",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/activities/:id/registrations",
+      "source": "activity_registrations_controller.updateStatusBulk",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/activities/:id/registrations",
+      "source": "activity_registrations_controller.store",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/activity-registrations/user/:id",
+      "source": "activity_registrations_controller.getActivityByUserId",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/activity-registrations/:id",
+      "source": "activity_registrations_controller.show",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/activity-registrations",
+      "source": "activity_registrations_controller.updateStatus",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "DELETE /v2/activity-registrations/:id",
+      "source": "activity_registrations_controller.delete",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/ruang-curhat",
+      "source": "ruang_curhats_controller.index",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/ruang-curhat/:id",
+      "source": "ruang_curhats_controller.show",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/ruang-curhat/:id",
+      "source": "ruang_curhats_controller.update",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/provinces",
+      "source": "provinces_controller.index",
+      "invalid_input": {
+        "applicable": false,
+        "reason": "The action consumes no body, path parameter, or query filters; authentication is gated separately."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/provinces/:id/cities",
+      "source": "cities_controller.getByProvinceId",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/provinces/:id",
+      "source": "provinces_controller.show",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/provinces",
+      "source": "provinces_controller.store",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This action creates a root entity or handles authentication/grant validation without an addressed entity ID; invalid grant codes and unknown credentials are covered as invalid input or authentication."
+      }
+    },
+    {
+      "route": "PUT /v2/provinces/:id",
+      "source": "provinces_controller.update",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "DELETE /v2/provinces/:id",
+      "source": "provinces_controller.delete",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/cities",
+      "source": "cities_controller.index",
+      "invalid_input": {
+        "applicable": false,
+        "reason": "The action consumes no body, path parameter, or query filters; authentication is gated separately."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/cities/:id",
+      "source": "cities_controller.show",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/cities",
+      "source": "cities_controller.store",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/cities/:id",
+      "source": "cities_controller.update",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "DELETE /v2/cities/:id",
+      "source": "cities_controller.delete",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/countries",
+      "source": "countries_controller.index",
+      "invalid_input": {
+        "applicable": false,
+        "reason": "The action consumes no body, path parameter, or query filters; authentication is gated separately."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/achievements/export",
+      "source": "leaderboards_controller.export",
+      "invalid_input": {
+        "applicable": false,
+        "reason": "The action consumes no body, path parameter, or query filters; authentication is gated separately."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/achievements",
+      "source": "leaderboards_controller.index",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/achievements/:id",
+      "source": "leaderboards_controller.show",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/achievements/:id",
+      "source": "leaderboards_controller.update",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/achievements/:id/approve-reject",
+      "source": "leaderboards_controller.approveReject",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/leaderboards/monthly",
+      "source": "leaderboards_controller.monthlyLeaderboard",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/leaderboards/lifetime",
+      "source": "leaderboards_controller.lifetimeLeaderboard",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/clubs",
+      "source": "clubs_controller.index",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/clubs/:id",
+      "source": "clubs_controller.show",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/clubs",
+      "source": "clubs_controller.store",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This action creates a root entity or handles authentication/grant validation without an addressed entity ID; invalid grant codes and unknown credentials are covered as invalid input or authentication."
+      }
+    },
+    {
+      "route": "PUT /v2/clubs/:id",
+      "source": "clubs_controller.update",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/clubs/:id/logo",
+      "source": "clubs_controller.uploadLogo",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/clubs/:id/media/image",
+      "source": "clubs_controller.uploadImageMedia",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/clubs/:id/media/youtube",
+      "source": "clubs_controller.addYoutubeMedia",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/clubs/:id/delete-media",
+      "source": "clubs_controller.deleteMedia",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/clubs/:id/registration-info",
+      "source": "clubs_controller.updateRegistrationInfo",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/clubs/:id/members",
+      "source": "club_registrations_controller.members",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/clubs/:id/registrations",
+      "source": "club_registrations_controller.index",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/clubs/:id/registrations",
+      "source": "club_registrations_controller.store",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/clubs/:id/registrations/export",
+      "source": "club_registrations_controller.export",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/clubs/:id/member-roles",
+      "source": "club_member_roles_controller.index",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/clubs/:id/member-role-suggestions",
+      "source": "club_member_roles_controller.suggestions",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/clubs/:id/member-roles",
+      "source": "club_member_roles_controller.store",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/club-registrations/:id",
+      "source": "club_registrations_controller.show",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/club-registrations/member-roles/:id",
+      "source": "club_member_roles_controller.update",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "DELETE /v2/club-registrations/member-roles/:id",
+      "source": "club_member_roles_controller.destroy",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/club-registrations/bulk-update",
+      "source": "club_registrations_controller.bulkUpdate",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This action creates a root entity or handles authentication/grant validation without an addressed entity ID; invalid grant codes and unknown credentials are covered as invalid input or authentication."
+      }
+    },
+    {
+      "route": "PUT /v2/club-registrations/:id",
+      "source": "club_registrations_controller.update",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "DELETE /v2/club-registrations/:id",
+      "source": "club_registrations_controller.delete",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/custom-forms",
+      "source": "custom_forms_controller.index",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/custom-forms/by-feature",
+      "source": "custom_forms_controller.getByFeature",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/custom-forms/unattached",
+      "source": "custom_forms_controller.getUnattachedForms",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/custom-forms/available-activities",
+      "source": "custom_forms_controller.getAvailableActivities",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/custom-forms/available-clubs",
+      "source": "custom_forms_controller.getAvailableClubs",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/custom-forms/:id",
+      "source": "custom_forms_controller.show",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/custom-forms",
+      "source": "custom_forms_controller.store",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/custom-forms/:id",
+      "source": "custom_forms_controller.update",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/custom-forms/:id/attach-club",
+      "source": "custom_forms_controller.attachToClub",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/custom-forms/:id/detach-club",
+      "source": "custom_forms_controller.detachFromClub",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/custom-forms/:id/attach-activity",
+      "source": "custom_forms_controller.attachToActivity",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/custom-forms/:id/detach-activity",
+      "source": "custom_forms_controller.detachFromActivity",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "DELETE /v2/custom-forms/:id",
+      "source": "custom_forms_controller.destroy",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "PUT /v2/custom-forms/:id/toggle-active",
+      "source": "custom_forms_controller.toggleActive",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/certificate-templates",
+      "source": "certificate_templates_controller.index",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "GET /v2/certificate-templates/:id",
+      "source": "certificate_templates_controller.show",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/certificate-templates",
+      "source": "certificate_templates_controller.store",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This action creates a root entity or handles authentication/grant validation without an addressed entity ID; invalid grant codes and unknown credentials are covered as invalid input or authentication."
+      }
+    },
+    {
+      "route": "PUT /v2/certificate-templates/:id",
+      "source": "certificate_templates_controller.update",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/certificate-templates/:id/duplicate",
+      "source": "certificate_templates_controller.duplicate",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/certificate-templates/:id/publish",
+      "source": "certificate_templates_controller.publish",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/certificate-templates/:id/archive",
+      "source": "certificate_templates_controller.archive",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "DELETE /v2/certificate-templates/:id",
+      "source": "certificate_templates_controller.destroy",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/certificate-templates/:id/background",
+      "source": "certificate_templates_controller.uploadBackground",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/certificate-templates/:id/assets",
+      "source": "certificate_templates_controller.uploadAsset",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/certificates/code/:code",
+      "source": "certificates_controller.showByCode",
+      "invalid_input": {
+        "applicable": false,
+        "reason": "The code is an opaque lookup string with no format validator; unknown codes are covered as missing resources."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/certificates/verify/:code",
+      "source": "certificates_controller.verify",
+      "invalid_input": {
+        "applicable": false,
+        "reason": "The code is an opaque lookup string with no format validator; unknown codes are covered as missing resources."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/certificates/activities/:activityId/recipients",
+      "source": "certificates_controller.recipients",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/certificates/prepare-issuance",
+      "source": "certificates_controller.prepare",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/certificates/issue-single",
+      "source": "certificates_controller.issueSingle",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/certificates/issue-bulk",
+      "source": "certificates_controller.issueBulk",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/certificates/generate",
+      "source": "certificates_controller.generate",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/certificates/generate-single",
+      "source": "certificates_controller.generateSingle",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/certificates",
+      "source": "certificates_controller.index",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    },
+    {
+      "route": "POST /v2/certificates/lookup",
+      "source": "certificates_controller.lookup",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /v2/certificates/:id",
+      "source": "certificates_controller.show",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "POST /v2/certificates/:id/revoke",
+      "source": "certificates_controller.revoke",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Exercise an absent addressed entity or referenced entity, preserving the source status and database effects."
+      }
+    },
+    {
+      "route": "GET /health",
+      "source": "health.health",
+      "invalid_input": {
+        "applicable": false,
+        "reason": "The action consumes no body, path parameter, or query filters; authentication is gated separately."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
+      }
+    }
+  ]
+}

@@ -39,7 +39,7 @@ type RegistrationGuest struct {
 	OriginCityID     json.RawMessage `json:"origin_city_id"`
 	UniversityID     json.RawMessage `json:"university_id"`
 	EducationHistory json.RawMessage `json:"education_history"`
-	CurrentEducation *EducationEntry `json:"current_education"`
+	CurrentEducation json.RawMessage `json:"current_education"`
 }
 type RegistrationLocations struct {
 	Province       *string `json:"province"`
@@ -55,5 +55,5 @@ type Registration struct {
 	Guest     RegistrationGuest
 	Profile   *member.ProfileResponse
 	Locations RegistrationLocations
-	Answers   map[string]json.RawMessage
+	Answers   json.RawMessage
 }

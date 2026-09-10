@@ -14,7 +14,7 @@ OR ((@search::text = '' OR u.email ILIKE '%' || @search::text || '%' OR u.member
 AND (@member_number::text = '' OR u.member_id = @member_number::text)
 AND (@institution::text = '' OR EXISTS(SELECT 1 FROM jsonb_array_elements(CASE WHEN jsonb_typeof(p.education_history)='array' THEN p.education_history ELSE '[]'::jsonb END) edu WHERE edu->>'institution' ILIKE '%' || @institution::text || '%'))))
 AND (@badge::text = '' OR EXISTS(SELECT 1 FROM jsonb_array_elements_text(CASE WHEN jsonb_typeof(p.badges)='array' THEN p.badges WHEN jsonb_typeof(p.badges)='string' THEN jsonb_build_array(p.badges #>> '{}') ELSE '[]'::jsonb END) badge WHERE badge ILIKE '%' || @badge::text || '%'))
-ORDER BY p.name ASC LIMIT sqlc.narg('page_size')::bigint OFFSET @page_offset::bigint;
+ORDER BY p.name ASC LIMIT CAST(sqlc.narg('page_size')::text AS bigint) OFFSET CAST(@page_offset::text AS bigint);
 
 -- name: ProfileDetails :many
 SELECT sqlc.embed(p), (to_jsonb(u)-'password')::jsonb AS public_user,

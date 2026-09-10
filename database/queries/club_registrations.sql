@@ -34,7 +34,7 @@ WHERE cr.club_id= @club_id::integer AND (sqlc.narg('status')::text IS NULL OR cr
 AND (sqlc.narg('search')::text IS NULL OR u.email ILIKE '%'||sqlc.narg('search')::text||'%' OR p.name ILIKE '%'||sqlc.narg('search')::text||'%')
 ORDER BY CASE WHEN @ascending::boolean THEN cr.created_at END ASC NULLS LAST,CASE WHEN @ascending::boolean THEN cr.id END ASC,
 CASE WHEN NOT @ascending::boolean THEN cr.created_at END DESC NULLS LAST,CASE WHEN NOT @ascending::boolean THEN cr.id END DESC
-LIMIT sqlc.narg('page_size')::bigint OFFSET @page_offset::bigint;
+LIMIT CAST(sqlc.narg('page_size')::text AS bigint) OFFSET CAST(@page_offset::text AS bigint);
 
 -- name: ClubRegistrationDetails :one
 SELECT sqlc.embed(cr),(to_jsonb(u)-'password')::jsonb AS member,row_to_json(p) AS profile,row_to_json(c) AS club,

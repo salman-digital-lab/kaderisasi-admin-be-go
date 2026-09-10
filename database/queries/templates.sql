@@ -4,7 +4,7 @@ SELECT count(*) FROM certificate_templates WHERE (sqlc.narg('search')::text IS N
 -- name: ListCertificateTemplates :many
 SELECT sqlc.embed(t),(SELECT count(*) FROM activities WHERE certificate_template_id=t.id) AS activity_usage_count,(SELECT count(*) FROM issued_certificates WHERE template_id=t.id) AS issued_certificate_count FROM certificate_templates t
 WHERE (sqlc.narg('search')::text IS NULL OR t.name ILIKE '%'||sqlc.narg('search')::text||'%') AND (sqlc.narg('status')::text IS NULL OR t.lifecycle_status=sqlc.narg('status')::text)
-ORDER BY t.created_at DESC LIMIT sqlc.narg('page_size')::bigint OFFSET @page_offset::bigint;
+ORDER BY t.created_at DESC LIMIT CAST(sqlc.narg('page_size')::text AS bigint) OFFSET CAST(@page_offset::text AS bigint);
 
 -- name: CertificateTemplateCounts :one
 SELECT sqlc.embed(t),(SELECT count(*) FROM activities WHERE certificate_template_id=t.id) AS activity_usage_count,(SELECT count(*) FROM issued_certificates WHERE template_id=t.id) AS issued_certificate_count FROM certificate_templates t WHERE t.id=CAST(CAST(@identifier AS text) AS integer);

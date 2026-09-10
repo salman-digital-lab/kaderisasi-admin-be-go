@@ -45,6 +45,7 @@ for(const [name,rule]of Object.entries(schemas)){
  const cases=[['valid',good],['missing',{}],['nulls',Object.fromEntries(Object.keys(good).map(k=>[k,null]))],['unknown',{...good,unknownFixtureField:123}]];
  for(const [key,value]of Object.entries(good))if(typeof value==='string')cases.push([`invalid-${key}`,{...good,[key]:{invalid:true}}]);
  for(const [key,value]of Object.entries(good))if(typeof value==='number')for(const number of [0,-1,0.5,2147483648])cases.push([`boundary-${key}-${number}`,{...good,[key]:number}]);
+ for(const [key,field]of Object.entries(rule.args[0]))if(field.kind==='number')for(const value of [true,false,[],[null],[[]],['2'],['0x2'],[1,2],{},'0x2','0b10','0o2','\ufeff2','\u00852',' 2 ',' ','Infinity','0x'])cases.push([`number-coercion-${key}-${JSON.stringify(value)}`,{...good,[key]:value}]);
  for(const [key,field]of Object.entries(rule.args[0]))if(field.kind==='date')for(const value of ['2026-03-01 00:30:00','2026-03-01T00:30:00+07:00','2026-03-01T00:30:00.000Z','2026-03-01 00:30:00.000','2026-02-29','2024-02-29','2026-3-1','2026-03-01 1:02:03'])cases.push([`date-format-${key}-${value}`,{...good,[key]:value}]);
  for(const [label,input]of cases){try{const value=await validators[name].validate(emptyToNull(structuredClone(input)));fixtures.push({name,label,input,output:normalize(value),issues:[]})}catch(error){if(!error.messages)throw error;fixtures.push({name,label,input,issues:error.messages})}}
 }
