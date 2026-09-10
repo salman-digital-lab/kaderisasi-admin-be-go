@@ -1,6 +1,7 @@
 # Go rewrite progress
 
-Status: in progress. This file is not a completion report.
+Status: complete, September 10, 2026. All implementation and testing phases passed.
+The reviewed results and operational limits are in [docs/VERIFICATION.md](docs/VERIFICATION.md).
 
 ## Agreed scope
 
@@ -35,7 +36,12 @@ the 139-route inventory. `docs/BASELINE.json` records the revisions.
   immutable snapshots, revocation, preparation, and 1,000-recipient bulk issuance
   pass. Template changes pause bulk work without losing progress; resume passes.
   Job calendar-boundary, idempotence, cancellation, and failure tests pass.
-- E — complete contracts, integration, browser verification, cleanup: pending.
+- E — complete contracts, integration, browser verification, cleanup: passed.
+  The final run passed all 17 stages: 1,593 race-enabled unit tests/subtests,
+  1,634 race-enabled integration tests/subtests, 2,001 contract comparisons,
+  12 bidirectional session/password checks, 53 shared-database checks, six job
+  executions, 14 browser workflows, and all 12 existing-application checks.
+  Route coverage is 139/139. No required tests failed or were skipped.
 
 ## Completion rule
 
@@ -44,18 +50,23 @@ must pass. Missing tests and externally blocked checks remain incomplete.
 
 ## Next action
 
-Run the final aggregate with the public image-backed download correction. The
-preceding aggregate passed all 17 automated stages; the strengthened public test
-then found and verified a fix for the public PDF image cache issue. The active
-fixture run is `a62222104353e081`. Approved localhost CORS is applied; the final
-coordinator verifies it and restores it after the aggregate. It also pauses and
-restarts the recorded temporary preview so the public test uses port 3000.
-Do not modify application or harness sources while the aggregate runs. After all
-checks pass, review the final PDFs/screenshots, archive evidence, update the final
-report and completion review, run the finalizer, and commit the documentation.
+No implementation or testing work remains in the agreed scope. A future
+production deployment or traffic switch is a separate task. The workspace
+launcher continues to default to Adonis; Go is selected with `--admin-go`.
 
-The sections below preserve earlier checkpoints; their pending items and active
-fixture references are historical unless repeated in this next-action section.
+Final aggregate: `.artifacts/verify/2026-09-10T04-21-36-636Z/results.json`,
+Go revision `cd2e360bef31c2a6805ff8b100305fd194b54187`, source fingerprint
+`3380de8d7ec5bd167a9d179aab374d81521165261ae168cd9e8dd02b9176a7e4`.
+This includes the latest club API changes and real image-backed PDF downloads on
+both frontends at desktop and mobile widths. Four downloaded PDFs were rendered
+and visually reviewed. The three schemas for run `a62222104353e081` were removed
+and checked absent; storage cleanup verified recorded objects absent. No object
+journals remain. The original bucket CORS setting, workspace services, and the
+temporary public preview were restored. Measured latency and process memory,
+versions, commands, evidence, and resolved failures are in the final report.
+
+The sections below preserve earlier checkpoints. Their pending items and active
+fixture references are historical and have been resolved by the final run above.
 
 ## Current continuation
 

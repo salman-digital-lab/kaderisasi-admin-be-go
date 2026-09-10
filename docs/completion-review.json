@@ -4,49 +4,60 @@
       "name": "Every route: invalid-input and missing-resource applicability reviewed with executed evidence",
       "status": "passed",
       "evidence": [
-        "tests/route-applicability.json: explicit review of all 139 routes",
-        ".artifacts/route-coverage.json: no missing applicable success/auth/permission/input/resource scenarios; all groups require final current-source rerun"
+        "tests/route-applicability.json: all 139 routes explicitly reviewed",
+        ".artifacts/verify/2026-09-10T04-21-36-636Z/evidence/route-coverage.json: 139 implemented and success-covered, with no missing applicable scenarios or stale groups",
+        ".artifacts/verify/2026-09-10T04-21-36-636Z/contracts.log: all 18 groups and 2,001 comparisons passed on the final source"
       ]
     },
     {
       "name": "Explicit request/response types and typed query design reviewed across every business module",
       "status": "passed",
       "evidence": [
-        "docs/TYPE_DESIGN.md: explicit DTOs and generated production queries reviewed across every module",
-        "Generic JSON fixture query helpers compile only with the integration build tag; two deliberately invalid source SQL statements are documented",
-        "Vine compatibility: 1,418 generated cross-language fixtures pass (.artifacts/unit-vine-numbers.log)"
+        "docs/TYPE_DESIGN.md: all business modules have explicit DTOs and generated queries; two deliberately invalid legacy SQL operations documented",
+        "Generic JSON fixture query helpers compile only with the integration build tag",
+        ".artifacts/verify/2026-09-10T04-21-36-636Z/unit.log: 1,418 cross-language Vine fixtures included in 1,593 passing unit tests/subtests"
       ]
     },
     {
       "name": "Numeric identifier and pagination boundaries preserve compatibility without narrowing overflow",
       "status": "passed",
       "evidence": [
-        "189/189 query boundary comparisons, including wide bounds and profile relations; .artifacts/contracts-boundaries-complete.log",
-        "444/444 path/resource comparisons and 128/128 registration/export cases; .artifacts/contracts-boundaries-fixed-final.log",
-        "1,418 Vine fixtures and text-encoded PostgreSQL bounds; final current-source aggregate required"
+        ".artifacts/verify/2026-09-10T04-21-36-636Z/evidence/contracts/query-edges-report.json: 189 query boundary comparisons, including wide bounds and profile relations",
+        ".artifacts/verify/2026-09-10T04-21-36-636Z/evidence/contracts/route-edges-report.json: 444 path/resource comparisons",
+        ".artifacts/verify/2026-09-10T04-21-36-636Z/evidence/contracts/registrations-report.json: 128 registration/export comparisons",
+        ".artifacts/verify/2026-09-10T04-21-36-636Z/unit.log: cross-language number coercion and PostgreSQL text bounds verified"
       ]
     },
     {
       "name": "Required malformed, oversized, orientation, and storage-failure scenarios verified",
       "status": "passed",
       "evidence": [
-        "38 real storage image comparisons, all five routes, .artifacts/contracts/images-report.json",
-        "Template duplication with missing source and cleanup, .artifacts/contracts/templates-report.json",
-        "Race-enabled storage/image lifecycle and failure cleanup tests, .artifacts/go-race-current.jsonl"
+        ".artifacts/verify/2026-09-10T04-21-36-636Z/evidence/contracts/images-report.json: 38 real storage image comparisons on all five routes",
+        ".artifacts/verify/2026-09-10T04-21-36-636Z/evidence/contracts/templates-report.json: 107 template cases, including failed asset duplication cleanup",
+        ".artifacts/verify/2026-09-10T04-21-36-636Z/integration.log: race-enabled real storage/image lifecycle and cleanup passed"
       ]
     },
     {
       "name": "Native runtime packaging verified",
       "status": "passed",
       "evidence": [
-        "Native macOS arm64 package build and executable startup validation: .artifacts/package-protocol.log",
-        "Library dependencies and toolchain versions: .artifacts/release/admin-go-darwin-arm64/manifest.json and RUNTIME.txt",
-        "Setup and matching OS/architecture requirements documented in README.md"
+        ".artifacts/verify/2026-09-10T04-21-36-636Z/package.log: native macOS arm64 package and executable startup validation passed",
+        ".artifacts/verify/2026-09-10T04-21-36-636Z/evidence/release/admin-go-darwin-arm64/manifest.json: toolchain and shared-library dependencies",
+        "README.md: setup, runtime, and matching OS/architecture requirements"
       ]
     },
     {
       "name": "Final verification report reviewed, including dependency locks, browser evidence, and cleanup",
-      "status": "pending"
+      "status": "passed",
+      "evidence": [
+        "docs/VERIFICATION.md: reviewed commands, pinned versions, all 17 passing stages, resolved failures, measured latency/RSS and operational limits",
+        ".artifacts/browser/2026-09-10T04-44-35-925Z/report.json: 10 passing admin desktop/mobile cases",
+        ".artifacts/browser/2026-09-10T04-46-43-538Z/report.json: four passing public cases with real uploaded image backgrounds",
+        "Four actual one-page landscape A4 PDFs rendered and visually reviewed with matching screenshots",
+        ".artifacts/verify/2026-09-10T04-21-36-636Z/evidence/cleaned-schemas-a62222104353e081.json: owned schemas removed and checked absent",
+        ".artifacts/verify/2026-09-10T04-21-36-636Z/evidence/manifest.json: archived cleanup, CORS, preview, borrowed services, contracts and browser evidence",
+        "No storage journals remain; CORS and the original preview/workspace services are restored"
+      ]
     }
   ]
 }

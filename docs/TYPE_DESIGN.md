@@ -1,20 +1,20 @@
 # Typed boundary and query review
 
-Architecture review: all production business handlers decode explicit request types and return explicit response types or generated rows. Business SQL uses sqlc-generated queries. The remaining verification evidence is tracked below.
+Architecture review: all production business handlers decode explicit request types and return explicit response types or generated rows. Ordinary business SQL uses sqlc-generated queries; two deliberately invalid compatibility operations are explained below. Every module passed the final contract and race-enabled integration run. See [VERIFICATION.md](VERIFICATION.md) for evidence.
 
-| Module | Current typed implementation | Remaining work |
+| Module | Current typed implementation | Verification |
 |---|---|---|
-| Authentication | Explicit login/Google DTOs, claims, sessions, identities, refresh rotation and database queries | Final aggregate verification |
-| Reference data | Explicit request DTOs, generated row/response types, university relation/page DTO, sqlc CRUD | Final aggregate verification |
-| Dashboard | sqlc counts and explicit generated response rows | Final aggregate verification |
-| Administrators | Create/update/password DTOs, response/identity/page DTOs, sqlc reads/writes | Final aggregate verification |
-| Access grants | Typed optional changes and ticket request/response types; separate ticket workflow service; generated locking/count/update queries | Final aggregate verification |
-| Members/profiles | Explicit member/profile request and response types; sqlc creation, account, filtering, relations and mutation queries; dedicated profile/credential services | Final aggregate verification |
-| Activities/registrations | Typed activity and registration CRUD/list/detail/status requests, response projections, sorting/filters, transaction services, template readiness, image services and Excel records; generated queries | Stored-JSON export and raw identifier compatibility are implemented; final aggregate verification remains |
-| Clubs/forms/roles | Typed club and form requests/responses, reads, mutations, attachment transactions, image services and generated queries | Typed registration/role reads, writes, bulk review and Excel exports now use generated queries; 430 affected comparisons pass; final aggregate verification pending |
-| Counseling/achievements/leaderboards | Explicit request/response types, services and generated read/mutation/export queries; nullable score accumulation and review transactions | 113 differential comparisons and full race integration pass; final aggregate verification pending |
-| Certificates | Typed template/design, recipient, preparation, issuance, compact/list and snapshot DTOs; generated locking/read/mutation queries; asset services | 107 template and 154 issuance comparisons plus affected race/concurrency tests pass; final aggregate verification pending |
-| Jobs | Separate typed entrypoint, generated statements and result types | Final aggregate verification |
+| Authentication | Explicit login/Google DTOs, claims, sessions, identities, refresh rotation and database queries | Passed, including bidirectional interoperability |
+| Reference data | Explicit request DTOs, generated row/response types, university relation/page DTO, sqlc CRUD | Passed |
+| Dashboard | sqlc counts and explicit generated response rows | Passed |
+| Administrators | Create/update/password DTOs, response/identity/page DTOs, sqlc reads/writes | Passed |
+| Access grants | Typed optional changes and ticket request/response types; separate ticket workflow service; generated locking/count/update queries | Passed, including concurrent last-Super-Admin protection |
+| Members/profiles | Explicit member/profile request and response types; sqlc creation, account, filtering, relations and mutation queries; dedicated profile/credential services | Passed, including shared web-be records |
+| Activities/registrations | Typed activity and registration CRUD/list/detail/status requests, response projections, sorting/filters, transaction services, template readiness, image services and Excel records; generated queries | Passed, including stored JSON, raw identifiers and exports |
+| Clubs/forms/roles | Typed club and form requests/responses, reads, mutations, attachment transactions, image services and generated queries | Passed, including adopted source changes and original PostgreSQL workflows |
+| Counseling/achievements/leaderboards | Explicit request/response types, services and generated read/mutation/export queries; nullable score accumulation and review transactions | Passed |
+| Certificates | Typed template/design, recipient, preparation, issuance, compact/list and snapshot DTOs; generated locking/read/mutation queries; asset services | Passed, including 107 template and 154 issuance comparisons, concurrency and real browser PDFs |
+| Jobs | Separate typed entrypoint, generated statements and result types | Passed, including repeat execution and calendar boundaries |
 
 `domain.Optional[T]` retains omitted, null and concrete PATCH values. Required
 reference fields and nullable administrator fields use explicit DTO members.

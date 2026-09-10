@@ -4,10 +4,11 @@ Parallel implementation of the Kaderisasi admin API on port **3334**. It serves
 `/v2` and `/health`; it never starts scheduled jobs. Adonis remains the only owner
 of database migrations, seeders, and RBAC preflight.
 
-**Verification is still in progress.** See [PROGRESS.md](PROGRESS.md),
-[the route matrix](docs/COMPATIBILITY.md), and
-[remaining completion reviews](docs/completion-review.json). A passing unit suite
-or handler inventory does not mean the rewrite is ready for cutover.
+**Implementation and verification are complete.** All 139 current routes, three
+jobs, and 17 verification stages passed on September 10, 2026. See the
+[verification report](docs/VERIFICATION.md), [route matrix](docs/COMPATIBILITY.md),
+and [progress ledger](PROGRESS.md). Adonis remains the workspace default;
+production deployment and traffic switching have not been performed.
 
 ## Local setup
 
