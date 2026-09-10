@@ -1,0 +1,9 @@
+{
+  "name": "admin-go-adonis-crypto-fixtures",
+  "private": true,
+  "dependencies": {
+    "@adonisjs/hash": "9.1.1",
+    "@adonisjs/encryption": "6.0.2",
+    "jsonwebtoken": "9.0.2"
+  }
+}

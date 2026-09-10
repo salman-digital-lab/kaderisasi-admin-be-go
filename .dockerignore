@@ -8,3 +8,5 @@
 !internal/**
 !tests/
 !tests/**
+!scripts/
+!scripts/crypto-fixture.cjs

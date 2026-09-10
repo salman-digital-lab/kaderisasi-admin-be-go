@@ -1,3 +1,8 @@
+FROM node:24.14.1-trixie-slim AS interop
+WORKDIR /kaderisasi-admin-be
+COPY tests/interop/package.json tests/interop/package-lock.json ./
+RUN npm ci --ignore-scripts --omit=dev
+
 FROM golang:1.26.8-trixie AS build
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -31,6 +36,9 @@ RUN go mod download && go mod verify
 COPY cmd ./cmd
 COPY internal ./internal
 COPY tests ./tests
+COPY scripts/crypto-fixture.cjs ./scripts/crypto-fixture.cjs
+COPY --from=interop /usr/local/bin/node /usr/local/bin/node
+COPY --from=interop /kaderisasi-admin-be /kaderisasi-admin-be
 RUN go vet ./... && go test -race -count=1 -timeout=10m ./... \
     && go build -trimpath -ldflags='-s -w' -o /out/admin-api ./cmd/api \
     && go build -trimpath -ldflags='-s -w' -o /out/admin-jobs ./cmd/jobs
