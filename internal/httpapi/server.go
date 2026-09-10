@@ -13,6 +13,7 @@ import (
 	"kaderisasi/admin/internal/storage"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"regexp"
 	"slices"
 	"sort"
@@ -165,7 +166,9 @@ func (s *Server) Handler() http.Handler {
 		}})
 	}
 	mux := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		parts := strings.Split(r.URL.Path, "/")
+		// Adonis' route matcher passes escaped path segments through to params.
+		// Decoding first changes both identifier semantics and encoded slashes.
+		parts := strings.Split(r.URL.EscapedPath(), "/")
 		for _, entry := range entries {
 			if entry.route.Method != r.Method {
 				continue
@@ -230,8 +233,9 @@ func (s *Server) Handler() http.Handler {
 		}
 		w.Header().Set("X-Request-ID", requestID)
 		r.Header.Set("X-Request-ID", requestID)
-		if r.URL.Path != "/" {
-			r.URL.Path = strings.TrimRight(r.URL.Path, "/")
+		if escaped := r.URL.EscapedPath(); escaped != "/" {
+			r.URL.RawPath = strings.TrimRight(escaped, "/")
+			r.URL.Path, _ = url.PathUnescape(r.URL.RawPath)
 		}
 		mux.ServeHTTP(w, r)
 	})

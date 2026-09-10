@@ -9,6 +9,23 @@ const verifier=new Encryption({secret:fixtureKey}).verifier;
 // for one backend run so references retain the same identity across requests.
 export class ContractNormalizer {
   constructor(started){this.started=started;this.random=new Map();this.hashes=new Map();}
+  response(result){
+    const normalized=this.normalize(result);
+    // Adonis ActivityRegistrationsController.export has no ORDER BY on its
+    // registrant query. Different update plans can change PostgreSQL heap order.
+    // Verify the visible numbering before comparing complete row multisets;
+    // ordered club/achievement exports and every column remain order-sensitive.
+    if(result.method==='GET'&&/^\/v2\/activities\/[^/]+\/registrations-export$/.test(result.path.split('?')[0])&&result.status===200&&normalized.body?.sheets){
+      assert.equal(normalized.body.sheets.length,1);
+      const sheet=normalized.body.sheets[0];
+      assert.equal(sheet.rows[0][0],'No');
+      const rows=sheet.rows.slice(1);
+      rows.forEach((row,index)=>assert.equal(row[0],index+1,'export numbers must match actual row positions'));
+      const payloads=rows.map(row=>row.slice(1)).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)));
+      sheet.rows=[sheet.rows[0],...payloads.map((row,index)=>[index+1,...row])];
+    }
+    return normalized;
+  }
   identity(value){if(!this.random.has(value))this.random.set(value,`<uuid-${this.random.size+1}>`);return this.random.get(value);}
   cookie(raw){
     const [pair,...attributes]=raw.split(';').map(x=>x.trim());

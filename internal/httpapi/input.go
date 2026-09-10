@@ -108,6 +108,20 @@ func validatedInputAs[T any](w http.ResponseWriter, r *http.Request, schema stri
 	if !ok {
 		return result, false
 	}
+	return decodeInputAs[T](w, data)
+}
+
+func caughtInputAs[T any](w http.ResponseWriter, r *http.Request, schema string) (T, bool) {
+	data, ok := caughtValidationInput(w, r, schema)
+	if !ok {
+		var result T
+		return result, false
+	}
+	return decodeInputAs[T](w, data)
+}
+
+func decodeInputAs[T any](w http.ResponseWriter, data validation.Object) (T, bool) {
+	var result T
 	raw, err := json.Marshal(data)
 	if err == nil {
 		err = json.Unmarshal(raw, &result)

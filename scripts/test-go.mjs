@@ -15,7 +15,8 @@ if(manifest.status!=='ready')throw new Error('Create fixture schemas first');
 const schema=manifest.schemas.find(x=>x.endsWith('_candidate'));
 const fixture=await fixtureDatabase('candidate');
 try { await emptyFixture(fixture.db,schema); } finally { await fixture.db.end(); }
-console.log(JSON.stringify({event:'suite_source',source:sourceEvidence()}));
+const source=sourceEvidence();
+console.log(JSON.stringify({event:'suite_source',source}));
 const child=spawn('go',['test','-tags=integration','-race','-count=1','-p','1',...process.argv.slice(2)],{cwd:root,env:testEnvironment({NODE_ENV:'test',DB_SCHEMA:schema,PGOPTIONS:`-c search_path=${schema}`,GO_REWRITE_ARTIFACTS:resolve(root,'.artifacts')}),stdio:'inherit'});
 try{
   const [code,signal]=await once(child,'exit');process.exitCode=code??1;if(signal)console.error('Tests interrupted:',signal);
@@ -26,3 +27,4 @@ try{
   }
   if(failures.length)throw new AggregateError(failures,'Go test storage cleanup failed');
 }
+if(sourceEvidence().sha256!==source.sha256)throw new Error('Application or harness sources changed during Go tests; rerun the suite');

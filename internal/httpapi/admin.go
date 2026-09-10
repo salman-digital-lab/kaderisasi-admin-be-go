@@ -33,7 +33,7 @@ func (s *Server) adminView(ctx context.Context, user dbgen.AdminUser) (adminResp
 		views[i] = adminIdentityResponse{Provider: identity.Provider, Email: identity.Email, LastUsedAt: timestamp(identity.LastUsedAt, time.UTC), CreatedAt: timestamp(identity.CreatedAt, time.UTC)}
 	}
 	a := auth.ForRole(user.RoleCode, user.IsActive)
-	return adminResponse{ID: user.ID, Email: user.Email, NormalizedEmail: user.NormalizedEmail, DisplayName: user.DisplayName, CreatedAt: timestamp(user.CreatedAt, s.Config.Location), UpdatedAt: timestamp(user.UpdatedAt, s.Config.Location), IsActive: user.IsActive, RoleCode: user.RoleCode, Role: a.Role, EffectivePermissions: a.Permissions, IsSuperAdmin: a.IsSuperAdmin, AuthenticationMethods: methods, GoogleLinked: google, Identities: views}, nil
+	return adminResponse{ID: user.ID, Email: user.Email, NormalizedEmail: user.NormalizedEmail, DisplayName: user.DisplayName, CreatedAt: domain.ModelTimestamp(user.CreatedAt, s.Config.Location), UpdatedAt: domain.ModelTimestamp(user.UpdatedAt, s.Config.Location), IsActive: user.IsActive, RoleCode: user.RoleCode, Role: a.Role, EffectivePermissions: a.Permissions, IsSuperAdmin: a.IsSuperAdmin, AuthenticationMethods: methods, GoogleLinked: google, Identities: views}, nil
 }
 func (s *Server) adminReply(w http.ResponseWriter, r *http.Request, status int, msg string, id int32) error {
 	user, err := dbgen.New(s.Pool).FindAdminByID(r.Context(), id)

@@ -19,5 +19,6 @@ assert.equal(spawnSync(sqlc,['generate'],{cwd:root,stdio:'inherit'}).status,0);
 assert.deepEqual(files(resolve(root,'internal/dbgen'),'.go').sort(),[...before.keys()].sort(),'sqlc generated file set drift');
 for(const [path,content] of before)assert.equal(readFileSync(path,'utf8'),content,'sqlc generated output drift: '+path);
 for(const path of [...files(resolve(root,'scripts'),'.mjs'),...files(resolve(root,'tests'),'.mjs')])assert.equal(spawnSync('node',['--check',path],{cwd:root,stdio:'inherit'}).status,0);
-mkdirSync(resolve(root,'.artifacts'),{recursive:true});writeFileSync(resolve(root,'.artifacts/check.json'),JSON.stringify({status:'passed',checks:['gofmt','go vet','production build','integration vet','go mod verify','sqlc generated output','JavaScript syntax'],at:new Date().toISOString()},null,2));
-console.log('Formatting, vet, builds, dependencies, generated queries, and harness syntax pass');
+assert.equal(spawnSync('node',['--test','scripts/contract-normalize.test.mjs'],{cwd:root,stdio:'inherit'}).status,0,'Contract normalization integrity');
+mkdirSync(resolve(root,'.artifacts'),{recursive:true});writeFileSync(resolve(root,'.artifacts/check.json'),JSON.stringify({status:'passed',checks:['gofmt','go vet','production build','integration vet','go mod verify','sqlc generated output','JavaScript syntax','contract normalization integrity'],at:new Date().toISOString()},null,2));
+console.log('Formatting, vet, builds, dependencies, generated queries, harness syntax, and normalization integrity pass');

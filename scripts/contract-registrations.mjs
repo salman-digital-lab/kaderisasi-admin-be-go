@@ -70,7 +70,9 @@ export async function registrationCases(h){
   await h.seed("UPDATE activity_registrations SET guest_data=guest_data||$1::jsonb WHERE id=2",[{province_id:' '+province.id+' ',city_id:String(city.id),origin_province_id:'0x'+province.id.toString(16),origin_city_id:city.id,university_id:university.id,birth_date:'2001-02-03',intake_year:2022,major:'Biology',education_history:[{degree:'S1',institution:'Guest university',faculty:'Science',major:'Biology',intake_year:2022}]}]);
   const fullExport=await h.call('registration:export-complete-profile-and-guest','GET','/v2/activities/1/registrations-export');
   const exportMember=fullExport.sheets[0].rows.find(row=>row[1]==='Registrant fixture');
-  assert.equal(exportMember[7],'2000-01-01');
+  const birthInstant={UTC:'2000-01-02T00:00:00.000Z','Asia/Jakarta':'2000-01-01T17:00:00.000Z','America/Los_Angeles':'2000-01-02T08:00:00.000Z'}[h.timezone];
+  assert.ok(birthInstant,'known fixture timezone');
+  assert.equal(exportMember[7],birthInstant.slice(0,10));
   assert.equal(exportMember[12],'Export province');
   const exportGuest=fullExport.sheets[0].rows.find(row=>row[1]==='Guest fixture');
   assert.equal(exportGuest[12],'Export province');assert.equal(exportGuest[15],'Export province');
@@ -85,7 +87,7 @@ export async function registrationCases(h){
   await h.seed("UPDATE activities SET additional_config=jsonb_set(additional_config,'{mandatory_profile_data}',$1) WHERE id=1",[JSON.stringify(profileFields.map(name=>({name,label:name})))]);
   const projected=await h.call('registration:dynamic-profile-fields','GET','/v2/activities/1/registrations?sort_by=created_at&sort_order=asc');
   assert.ok(projected.data.data.some(row=>row.name===null&&row.id===null),'profile fields override guest name and registration id');
-  assert.equal(projected.data.data.find(row=>row.name==='Registrant fixture').birth_date,'2000-01-01T17:00:00.000Z');
+  assert.equal(projected.data.data.find(row=>row.name==='Registrant fixture').birth_date,birthInstant);
   await h.seed("UPDATE activities SET additional_config=jsonb_set(additional_config,'{mandatory_profile_data}','[{\"name\":\"does_not_exist\"}]') WHERE id=1");
   await h.call('registration:unknown-profile-column','GET','/v2/activities/1/registrations');
   for(const [label,config] of [['missing',{}],['null-fields',{mandatory_profile_data:null}],['object-fields',{mandatory_profile_data:{}}],['null-config',null]]) {

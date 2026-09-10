@@ -114,7 +114,7 @@ func ISO(t time.Time, location *time.Location) string {
 	if location == nil {
 		location = time.Local
 	}
-	return t.In(location).Format("2006-01-02T15:04:05.000Z07:00")
+	return t.In(location).Format("2006-01-02T15:04:05.000-07:00")
 }
 func stringPointer(value database.Object, key string) *string {
 	if !value.Has(key) || value.Null(key) {

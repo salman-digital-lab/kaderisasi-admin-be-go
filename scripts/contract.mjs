@@ -61,7 +61,7 @@ try {
       const normalizer=new ContractNormalizer(started);
       const verifiedHashes=new Set([passwordHash]);
       const tokens={super:jwt.sign({userId:1,email:'super@example.test'},fixtureKey,{expiresIn:'15m'}),requester:jwt.sign({userId:2,email:'requester@example.test'},fixtureKey,{expiresIn:'15m'})};
-      const h={async seed(sql,values=[]){return (await db.query(sql,values)).rows;},async upload(name,path,fields={},contents){
+      const h={timezone,async seed(sql,values=[]){return (await db.query(sql,values)).rows;},async upload(name,path,fields={},contents){
         const sharp=legacyRequire('sharp');
         const png=contents??await sharp({create:{width:640,height:480,channels:3,background:'#6496c8'}}).png().toBuffer();
         const form=new FormData();for(const [key,value] of Object.entries(fields))form.append(key,String(value));form.append('file',new Blob([png],{type:'image/png'}),'fixture.png');
@@ -112,7 +112,7 @@ try {
             if(record.parent_token_id){const parent=result.database.admin_refresh_tokens.find(row=>row.id===record.parent_token_id);assert.equal(parent.family_id,record.family_id);assert.equal(parent.replaced_by_token_id,record.id);}
           }
         }
-        responses.push(normalizer.normalize(result));
+        responses.push(normalizer.response(result));
         return data;
       }};
       if(group==='protocol')await protocolCases(h,fixturePassword);else if(group==='query-edges')await queryEdgeCases(h);else if(group==='route-edges')await routeEdgeCases(h,routes);else if(group==='images')await imageCases(h);else if(group==='reference')await referenceCases(h);else if(group==='authorization')await authorizationCases(h,routes);else if(group==='admin')await adminCases(h,fixturePassword);else if(group==='members')await memberCases(h,fixturePassword);else if(group==='activities')await activityCases(h);else if(group==='registrations')await registrationCases(h);else if(group==='clubs')await clubCases(h);else if(group==='club-members')await clubMemberCases(h);else if(group==='achievements')await achievementCases(h);else if(group==='templates')await templateCases(h);else if(group==='certificates')await certificateCases(h);else if(group==='google')await googleCases(h,keys);else await authCases(h,fixturePassword);
@@ -130,6 +130,8 @@ try {
   }
 } finally { await restore(); if(keys){await keys.close();assert.ok(keys.counts.pem>0&&keys.counts.jwks>0,'both validators must consume real controlled key responses');} }
 
+assert.equal(sourceEvidence().sha256,source.sha256,'Application or harness sources changed during comparison; rerun the suite');
+assert.equal(execFileSync('git',['rev-parse','HEAD'],{cwd:legacy,encoding:'utf8'}).trim(),adonisRevision,'Adonis changed during comparison; refresh the baseline and rerun');
 const differences=[];
 for(let i=0;i<results.adonis.length;i++) {
   const baseline=results.adonis[i],candidate=results.go[i];

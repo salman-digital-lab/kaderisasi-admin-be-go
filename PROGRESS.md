@@ -44,12 +44,13 @@ must pass. Missing tests and externally blocked checks remain incomplete.
 
 ## Next action
 
-Complete invalid-input/missing-resource applicability review, numeric identifier
-boundaries, explicit DTO/query design, file edge cases, native packaging, and final
-aggregate verification. Real image-backed admin PDF testing is waiting for approval
-to temporarily add local frontend CORS origins to the shared test bucket; it currently
-has no CORS rules. The proposed rule and guarded restoration script are reviewable.
-No bucket setting has been changed. All three owned schemas remain live.
+Continue typed form and club registration/role services, then the remaining
+counseling/achievement and certificate adapters. Complete per-route input/resource
+applicability and identifier review before final aggregate verification against
+the current frontends. Recreate owned fixtures with `node scripts/ensure-fixtures.mjs`
+before integration work. Image-backed admin PDF testing still has a pending
+request for temporary localhost CORS origins on the shared test bucket; no bucket
+setting was changed. The latest run's three schemas have been cleaned.
 
 ## Current continuation
 
@@ -336,3 +337,67 @@ handlers, unexecuted required scenarios, test skips, and unfinished cleanup.
   skipped tests in `.artifacts/go-race-club-complete.jsonl`. All 12 recorded
   storage objects were removed and checked absent. Final aggregate contracts,
   architecture review and the image-backed admin PDF browser check remain incomplete.
+
+## Typed club service continuation
+
+- Saved the tested registration/latest-club checkpoint as `8493eeb`.
+- Club create/update/list/detail, registration information and all media operations
+  now use explicit DTOs, generated queries and a dedicated service. Preserved
+  draft/closed defaults, omitted fields, nullable dates, duplicate checks, row
+  locks, active-form requirements and storage cleanup. No-op updates retain
+  their original timestamp. Form mutation and membership/role adapters remain.
+- Expanded club comparisons to 106 scenarios and passed them under UTC, including
+  wide/fractional/encoded identifiers, Number() conversion on update, null dates,
+  inactive latest forms, duplicate-media precedence and every club type filter.
+  Evidence: `.artifacts/club-typed-affected-contracts.log`.
+- The added cases exposed default Vine date formats: the source accepts strict
+  `YYYY-MM-DD` and `YYYY-MM-DD HH:mm:ss`, without ISO offsets/fractional seconds.
+  Go now matches them. Regenerated all 662 real Vine fixtures; all pass.
+- Corrected escaped route-parameter handling, first-page pagination diagnostics,
+  and explicit UTC offsets on administrator/certificate model timestamps. Raw
+  date projections and session/access-request dates keep their source formatting.
+- The activity registration Excel source query has no ORDER BY. Different update
+  plans changed heap order between isolated schemas. Only this unordered export's
+  row order is now normalized after checking its visible 1..N numbering. Complete
+  row contents, duplicate counts, headers, column order and all explicitly ordered
+  exports remain strict. Normalizer integrity tests pass and run with `check`.
+- A UTC run stopped when the shared PostgreSQL connection reported ENETUNREACH.
+  The harness restored port 3334. A later read-only probe succeeded; the complete
+  contract run was restarted in `.artifacts/contracts-current-harness-utc.log`.
+- Source evidence version 2 hashes application code, queries, test definitions,
+  fixtures, generation settings and dependency locks. It excludes environment
+  files. Contracts verify the hash and Adonis revision again after teardown;
+  Go integration tests verify the hash after cleanup. Earlier reports must be
+  rerun under this evidence version before counting toward current completion.
+- Local checks, race-enabled unit tests and native package/startup checks pass:
+  `.artifacts/check-typed-clubs.log`, `.artifacts/unit-typed-clubs.log`, and
+  `.artifacts/package-typed-clubs.log`. Current database/storage/race/browser
+  checks still need to finish. The current owned schemas remain available;
+  there are no retained failed storage journals.
+- Typed form read/query drafts are in `.artifacts/next-club/`; they have not been
+  applied or counted as completed functionality. After this club checkpoint's
+  checks, continue form and club registration/role DTO/query ports.
+
+- The complete contract run recovered and passed all 17 groups: 1,173 scenarios
+  across 139 routes, under UTC, with no stale/missing reports under source-evidence
+  version 2. Coverage succeeds in `.artifacts/coverage-typed-clubs-current.json`;
+  detailed execution is `.artifacts/contracts-current-harness-utc.log`. Port 3334
+  was restored and recorded. Full race integration and public browser reruns are
+  the next checks for this checkpoint.
+
+- Current full race integration passed 837 test cases with no failures or skipped
+  tests. All 12 tracked storage objects were removed and verified absent. Evidence:
+  `.artifacts/go-race-typed-clubs-current.jsonl`.
+- Current public browser verification passed all four desktop/mobile workflows.
+  Screenshots were inspected. Evidence:
+  `.artifacts/browser/2026-09-10T01-04-47-319Z/` and
+  `.artifacts/browser-public-typed-clubs.log`. Backend ports were restored.
+- The public frontend, web-be and Adonis source remain clean at the adopted
+  revisions. Admin-fe now contains substantial independent local responsive UI
+  changes; these were not modified by this task. Previous admin frontend checks
+  are historical and its current browser/build checks remain pending.
+- Removed all three schemas belonging to fixture run `ce49aafd3320fdb9` and verified
+  their absence. No pending storage journals remain. Cleanup evidence:
+  `.artifacts/cleanup-typed-clubs.log` and
+  `.artifacts/cleaned-schemas-ce49aafd3320fdb9.json`. The next continuation must run
+  `node scripts/ensure-fixtures.mjs` before database or browser tests.

@@ -269,8 +269,10 @@ func validate(rule Rule, raw json.RawMessage, field string) (json.RawMessage, []
 			return nil, issue(field, "date", "The {field} field must be a datetime value")
 		}
 		valid := false
-		for _, format := range []string{time.RFC3339Nano, "2006-01-02", "2006-01-02 15:04:05", "2006-01-02 15:04:05.000"} {
-			if parsed, err := time.ParseInLocation(format, str, time.Local); err == nil {
+		// All inventoried Vine date validators use the two strict default
+		// formats. ISO offsets and fractional seconds require an explicit opt-in.
+		for _, format := range []string{"2006-01-02", "2006-01-02 15:04:05"} {
+			if parsed, err := time.ParseInLocation(format, str, time.Local); err == nil && parsed.Format(format) == str {
 				raw = marshal(parsed.In(time.Local).Format("2006-01-02"))
 				valid = true
 				break

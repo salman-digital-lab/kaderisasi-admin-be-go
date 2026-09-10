@@ -1,3 +1,5 @@
+import assert from 'node:assert/strict';
+
 export async function clubCases(h){
   await h.call('club:invalid','POST','/v2/clubs',{});
   await h.call('club:create','POST','/v2/clubs',{name:'Fixture club',is_show:true,is_registration_open:true,logo:'ignored'});
@@ -43,4 +45,42 @@ export async function clubCases(h){
   await h.call('form:missing','GET','/v2/custom-forms/1');
   await h.call('club:missing','GET','/v2/clubs/999999');
   await h.upload('club:missing-media-type','/v2/clubs/1/media/image');
+  await clubBoundaryCases(h);
+}
+
+async function clubBoundaryCases(h){
+  const media={items:[{media_url:'https://www.youtube.com/embed/fixture12',media_type:'video',video_source:'youtube'}]};
+  const created=await h.call('club:create-complete','POST','/v2/clubs',{name:'Complete club',club_type:'CLUB_KEPROFESIAN',description:' Description ',short_description:' Summary ',media,start_period:'2026-03-01 00:30:00',end_period:'2027-02-28',registration_end_date:'2027-02-01',is_show:true,is_registration_open:true});
+  assert.ok(created.data,JSON.stringify(created));
+  const id=created.data.id,path=`/v2/clubs/${id}`;
+  assert.equal(created.data.is_show,false);assert.equal(created.data.is_registration_open,false);
+  assert.equal(Object.hasOwn(created.data,'logo'),false);assert.equal(Object.hasOwn(created.data,'registration_info'),false);
+  await h.seed("UPDATE clubs SET updated_at='2026-01-01T00:00:00Z' WHERE id=$1",[id]);
+  const unchanged=await h.call('club:empty-update-preserves-timestamp','PUT',path,{});
+  assert.equal(new Date(unchanged.data.updated_at).toISOString(),'2026-01-01T00:00:00.000Z');
+  const same=await h.call('club:same-values-preserve-timestamp','PUT',path,{name:'Complete club',club_type:'CLUB_KEPROFESIAN',media,is_show:false,logo:'ignored'});
+  assert.equal(new Date(same.data.updated_at).toISOString(),'2026-01-01T00:00:00.000Z');
+  await h.call('club:dates-cleared','PUT',path,{start_period:null,end_period:null,registration_end_date:null,description:'',short_description:''});
+  await h.call('club:date-update','PUT',path,{start_period:'2026-03-01 00:30:00',end_period:'2027-02-28',registration_end_date:'2027-02-01'});
+  for(const date of ['2026-03-01T00:30:00+07:00','2026-03-01 00:30:00.000','2026-02-29','2026-3-1'])await h.call('club:invalid-date-format:'+date,'PUT',path,{start_period:date});
+  await h.call('club:show-complete','GET',path);
+  const duplicate={items:[{media_url:'same',media_type:'image'},{media_url:' same ',media_type:'video'}]};
+  await h.call('club:duplicate-create','POST','/v2/clubs',{name:'Duplicate media',media:duplicate});
+  await h.call('club:duplicate-update','PUT',path,{media:duplicate});
+  await h.call('club:duplicate-before-missing','PUT','/v2/clubs/999999',{media:duplicate});
+  for(const type of ['UNIT','CLUB_KEPROFESIAN','CLUB_BAHASA','AVISMAN_REGIONAL','invalid'])await h.call('club:filter:'+type,'GET',`/v2/clubs?club_type=${type}`);
+  for(const query of ['visibility=draft&registration=closed','search=Complete','search=not-existing','visibility=invalid&registration=invalid','club_type=invalid&per_page=-1'])await h.call('club:filtered:'+query,'GET','/v2/clubs?'+query);
+  await h.seed("INSERT INTO custom_forms(form_name,feature_type,feature_id,is_active,form_schema,created_at,updated_at) VALUES ('Older active','club_registration',$1,true,'{}','2026-01-01','2026-01-01'),('Newer inactive','club_registration',$1,false,'{\"fields\":[]}','2026-01-02','2026-01-02')",[id]);
+  const detail=await h.call('club:latest-form-includes-inactive','GET',path);
+  assert.equal(detail.data.attachedCustomForm.form_name,'Newer inactive');assert.equal(detail.data.attachedCustomForm.is_active,false);
+  await h.call('club:open-with-older-active-form','PUT',path,{is_registration_open:true});
+  await h.call('club:close-with-expired-date','PUT',path,{is_registration_open:false,registration_end_date:'2000-01-01'});
+  await h.call('club:expired-unchanged-unless-reopening','PUT',path,{name:'Renamed closed club'});
+  await h.call('club:expired-stored-date-reopening','PUT',path,{is_registration_open:true});
+  for(const identifier of ['2147483648','999999999999999999999999','1.5','bad','NaN','Infinity','%32','%2f','%252f']){
+    await h.call('club:invalid-show-identifier:'+identifier,'GET','/v2/clubs/'+identifier);
+    await h.call('club:invalid-update-identifier:'+identifier,'PUT','/v2/clubs/'+identifier,{});
+    await h.call('club:invalid-info-identifier:'+identifier,'PUT',`/v2/clubs/${identifier}/registration-info`,{registration_info:'test'});
+  }
+  for(const identifier of [`0${id}`,`${id}e0`,`0x${id.toString(16)}`,`0b${id.toString(2)}`,`%20${id}%20`])await h.call('club:numeric-update-identifier:'+identifier,'PUT','/v2/clubs/'+identifier,{});
 }

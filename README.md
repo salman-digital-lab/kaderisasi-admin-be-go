@@ -64,7 +64,8 @@ For a prebuilt binary, inject the existing environment variables and start
 
 All existing variable names are retained. `DB_SCHEMA` is optional and defaults to
 `public`; test schemas use an explicit search path without `public` fallback.
-Set `TZ=Asia/Jakarta` for the agreed job calendar. `ADMIN_CORS_ORIGINS` is a comma
+The club registration closing job always uses Asia/Jakarta. Set `TZ=Asia/Jakarta`
+for the other two jobs to preserve their existing calendar behavior. `ADMIN_CORS_ORIGINS` is a comma
 separated allowlist; local public frontend requests require
 `http://localhost:3000` alongside `http://localhost:3005`. `APP_KEY` must be identical
 to Adonis for session transfer. Never print or commit env files.

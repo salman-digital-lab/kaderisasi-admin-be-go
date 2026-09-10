@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jackc/pgx/v5/pgconn"
 	"net/http"
+	"slices"
 	"strings"
 )
 
@@ -53,7 +54,7 @@ func paginationError(r *http.Request, err error) error {
 		table, order = "clubs", `"is_show" desc, "created_at" desc`
 		columns = `"id", "name", "club_type", "description", "short_description", "logo", "created_at", "updated_at", "start_period", "end_period", "is_show", "is_registration_open", "registration_end_date"`
 		add("name", "ilike")
-		if params.Get("club_type") != "" {
+		if slices.Contains([]string{"UNIT", "CLUB_KEPROFESIAN", "CLUB_BAHASA", "AVISMAN_REGIONAL"}, params.Get("club_type")) {
 			add("club_type", "=")
 		}
 		if value := params.Get("visibility"); value == "published" || value == "draft" {
@@ -85,6 +86,9 @@ func paginationError(r *http.Request, err error) error {
 	if len(conditions) > 0 {
 		statement += " where " + strings.Join(conditions, " and ")
 	}
-	statement += " order by " + order + " limit " + argument() + " offset " + argument()
+	statement += " order by " + order + " limit " + argument()
+	if queryNumber(r, "page", 1) != 1 {
+		statement += " offset " + argument()
+	}
 	return errors.New(statement + " - " + pg.Message)
 }

@@ -11,7 +11,7 @@ This is an implementation ledger, not a completed architecture review.
 | Access grants | Typed optional changes and ticket request/response types; separate ticket workflow service; generated locking/count/update queries | Final aggregate verification |
 | Members/profiles | Explicit member/profile request and response types; sqlc creation, account, filtering, relations and mutation queries; dedicated profile/credential services | Final aggregate verification and wider path identifier diagnostics |
 | Activities/registrations | Typed activity and registration CRUD/list/detail/status requests, response projections, sorting/filters, transaction services, template readiness, image services and Excel records; generated queries | 92 export/workflow comparisons and affected race tests pass; malformed stored JSON, identifier diagnostics and final verification remain |
-| Clubs/forms/roles | Dedicated form/club services, transaction protection | Generic request, response and JSON query adapters remain |
+| Clubs/forms/roles | Typed club CRUD/list/detail/media requests and responses, dedicated transaction/image services, generated queries and attached-form projection | Form mutations/reads and club registrations/roles still use generic adapters; current aggregate verification pending |
 | Counseling/achievements/leaderboards | Business workflows and real database comparisons | Generic request, response and JSON query adapters remain |
 | Certificates | Typed issuance/snapshot responses, generated locking/issuance queries | Template/list/preparation JSON adapters and request DTOs |
 | Jobs | Separate typed entrypoint, generated statements and result types | Final aggregate verification |
@@ -31,3 +31,9 @@ multipart/query comparisons use production error envelopes. Export diagnostics
 retain the error identity and real Go call sites; only validated stack frames are
 normalized. The legacy pagination diagnostic adapter still needs profile relation
 and expression filters reviewed; it does not claim those cases are complete.
+
+The activity-registration Excel query in the adopted source has no ORDER BY.
+Its contract comparison validates contiguous visible numbering, then compares
+complete row multisets. This is an identified source nondeterminism, not an
+application sorting change. All columns and explicitly ordered exports remain
+order-sensitive; normalization integrity is checked by `make check`.
