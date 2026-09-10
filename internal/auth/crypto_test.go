@@ -3,6 +3,7 @@ package auth
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/golang-jwt/jwt/v5"
 	"os/exec"
 	"strings"
 	"testing"
@@ -54,6 +55,43 @@ func TestAdonisInteroperability(t *testing.T) {
 	command.Stdin = bytes.NewReader(data)
 	if output, err := command.CombinedOutput(); err != nil || strings.TrimSpace(string(output)) != "verified" {
 		t.Fatalf("reverse interoperability: %v %s", err, output)
+	}
+}
+
+func TestAccessTokenAudienceIsolation(t *testing.T) {
+	now := time.Now().Truncate(time.Second)
+	key := "synthetic-audience-test-key"
+	for _, tc := range []struct {
+		name     string
+		audience jwt.ClaimStrings
+		lifetime time.Duration
+		valid    bool
+	}{
+		{"admin", jwt.ClaimStrings{AdminAudience}, AccessTTL, true},
+		{"legacy admin", nil, AccessTTL, true},
+		{"learner", jwt.ClaimStrings{"kaderisasi-public"}, 24 * time.Hour, false},
+		{"legacy learner", nil, 24 * time.Hour, false},
+		{"mixed audiences", jwt.ClaimStrings{AdminAudience, "kaderisasi-public"}, AccessTTL, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			claims := Claims{UserID: 1, Email: "shared-id@example.test", RegisteredClaims: jwt.RegisteredClaims{Audience: tc.audience, IssuedAt: jwt.NewNumericDate(now), ExpiresAt: jwt.NewNumericDate(now.Add(tc.lifetime))}}
+			token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(key))
+			if err != nil {
+				t.Fatal(err)
+			}
+			_, err = VerifyAccess(key, token, now)
+			if (err == nil) != tc.valid {
+				t.Fatalf("audience validation: %v", err)
+			}
+		})
+	}
+	access, err := SignAccess(key, 1, "admin@example.test", now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	claims, err := VerifyAccess(key, access, now)
+	if err != nil || len(claims.Audience) != 1 || claims.Audience[0] != AdminAudience {
+		t.Fatal("new admin tokens must identify their audience", err)
 	}
 }
 

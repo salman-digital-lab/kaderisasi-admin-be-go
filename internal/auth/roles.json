@@ -28,6 +28,8 @@
       "clubs.read",
       "counseling.manage",
       "counseling.read",
+      "courses.manage",
+      "courses.read",
       "custom_forms.manage",
       "custom_forms.read",
       "dashboard.read",
@@ -67,6 +69,8 @@
       "clubs.read",
       "counseling.manage",
       "counseling.read",
+      "courses.manage",
+      "courses.read",
       "custom_forms.manage",
       "custom_forms.read",
       "dashboard.read",
@@ -185,6 +189,8 @@
       "clubs.read",
       "counseling.manage",
       "counseling.read",
+      "courses.manage",
+      "courses.read",
       "custom_forms.manage",
       "custom_forms.read",
       "dashboard.read",
@@ -318,6 +324,17 @@
     "permissions": [
       "dashboard.read",
       "tickets.review"
+    ]
+  },
+  {
+    "code": "course_manager",
+    "name": "Course Manager",
+    "description": "Mengelola kelas, materi pembelajaran, dan melihat progres peserta.",
+    "is_requestable": true,
+    "permissions": [
+      "courses.manage",
+      "courses.read",
+      "dashboard.read"
     ]
   }
 ]

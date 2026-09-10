@@ -6,12 +6,15 @@ The Kaderisasi admin API on port **3334**. It serves
 `/v2` and `/health`; it never starts scheduled jobs. Adonis remains the only owner
 of database migrations, seeders, and RBAC preflight.
 
-**Implementation and verification are complete.** All 139 current routes, three
-jobs, and 17 verification stages passed on September 10, 2026. See the
+The initial Go migration verified 139 routes, three
+jobs, and 17 verification stages on September 10, 2026. See the
 [verification report](docs/VERIFICATION.md), [route matrix](docs/COMPATIBILITY.md),
 and [progress ledger](PROGRESS.md). Production now runs Go through
 [Coolify](docs/COOLIFY.md). Go is also the local workspace launcher's default. The former Adonis API
 repository now contains only database maintenance code.
+
+Kelas adds course management, learner progress, and private PDF storage. See
+[course configuration, rollout, and native verification](docs/COURSES.md).
 
 ## Local setup
 

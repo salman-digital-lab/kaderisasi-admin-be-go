@@ -52,6 +52,20 @@ func run() error {
 		}
 	}
 	app := &httpapi.Server{Config: c, Pool: pool, Auth: &auth.Service{Pool: pool, Key: c.AppKey, GoogleClientID: c.GoogleClientID, Google: google}, Storage: objects, Logger: logger}
+	app.CourseStorage = storage.NewCourseDocuments(c)
+	if path := os.Getenv("GO_COURSE_STORAGE_LEDGER"); path != "" {
+		if !storageFixtureAllowed(c) {
+			return errors.New("course storage instrumentation requires an isolated test schema")
+		}
+		store, ok := app.CourseStorage.(*storage.S3)
+		if !ok {
+			return errors.New("course storage instrumentation requires a private bucket")
+		}
+		store.Created, err = storage.Journal(path)
+		if err != nil {
+			return err
+		}
+	}
 	server := &http.Server{Addr: c.Address(), Handler: app.Handler(), ReadHeaderTimeout: 10 * time.Second, IdleTimeout: 90 * time.Second}
 	failure := make(chan error, 1)
 	go func() { logger.Info("admin API listening", "address", c.Address()); failure <- server.ListenAndServe() }()

@@ -199,6 +199,48 @@ type Country struct {
 	Code string `json:"code"`
 }
 
+type Course struct {
+	ID           int32              `json:"id"`
+	Title        string             `json:"title"`
+	Summary      string             `json:"summary"`
+	Description  string             `json:"description"`
+	MinimumLevel int32              `json:"minimum_level"`
+	Status       string             `json:"status"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
+}
+
+type CourseDocument struct {
+	ID         int32              `json:"id"`
+	LessonID   int32              `json:"lesson_id"`
+	StorageKey string             `json:"storage_key"`
+	Filename   string             `json:"filename"`
+	SizeBytes  int32              `json:"size_bytes"`
+	DeletedAt  pgtype.Timestamptz `json:"deleted_at"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+}
+
+type CourseLesson struct {
+	ID             int32              `json:"id"`
+	CourseID       int32              `json:"course_id"`
+	Title          string             `json:"title"`
+	Description    string             `json:"description"`
+	YoutubeVideoID string             `json:"youtube_video_id"`
+	Position       int32              `json:"position"`
+	DeletedAt      pgtype.Timestamptz `json:"deleted_at"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+}
+
+type CourseLessonProgress struct {
+	ID             int32              `json:"id"`
+	UserID         int32              `json:"user_id"`
+	LessonID       int32              `json:"lesson_id"`
+	FirstVisitedAt pgtype.Timestamptz `json:"first_visited_at"`
+	LastVisitedAt  pgtype.Timestamptz `json:"last_visited_at"`
+	CompletedAt    pgtype.Timestamptz `json:"completed_at"`
+}
+
 type CustomForm struct {
 	ID                 int32              `json:"id"`
 	FormName           string             `json:"form_name"`

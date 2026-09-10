@@ -1,7 +1,7 @@
 prepare-reference:
 	node scripts/prepare-reference.mjs
 
-.PHONY: prepare-reference check build package run test-unit fixtures test-integration test-contract test-browser test-shared test-jobs benchmark verify clean-fixtures
+.PHONY: prepare-reference check build package run test-unit fixtures test-integration test-contract test-browser test-courses test-courses-browser test-shared test-jobs benchmark verify clean-fixtures
 
 BORROW_WORKSPACE ?= --borrow-workspace
 
@@ -36,6 +36,14 @@ test-contract: fixtures
 test-browser: fixtures
 	node scripts/browser.mjs $(BORROW_WORKSPACE)
 	node scripts/browser.mjs $(BORROW_WORKSPACE) --public
+
+test-courses: fixtures
+	node scripts/course-workflows.mjs $(BORROW_WORKSPACE)
+	node scripts/coverage.mjs --native=courses --check
+
+test-courses-browser: fixtures
+	node scripts/course-workflows.mjs $(BORROW_WORKSPACE) --browser
+	node scripts/coverage.mjs --native=courses --check
 
 test-shared: fixtures
 	node scripts/session-transfer.mjs $(BORROW_WORKSPACE)

@@ -62,7 +62,11 @@ func prepareRequest(w http.ResponseWriter, r *http.Request, route Route) (*http.
 				body = parseFields(string(raw), true)
 			}
 		} else if kind == "multipart/form-data" && isUploadRoute(route) {
-			r.Body = http.MaxBytesReader(w, r.Body, 6<<20)
+			limit := int64(6 << 20)
+			if route.Controller == "courses_controller" {
+				limit = 21 << 20
+			}
+			r.Body = http.MaxBytesReader(w, r.Body, limit)
 			if err := r.ParseMultipartForm(6 << 20); err != nil {
 				var large *http.MaxBytesError
 				if errors.As(err, &large) {
@@ -93,7 +97,8 @@ func prepareRequest(w http.ResponseWriter, r *http.Request, route Route) (*http.
 	return r.WithContext(context.WithValue(r.Context(), requestDataKey{}, data)), nil
 }
 func isUploadRoute(route Route) bool {
-	return route.Controller == "activities_controller" && route.Action == "uploadImage" ||
+	return route.Controller == "courses_controller" && route.Action == "uploadDocument" ||
+		route.Controller == "activities_controller" && route.Action == "uploadImage" ||
 		route.Controller == "clubs_controller" && (route.Action == "uploadLogo" || route.Action == "uploadImageMedia") ||
 		route.Controller == "certificate_templates_controller" && (route.Action == "uploadBackground" || route.Action == "uploadAsset")
 }

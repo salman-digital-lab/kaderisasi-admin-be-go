@@ -50,12 +50,13 @@ func (s *Server) ImplementationInventory() []Implementation {
 
 type userContextKey struct{}
 type Server struct {
-	Config   config.Config
-	Pool     *pgxpool.Pool
-	Auth     *auth.Service
-	Storage  storage.Store
-	Logger   *slog.Logger
-	handlers map[string]Handler
+	Config        config.Config
+	Pool          *pgxpool.Pool
+	Auth          *auth.Service
+	Storage       storage.Store
+	CourseStorage storage.Store
+	Logger        *slog.Logger
+	handlers      map[string]Handler
 }
 
 func Routes() []Route {
@@ -83,6 +84,7 @@ func (s *Server) Handler() http.Handler {
 	s.registerLeaderboards()
 	s.registerCertificateTemplates()
 	s.registerCertificates()
+	s.registerCourses()
 	// Adonis permits overlapping parameter paths which ServeMux rejects. Keep
 	// its static-segment precedence in a small net/http compatibility dispatcher.
 	type entry struct {

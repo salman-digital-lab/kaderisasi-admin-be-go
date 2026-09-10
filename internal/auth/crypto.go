@@ -73,8 +73,10 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
+const AdminAudience = "kaderisasi-admin"
+
 func SignAccess(key string, userID int32, email string, now time.Time) (string, error) {
-	return jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{UserID: userID, Email: email, RegisteredClaims: jwt.RegisteredClaims{IssuedAt: jwt.NewNumericDate(now), ExpiresAt: jwt.NewNumericDate(now.Add(AccessTTL))}}).SignedString([]byte(key))
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{UserID: userID, Email: email, RegisteredClaims: jwt.RegisteredClaims{Audience: jwt.ClaimStrings{AdminAudience}, IssuedAt: jwt.NewNumericDate(now), ExpiresAt: jwt.NewNumericDate(now.Add(AccessTTL))}}).SignedString([]byte(key))
 }
 
 func VerifyAccess(key, token string, now time.Time) (Claims, error) {
@@ -82,6 +84,15 @@ func VerifyAccess(key, token string, now time.Time) (Claims, error) {
 	_, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) { return []byte(key), nil }, jwt.WithValidMethods([]string{"HS256"}), jwt.WithExpirationRequired(), jwt.WithTimeFunc(func() time.Time { return now }))
 	if err != nil || claims.UserID <= 0 {
 		return Claims{}, errors.New("invalid access token")
+	}
+	// Existing admin access tokens last 15 minutes. Legacy learner tokens last
+	// one day and must never be exchanged for an administrator session.
+	if len(claims.Audience) == 0 {
+		if claims.IssuedAt == nil || claims.ExpiresAt == nil || claims.ExpiresAt.Sub(claims.IssuedAt.Time) != AccessTTL {
+			return Claims{}, errors.New("invalid legacy access token")
+		}
+	} else if len(claims.Audience) != 1 || claims.Audience[0] != AdminAudience {
+		return Claims{}, errors.New("invalid access audience")
 	}
 	return claims, nil
 }

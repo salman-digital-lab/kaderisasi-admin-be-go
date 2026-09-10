@@ -1,0 +1,172 @@
+import assert from 'node:assert/strict';
+import {mkdirSync,readFileSync,writeFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {parseEnv} from 'node:util';
+import {chromium,expect} from '@playwright/test';
+import {root,workspace} from './env.mjs';
+import {fixturePassword} from './fixture-db.mjs';
+import {borrowWorkspacePort,startAdminFrontend,startPublicFrontend} from './server-process.mjs';
+
+export async function runCourseBrowser({members,pdf,call,record,restorations}) {
+  const directory=resolve(root,'.artifacts/courses-browser');mkdirSync(directory,{recursive:true});
+  let adminFE,publicFE,browser;
+  const errors=[];
+  const evidence=async(page,name)=>{
+    await page.screenshot({path:resolve(directory,`${name}.png`),fullPage:true});
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${name}: horizontal overflow`);
+  };
+  try {
+    for(const port of [3005,3000])restorations.push(await borrowWorkspacePort(port,process.argv.includes('--borrow-workspace')));
+    adminFE=await startAdminFrontend({...process.env,...parseEnv(readFileSync(resolve(workspace,'docs/.env.test.admin-fe'),'utf8'))});
+    publicFE=await startPublicFrontend({...process.env,...parseEnv(readFileSync(resolve(workspace,'docs/.env.test.web-fe'),'utf8'))});
+    browser=await chromium.launch();
+    const adminContext=await browser.newContext({viewport:{width:1280,height:900},locale:'id-ID',timezoneId:'Asia/Jakarta'});
+    const admin=await adminContext.newPage();admin.on('pageerror',error=>errors.push(error.message));
+    admin.setDefaultTimeout(15000);
+    await admin.goto('http://localhost:3005/login');
+    await admin.getByLabel('Email',{exact:true}).fill('requester@example.test');
+    await admin.getByLabel('Password',{exact:true}).fill(fixturePassword);
+    await admin.getByRole('button',{name:/\bLogin$/}).click();
+    await expect(admin).toHaveURL(/\/dashboard$/);
+    await admin.getByRole('link',{name:'Kelas',exact:true}).click();
+    await expect(admin.getByRole('heading',{name:'Kelas',exact:true})).toBeVisible();
+    await admin.getByRole('button',{name:'Buat kelas',exact:true}).click();
+    await admin.getByRole('button',{name:'Buat draf kelas',exact:true}).click();
+    await expect(admin.getByText('Masukkan judul kelas.',{exact:true})).toBeVisible();
+    await admin.getByLabel('Judul kelas',{exact:true}).fill('Kelas uji browser');
+    await admin.getByLabel('Ringkasan',{exact:true}).fill('Materi untuk memverifikasi alur belajar.');
+    await admin.getByLabel('Jenjang minimum',{exact:true}).click();
+    await admin.getByLabel('Jenjang minimum',{exact:true}).press('ArrowDown');
+    await admin.getByLabel('Jenjang minimum',{exact:true}).press('Enter');
+    await admin.getByRole('button',{name:'Buat draf kelas',exact:true}).click();
+    await expect(admin).toHaveURL(/\/courses\/\d+\?section=lessons$/);
+    const courseId=Number(new URL(admin.url()).pathname.split('/').at(-1));
+    for(const title of ['Dasar pembelajaran','Praktik mandiri']) {
+      await admin.getByRole('button',{name:'Tambah materi',exact:true}).click();
+      const dialog=admin.getByRole('dialog');
+      await dialog.getByLabel('Judul materi',{exact:true}).fill(title);
+      await dialog.getByLabel('Tautan video YouTube',{exact:true}).fill('https://youtu.be/dQw4w9WgXcQ');
+      await dialog.locator('[contenteditable="true"]').fill('Penjelasan materi uji browser.');
+      await dialog.getByRole('button',{name:'Simpan materi',exact:true}).click();
+      await expect(dialog).not.toBeVisible();
+      await expect(admin.getByText(title,{exact:false}).first()).toBeVisible();
+    }
+    await admin.getByRole('button',{name:'Pindahkan Praktik mandiri ke atas',exact:true}).click();
+    await expect(admin.getByText('1. Praktik mandiri',{exact:true})).toBeVisible();
+    await admin.getByRole('button',{name:'Pratinjau video',exact:true}).first().click();
+    await expect(admin.getByRole('dialog').locator('iframe')).toHaveAttribute('src',/youtube\.com\/embed\/dQw4w9WgXcQ/);
+    await admin.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).press('Escape');
+    await expect(admin.getByRole('dialog')).not.toBeVisible();
+    await admin.locator('input[type="file"]').first().setInputFiles({name:'materi-uji.pdf',mimeType:'application/pdf',buffer:Buffer.from(pdf)});
+    await expect(admin.getByRole('button',{name:'materi-uji.pdf',exact:true})).toBeVisible();
+    const adminDownload=admin.waitForEvent('download');
+    await admin.getByRole('button',{name:'materi-uji.pdf',exact:true}).click();
+    const savedAdmin=await adminDownload;await savedAdmin.saveAs(resolve(directory,'admin-materi.pdf'));
+    assert.equal(readFileSync(resolve(directory,'admin-materi.pdf'),'utf8'),pdf);
+    await evidence(admin,'admin-materi-desktop');
+    await admin.getByRole('tab',{name:'Ringkasan',exact:true}).click();
+    await admin.getByLabel('Status',{exact:true}).click();
+    await admin.getByLabel('Status',{exact:true}).press('ArrowDown');
+    await admin.getByLabel('Status',{exact:true}).press('Enter');
+    await admin.getByRole('button',{name:'Simpan kelas',exact:true}).click();
+    await expect(admin.getByText('Perubahan yang disimpan langsung terlihat oleh peserta.',{exact:true})).toBeVisible();
+    record.checks.push({label:'Browser: Course Manager creates, validates, reorders, previews, uploads, downloads, and publishes a course'});
+
+    const eligible=members.find((member)=>member.level===3);
+    const context=await browser.newContext({viewport:{width:1280,height:900},locale:'id-ID',timezoneId:'Asia/Jakarta'});
+    const page=await context.newPage();page.on('pageerror',error=>errors.push(error.message));page.setDefaultTimeout(15000);
+    await page.goto(`http://localhost:3000/kelas/${courseId}`);
+    await expect(page).toHaveURL(/\/login\?redirect=/);
+    await page.getByRole('textbox',{name:'Email',exact:true}).fill(eligible.email);
+    await page.getByPlaceholder('Password Anda',{exact:true}).fill(fixturePassword);
+    await page.getByRole('button',{name:'Masuk',exact:true}).click();
+    await expect(page).toHaveURL(`http://localhost:3000/kelas/${courseId}`);
+    await expect(page.getByRole('heading',{name:'Kelas uji browser',exact:true})).toBeVisible();
+    const before=await call('admin','browser: reads did not create visits','GET',`/courses/${courseId}/learners`);
+    assert.equal(before.meta.total,0);
+    await page.getByRole('link',{name:'Mulai belajar',exact:true}).click();
+    await expect(page.getByRole('heading',{name:'Praktik mandiri',exact:true})).toBeVisible();
+    await expect.poll(async()=> (await call('admin','browser: visit persisted','GET',`/courses/${courseId}/learners`)).meta.total).toBe(1);
+    await expect(page.locator('iframe')).toHaveAttribute('src',/youtube\.com\/embed\/dQw4w9WgXcQ/);
+    const download=page.waitForEvent('download');
+    await page.getByRole('link',{name:/Unduh materi-uji\.pdf/}).click();
+    const file=await download;await file.saveAs(resolve(directory,'learner-materi.pdf'));
+    assert.equal(readFileSync(resolve(directory,'learner-materi.pdf'),'utf8'),pdf);
+    await page.getByRole('button',{name:'Tandai selesai',exact:true}).click();
+    await expect(page.getByRole('button',{name:'Batalkan selesai',exact:true})).toBeVisible();
+    await page.reload();
+    await expect(page.getByRole('button',{name:'Batalkan selesai',exact:true})).toBeVisible();
+    await page.getByRole('button',{name:'Batalkan selesai',exact:true}).click();
+    await expect(page.getByRole('button',{name:'Tandai selesai',exact:true})).toBeVisible();
+    await page.getByRole('button',{name:'Tandai selesai',exact:true}).click();
+    await expect(page.getByRole('button',{name:'Batalkan selesai',exact:true})).toBeVisible();
+    await evidence(page,'learner-materi-desktop');
+    await page.getByRole('link',{name:'Materi berikutnya',exact:true}).click();
+    await expect(page.getByRole('heading',{name:'Dasar pembelajaran',exact:true})).toBeVisible();
+    const lastURL=page.url();
+    await expect.poll(async()=> (await call('web','browser: last lesson recorded','GET',`/courses/${courseId}`,undefined,{token:eligible.token})).resume_lesson_id).toBe(Number(new URL(lastURL).pathname.split('/').at(-1)));
+    await page.getByRole('link',{name:'Kelas uji browser',exact:true}).click();
+    await page.getByRole('link',{name:'Lanjutkan belajar',exact:true}).click();
+    await expect(page).toHaveURL(lastURL);
+    await page.goto('http://localhost:3000/kelas');
+    await expect(page.getByRole('heading',{name:'Kelas',exact:true})).toBeVisible();
+    await page.getByLabel('Cari kelas',{exact:true}).fill('Kelas uji browser');
+    await page.getByRole('button',{name:'Cari',exact:true}).click();
+    await expect(page.getByRole('heading',{name:'Kelas uji browser',exact:true})).toBeVisible();
+    await evidence(page,'learner-katalog-desktop');
+    await page.getByLabel('Cari kelas',{exact:true}).fill('tidak-ada-kelas-seperti-ini');
+    await page.getByRole('button',{name:'Cari',exact:true}).click();
+    await expect(page.getByRole('heading',{name:'Kelas tidak ditemukan',exact:true})).toBeVisible();
+    await page.getByRole('link',{name:'Tampilkan semua kelas',exact:true}).click();
+    await expect(page).toHaveURL('http://localhost:3000/kelas');
+    record.checks.push({label:'Browser: learner login return, visit, completion, undo, reload persistence, resume, PDF download, search and empty state'});
+
+    await admin.getByRole('tab',{name:'Progres Peserta',exact:true}).click();
+    await expect(admin.getByText('Learner 3',{exact:true})).toBeVisible();
+    await expect(admin.getByText('1 / 2 materi',{exact:true})).toBeVisible();
+    await evidence(admin,'admin-progres-desktop');
+    const referenceContext=await browser.newContext({locale:'id-ID',timezoneId:'Asia/Jakarta'});
+    const reference=await referenceContext.newPage();
+    reference.on('pageerror',error=>errors.push(error.message));
+    await reference.goto('http://localhost:3005/login');
+    await reference.getByLabel('Email',{exact:true}).fill('super@example.test');
+    await reference.getByLabel('Password',{exact:true}).fill(fixturePassword);
+    await reference.getByRole('button',{name:/\bLogin$/}).click();
+    await expect(reference).toHaveURL(/\/dashboard$/);
+    for(const viewport of [{width:390,height:844},{width:1280,height:900}]) {
+      const suffix=viewport.width<500?'mobile':'desktop';
+      await page.setViewportSize(viewport);
+      await page.goto('http://localhost:3000/clubs');await expect(page.getByText('Belum ada klub yang tersedia.',{exact:true})).toBeVisible();await evidence(page,`reference-klub-${suffix}`);
+      await page.goto(`http://localhost:3000/kelas/${courseId}`);await expect(page.getByRole('heading',{name:'Kelas uji browser',exact:true})).toBeVisible();await evidence(page,`learner-overview-${suffix}`);
+      await page.goto(lastURL);await expect(page.getByRole('heading',{name:'Dasar pembelajaran',exact:true})).toBeVisible();await evidence(page,`learner-materi-${suffix}`);
+      await admin.setViewportSize(viewport);await admin.goto('http://localhost:3005/courses');await expect(admin.getByRole('link',{name:'Kelas uji browser',exact:true})).toBeVisible();await evidence(admin,`admin-katalog-${suffix}`);
+      await reference.setViewportSize(viewport);await Promise.all([reference.waitForResponse(response=>response.url().includes('/v2/clubs?')&&response.status()===200),reference.goto('http://localhost:3005/club')]);await expect(reference.getByRole('heading',{name:'Klub',exact:true})).toBeVisible();await expect(reference.locator('.ant-spin-spinning')).toHaveCount(0);await evidence(reference,`reference-admin-klub-${suffix}`);
+    }
+    await page.setViewportSize({width:390,height:844});
+    await page.goto('http://localhost:3000/kelas');
+    const menu=page.getByRole('button',{name:/Buka menu/i});
+    await menu.click();await expect(page.getByRole('dialog').getByRole('link',{name:'Kelas',exact:true})).toBeVisible();await page.keyboard.press('Escape');
+    await page.keyboard.press('Tab');
+    assert.ok(await page.evaluate(()=>document.activeElement!==document.body),'keyboard focus missing');
+    const lowContext=await browser.newContext();const lowPage=await lowContext.newPage();
+    await lowContext.addCookies([{name:'session',value:members[0].token,url:'http://localhost:3000',httpOnly:true,sameSite:'Lax'}]);
+    await lowPage.goto(`http://localhost:3000/kelas/${courseId}`);
+    await expect(lowPage.getByRole('heading',{name:'Kelas tidak tersedia',exact:true})).toBeVisible();
+    assert.equal(await lowPage.locator('iframe').count(),0);
+    await lowContext.clearCookies();await lowContext.addCookies([{name:'session',value:'expired-token',url:'http://localhost:3000',httpOnly:true,sameSite:'Lax'}]);
+    await lowPage.goto(`http://localhost:3000/kelas/${courseId}`);
+    await expect(lowPage).toHaveURL(/\/login\?redirect=/);
+    record.checks.push({label:'Browser: mobile/desktop layouts, keyboard focus, denied access, and expired-session recovery'});
+    assert.deepEqual(errors,[],'Unhandled browser errors');
+    writeFileSync(resolve(directory,'checks.json'),JSON.stringify({status:'passed',errors,courseId},null,2));
+  } catch(error) {
+    let index=0;
+    for(const context of browser?.contexts()??[])for(const page of context.pages()) {
+      await page.screenshot({path:resolve(directory,`failure-${index}.png`),fullPage:true}).catch(()=>undefined);
+      writeFileSync(resolve(directory,`failure-${index++}.txt`),await page.locator('body').innerText().catch(()=>''));
+    }
+    throw error;
+  } finally {
+    await browser?.close();await publicFE?.stop();await adminFE?.stop();
+  }
+}

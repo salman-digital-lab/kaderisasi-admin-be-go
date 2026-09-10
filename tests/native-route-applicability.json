@@ -1,0 +1,180 @@
+{
+  "suites": [
+    {
+      "name": "courses",
+      "controller": "courses_controller",
+      "report": ".artifacts/courses.json",
+      "command": "make test-courses-browser"
+    }
+  ],
+  "routes": [
+    {
+      "route": "GET /v2/courses",
+      "source": "courses_controller.index",
+      "evidence": "native",
+      "suite": "courses",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Invalid pagination is bounded; search and status filters do not expose protected content."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "The catalog and root creation do not address an existing resource."
+      }
+    },
+    {
+      "route": "POST /v2/courses",
+      "source": "courses_controller.store",
+      "evidence": "native",
+      "suite": "courses",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Invalid content, order, upload, or course identifier is rejected."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "The catalog and root creation do not address an existing resource."
+      }
+    },
+    {
+      "route": "GET /v2/courses/:id",
+      "source": "courses_controller.show",
+      "evidence": "native",
+      "suite": "courses",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Invalid content, order, upload, or course identifier is rejected."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Requests for a missing addressed course return 404."
+      }
+    },
+    {
+      "route": "PUT /v2/courses/:id",
+      "source": "courses_controller.update",
+      "evidence": "native",
+      "suite": "courses",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Invalid content, order, upload, or course identifier is rejected."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Requests for a missing addressed course return 404."
+      }
+    },
+    {
+      "route": "POST /v2/courses/:id/lessons",
+      "source": "courses_controller.createLesson",
+      "evidence": "native",
+      "suite": "courses",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Invalid content, order, upload, or course identifier is rejected."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Requests for a missing addressed course return 404."
+      }
+    },
+    {
+      "route": "PUT /v2/courses/:id/lessons/:lessonId",
+      "source": "courses_controller.updateLesson",
+      "evidence": "native",
+      "suite": "courses",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Invalid content, order, upload, or course identifier is rejected."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Requests for a missing addressed course return 404."
+      }
+    },
+    {
+      "route": "DELETE /v2/courses/:id/lessons/:lessonId",
+      "source": "courses_controller.removeLesson",
+      "evidence": "native",
+      "suite": "courses",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Invalid content, order, upload, or course identifier is rejected."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Requests for a missing addressed course return 404."
+      }
+    },
+    {
+      "route": "PUT /v2/courses/:id/lesson-order",
+      "source": "courses_controller.reorder",
+      "evidence": "native",
+      "suite": "courses",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Invalid content, order, upload, or course identifier is rejected."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Requests for a missing addressed course return 404."
+      }
+    },
+    {
+      "route": "GET /v2/courses/:id/learners",
+      "source": "courses_controller.learners",
+      "evidence": "native",
+      "suite": "courses",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Invalid content, order, upload, or course identifier is rejected."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Requests for a missing addressed course return 404."
+      }
+    },
+    {
+      "route": "POST /v2/courses/:id/lessons/:lessonId/documents",
+      "source": "courses_controller.uploadDocument",
+      "evidence": "native",
+      "suite": "courses",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Invalid content, order, upload, or course identifier is rejected."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Requests for a missing addressed course return 404."
+      }
+    },
+    {
+      "route": "GET /v2/courses/:id/lessons/:lessonId/documents/:documentId/download",
+      "source": "courses_controller.downloadDocument",
+      "evidence": "native",
+      "suite": "courses",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Invalid content, order, upload, or course identifier is rejected."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Requests for a missing addressed course return 404."
+      }
+    },
+    {
+      "route": "DELETE /v2/courses/:id/lessons/:lessonId/documents/:documentId",
+      "source": "courses_controller.removeDocument",
+      "evidence": "native",
+      "suite": "courses",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Invalid content, order, upload, or course identifier is rejected."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Requests for a missing addressed course return 404."
+      }
+    }
+  ]
+}

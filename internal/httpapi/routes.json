@@ -1294,5 +1294,113 @@
     "auth": false,
     "trusted_origin": false,
     "permission": ""
+  },
+  {
+    "method": "GET",
+    "path": "/v2/courses",
+    "controller": "courses_controller",
+    "action": "index",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "courses.read"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/courses",
+    "controller": "courses_controller",
+    "action": "store",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "courses.manage"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/courses/:id",
+    "controller": "courses_controller",
+    "action": "show",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "courses.read"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/courses/:id",
+    "controller": "courses_controller",
+    "action": "update",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "courses.manage"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/courses/:id/lessons",
+    "controller": "courses_controller",
+    "action": "createLesson",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "courses.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/courses/:id/lessons/:lessonId",
+    "controller": "courses_controller",
+    "action": "updateLesson",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "courses.manage"
+  },
+  {
+    "method": "DELETE",
+    "path": "/v2/courses/:id/lessons/:lessonId",
+    "controller": "courses_controller",
+    "action": "removeLesson",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "courses.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/courses/:id/lesson-order",
+    "controller": "courses_controller",
+    "action": "reorder",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "courses.manage"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/courses/:id/learners",
+    "controller": "courses_controller",
+    "action": "learners",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "courses.read"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/courses/:id/lessons/:lessonId/documents",
+    "controller": "courses_controller",
+    "action": "uploadDocument",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "courses.manage"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/courses/:id/lessons/:lessonId/documents/:documentId/download",
+    "controller": "courses_controller",
+    "action": "downloadDocument",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "courses.read"
+  },
+  {
+    "method": "DELETE",
+    "path": "/v2/courses/:id/lessons/:lessonId/documents/:documentId",
+    "controller": "courses_controller",
+    "action": "removeDocument",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "courses.manage"
   }
 ]

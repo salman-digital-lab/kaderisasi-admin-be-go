@@ -71,6 +71,8 @@ export async function startServer(kind,schema,label=kind,options={}) {
   const logPath=resolve(root,`.artifacts/${label}-server.log`),fd=openSync(logPath,'w',0o600);
   const env=testEnvironment({NODE_ENV:'test',TZ:options.timezone??'Asia/Jakarta',PORT:'3334',HOST:'127.0.0.1',APP_KEY:fixtureKey,DB_SCHEMA:schema,PGOPTIONS:`-c search_path=${schema}`,GOOGLE_CLIENT_ID:'synthetic-client',ADMIN_CORS_ORIGINS:'http://localhost:3005',LOG_LEVEL:'error'});
   if(options.journal)env.GO_REWRITE_STORAGE_LEDGER=options.journal;
+  if(options.driveBucket)env.DRIVE_BUCKET=options.driveBucket;
+  if(options.courseJournal)env.GO_COURSE_STORAGE_LEDGER=options.courseJournal;
   if(options.googleKeys)env.GO_REWRITE_GOOGLE_KEYS_URL=options.googleKeys;
   if(options.origins)env.ADMIN_CORS_ORIGINS=options.origins;
   if(options.productionContract){env.NODE_ENV='production';env.GO_REWRITE_PRODUCTION_CONTRACT='1';}
@@ -92,12 +94,12 @@ export async function startServer(kind,schema,label=kind,options={}) {
   }catch(error){await stop();throw error}
 }
 
-export async function startWebBackend(schema,label='shared-web-be') {
+export async function startWebBackend(schema,label='shared-web-be',options={}) {
   if(listeners(3333).length)throw new Error('Port 3333 must be free');
   const logPath=resolve(root,`.artifacts/${label}.log`),fd=openSync(logPath,'w',0o600);
   const child=spawn('node',['--import=ts-node-maintained/register/esm','--enable-source-maps','bin/server.js'],{
     cwd:resolve(workspace,'kaderisasi-web-be'),
-    env:testEnvironment({NODE_ENV:'test',TZ:'Asia/Jakarta',PORT:'3333',HOST:'127.0.0.1',APP_KEY:fixtureKey,PGOPTIONS:`-c search_path=${schema}`,LOG_LEVEL:'error'}),
+    env:testEnvironment({NODE_ENV:'test',TZ:'Asia/Jakarta',PORT:'3333',HOST:'127.0.0.1',APP_KEY:fixtureKey,PGOPTIONS:`-c search_path=${schema}`,LOG_LEVEL:'error',...(options.driveBucket?{DRIVE_BUCKET:options.driveBucket}:{})}),
     stdio:['ignore',fd,fd],detached:true,
   });
   closeSync(fd);

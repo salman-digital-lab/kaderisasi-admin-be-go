@@ -1936,6 +1936,46 @@ ALTER TABLE ONLY public.universities
 -- PostgreSQL database dump complete
 --
 
+CREATE TABLE public.courses (
+    id serial PRIMARY KEY,
+    title varchar(255) NOT NULL,
+    summary text NOT NULL DEFAULT '',
+    description text NOT NULL DEFAULT '',
+    minimum_level integer NOT NULL DEFAULT 0 CHECK (minimum_level IN (0,3,6,10)),
+    status varchar(20) NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','published','archived')),
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE public.course_lessons (
+    id serial PRIMARY KEY,
+    course_id integer NOT NULL REFERENCES public.courses(id) ON DELETE CASCADE,
+    title varchar(255) NOT NULL,
+    description text NOT NULL DEFAULT '',
+    youtube_video_id varchar(11) NOT NULL DEFAULT '',
+    position integer NOT NULL CHECK (position > 0),
+    deleted_at timestamptz,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE public.course_documents (
+    id serial PRIMARY KEY,
+    lesson_id integer NOT NULL REFERENCES public.course_lessons(id) ON DELETE CASCADE,
+    storage_key varchar(255) NOT NULL UNIQUE,
+    filename varchar(255) NOT NULL,
+    size_bytes integer NOT NULL CHECK (size_bytes > 0 AND size_bytes <= 20971520),
+    deleted_at timestamptz,
+    created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE public.course_lesson_progress (
+    id serial PRIMARY KEY,
+    user_id integer NOT NULL REFERENCES public.public_users(id) ON DELETE CASCADE,
+    lesson_id integer NOT NULL REFERENCES public.course_lessons(id) ON DELETE CASCADE,
+    first_visited_at timestamptz NOT NULL DEFAULT now(),
+    last_visited_at timestamptz NOT NULL DEFAULT now(),
+    completed_at timestamptz,
+    UNIQUE (user_id,lesson_id)
+);
+
 CREATE TABLE public.certificate_approvals (
  id serial PRIMARY KEY,
  registration_id integer NOT NULL REFERENCES public.activity_registrations(id),

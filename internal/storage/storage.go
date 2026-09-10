@@ -25,6 +25,7 @@ type S3 struct {
 	Bucket      string
 	Created     func(string) error
 	SupportsACL bool
+	Private     bool
 }
 
 func New(c config.Config) *S3 {
@@ -33,6 +34,14 @@ func New(c config.Config) *S3 {
 }
 func validKey(key string) bool {
 	return key != "" && !strings.HasPrefix(key, "/") && !strings.Contains(key, "\\") && !strings.Contains(key, "://") && !strings.Contains("/"+key+"/", "/../") && !strings.Contains("/"+key+"/", "/./")
+}
+func NewCourseDocuments(c config.Config) Store {
+	if c.DriveBucket == "" {
+		return nil
+	}
+	s := New(c)
+	s.Private = true
+	return s
 }
 func (s *S3) Put(ctx context.Context, key string, data []byte, contentType string) error {
 	if !validKey(key) {
@@ -46,6 +55,12 @@ func (s *S3) Put(ctx context.Context, key string, data []byte, contentType strin
 	input := &s3.PutObjectInput{Bucket: aws.String(s.Bucket), Key: aws.String(key), Body: bytes.NewReader(data), ContentType: aws.String(contentType), CacheControl: aws.String("public, max-age=31536000, immutable")}
 	if s.SupportsACL {
 		input.ACL = types.ObjectCannedACLPublicRead
+	}
+	if s.Private {
+		input.CacheControl = aws.String("private, no-store")
+		if s.SupportsACL {
+			input.ACL = types.ObjectCannedACLPrivate
+		}
 	}
 	_, err := s.Client.PutObject(ctx, input)
 	return err
@@ -67,7 +82,7 @@ func (s *S3) Copy(ctx context.Context, source, target string) error {
 		}
 		input.ACL = types.ObjectCannedACLPrivate
 		for _, grant := range acl.Grants {
-			if grant.Grantee != nil && aws.ToString(grant.Grantee.URI) == "http://acs.amazonaws.com/groups/global/AllUsers" && (grant.Permission == types.PermissionRead || grant.Permission == types.PermissionFullControl) {
+			if !s.Private && grant.Grantee != nil && aws.ToString(grant.Grantee.URI) == "http://acs.amazonaws.com/groups/global/AllUsers" && (grant.Permission == types.PermissionRead || grant.Permission == types.PermissionFullControl) {
 				input.ACL = types.ObjectCannedACLPublicRead
 			}
 		}

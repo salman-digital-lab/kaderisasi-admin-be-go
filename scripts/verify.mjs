@@ -33,6 +33,7 @@ try{
   await run('jobs','node',['scripts/contract-jobs.mjs']);
   await run('admin-browser','node',['scripts/browser.mjs',...process.argv.slice(2)]);
   await run('public-browser','node',['scripts/browser.mjs','--public',...process.argv.slice(2)]);
+  await run('courses','node',['scripts/course-workflows.mjs','--browser',...process.argv.slice(2)]);
   await run('existing-applications','node',['scripts/baseline.mjs']);
   await run('performance','node',['scripts/performance.mjs',...process.argv.slice(2)]);
   await run('route-coverage','node',['scripts/coverage.mjs','--check']);
