@@ -1,5 +1,7 @@
 # Admin backend in Go
 
+Agent contribution rules: [AGENTS.md](AGENTS.md). `CLAUDE.md` imports the same rules.
+
 The Kaderisasi admin API on port **3334**. It serves
 `/v2` and `/health`; it never starts scheduled jobs. Adonis remains the only owner
 of database migrations, seeders, and RBAC preflight.
