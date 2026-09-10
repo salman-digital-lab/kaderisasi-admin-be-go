@@ -68,11 +68,19 @@ func (q *Queries) CountActiveSuperAdmins(ctx context.Context) (int64, error) {
 }
 
 const countAdmins = `-- name: CountAdmins :one
-SELECT count(*) FROM admin_users WHERE email ILIKE $1::text OR display_name ILIKE $1::text
+SELECT count(*) FROM admin_users WHERE (email ILIKE $1::text OR display_name ILIKE $1::text)
+AND ($2::text IS NULL OR COALESCE(role_code,'unassigned')=$2::text)
+AND ($3::boolean IS NULL OR is_active=$3::boolean)
 `
 
-func (q *Queries) CountAdmins(ctx context.Context, search string) (int64, error) {
-	row := q.db.QueryRow(ctx, countAdmins, search)
+type CountAdminsParams struct {
+	Search       string  `json:"search"`
+	RoleFilter   *string `json:"role_filter"`
+	ActiveFilter *bool   `json:"active_filter"`
+}
+
+func (q *Queries) CountAdmins(ctx context.Context, arg CountAdminsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countAdmins, arg.Search, arg.RoleFilter, arg.ActiveFilter)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -113,18 +121,28 @@ func (q *Queries) CreateAdmin(ctx context.Context, arg CreateAdminParams) (Admin
 }
 
 const listAdmins = `-- name: ListAdmins :many
-SELECT id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code FROM admin_users WHERE email ILIKE $1::text OR display_name ILIKE $1::text
-ORDER BY created_at DESC LIMIT CAST($3::text AS bigint) OFFSET CAST($2::text AS bigint)
+SELECT id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code FROM admin_users WHERE (email ILIKE $1::text OR display_name ILIKE $1::text)
+AND ($2::text IS NULL OR COALESCE(role_code,'unassigned')=$2::text)
+AND ($3::boolean IS NULL OR is_active=$3::boolean)
+ORDER BY created_at DESC LIMIT CAST($5::text AS bigint) OFFSET CAST($4::text AS bigint)
 `
 
 type ListAdminsParams struct {
-	Search     string  `json:"search"`
-	PageOffset string  `json:"page_offset"`
-	PageSize   *string `json:"page_size"`
+	Search       string  `json:"search"`
+	RoleFilter   *string `json:"role_filter"`
+	ActiveFilter *bool   `json:"active_filter"`
+	PageOffset   string  `json:"page_offset"`
+	PageSize     *string `json:"page_size"`
 }
 
 func (q *Queries) ListAdmins(ctx context.Context, arg ListAdminsParams) ([]AdminUser, error) {
-	rows, err := q.db.Query(ctx, listAdmins, arg.Search, arg.PageOffset, arg.PageSize)
+	rows, err := q.db.Query(ctx, listAdmins,
+		arg.Search,
+		arg.RoleFilter,
+		arg.ActiveFilter,
+		arg.PageOffset,
+		arg.PageSize,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -159,6 +177,32 @@ SELECT id, email, password, display_name, created_at, updated_at, is_active, nor
 
 func (q *Queries) LockAdmin(ctx context.Context, id int32) (AdminUser, error) {
 	row := q.db.QueryRow(ctx, lockAdmin, id)
+	var i AdminUser
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Password,
+		&i.DisplayName,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.IsActive,
+		&i.NormalizedEmail,
+		&i.RoleCode,
+	)
+	return i, err
+}
+
+const setAdminDisplayName = `-- name: SetAdminDisplayName :one
+UPDATE admin_users SET display_name=$2,updated_at=now() WHERE id=$1 RETURNING id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code
+`
+
+type SetAdminDisplayNameParams struct {
+	ID          int32   `json:"id"`
+	DisplayName *string `json:"display_name"`
+}
+
+func (q *Queries) SetAdminDisplayName(ctx context.Context, arg SetAdminDisplayNameParams) (AdminUser, error) {
+	row := q.db.QueryRow(ctx, setAdminDisplayName, arg.ID, arg.DisplayName)
 	var i AdminUser
 	err := row.Scan(
 		&i.ID,

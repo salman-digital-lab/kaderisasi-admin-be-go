@@ -59,7 +59,19 @@ func (s *Server) registerAdmin() {
 		page, size := pageParams(r, 10, 100)
 		search := "%" + strings.ToLower(strings.TrimSpace(r.URL.Query().Get("search"))) + "%"
 		q := dbgen.New(s.Pool)
-		total, err := q.CountAdmins(r.Context(), search)
+		var roleFilter *string
+		if value := strings.TrimSpace(r.URL.Query().Get("role_code")); value != "" {
+			roleFilter = &value
+		}
+		var activeFilter *bool
+		if value := r.URL.Query().Get("is_active"); value != "" {
+			if value != "true" && value != "false" {
+				return domain.Fail(422, "INVALID_ACCOUNT_STATUS")
+			}
+			active := value == "true"
+			activeFilter = &active
+		}
+		total, err := q.CountAdmins(r.Context(), dbgen.CountAdminsParams{Search: search, RoleFilter: roleFilter, ActiveFilter: activeFilter})
 		if err != nil {
 			return err
 		}
@@ -69,7 +81,7 @@ func (s *Server) registerAdmin() {
 			if pageErr != nil {
 				return pageErr
 			}
-			users, err = q.ListAdmins(r.Context(), dbgen.ListAdminsParams{Search: search, PageSize: limit, PageOffset: offset})
+			users, err = q.ListAdmins(r.Context(), dbgen.ListAdminsParams{Search: search, RoleFilter: roleFilter, ActiveFilter: activeFilter, PageSize: limit, PageOffset: offset})
 			if err != nil {
 				return domain.Fail(500, paginationError(r, err).Error())
 			}
@@ -168,6 +180,15 @@ func (s *Server) registerAdmin() {
 		}
 		if err = access.Change(r.Context(), tx, database.NumberIdentifier(id), change); err != nil {
 			return s.frameworkError(err, "")
+		}
+		if data.DisplayName != nil {
+			target, err := dbgen.New(tx).FindAdminByIdentifier(r.Context(), database.NumberIdentifier(id))
+			if err != nil {
+				return err
+			}
+			if _, err = dbgen.New(tx).SetAdminDisplayName(r.Context(), dbgen.SetAdminDisplayNameParams{ID: target.ID, DisplayName: data.DisplayName}); err != nil {
+				return err
+			}
 		}
 		if err = tx.Commit(r.Context()); err != nil {
 			return err

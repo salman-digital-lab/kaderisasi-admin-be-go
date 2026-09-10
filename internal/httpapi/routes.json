@@ -1,5 +1,14 @@
 [
   {
+    "method": "PUT",
+    "path": "/v2/auth/profile",
+    "controller": "auth_controller",
+    "action": "updateProfile",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": ""
+  },
+  {
     "method": "GET",
     "path": "/v2/certificates/signers",
     "controller": "certificate_approvals_controller",

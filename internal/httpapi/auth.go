@@ -2,6 +2,8 @@ package httpapi
 
 import (
 	"kaderisasi/admin/internal/auth"
+	"kaderisasi/admin/internal/dbgen"
+	"kaderisasi/admin/internal/domain"
 	"net"
 	"net/http"
 	"net/url"
@@ -66,6 +68,27 @@ func (s *Server) readRefresh(r *http.Request) string {
 	return value
 }
 func (s *Server) registerAuth() {
+	s.register("auth_controller", "updateProfile", func(w http.ResponseWriter, r *http.Request) error {
+		data, ok := inputAs[struct {
+			DisplayName *string `json:"displayName"`
+		}](w, r, "editAdminUser")
+		if !ok {
+			return nil
+		}
+		if data.DisplayName == nil {
+			return domain.Fail(422, "DISPLAY_NAME_REQUIRED")
+		}
+		user, err := dbgen.New(s.Pool).SetAdminDisplayName(r.Context(), dbgen.SetAdminDisplayNameParams{ID: actor(r).ID, DisplayName: data.DisplayName})
+		if err != nil {
+			return err
+		}
+		session, err := s.Auth.Build(r.Context(), user)
+		if err != nil {
+			return err
+		}
+		reply(w, 200, "UPDATE_DATA_SUCCESS", session)
+		return nil
+	})
 	s.register("auth_controller", "login", func(w http.ResponseWriter, r *http.Request) error {
 		body, ok := inputAs[loginRequest](w, r, "loginValidator")
 		if !ok {

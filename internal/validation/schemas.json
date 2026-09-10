@@ -1121,6 +1121,16 @@
     "kind": "object",
     "args": [
       {
+        "displayName": {
+          "kind": "string",
+          "args": [],
+          "chain": [
+            { "method": "trim", "args": [] },
+            { "method": "minLength", "args": [1] },
+            { "method": "maxLength", "args": [255] },
+            { "method": "optional", "args": [] }
+          ]
+        },
         "role_code": {
           "kind": "enum",
           "args": [

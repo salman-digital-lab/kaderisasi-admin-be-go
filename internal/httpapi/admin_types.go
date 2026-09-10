@@ -16,8 +16,9 @@ type adminCreateRequest struct {
 }
 
 type adminUpdateRequest struct {
-	RoleCode domain.Optional[string] `json:"role_code"`
-	IsActive domain.Optional[bool]   `json:"isActive"`
+	DisplayName *string                 `json:"displayName"`
+	RoleCode    domain.Optional[string] `json:"role_code"`
+	IsActive    domain.Optional[bool]   `json:"isActive"`
 }
 
 type passwordRequest struct {
