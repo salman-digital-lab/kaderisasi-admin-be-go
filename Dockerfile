@@ -1,7 +1,7 @@
 FROM golang:1.26.8-trixie AS build
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    meson ninja-build pkg-config libglib2.0-dev libexpat1-dev \
+    build-essential curl ca-certificates xz-utils meson ninja-build pkg-config libglib2.0-dev libexpat1-dev \
     libjpeg62-turbo-dev libpng-dev libwebp-dev libexif-dev liblcms2-dev \
     liborc-0.4-dev zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
