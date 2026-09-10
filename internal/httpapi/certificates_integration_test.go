@@ -162,7 +162,7 @@ func TestCertificateIssuanceSnapshotsAndRevocation(t *testing.T) {
 	}
 	f.call("DELETE", fmt.Sprintf("/v2/activity-registrations/%d", id), nil, f.token, 409)
 	f.call("POST", fmt.Sprintf("/v2/certificate-templates/%d/publish", templateID), map[string]int32{"expectedVersion": 3}, f.token, 200)
-	expected := certificate.Expectation{ActivityID: activityID, TemplateID: templateID, TemplateVersion: 4}
+	expected := certificate.Expectation{ActivityID: float64(activityID), TemplateID: float64(templateID), TemplateVersion: 4}
 	bulk := objectData(t, f.call("POST", "/v2/certificates/issue-bulk", map[string]interface{}{"registration_ids": fixture.ids, "expected": expected, "response_mode": "compact"}, f.token, 200))
 	var entries []database.Object
 	json.Unmarshal(bulk["results"], &entries)

@@ -44,13 +44,13 @@ must pass. Missing tests and externally blocked checks remain incomplete.
 
 ## Next action
 
-Continue typed form and club registration/role services, then the remaining
-counseling/achievement and certificate adapters. Complete per-route input/resource
-applicability and identifier review before final aggregate verification against
-the current frontends. Recreate owned fixtures with `node scripts/ensure-fixtures.mjs`
-before integration work. Image-backed admin PDF testing still has a pending
+Complete per-route input/resource applicability, remaining identifier and export
+edge review, then final aggregate verification against the current frontends.
+The active fixture run is `f76e3007f52dfb7f`; its three owned schemas remain available.
+Use `GO_REWRITE_DIRECT_DNS=1` for this environment's storage resolver fallback.
+Image-backed admin PDF testing still has a pending
 request for temporary localhost CORS origins on the shared test bucket; no bucket
-setting was changed. The latest run's three schemas have been cleaned.
+setting was changed. Clean the active schemas and journals after final verification.
 
 ## Current continuation
 
@@ -450,3 +450,27 @@ handlers, unexecuted required scenarios, test skips, and unfinished cleanup.
 - Certificate template/service drafts remain under `.artifacts/next-review/`;
   they are not yet part of the tested application. Continue the certificate port,
   remaining identifier/export edge review, and final aggregate verification.
+
+## Typed certificate continuation
+
+- Template lifecycle, asset upload/copy and cleanup now use explicit DTOs and
+  generated queries. Recipient lists, preparation, issuance, compact results and
+  certificate reads also use generated queries. The API keeps template/registration
+  version checks, registration→activity→template lock order, immutable snapshots,
+  duplicate prevention and bulk pause/resume behavior.
+- Template comparisons pass 107/107 under UTC, including malformed/wide identifiers,
+  null/omitted fields, full element options, copy failure and version overflow.
+  Evidence: `.artifacts/contracts-templates-typed-fixed.log`.
+- Certificate comparisons pass 154/154 under UTC, including wide/very large IDs,
+  expected-version context, guest university resolution, raw legacy template
+  assignments, snapshot fallback and omitted list fields. Evidence:
+  `.artifacts/contracts-certificates-typed-boundaries-fixed.log`.
+- Local checks and affected race tests pass, including 1,000 real database
+  issuances, concurrency, template-change pause/resume, immutable snapshots,
+  revocation and real storage cleanup. Evidence:
+  `.artifacts/check-certificates-typed.log` and
+  `.artifacts/integration-certificates-typed.jsonl`.
+- A boundary fixture initially attempted SQL NULL in a non-null snapshot column;
+  it was corrected to JSON null without changing the schema constraint. The
+  original failed harness run remains recorded. Scientific-notation pagination
+  links now encode the plus sign, matching Adonis; the regression test passes.

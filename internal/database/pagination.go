@@ -3,6 +3,7 @@ package database
 import (
 	"errors"
 	"math"
+	"net/url"
 	"strconv"
 	"strings"
 )
@@ -72,7 +73,7 @@ func SQLPage(page, size float64) (*int64, int64, error) {
 }
 
 func pageURL(page float64) string {
-	return "/?page=" + JSNumber(math.Max(page, 1))
+	return "/?page=" + url.QueryEscape(JSNumber(math.Max(page, 1)))
 }
 
 func Meta[N ~int | ~float64](total int64, page, perPage N) Pagination {

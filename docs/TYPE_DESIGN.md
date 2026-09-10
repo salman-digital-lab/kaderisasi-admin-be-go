@@ -13,7 +13,7 @@ This is an implementation ledger, not a completed architecture review.
 | Activities/registrations | Typed activity and registration CRUD/list/detail/status requests, response projections, sorting/filters, transaction services, template readiness, image services and Excel records; generated queries | 92 export/workflow comparisons and affected race tests pass; malformed stored JSON, identifier diagnostics and final verification remain |
 | Clubs/forms/roles | Typed club and form requests/responses, reads, mutations, attachment transactions, image services and generated queries | Typed registration/role reads, writes, bulk review and Excel exports now use generated queries; 430 affected comparisons pass; final aggregate verification pending |
 | Counseling/achievements/leaderboards | Explicit request/response types, services and generated read/mutation/export queries; nullable score accumulation and review transactions | 113 differential comparisons and full race integration pass; final aggregate verification pending |
-| Certificates | Typed issuance/snapshot responses, generated locking/issuance queries | Template/list/preparation JSON adapters and request DTOs |
+| Certificates | Typed template/design, recipient, preparation, issuance, compact/list and snapshot DTOs; generated locking/read/mutation queries; asset services | 107 template and 154 issuance comparisons plus affected race/concurrency tests pass; final aggregate verification pending |
 | Jobs | Separate typed entrypoint, generated statements and result types | Final aggregate verification |
 
 `domain.Optional[T]` retains omitted, null and concrete PATCH values. Required

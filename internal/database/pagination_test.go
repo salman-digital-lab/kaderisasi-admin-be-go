@@ -60,3 +60,10 @@ func TestKnexPaginationConversion(t *testing.T) {
 }
 
 func stringPointer(value string) *string { return &value }
+
+func TestPaginationEncodesScientificNotation(t *testing.T) {
+	meta := Meta(1, 1e30, 10.0)
+	if meta.PreviousPageURL == nil || *meta.PreviousPageURL != "/?page=1e%2B30" {
+		t.Fatalf("scientific-notation link: %v", meta.PreviousPageURL)
+	}
+}

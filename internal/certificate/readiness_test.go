@@ -3,6 +3,7 @@ package certificate
 import (
 	"encoding/json"
 	"kaderisasi/admin/internal/database"
+	"kaderisasi/admin/internal/dbgen"
 	"slices"
 	"testing"
 )
@@ -35,8 +36,8 @@ func TestTemplateReadinessScenarios(t *testing.T) {
 	if !slices.Contains(CheckReadiness(template).Errors, "PARTICIPANT_NAME_VARIABLE_REQUIRED") {
 		t.Fatal("hidden participant name")
 	}
-	lifecycle := SerializeTemplate(rawObject([]byte(`{"lifecycle_status":"draft","version":2}`)))
-	if lifecycle.String("status") != "draft" || lifecycle.Bool("is_active") || !lifecycle.Null("published_at") || !lifecycle.Null("archived_at") {
+	lifecycle := TemplateView(dbgen.CertificateTemplate{LifecycleStatus: "draft", Version: 2}, 0, 0)
+	if lifecycle.Status != "draft" || lifecycle.IsActive || lifecycle.PublishedAt != nil || lifecycle.ArchivedAt != nil {
 		t.Fatal(lifecycle)
 	}
 }

@@ -1,15 +1,12 @@
 package httpapi
 
 import (
-	"context"
 	"errors"
-	"fmt"
 	"github.com/jackc/pgx/v5"
-	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/certificate"
 	"kaderisasi/admin/internal/database"
+	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
-	"kaderisasi/admin/internal/media"
 	"kaderisasi/admin/internal/validation"
 	"net/http"
 	"regexp"
@@ -20,20 +17,16 @@ import (
 
 var positiveIDPattern = regexp.MustCompile(`^[1-9][0-9]*$`)
 
-func certificateID(r *http.Request) int32 {
+func certificateID(r *http.Request) string {
 	raw := r.PathValue("id")
-	if !positiveIDPattern.MatchString(raw) {
-		return 0
+	id, err := strconv.ParseInt(raw, 10, 64)
+	if err != nil || !positiveIDPattern.MatchString(raw) || id > 9007199254740991 {
+		return ""
 	}
-	id, err := strconv.ParseInt(raw, 10, 32)
-	if err != nil {
-		return 0
-	}
-	return int32(id)
+	return raw
 }
 func certificateInput(w http.ResponseWriter, r *http.Request, schema string) (database.Object, bool) {
-	body := requestData(r)
-	data, issues := validation.Validate(schema, body)
+	data, issues := validation.Validate(schema, requestData(r))
 	if len(issues) > 0 {
 		write(w, 422, struct {
 			Message string             `json:"message"`
@@ -41,28 +34,28 @@ func certificateInput(w http.ResponseWriter, r *http.Request, schema string) (da
 		}{"VALIDATION_ERROR", issues})
 		return nil, false
 	}
-	if !certificateIDsFit(data, schema != "issueBulkCertificateValidator") {
-		message(w, 500, "GENERAL_ERROR")
-		return nil, false
-	}
 	return data, true
 }
-
-const templateCountsSQL = "SELECT t.*,(SELECT count(*)::int FROM activities WHERE certificate_template_id=t.id) AS activity_usage_count,(SELECT count(*)::int FROM issued_certificates WHERE template_id=t.id) AS issued_certificate_count FROM certificate_templates t"
-
-func (s *Server) templateAudit(r *http.Request, event string, template database.Object) {
-	s.Logger.Info(event, "event", event, "actor_admin_id", actor(r).ID, "template_id", template.ID("id"), "template_version", template.ID("version"), "request_id", r.Header.Get("X-Request-ID"))
+func certificateInputAs[T any](w http.ResponseWriter, r *http.Request, schema string) (T, bool) {
+	data, ok := certificateInput(w, r, schema)
+	if !ok {
+		var result T
+		return result, false
+	}
+	return decodeInputAs[T](w, data)
+}
+func (s *Server) templateAudit(r *http.Request, event string, template dbgen.CertificateTemplate) {
+	s.Logger.Info(event, "event", event, "actor_admin_id", actor(r).ID, "template_id", template.ID, "template_version", template.Version, "request_id", r.Header.Get("X-Request-ID"))
 }
 func (s *Server) registerCertificateTemplates() {
 	controller := "certificate_templates_controller"
 	service := certificate.Templates{Pool: s.Pool, Storage: s.Storage}
 	s.register(controller, "index", func(w http.ResponseWriter, r *http.Request) error {
 		params := r.URL.Query()
-		query := templateCountsSQL + " WHERE true"
-		args := []interface{}{}
+		page, size := boundedPageParams(r, 10)
+		filters := certificate.TemplateFilters{Page: page, Size: size}
 		if search := strings.TrimSpace(params.Get("search")); search != "" {
-			args = append(args, "%"+search+"%")
-			query += fmt.Sprintf(" AND t.name ILIKE $%d", len(args))
+			filters.Search = &search
 		}
 		status := params.Get("status")
 		if !slices.Contains([]string{"draft", "published", "archived"}, status) {
@@ -75,41 +68,37 @@ func (s *Server) registerCertificateTemplates() {
 			}
 		}
 		if status != "" {
-			args = append(args, status)
-			query += fmt.Sprintf(" AND t.lifecycle_status=$%d", len(args))
+			filters.Status = &status
 		}
-		page, size := boundedPageParams(r, 10)
-		data, err := s.queries().Paginate(r.Context(), query+" ORDER BY t.created_at DESC", args, page, size)
+		result, err := service.List(r.Context(), filters)
 		if err != nil {
 			return err
 		}
-		for i, row := range data.Data {
-			if params.Get("view") == "summary" {
-				data.Data[i] = certificate.TemplateSummary(row)
-			} else {
-				data.Data[i] = certificate.SerializeTemplate(row)
+		if params.Get("view") == "summary" {
+			summary := certificate.TemplatePage[certificate.TemplateSummaryResponse]{Meta: result.Meta, Data: []certificate.TemplateSummaryResponse{}}
+			for _, row := range result.Data {
+				summary.Data = append(summary.Data, certificate.SummaryView(row.CertificateTemplate))
 			}
+			reply(w, 200, "GET_DATA_SUCCESS", summary)
+		} else {
+			reply(w, 200, "GET_DATA_SUCCESS", result)
 		}
-		reply(w, 200, "GET_DATA_SUCCESS", data)
 		return nil
 	})
 	s.register(controller, "show", func(w http.ResponseWriter, r *http.Request) error {
 		id := certificateID(r)
-		if id == 0 {
+		if id == "" {
 			return domain.Fail(400, "INVALID_CERTIFICATE_TEMPLATE_ID")
 		}
-		row, err := s.queries().One(r.Context(), templateCountsSQL+" WHERE t.id=$1", id)
-		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.Fail(404, "CERTIFICATE_TEMPLATE_NOT_FOUND")
-		}
+		row, err := service.Show(r.Context(), id)
 		if err != nil {
 			return err
 		}
-		reply(w, 200, "GET_DATA_SUCCESS", certificate.SerializeTemplate(row))
+		reply(w, 200, "GET_DATA_SUCCESS", row)
 		return nil
 	})
 	s.register(controller, "store", func(w http.ResponseWriter, r *http.Request) error {
-		data, ok := certificateInput(w, r, "certificateTemplateValidator")
+		data, ok := certificateInputAs[certificate.TemplateInput](w, r, "certificateTemplateValidator")
 		if !ok {
 			return nil
 		}
@@ -118,13 +107,13 @@ func (s *Server) registerCertificateTemplates() {
 			return err
 		}
 		s.templateAudit(r, "certificate_template_created", row)
-		reply(w, 201, "CERTIFICATE_TEMPLATE_CREATED_SUCCESS", certificate.SerializeTemplate(row))
+		reply(w, 201, "CERTIFICATE_TEMPLATE_CREATED_SUCCESS", certificate.TemplateView(row, 0, 0))
 		return nil
 	})
 	for _, action := range []string{"update", "publish", "archive"} {
 		s.register(controller, action, func(w http.ResponseWriter, r *http.Request) error {
 			id := certificateID(r)
-			if id == 0 {
+			if id == "" {
 				if action == "update" {
 					return domain.Fail(400, "INVALID_CERTIFICATE_TEMPLATE_ID")
 				}
@@ -134,7 +123,7 @@ func (s *Server) registerCertificateTemplates() {
 			if action == "update" {
 				schema = "updateCertificateTemplateValidator"
 			}
-			data, ok := certificateInput(w, r, schema)
+			data, ok := certificateInputAs[certificate.TemplateInput](w, r, schema)
 			if !ok {
 				return nil
 			}
@@ -148,13 +137,13 @@ func (s *Server) registerCertificateTemplates() {
 			if action == "update" {
 				msg += "_SUCCESS"
 			}
-			reply(w, 200, msg, certificate.SerializeTemplate(row))
+			reply(w, 200, msg, certificate.TemplateView(row, 0, 0))
 			return nil
 		})
 	}
 	s.register(controller, "duplicate", func(w http.ResponseWriter, r *http.Request) error {
 		id := certificateID(r)
-		if id == 0 {
+		if id == "" {
 			return domain.Fail(400, "INVALID_CERTIFICATE_TEMPLATE_ID")
 		}
 		row, err := service.Duplicate(r.Context(), id)
@@ -165,25 +154,15 @@ func (s *Server) registerCertificateTemplates() {
 			return domain.Fail(422, "CERTIFICATE_ASSET_COPY_FAILED")
 		}
 		s.templateAudit(r, "certificate_template_duplicated", row)
-		reply(w, 201, "CERTIFICATE_TEMPLATE_CREATED_SUCCESS", certificate.SerializeTemplate(row))
+		reply(w, 201, "CERTIFICATE_TEMPLATE_CREATED_SUCCESS", certificate.TemplateView(row, 0, 0))
 		return nil
 	})
 	s.register(controller, "destroy", func(w http.ResponseWriter, r *http.Request) error {
 		id := certificateID(r)
-		if id == 0 {
+		if id == "" {
 			return domain.Fail(404, "CERTIFICATE_TEMPLATE_NOT_FOUND")
 		}
-		row, err := s.queries().One(r.Context(), templateCountsSQL+" WHERE t.id=$1", id)
-		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.Fail(404, "CERTIFICATE_TEMPLATE_NOT_FOUND")
-		}
-		if err != nil {
-			return err
-		}
-		if row.ID("activity_usage_count") > 0 || row.ID("issued_certificate_count") > 0 {
-			return domain.Fail(409, "CERTIFICATE_TEMPLATE_IN_USE")
-		}
-		if _, err = s.queries().Delete(r.Context(), "certificate_templates", id); err != nil {
+		if err := service.Delete(r.Context(), id); err != nil {
 			return err
 		}
 		message(w, 200, "CERTIFICATE_TEMPLATE_DELETED_SUCCESS")
@@ -197,83 +176,21 @@ func (s *Server) uploadTemplateAsset(w http.ResponseWriter, r *http.Request) err
 	if err != nil {
 		return err
 	}
-	ctx := r.Context()
 	id := certificateID(r)
-	template, err := s.queries().One(ctx, "SELECT * FROM certificate_templates WHERE id=$1", id)
-	if errors.Is(err, pgx.ErrNoRows) {
+	if id == "" {
 		return domain.Fail(404, "CERTIFICATE_TEMPLATE_NOT_FOUND")
 	}
-	if err != nil {
-		return err
-	}
-	if template.String("lifecycle_status") != "draft" {
-		return domain.Fail(409, "CERTIFICATE_TEMPLATE_USE_DRAFT_COPY")
-	}
 	background := strings.HasSuffix(r.URL.Path, "/background")
-	version := template.ID("version") + 1
-	kind := "assets"
+	result, err := (certificate.Templates{Pool: s.Pool, Storage: s.Storage}).Upload(r.Context(), id, body, background)
+	if err != nil {
+		return err
+	}
 	if background {
-		version = template.ID("background_asset_version") + 1
-		kind = "background"
+		s.templateAudit(r, "certificate_template_background_uploaded", result.Template)
+		reply(w, 200, "UPLOAD_BACKGROUND_SUCCESS", result.Background)
+	} else {
+		s.templateAudit(r, "certificate_template_asset_uploaded", result.Template)
+		reply(w, 201, "UPLOAD_CERTIFICATE_ASSET_SUCCESS", result.Asset)
 	}
-	uuid, err := auth.UUID()
-	if err != nil {
-		return err
-	}
-	key, err := media.Upload(ctx, s.Storage, body, fmt.Sprintf("certificate/templates/%d/%s/v%d-%s", id, kind, version, uuid), media.Certificate)
-	if errors.Is(err, media.ErrInvalidImage) {
-		return domain.Fail(422, "INVALID_IMAGE")
-	}
-	if err != nil {
-		return err
-	}
-	if !background {
-		s.templateAudit(r, "certificate_template_asset_uploaded", template)
-		reply(w, 201, "UPLOAD_CERTIFICATE_ASSET_SUCCESS", struct {
-			Key      string `json:"asset_key"`
-			URL      string `json:"url"`
-			AssetKey string `json:"assetKey"`
-		}{key, key, key})
-		return nil
-	}
-	committed := false
-	defer func() {
-		if !committed {
-			_ = s.Storage.Delete(context.WithoutCancel(ctx), key)
-		}
-	}()
-	tx, err := s.Pool.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
-	q := database.JSONQueries{DB: tx}
-	current, err := q.One(ctx, "SELECT * FROM certificate_templates WHERE id=$1 FOR UPDATE", id)
-	if err != nil {
-		return err
-	}
-	if current.String("lifecycle_status") != "draft" || current.ID("version") != template.ID("version") {
-		return domain.Fail(409, "CERTIFICATE_TEMPLATE_VERSION_CONFLICT")
-	}
-	change := database.Object{}
-	change.Set("background_image", key)
-	change.Set("background_asset_version", version)
-	change.Set("version", current.ID("version")+1)
-	current, err = q.Update(ctx, "certificate_templates", id, change)
-	if err != nil {
-		return err
-	}
-	if err = tx.Commit(ctx); err != nil {
-		return err
-	}
-	committed = true
-	s.templateAudit(r, "certificate_template_background_uploaded", current)
-	reply(w, 200, "UPLOAD_BACKGROUND_SUCCESS", struct {
-		Background      string `json:"backgroundImage"`
-		Key             string `json:"asset_key"`
-		URL             string `json:"url"`
-		AssetVersion    int32  `json:"assetVersion"`
-		TemplateVersion int32  `json:"templateVersion"`
-	}{key, key, key, version, current.ID("version")})
 	return nil
 }

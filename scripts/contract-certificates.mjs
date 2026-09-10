@@ -60,4 +60,42 @@ export async function certificateCases(h){
     await h.call(`certificate:boundary-prepare:${value}`,'POST','/v2/certificates/prepare-issuance',{activity_id:value});
     await h.call(`certificate:boundary-bulk:${value}`,'POST','/v2/certificates/issue-bulk',{registration_ids:[1,value]});
   }
+  await certificateBoundaryCases(h);
+}
+
+async function certificateBoundaryCases(h){
+  const expected={activity_id:1,template_id:1,template_version:4};
+  for(const field of ['activity_id','template_id','template_version'])for(const value of [2147483648,1e30])await h.call(`certificate:expected-wide:${field}:${value}`,'POST','/v2/certificates/issue-bulk',{registration_ids:[1,999999],expected:{...expected,[field]:value}});
+  for(const value of [2147483648,1e30]){
+    await h.call('certificate:huge-full:'+value,'POST','/v2/certificates/issue-bulk',{registration_ids:[1,value,value],response_mode:'full'});
+    await h.call('certificate:huge-compact:'+value,'POST','/v2/certificates/issue-bulk',{registration_ids:[1,value],response_mode:'compact'});
+    await h.call('certificate:prepare-wide-selection:'+value,'POST','/v2/certificates/prepare-issuance',{activity_id:1,registration_ids:[1,value]});
+    await h.call('certificate:prepare-missing-precedes-wide-selection:'+value,'POST','/v2/certificates/prepare-issuance',{activity_id:999999,registration_ids:[value]});
+    await h.call('certificate:recipient-wide-precedes-invalid:'+value,'GET',`/v2/certificates/activities/${value}/recipients?per_page=invalid`);
+    await h.call('certificate:wide-revoke-invalid-body:'+value,'POST',`/v2/certificates/${value}/revoke`,{});
+  }
+  for(const query of ['page=2147483648','page=1e30','page=1e300','activity_id=0x1','registration_ids[]=2147483648'])await h.call('certificate:list-numeric:'+query,'GET','/v2/certificates?'+query);
+  for(const query of ['page=2147483648','page=1e30','page=1e300','registration_ids[]=2147483648','registration_ids[0]=1&registration_ids[1]=1'])await h.call('certificate:recipient-numeric:'+query,'GET','/v2/certificates/activities/1/recipients?'+query);
+  const [guest]=await h.seed("INSERT INTO activity_registrations(activity_id,status,guest_data,created_at,updated_at) VALUES(1,'LULUS KEGIATAN','{}','2024-02-01','2024-02-01') RETURNING id");
+  for(const value of [1,'1','01',0,-1,1.5,2147483648,1e30,'2147483648','bad','1e0',true,null]){
+    await h.seed('UPDATE activity_registrations SET guest_data=$1::jsonb WHERE id=$2',[JSON.stringify({name:10,email:false,gender:' F ',university_id:value}),guest.id]);
+    await h.call('certificate:guest-university:'+JSON.stringify(value),'POST','/v2/certificates/generate-single',{registration_id:guest.id});
+  }
+  await h.seed('UPDATE activity_registrations SET guest_data=$1::jsonb WHERE id=$2',[JSON.stringify({name:' Typed guest ',email:' typed@example.test ',university:' Direct university ',university_id:2147483648}),guest.id]);
+  await h.call('certificate:guest-direct-university','POST','/v2/certificates/generate-single',{registration_id:guest.id});
+  for(const value of [1,'1',0,'0',-1,1.5,2147483648,true,[],[1],{}]){
+    await h.seed('UPDATE activities SET certificate_template_id=null,additional_config=jsonb_build_object(\'certificate_template_id\',$1::jsonb) WHERE id=1',[JSON.stringify(value)]);
+    await h.call('certificate:legacy-template:'+JSON.stringify(value),'POST','/v2/certificates/generate-single',{registration_id:guest.id});
+    await h.call('certificate:legacy-template-prepare:'+JSON.stringify(value),'POST','/v2/certificates/prepare-issuance',{activity_id:1,registration_ids:[guest.id]});
+    await h.call('certificate:legacy-template-expectation:'+JSON.stringify(value),'POST','/v2/certificates/issue-bulk',{registration_ids:[1],expected});
+  }
+  await h.seed("UPDATE activities SET certificate_template_id=1,additional_config='{}' WHERE id=1");
+  await h.seed('UPDATE activity_registrations SET created_at=null WHERE id=$1',[guest.id]);
+  await h.call('certificate:recipient-null-date','GET','/v2/certificates/activities/1/recipients?sort_order=asc');
+  await h.call('certificate:missing-generate','POST','/v2/certificates/generate',{activity_id:999999});
+  await h.call('certificate:empty-status','POST','/v2/certificates/generate',{activity_id:1,status:'nonexistent'});
+  await h.seed("UPDATE issued_certificates SET activity_snapshot='null'::jsonb,participant_snapshot=participant_snapshot-'gender' WHERE id=1");
+  await h.call('certificate:legacy-snapshot-fallback','GET','/v2/certificates/1');
+  await h.seed("UPDATE issued_certificates SET participant_snapshot=participant_snapshot-'email'-'name' WHERE id=1");
+  await h.call('certificate:legacy-list-omitted-fields','GET','/v2/certificates');
 }
