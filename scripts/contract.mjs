@@ -13,6 +13,7 @@ import { memberCases } from './contract-members.mjs';
 import { activityCases } from './contract-activities.mjs';
 import { registrationCases } from './contract-registrations.mjs';
 import { clubCases } from './contract-clubs.mjs';
+import {formBoundaryCases} from './contract-forms.mjs';
 import { clubMemberCases } from './contract-club-members.mjs';
 import { achievementCases } from './contract-achievements.mjs';
 import { templateCases } from './contract-templates.mjs';
@@ -115,7 +116,7 @@ try {
         responses.push(normalizer.response(result));
         return data;
       }};
-      if(group==='protocol')await protocolCases(h,fixturePassword);else if(group==='query-edges')await queryEdgeCases(h);else if(group==='route-edges')await routeEdgeCases(h,routes);else if(group==='images')await imageCases(h);else if(group==='reference')await referenceCases(h);else if(group==='authorization')await authorizationCases(h,routes);else if(group==='admin')await adminCases(h,fixturePassword);else if(group==='members')await memberCases(h,fixturePassword);else if(group==='activities')await activityCases(h);else if(group==='registrations')await registrationCases(h);else if(group==='clubs')await clubCases(h);else if(group==='club-members')await clubMemberCases(h);else if(group==='achievements')await achievementCases(h);else if(group==='templates')await templateCases(h);else if(group==='certificates')await certificateCases(h);else if(group==='google')await googleCases(h,keys);else await authCases(h,fixturePassword);
+      if(group==='protocol')await protocolCases(h,fixturePassword);else if(group==='query-edges')await queryEdgeCases(h);else if(group==='route-edges')await routeEdgeCases(h,routes);else if(group==='images')await imageCases(h);else if(group==='reference')await referenceCases(h);else if(group==='authorization')await authorizationCases(h,routes);else if(group==='admin')await adminCases(h,fixturePassword);else if(group==='members')await memberCases(h,fixturePassword);else if(group==='activities')await activityCases(h);else if(group==='registrations')await registrationCases(h);else if(group==='clubs')await clubCases(h);else if(group==='forms')await formBoundaryCases(h);else if(group==='club-members')await clubMemberCases(h);else if(group==='achievements')await achievementCases(h);else if(group==='templates')await templateCases(h);else if(group==='certificates')await certificateCases(h);else if(group==='google')await googleCases(h,keys);else await authCases(h,fixturePassword);
       await db.query('SELECT 1');assertHealthy();
       results[kind]=responses;
       writeFileSync(resolve(artifacts,`${group}-${kind}.json`),JSON.stringify(responses,null,2),{mode:0o600});
@@ -137,7 +138,7 @@ for(let i=0;i<results.adonis.length;i++) {
   const baseline=results.adonis[i],candidate=results.go[i];
   if(!isDeepStrictEqual(baseline,candidate))differences.push({name:baseline.name,baseline,candidate});
 }
-const report={group,source,timezone,adonis_revision:adonisRevision,environment:['images','query-edges','protocol'].includes(group)?'production':'test',scenarios:results.adonis.length,passed:results.adonis.length-differences.length,failed:differences.length,differences};
+const report={group,source,timezone,dns_mode:process.env.GO_REWRITE_DIRECT_DNS==='1'?'direct-storage-fallback':'system',adonis_revision:adonisRevision,environment:['images','query-edges','protocol'].includes(group)?'production':'test',scenarios:results.adonis.length,passed:results.adonis.length-differences.length,failed:differences.length,differences};
 writeFileSync(resolve(artifacts,`${group}-report.json`),JSON.stringify(report,null,2),{mode:0o600});
 console.log(`${group}: ${report.passed}/${report.scenarios} equivalent; ${report.failed} differences`);
 if(differences.length){console.log(differences.map(row=>row.name).join('\n'));process.exitCode=1;}

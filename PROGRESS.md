@@ -401,3 +401,32 @@ handlers, unexecuted required scenarios, test skips, and unfinished cleanup.
   `.artifacts/cleanup-typed-clubs.log` and
   `.artifacts/cleaned-schemas-ce49aafd3320fdb9.json`. The next continuation must run
   `node scripts/ensure-fixtures.mjs` before database or browser tests.
+
+## Typed forms continuation
+
+- Custom form reads, creation, updates, activity/club attachment, deletion and
+  activation now use explicit DTOs and generated queries. Safe-integer behavior,
+  null attachments, source lock ordering and unchanged timestamps are preserved.
+- 104 additional form comparisons pass under UTC against the current Adonis
+  baseline (`.artifacts/contracts-forms-boundaries.log`). The separate forms
+  group is included in aggregate contract verification.
+- New race-enabled database attachment/concurrent opposite-move tests pass;
+  all three selected Go packages passed (`.artifacts/integration-typed-forms.log`).
+  The harness still failed teardown because storage DNS is unavailable.
+- `nos.wjv-1.neo.id` currently fails system lookup with ENOTFOUND. The attempted
+  club upload journal remains recorded for cleanup/absence verification. No
+  storage check or cleanup has been waived. Full comparison and cleanup need
+  rerunning after this dependency recovers.
+
+- Storage DNS recovery is available through `GO_REWRITE_DIRECT_DNS=1`, scoped to
+  child/test processes with real resolver queries and unchanged TLS verification.
+  The retained storage journal was cleaned and its key verified absent.
+- Clubs, registrations, roles and forms now have typed request/response/service
+  boundaries and generated queries, including role listing without one query per
+  role. 430/430 affected UTC comparisons pass: club membership 112, forms 104,
+  clubs 106 and query edges 108 (`.artifacts/contracts-club-form-typed.log`).
+- `check` passes. The affected race-enabled form/club lifecycle, attachment
+  concurrency, role review and real-storage tests pass with cleanup
+  (`.artifacts/integration-club-form-typed.jsonl`). The Go run's three created
+  storage keys were deleted and verified absent. Counseling/achievements,
+  certificates, wider remaining identifier review and final verification remain.

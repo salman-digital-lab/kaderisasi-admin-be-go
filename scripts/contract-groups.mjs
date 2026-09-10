@@ -1,1 +1,1 @@
-export const contractGroups=['reference','authorization','auth','admin','members','activities','registrations','clubs','club-members','achievements','templates','certificates','google','images','route-edges','query-edges','protocol'];
+export const contractGroups=['reference','authorization','auth','admin','members','activities','registrations','clubs','forms','club-members','achievements','templates','certificates','google','images','route-edges','query-edges','protocol'];

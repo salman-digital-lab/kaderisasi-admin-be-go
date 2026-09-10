@@ -153,3 +153,13 @@ Check `/health`, login/refresh, permissions, a member read, and a certificate re
 To return to Adonis, stop Go and its job schedule, start Adonis on 3334, and restore
 its job schedule. The shared schema is unchanged; do not roll back migrations or
 reset tables. Session/password transfer is tested in both directions.
+
+### macOS storage DNS recovery
+
+If macOS `getaddrinfo` returns `ENOTFOUND` for the test storage host while direct
+DNS queries resolve it, prefix a harness command with `GO_REWRITE_DIRECT_DNS=1`.
+For example, `GO_REWRITE_DIRECT_DNS=1 node scripts/verify.mjs --borrow-workspace`.
+Node falls back to real DNS queries only for the configured test storage host,
+and Go child processes use the pure Go resolver. IP addresses are never pinned,
+TLS verification and the real S3 operations remain enabled, and the machine's
+network settings are unchanged. Contract/Go test evidence records this opt-in.
