@@ -111,6 +111,25 @@ type AdonisSchemaVersion struct {
 	Version int32 `json:"version"`
 }
 
+type CertificateApproval struct {
+	ID             int32              `json:"id"`
+	RegistrationID int32              `json:"registration_id"`
+	ActivityID     int32              `json:"activity_id"`
+	SignerID       int32              `json:"signer_id"`
+	RequestedBy    int32              `json:"requested_by"`
+	SignerName     string             `json:"signer_name"`
+	SignerTitle    string             `json:"signer_title"`
+	Snapshot       []byte             `json:"snapshot"`
+	ContentHash    string             `json:"content_hash"`
+	Status         string             `json:"status"`
+	DecidedBy      *int32             `json:"decided_by"`
+	DecidedAt      pgtype.Timestamptz `json:"decided_at"`
+	Reason         *string            `json:"reason"`
+	CertificateID  *int32             `json:"certificate_id"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+}
+
 type CertificateTemplate struct {
 	ID                     int32              `json:"id"`
 	Name                   string             `json:"name"`
@@ -194,6 +213,7 @@ type CustomForm struct {
 }
 
 type IssuedCertificate struct {
+	ApprovalSnapshot    []byte             `json:"approval_snapshot"`
 	ID                  int32              `json:"id"`
 	CertificateCode     string             `json:"certificate_code"`
 	RegistrationID      int32              `json:"registration_id"`

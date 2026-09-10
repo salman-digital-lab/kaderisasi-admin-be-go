@@ -273,13 +273,14 @@ func (q *Queries) CountIssuedCertificateList(ctx context.Context, arg CountIssue
 }
 
 const issuedCertificateByIdentifier = `-- name: IssuedCertificateByIdentifier :one
-SELECT id, certificate_code, registration_id, activity_id, user_id, template_id, template_snapshot, participant_snapshot, issued_by, issued_at, revoked_at, revoked_reason, created_at, updated_at, activity_snapshot, snapshot_version, template_version, revoked_by FROM issued_certificates WHERE id=CAST(CAST($1 AS text) AS integer)
+SELECT approval_snapshot, id, certificate_code, registration_id, activity_id, user_id, template_id, template_snapshot, participant_snapshot, issued_by, issued_at, revoked_at, revoked_reason, created_at, updated_at, activity_snapshot, snapshot_version, template_version, revoked_by FROM issued_certificates WHERE id=CAST(CAST($1 AS text) AS integer)
 `
 
 func (q *Queries) IssuedCertificateByIdentifier(ctx context.Context, identifier string) (IssuedCertificate, error) {
 	row := q.db.QueryRow(ctx, issuedCertificateByIdentifier, identifier)
 	var i IssuedCertificate
 	err := row.Scan(
+		&i.ApprovalSnapshot,
 		&i.ID,
 		&i.CertificateCode,
 		&i.RegistrationID,
@@ -303,13 +304,14 @@ func (q *Queries) IssuedCertificateByIdentifier(ctx context.Context, identifier 
 }
 
 const issuedCertificateByRegistrationIdentifier = `-- name: IssuedCertificateByRegistrationIdentifier :one
-SELECT id, certificate_code, registration_id, activity_id, user_id, template_id, template_snapshot, participant_snapshot, issued_by, issued_at, revoked_at, revoked_reason, created_at, updated_at, activity_snapshot, snapshot_version, template_version, revoked_by FROM issued_certificates WHERE registration_id=CAST(CAST($1 AS text) AS integer)
+SELECT approval_snapshot, id, certificate_code, registration_id, activity_id, user_id, template_id, template_snapshot, participant_snapshot, issued_by, issued_at, revoked_at, revoked_reason, created_at, updated_at, activity_snapshot, snapshot_version, template_version, revoked_by FROM issued_certificates WHERE registration_id=CAST(CAST($1 AS text) AS integer)
 `
 
 func (q *Queries) IssuedCertificateByRegistrationIdentifier(ctx context.Context, identifier string) (IssuedCertificate, error) {
 	row := q.db.QueryRow(ctx, issuedCertificateByRegistrationIdentifier, identifier)
 	var i IssuedCertificate
 	err := row.Scan(
+		&i.ApprovalSnapshot,
 		&i.ID,
 		&i.CertificateCode,
 		&i.RegistrationID,
@@ -520,13 +522,14 @@ func (q *Queries) LockCertificateRegistrationByIdentifier(ctx context.Context, i
 }
 
 const lockIssuedCertificateByIdentifier = `-- name: LockIssuedCertificateByIdentifier :one
-SELECT id, certificate_code, registration_id, activity_id, user_id, template_id, template_snapshot, participant_snapshot, issued_by, issued_at, revoked_at, revoked_reason, created_at, updated_at, activity_snapshot, snapshot_version, template_version, revoked_by FROM issued_certificates WHERE id=CAST(CAST($1 AS text) AS integer) FOR UPDATE
+SELECT approval_snapshot, id, certificate_code, registration_id, activity_id, user_id, template_id, template_snapshot, participant_snapshot, issued_by, issued_at, revoked_at, revoked_reason, created_at, updated_at, activity_snapshot, snapshot_version, template_version, revoked_by FROM issued_certificates WHERE id=CAST(CAST($1 AS text) AS integer) FOR UPDATE
 `
 
 func (q *Queries) LockIssuedCertificateByIdentifier(ctx context.Context, identifier string) (IssuedCertificate, error) {
 	row := q.db.QueryRow(ctx, lockIssuedCertificateByIdentifier, identifier)
 	var i IssuedCertificate
 	err := row.Scan(
+		&i.ApprovalSnapshot,
 		&i.ID,
 		&i.CertificateCode,
 		&i.RegistrationID,

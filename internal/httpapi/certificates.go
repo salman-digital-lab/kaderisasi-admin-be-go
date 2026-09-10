@@ -78,6 +78,7 @@ func validatedCertificateQuery(w http.ResponseWriter, r *http.Request) (certific
 	return decodeInputAs[certificate.RecipientOptions](w, data)
 }
 func (s *Server) registerCertificates() {
+	s.registerCertificateApprovals()
 	controller := "certificates_controller"
 	service := certificate.Issuance{Pool: s.Pool, Location: s.Config.Location, Logger: s.Logger}
 	s.register(controller, "recipients", func(w http.ResponseWriter, r *http.Request) error {

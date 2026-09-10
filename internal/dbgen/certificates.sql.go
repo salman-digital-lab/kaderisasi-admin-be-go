@@ -57,13 +57,14 @@ func (q *Queries) InsertIssuedCertificate(ctx context.Context, arg InsertIssuedC
 }
 
 const issuedByCode = `-- name: IssuedByCode :one
-SELECT id, certificate_code, registration_id, activity_id, user_id, template_id, template_snapshot, participant_snapshot, issued_by, issued_at, revoked_at, revoked_reason, created_at, updated_at, activity_snapshot, snapshot_version, template_version, revoked_by FROM issued_certificates WHERE certificate_code=$1
+SELECT approval_snapshot, id, certificate_code, registration_id, activity_id, user_id, template_id, template_snapshot, participant_snapshot, issued_by, issued_at, revoked_at, revoked_reason, created_at, updated_at, activity_snapshot, snapshot_version, template_version, revoked_by FROM issued_certificates WHERE certificate_code=$1
 `
 
 func (q *Queries) IssuedByCode(ctx context.Context, certificateCode string) (IssuedCertificate, error) {
 	row := q.db.QueryRow(ctx, issuedByCode, certificateCode)
 	var i IssuedCertificate
 	err := row.Scan(
+		&i.ApprovalSnapshot,
 		&i.ID,
 		&i.CertificateCode,
 		&i.RegistrationID,
@@ -87,13 +88,14 @@ func (q *Queries) IssuedByCode(ctx context.Context, certificateCode string) (Iss
 }
 
 const issuedByID = `-- name: IssuedByID :one
-SELECT id, certificate_code, registration_id, activity_id, user_id, template_id, template_snapshot, participant_snapshot, issued_by, issued_at, revoked_at, revoked_reason, created_at, updated_at, activity_snapshot, snapshot_version, template_version, revoked_by FROM issued_certificates WHERE id=$1
+SELECT approval_snapshot, id, certificate_code, registration_id, activity_id, user_id, template_id, template_snapshot, participant_snapshot, issued_by, issued_at, revoked_at, revoked_reason, created_at, updated_at, activity_snapshot, snapshot_version, template_version, revoked_by FROM issued_certificates WHERE id=$1
 `
 
 func (q *Queries) IssuedByID(ctx context.Context, id int32) (IssuedCertificate, error) {
 	row := q.db.QueryRow(ctx, issuedByID, id)
 	var i IssuedCertificate
 	err := row.Scan(
+		&i.ApprovalSnapshot,
 		&i.ID,
 		&i.CertificateCode,
 		&i.RegistrationID,
@@ -117,13 +119,14 @@ func (q *Queries) IssuedByID(ctx context.Context, id int32) (IssuedCertificate, 
 }
 
 const issuedByRegistration = `-- name: IssuedByRegistration :one
-SELECT id, certificate_code, registration_id, activity_id, user_id, template_id, template_snapshot, participant_snapshot, issued_by, issued_at, revoked_at, revoked_reason, created_at, updated_at, activity_snapshot, snapshot_version, template_version, revoked_by FROM issued_certificates WHERE registration_id=$1
+SELECT approval_snapshot, id, certificate_code, registration_id, activity_id, user_id, template_id, template_snapshot, participant_snapshot, issued_by, issued_at, revoked_at, revoked_reason, created_at, updated_at, activity_snapshot, snapshot_version, template_version, revoked_by FROM issued_certificates WHERE registration_id=$1
 `
 
 func (q *Queries) IssuedByRegistration(ctx context.Context, registrationID int32) (IssuedCertificate, error) {
 	row := q.db.QueryRow(ctx, issuedByRegistration, registrationID)
 	var i IssuedCertificate
 	err := row.Scan(
+		&i.ApprovalSnapshot,
 		&i.ID,
 		&i.CertificateCode,
 		&i.RegistrationID,
@@ -147,13 +150,14 @@ func (q *Queries) IssuedByRegistration(ctx context.Context, registrationID int32
 }
 
 const lockIssued = `-- name: LockIssued :one
-SELECT id, certificate_code, registration_id, activity_id, user_id, template_id, template_snapshot, participant_snapshot, issued_by, issued_at, revoked_at, revoked_reason, created_at, updated_at, activity_snapshot, snapshot_version, template_version, revoked_by FROM issued_certificates WHERE id=$1 FOR UPDATE
+SELECT approval_snapshot, id, certificate_code, registration_id, activity_id, user_id, template_id, template_snapshot, participant_snapshot, issued_by, issued_at, revoked_at, revoked_reason, created_at, updated_at, activity_snapshot, snapshot_version, template_version, revoked_by FROM issued_certificates WHERE id=$1 FOR UPDATE
 `
 
 func (q *Queries) LockIssued(ctx context.Context, id int32) (IssuedCertificate, error) {
 	row := q.db.QueryRow(ctx, lockIssued, id)
 	var i IssuedCertificate
 	err := row.Scan(
+		&i.ApprovalSnapshot,
 		&i.ID,
 		&i.CertificateCode,
 		&i.RegistrationID,
@@ -177,7 +181,7 @@ func (q *Queries) LockIssued(ctx context.Context, id int32) (IssuedCertificate, 
 }
 
 const revokeIssued = `-- name: RevokeIssued :one
-UPDATE issued_certificates SET revoked_at=$2,revoked_reason=$3,revoked_by=$4,updated_at=$2 WHERE id=$1 RETURNING id, certificate_code, registration_id, activity_id, user_id, template_id, template_snapshot, participant_snapshot, issued_by, issued_at, revoked_at, revoked_reason, created_at, updated_at, activity_snapshot, snapshot_version, template_version, revoked_by
+UPDATE issued_certificates SET revoked_at=$2,revoked_reason=$3,revoked_by=$4,updated_at=$2 WHERE id=$1 RETURNING approval_snapshot, id, certificate_code, registration_id, activity_id, user_id, template_id, template_snapshot, participant_snapshot, issued_by, issued_at, revoked_at, revoked_reason, created_at, updated_at, activity_snapshot, snapshot_version, template_version, revoked_by
 `
 
 type RevokeIssuedParams struct {
@@ -196,6 +200,7 @@ func (q *Queries) RevokeIssued(ctx context.Context, arg RevokeIssuedParams) (Iss
 	)
 	var i IssuedCertificate
 	err := row.Scan(
+		&i.ApprovalSnapshot,
 		&i.ID,
 		&i.CertificateCode,
 		&i.RegistrationID,

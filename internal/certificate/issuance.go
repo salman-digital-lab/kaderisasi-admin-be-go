@@ -47,17 +47,18 @@ type TemplateSnapshot struct {
 	Data       json.RawMessage `json:"template_data"`
 }
 type IssuedData struct {
-	ID              int32   `json:"id"`
-	Code            string  `json:"certificate_code"`
-	RegistrationID  int32   `json:"registration_id"`
-	ActivityID      int32   `json:"activity_id"`
-	TemplateID      int32   `json:"template_id"`
-	TemplateVersion int32   `json:"template_version"`
-	IssuedAt        string  `json:"issued_at"`
-	IssuedBy        *int32  `json:"issued_by"`
-	RevokedAt       *string `json:"revoked_at"`
-	RevokedReason   *string `json:"revoked_reason"`
-	RevokedBy       *int32  `json:"revoked_by"`
+	Approval        *ApprovalEvidence `json:"approval,omitempty"`
+	ID              int32             `json:"id"`
+	Code            string            `json:"certificate_code"`
+	RegistrationID  int32             `json:"registration_id"`
+	ActivityID      int32             `json:"activity_id"`
+	TemplateID      int32             `json:"template_id"`
+	TemplateVersion int32             `json:"template_version"`
+	IssuedAt        string            `json:"issued_at"`
+	IssuedBy        *int32            `json:"issued_by"`
+	RevokedAt       *string           `json:"revoked_at"`
+	RevokedReason   *string           `json:"revoked_reason"`
+	RevokedBy       *int32            `json:"revoked_by"`
 }
 type Response struct {
 	Activity    ActivityData     `json:"activity"`
@@ -140,6 +141,14 @@ func (s Issuance) IssuedResponse(row dbgen.IssuedCertificate) (Response, error) 
 		result.Activity = ActivityData{ID: row.ActivityID, Name: result.Participant.ActivityName}
 	}
 	issued := &IssuedData{ID: row.ID, Code: row.CertificateCode, RegistrationID: row.RegistrationID, ActivityID: row.ActivityID, TemplateID: row.TemplateID, TemplateVersion: row.TemplateVersion, IssuedAt: ISO(row.IssuedAt.Time, s.Location), IssuedBy: row.IssuedBy, RevokedBy: row.RevokedBy, RevokedReason: row.RevokedReason}
+	if len(row.ApprovalSnapshot) > 0 && string(row.ApprovalSnapshot) != "null" {
+		if err := json.Unmarshal(row.ApprovalSnapshot, &issued.Approval); err != nil {
+			return result, err
+		}
+	}
+	if RequiresApproval(result.Template.Data) && issued.Approval == nil {
+		return result, Error("CERTIFICATE_APPROVAL_REQUIRED")
+	}
 	if row.RevokedAt.Valid {
 		value := ISO(row.RevokedAt.Time, s.Location)
 		issued.RevokedAt = &value
@@ -165,6 +174,14 @@ func (s Issuance) Issue(ctx context.Context, id float64, actor *int32, requestID
 	if errors.Is(err, pgx.ErrNoRows) {
 		source, err := s.load(ctx, q, id, true)
 		if err != nil {
+			return IssueResult{}, err
+		}
+		if RequiresApproval(source.Template.TemplateData) {
+			return IssueResult{}, domain.Fail(409, "CERTIFICATE_APPROVAL_REQUIRED")
+		}
+		if _, err := q.PendingCertificateApproval(ctx, source.Registration.ID); err == nil {
+			return IssueResult{}, domain.Fail(409, "CERTIFICATE_APPROVAL_REQUIRED")
+		} else if !errors.Is(err, pgx.ErrNoRows) {
 			return IssueResult{}, err
 		}
 		now := time.Now().Truncate(time.Millisecond)

@@ -570,6 +570,7 @@ ALTER SEQUENCE public.custom_forms_id_seq OWNED BY public.custom_forms.id;
 --
 
 CREATE TABLE public.issued_certificates (
+    approval_snapshot jsonb,
     id integer NOT NULL,
     certificate_code character varying(255) NOT NULL,
     registration_id integer NOT NULL,
@@ -1934,3 +1935,27 @@ ALTER TABLE ONLY public.universities
 --
 -- PostgreSQL database dump complete
 --
+
+CREATE TABLE public.certificate_approvals (
+ id serial PRIMARY KEY,
+ registration_id integer NOT NULL REFERENCES public.activity_registrations(id),
+ activity_id integer NOT NULL REFERENCES public.activities(id),
+ signer_id integer NOT NULL REFERENCES public.admin_users(id),
+ requested_by integer NOT NULL REFERENCES public.admin_users(id),
+ signer_name varchar(255) NOT NULL,
+ signer_title varchar(120) NOT NULL,
+ snapshot jsonb NOT NULL,
+ content_hash varchar(64) NOT NULL,
+ status varchar(20) NOT NULL DEFAULT 'pending',
+ decided_by integer REFERENCES public.admin_users(id),
+ decided_at timestamptz,
+ reason varchar(500),
+ certificate_id integer REFERENCES public.issued_certificates(id),
+ created_at timestamptz NOT NULL,
+ updated_at timestamptz,
+ CONSTRAINT certificate_approvals_status_check CHECK (status IN ('pending', 'approved', 'rejected', 'cancelled')),
+ CONSTRAINT certificate_approvals_decision_check CHECK ((status = 'pending' AND decided_at IS NULL AND decided_by IS NULL AND certificate_id IS NULL) OR (status = 'approved' AND decided_at IS NOT NULL AND decided_by = signer_id AND certificate_id IS NOT NULL) OR (status IN ('rejected', 'cancelled') AND decided_at IS NOT NULL AND decided_by IS NOT NULL AND certificate_id IS NULL))
+);
+CREATE UNIQUE INDEX certificate_approvals_pending_registration ON public.certificate_approvals(registration_id) WHERE status = 'pending';
+CREATE INDEX certificate_approvals_signer_id_status_id_index ON public.certificate_approvals(signer_id, status, id);
+CREATE INDEX certificate_approvals_activity_id_status_id_index ON public.certificate_approvals(activity_id, status, id);

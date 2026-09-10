@@ -22,6 +22,7 @@ type Element struct {
 	Variable string   `json:"variable"`
 	Visible  *bool    `json:"visible"`
 	ImageURL string   `json:"imageUrl"`
+	Opacity  *float64 `json:"opacity"`
 }
 type TemplateData struct {
 	BackgroundURL *string   `json:"backgroundUrl"`
@@ -30,7 +31,20 @@ type TemplateData struct {
 	Elements      []Element `json:"elements"`
 }
 
-var variables = map[string]bool{"name": true, "activity_name": true, "activity_date": true, "date": true, "certificate_code": true, "certificate_id": true, "university": true, "gender": true}
+var variables = map[string]bool{"name": true, "activity_name": true, "activity_date": true, "date": true, "certificate_code": true, "certificate_id": true, "university": true, "gender": true, "approval": true}
+
+func RequiresApproval(raw []byte) bool {
+	var data TemplateData
+	if json.Unmarshal(raw, &data) != nil {
+		return false
+	}
+	for _, e := range data.Elements {
+		if e.Type == "variable-text" && strings.TrimSpace(strings.Trim(e.Variable, "{}")) == "approval" {
+			return true
+		}
+	}
+	return false
+}
 
 func ManagedAsset(id int32, value string) bool {
 	if strings.HasPrefix(value, "data:") {
@@ -79,7 +93,15 @@ func CheckReadinessValues(id int32, name string, raw []byte) Readiness {
 	}
 	ids := map[string]bool{}
 	hasName := false
+	hasQR, hasApproval := false, false
 	for _, e := range data.Elements {
+		visible := (e.Visible == nil || *e.Visible) && (e.Opacity == nil || *e.Opacity > 0)
+		if e.Type == "qr-code" && visible && e.Width != nil && e.Height != nil && *e.Width >= 80 && *e.Height >= 80 {
+			hasQR = true
+		}
+		if e.Type == "variable-text" && strings.TrimSpace(strings.Trim(e.Variable, "{}")) == "approval" && visible {
+			hasApproval = true
+		}
 		if e.ID == "" || ids[e.ID] {
 			add("ELEMENT_IDS_MUST_BE_UNIQUE")
 		}
@@ -106,6 +128,14 @@ func CheckReadinessValues(id int32, name string, raw []byte) Readiness {
 	}
 	if !hasName {
 		add("PARTICIPANT_NAME_VARIABLE_REQUIRED")
+	}
+	if RequiresApproval(raw) {
+		if !hasQR {
+			add("APPROVAL_QR_REQUIRED")
+		}
+		if !hasApproval {
+			add("APPROVAL_BLOCK_REQUIRED")
+		}
 	}
 	result.Ready = len(result.Errors) == 0
 	return result

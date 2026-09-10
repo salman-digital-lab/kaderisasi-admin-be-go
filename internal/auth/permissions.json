@@ -29,6 +29,7 @@
   "certificate.template.read",
   "certificate.template.manage",
   "certificate.read",
+  "certificate.approve",
   "certificate.issue",
   "certificate.revoke"
 ]

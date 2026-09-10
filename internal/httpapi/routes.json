@@ -1,5 +1,50 @@
 [
   {
+    "method": "GET",
+    "path": "/v2/certificates/signers",
+    "controller": "certificate_approvals_controller",
+    "action": "signers",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/certificates/approvals",
+    "controller": "certificate_approvals_controller",
+    "action": "index",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.read"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/certificates/approvals",
+    "controller": "certificate_approvals_controller",
+    "action": "create",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.issue"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/certificates/approvals/decide",
+    "controller": "certificate_approvals_controller",
+    "action": "decide",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/certificates/approvals/:id",
+    "controller": "certificate_approvals_controller",
+    "action": "show",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.read"
+  },
+  {
     "method": "POST",
     "path": "/v2/auth/login",
     "controller": "auth_controller",
