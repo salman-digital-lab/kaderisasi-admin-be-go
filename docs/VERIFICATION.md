@@ -1,5 +1,8 @@
 # Rewrite verification report
 
+This report records verification before deployment. The subsequently authorized
+[production deployment and smoke checks](COOLIFY.md) are recorded separately.
+
 Status: **passed**, September 10, 2026. All 17 automated stages passed on the same
 source fingerprint; final review covered the PDFs, screenshots, dependency locks,
 typed design, route applicability, cleanup, and observed performance. No required

@@ -7,8 +7,9 @@ of database migrations, seeders, and RBAC preflight.
 **Implementation and verification are complete.** All 139 current routes, three
 jobs, and 17 verification stages passed on September 10, 2026. See the
 [verification report](docs/VERIFICATION.md), [route matrix](docs/COMPATIBILITY.md),
-and [progress ledger](PROGRESS.md). Adonis remains the workspace default;
-production deployment and traffic switching have not been performed.
+and [progress ledger](PROGRESS.md). Production now runs Go through
+[Coolify](docs/COOLIFY.md). Adonis remains the local workspace launcher's default
+and continues to own database migrations, seeders, and RBAC preflight.
 
 ## Local setup
 
@@ -59,7 +60,7 @@ node scripts/run.mjs --environment=test clubs:update-visibility
 
 The runner reads `../docs/.env.test.be` and injects values into its child process.
 It does not replace an application env file. `--environment=prod` selects the
-production document; production execution is outside the current rewrite task.
+production document. The deployed service receives its configuration from Coolify.
 For a prebuilt binary, inject the existing environment variables and start
 `bin/admin-api` or `bin/admin-jobs <job>` directly.
 

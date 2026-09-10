@@ -3,6 +3,11 @@
 Status: complete, September 10, 2026. All implementation and testing phases passed.
 The reviewed results and operational limits are in [docs/VERIFICATION.md](docs/VERIFICATION.md).
 
+Subsequent authorized deployment: Go replaced the production Adonis API on
+September 10, 2026. The existing domain and database are retained, all three Go
+jobs are scheduled, and the prior Adonis image is available for rollback. See
+[docs/COOLIFY.md](docs/COOLIFY.md) for the deployment and smoke-check record.
+
 ## Agreed scope
 
 Separate Go API and job binaries; Adonis retains migrations and seeders. Preserve
