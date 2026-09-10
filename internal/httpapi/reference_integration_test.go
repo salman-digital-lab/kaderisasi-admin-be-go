@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"io"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/config"
 	"kaderisasi/admin/internal/database"
@@ -86,7 +85,7 @@ func newHTTPFixture(t *testing.T) *httpFixture {
 		// Retain the ownership journal. The harness verifies every key with
 		// HeadObject before archiving the cleanup evidence, even after failure.
 	})
-	app := &Server{Config: c, Pool: pool, Auth: &auth.Service{Pool: pool, Key: c.AppKey}, Storage: f.storage, Logger: slog.New(slog.NewTextHandler(io.Discard, nil))}
+	app := &Server{Config: c, Pool: pool, Auth: &auth.Service{Pool: pool, Key: c.AppKey}, Storage: f.storage, Logger: slog.New(slog.NewTextHandler(t.Output(), &slog.HandlerOptions{Level: slog.LevelError}))}
 	f.handler = app.Handler()
 	f.adminID = f.admin("super_admin")
 	user, err := app.Auth.Build(context.Background(), mustUser(t, pool, f.adminID))

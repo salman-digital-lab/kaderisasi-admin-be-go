@@ -12,7 +12,7 @@ This is an implementation ledger, not a completed architecture review.
 | Members/profiles | Explicit member/profile request and response types; sqlc creation, account, filtering, relations and mutation queries; dedicated profile/credential services | Final aggregate verification and wider path identifier diagnostics |
 | Activities/registrations | Typed activity and registration CRUD/list/detail/status requests, response projections, sorting/filters, transaction services, template readiness, image services and Excel records; generated queries | 92 export/workflow comparisons and affected race tests pass; malformed stored JSON, identifier diagnostics and final verification remain |
 | Clubs/forms/roles | Typed club and form requests/responses, reads, mutations, attachment transactions, image services and generated queries | Typed registration/role reads, writes, bulk review and Excel exports now use generated queries; 430 affected comparisons pass; final aggregate verification pending |
-| Counseling/achievements/leaderboards | Business workflows and real database comparisons | Generic request, response and JSON query adapters remain |
+| Counseling/achievements/leaderboards | Explicit request/response types, services and generated read/mutation/export queries; nullable score accumulation and review transactions | 113 differential comparisons and full race integration pass; final aggregate verification pending |
 | Certificates | Typed issuance/snapshot responses, generated locking/issuance queries | Template/list/preparation JSON adapters and request DTOs |
 | Jobs | Separate typed entrypoint, generated statements and result types | Final aggregate verification |
 

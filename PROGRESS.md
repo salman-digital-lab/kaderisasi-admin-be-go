@@ -430,3 +430,23 @@ handlers, unexecuted required scenarios, test skips, and unfinished cleanup.
   (`.artifacts/integration-club-form-typed.jsonl`). The Go run's three created
   storage keys were deleted and verified absent. Counseling/achievements,
   certificates, wider remaining identifier review and final verification remain.
+
+## Typed counseling and achievements continuation
+
+- Counseling, achievements and both leaderboards now use explicit DTOs, services
+  and generated queries. Nullable score categories, repeated approvals, rejection
+  attribution, date filters, unchanged timestamps and integer-overflow rollback
+  retain the Adonis behavior. Excel exports retain nullable values and ordering.
+- All 113 affected comparisons pass under UTC:
+  `.artifacts/contracts-achievements-typed.log`. Local checks pass.
+- The first full race run failed one club logo upload with an uninformative 500;
+  872 tests/subtests passed. This failed run is retained in
+  `.artifacts/integration-before-certificates.jsonl`. The cause was not captured.
+- HTTP test fixtures now log request errors to the test output. The diagnostic
+  club lifecycle rerun passed, followed by the entire race suite with no failed
+  or skipped tests in `.artifacts/integration-counseling-achievement-typed.jsonl`.
+  All 12 tracked objects were deleted and verified absent. The earlier upload
+  failure has not reproduced; no speculative storage change was made.
+- Certificate template/service drafts remain under `.artifacts/next-review/`;
+  they are not yet part of the tested application. Continue the certificate port,
+  remaining identifier/export edge review, and final aggregate verification.
