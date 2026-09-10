@@ -11,7 +11,7 @@ test('create member, update profile, and create interoperable account',async({pa
   await page.getByText('Perempuan',{exact:true}).click();
   await dialog.getByRole('button',{name:/Simpan$/}).click();
   await expect(dialog).not.toBeVisible();
-  await expect(page.getByRole('cell',{name:/^Browser member\b/})).toBeVisible();
+  await expect(page.getByText('Browser member',{exact:true})).toBeVisible();
   const profile=(await fixture.db.query('SELECT id,user_id FROM profiles WHERE name=$1',['Browser member'])).rows[0];
   await page.goto(`/member/${profile.user_id}`);
   await page.getByRole('button',{name:/Ubah$/}).click();

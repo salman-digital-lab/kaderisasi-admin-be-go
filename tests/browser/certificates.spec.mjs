@@ -14,11 +14,9 @@ test('upload and publish template, issue, download, and revoke certificate',asyn
   await dialog.getByRole('button',{name:'Buat desain',exact:true}).click();
   await expect(page).toHaveURL(/\/digital-certificate\/1\/edit$/);
   if(testInfo.project.name==='mobile'){
-    await expect(page.getByRole('heading',{name:'Editor sertifikat membutuhkan layar tablet atau desktop'})).toBeVisible();
-    await evidence(page,testInfo,'mobile-editor-size-guidance');
-    // The existing product deliberately limits editing to tablet/desktop screens.
-    await page.setViewportSize({width:1024,height:1000});
-    await page.getByRole('button',{name:'Buka Inspector',exact:true}).click();
+    await expect(page.getByRole('application',{name:'Kanvas desain sertifikat'})).toBeVisible();
+    await evidence(page,testInfo,'mobile-certificate-editor');
+    await page.getByRole('navigation',{name:'Alat editor'}).getByRole('button',{name:/Properti$/}).click();
   }
   const chooser=page.waitForEvent('filechooser');
   await page.getByRole('button',{name:/Unggah background$/}).click();
@@ -29,15 +27,18 @@ test('upload and publish template, issue, download, and revoke certificate',asyn
   const background=page.getByAltText('Preview background sertifikat');
   await expect(background).toBeVisible();
   await expect.poll(()=>background.evaluate(image=>image.complete&&image.naturalWidth>0)).toBe(true);
-  if(testInfo.project.name==='mobile')await page.getByRole('dialog').getByRole('button',{name:'Tutup',exact:true}).click();
-  await page.getByRole('button',{name:/Publikasikan$/}).click();
+  if(testInfo.project.name==='mobile'){
+    await page.getByRole('dialog').getByRole('button',{name:'Selesai',exact:true}).click();
+    await page.getByRole('button',{name:'Tindakan dokumen',exact:true}).click();
+    await page.getByRole('menuitem',{name:'Publikasikan',exact:true}).click();
+  }else await page.getByRole('button',{name:/Publikasikan$/}).click();
   dialog=page.getByRole('dialog');
   await dialog.getByRole('button',{name:'Publikasikan',exact:true}).click();
+  await expect(dialog).not.toBeVisible();
   await expect(page.getByText('Desain ini tersimpan sebagai versi terbit',{exact:true})).toBeVisible();
   const template=(await fixture.db.query('SELECT lifecycle_status,background_image FROM certificate_templates WHERE id=1')).rows[0];
   expect(template.lifecycle_status).toBe('published');expect(template.background_image).toBeTruthy();
   await evidence(page,testInfo,'published-certificate-template');
-  if(testInfo.project.name==='mobile')await page.setViewportSize(testInfo.project.use.viewport);
   await page.goto('/activity/1/certificates');
   await page.getByRole('radio',{name:'Browser certificate template',exact:true}).check();
   await page.getByRole('button',{name:'Lanjut ke penerima',exact:true}).click();
@@ -49,6 +50,7 @@ test('upload and publish template, issue, download, and revoke certificate',asyn
   expect(certificate.template_snapshot.background_image).toBeTruthy();
   expect(certificate.template_snapshot.background_image).toBe(template.background_image);
   await page.goto(`/certificate-preview/${certificate.id}`);
+  await expect.poll(()=>page.locator('img[crossorigin="anonymous"]').evaluateAll(images=>images.length>0&&images.every(image=>image.complete&&image.naturalWidth>0))).toBe(true);
   const download=page.waitForEvent('download');
   await page.getByRole('button',{name:/Unduh PDF$/}).click();
   const pdf=testInfo.outputPath('issued-certificate.pdf');await (await download).saveAs(pdf);
@@ -56,6 +58,7 @@ test('upload and publish template, issue, download, and revoke certificate',asyn
   await testInfo.attach('issued-certificate',{path:pdf,contentType:'application/pdf'});
   await evidence(page,testInfo,'issued-certificate');
   await page.goto('/activity/1/participants');
+  if(testInfo.project.name==='mobile')await page.getByRole('article').getByText(/^Detail lainnya/).click();
   await page.getByRole('button',{name:'Cabut sertifikat',exact:true}).click();
   dialog=page.getByRole('dialog');
   await dialog.getByLabel('Alasan pencabutan sertifikat',{exact:true}).fill('Browser verification revocation');

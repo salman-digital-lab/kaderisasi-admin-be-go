@@ -28,7 +28,7 @@ type S3 struct {
 }
 
 func New(c config.Config) *S3 {
-	client := s3.New(s3.Options{Region: c.DriveRegion, Credentials: credentials.NewStaticCredentialsProvider(c.DriveKey, c.DriveSecret, ""), BaseEndpoint: aws.String(c.DriveEndpoint), UsePathStyle: c.DriveDisk == "minio"})
+	client := s3.New(s3.Options{Region: c.DriveRegion, Credentials: credentials.NewStaticCredentialsProvider(c.DriveKey, c.DriveSecret, ""), BaseEndpoint: aws.String(c.DriveEndpoint), UsePathStyle: c.DriveDisk == "minio", Retryer: storageRetryer()})
 	return &S3{Client: client, Bucket: c.DriveBucket, SupportsACL: c.DriveDisk == "minio"}
 }
 func validKey(key string) bool {

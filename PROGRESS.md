@@ -44,12 +44,16 @@ must pass. Missing tests and externally blocked checks remain incomplete.
 
 ## Next action
 
-Run the final aggregate verification against the current frontends. All route
-applicability, typed boundary, identifier, and stored-export reviews are complete.
-The active fixture run is `f76e3007f52dfb7f`; its three owned schemas remain available.
-Use `GO_REWRITE_DIRECT_DNS=1` for this environment's storage resolver fallback.
-The user approved temporary localhost CORS origins for the image-backed admin PDF
-tests, with restoration afterward. Record and verify both application and restoration. Clean the active schemas and journals after final verification.
+Finish affected browser checks, then rerun the aggregate against the current
+frontends. The prior aggregate was incomplete and its run `f76e3007f52dfb7f` was
+cleaned, including verified CORS restoration. The current isolated fixture run is
+`e7d10533e8c70d67`. Use `GO_REWRITE_DIRECT_DNS=1` for this environment's resolver.
+Temporary localhost CORS is user-approved, applied and verified for the affected
+browser run; restore it after testing. Port 3000 currently belongs to another
+task's temporary club preview, and permission to stop/restart it is pending.
+
+The sections below preserve earlier checkpoints; their pending items and active
+fixture references are historical unless repeated in this next-action section.
 
 ## Current continuation
 
@@ -506,3 +510,49 @@ handlers, unexecuted required scenarios, test skips, and unfinished cleanup.
   achievements 116/116, protocol 48/48. Formatting, vet (including integration),
   builds, module integrity, sqlc drift, and normalizer integrity all pass in
   `.artifacts/check-complete-boundaries.log`. The final aggregate run is next.
+
+## Aggregate verification in progress
+
+Run: `.artifacts/verify/2026-09-10T02-57-58-858Z/`, source commit `3d13dd0`.
+Checks, 1,589 race unit tests/subtests, native packaging, fixture disconnect, and
+both original club integration workflows pass. Full integration: 1,629 passed,
+zero skipped, one failure in `TestCertificateTemplateLifecycleAndAssets`.
+The captured failure is S3 PutObject DNS NXDOMAIN for the configured test endpoint;
+no upload reached storage. This is an environment connection failure, not an
+unexplained HTTP 500. The AWS standard retryer explicitly declines NXDOMAIN.
+A bounded DNS retry and unit scenarios are drafted in ignored
+`.artifacts/next-review/storage_retry*.go`; do not apply while verification runs.
+
+The user approved temporary localhost CORS. Put succeeded; the immediate provider
+read lacked rules, and later reads confirmed the exact approved configuration.
+`storage-cors.mjs` now requires two matching reads and supports verifying a
+recorded interrupted application. CORS is applied and verified; the running shell
+restores it on verification exit. Review `.artifacts/cors-final.log` and the lease
+status afterward. No further approval is needed for this agreed apply/test/restore.
+
+## Browser and storage corrections (2026-09-10)
+
+The first aggregate finished incomplete. All 18 contract groups (2,001 comparisons),
+12 session-transfer checks, 53 shared-database checks, and three jobs passed. The
+one integration failure was a real S3 DNS lookup failure. Admin browser failures
+exposed a CORS/cache bug and outdated mobile assumptions; public browser startup
+was refused because another task owns port 3000. Two independently added public
+poster unit tests lacked the Next image configuration in their test renderer.
+
+Applied a bounded S3 DNS retry, preserving the SDK's three-attempt limit and
+cancellation. Its race unit tests verify full-body delivery after a transient
+failure, persistent error identity, and zero requests after cancellation.
+Admin frontend commit `898b93c` makes certificate editor image requests use CORS;
+the mobile test now uses the current editor controls and expands participant card
+details for revocation. Desktop and mobile image-backed PDFs downloaded successfully
+and were rendered with Poppler: one landscape A4 page with the correct participant,
+activity, background, Indonesian date, and certificate code, without clipping.
+Evidence: `.artifacts/browser/2026-09-10T03-26-48-232Z/` (9/10, then corrected mobile
+locator), `.artifacts/browser/2026-09-10T03-30-49-904Z/` (mobile certificate 1/1).
+
+Public frontend commit `23b5714` supplies the real configured image allowlist to
+its poster tests. It follows the independent club/activity UI commit `fccee17`.
+All 12 existing-application checks now pass in `.artifacts/baseline-frontend-fixes.log`.
+Formatting, vet, compilation, generated query drift, dependencies, and normalization
+integrity pass. Source evidence v3 now fingerprints the four existing applications
+as well as Go and the harness. A fresh aggregate with these changes is next.

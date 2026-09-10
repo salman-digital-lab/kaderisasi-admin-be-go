@@ -2,7 +2,7 @@
 
 Adopted Adonis revision: `dd8d0ff409c34eaaebb8c2e3ec8a046efbf11356`. Original: `9e5a57182d123736e271adcb9417126a00981f2c`.
 
-Current Go source fingerprint: `bc8e815d7e94b185df76960ea33a57cf51e26c023101f399b990c52d679bb56c`. Stale groups: achievements, activities, admin, auth, authorization, certificates, club-members, clubs, forms, google, images, members, protocol, query-edges, reference, registrations, route-edges, templates. Missing groups: none.
+Current Go source fingerprint: `1853a33676257af784b91669a60e7e7af727709c662fd5335677d3313e7809cf`. Stale groups: none. Missing groups: none.
 
 This matrix includes historical passing direct Adonis/Go comparisons. Entries from stale groups require rerunning before they count toward current compatibility. Routes are matched with static-segment precedence. 139/139 routes have a successful comparison; 2001 scenarios have run. Authentication and permission columns count passing denials. Input and resource applicability is reviewed explicitly for all routes in tests/route-applicability.json. Every applicable category requires executed passing differential evidence; N/A entries carry the source-based reason. Some invalid inputs deliberately retain the source's success status. PostgreSQL state is compared after every mutation.
 

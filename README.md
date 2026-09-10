@@ -133,15 +133,25 @@ keep schemas for debugging; finish with `make clean-fixtures`.
 
 Playwright uses the real admin frontend, a production build of the public frontend,
 and both real APIs. Desktop and mobile evidence is retained under
-`.artifacts/browser/`. The existing certificate editor requires a tablet-width
-screen; the mobile test verifies that guidance, edits at 1024px, then resumes the
-remaining workflow at 390px. Public certificate rendering remains in the frontend.
+`.artifacts/browser/`. Certificate editing and the complete remaining workflow run
+at both 1440px desktop and 390px mobile widths. Public certificate rendering
+remains in the frontend.
 
-The shared test bucket currently has no CORS policy. Real image-backed PDF download
-is blocked until the reviewed rule in `tests/storage-cors.json` is approved.
-The harness does not bypass browser CORS or replace storage with a mock.
-`scripts/storage-cors.mjs` records and verifies an explicitly approved temporary
-change and refuses to overwrite another actor's later configuration.
+Image-backed PDF download requires storage GET/HEAD CORS access from the frontend
+origin. The user approved temporarily applying `tests/storage-cors.json` to the
+shared test bucket and restoring its prior setting after these tests:
+
+```sh
+GO_REWRITE_DIRECT_DNS=1 node scripts/storage-cors.mjs apply --approved-test-bucket-change
+GO_REWRITE_DIRECT_DNS=1 make verify
+# Aggregate cleanup restores CORS; this also handles an interrupted individual suite:
+GO_REWRITE_DIRECT_DNS=1 node scripts/storage-cors.mjs restore
+```
+
+The harness records and verifies the temporary configuration, refuses to overwrite
+another actor's later change, and uses real storage without bypassing browser CORS.
+Certificate editor image requests use the same anonymous CORS mode as the exporter,
+preventing immutable cached responses without CORS headers from breaking PDF output.
 
 ## Cutover and return to Adonis
 
@@ -166,3 +176,5 @@ Node falls back to real DNS queries only for the configured test storage host,
 and Go child processes use the pure Go resolver. IP addresses are never pinned,
 TLS verification and the real S3 operations remain enabled, and the machine's
 network settings are unchanged. Contract/Go test evidence records this opt-in.
+The Go S3 adapter also retries DNS-not-found failures within the SDK's normal
+three-attempt limit; persistent failures remain errors and cancellation is retained.
