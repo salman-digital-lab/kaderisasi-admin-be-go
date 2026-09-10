@@ -20,6 +20,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 )
 
 type httpFixture struct {
@@ -116,6 +117,18 @@ func (f *httpFixture) admin(role string) int32 {
 	}
 	f.admins = append(f.admins, id)
 	return id
+}
+func (f *httpFixture) tokenFor(id int32) string {
+	f.t.Helper()
+	var email string
+	if err := f.pool.QueryRow(context.Background(), "SELECT email FROM admin_users WHERE id=$1", id).Scan(&email); err != nil {
+		f.t.Fatal(err)
+	}
+	token, err := auth.SignAccess(os.Getenv("APP_KEY"), id, email, time.Now())
+	if err != nil {
+		f.t.Fatal(err)
+	}
+	return token
 }
 func (f *httpFixture) call(method, path string, body interface{}, token string, status int) database.Object {
 	f.t.Helper()

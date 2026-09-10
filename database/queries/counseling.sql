@@ -18,8 +18,19 @@ AND (sqlc.narg('admin_name')::text IS NULL OR a.display_name ILIKE '%'||sqlc.nar
 ORDER BY rc.created_at DESC LIMIT CAST(sqlc.narg('page_size')::text AS bigint) OFFSET CAST(@page_offset::text AS bigint);
 
 -- name: CounselingDetails :one
-SELECT sqlc.embed(rc),(to_jsonb(u)-'password')::jsonb AS public_user,row_to_json(p) AS profile,(to_jsonb(a)-'password')::jsonb AS admin_user
-FROM ruang_curhats rc LEFT JOIN public_users u ON u.id=rc.user_id LEFT JOIN profiles p ON p.user_id=u.id LEFT JOIN admin_users a ON a.id=rc.counselor_id WHERE rc.id = @id::integer;
+SELECT sqlc.embed(rc),(to_jsonb(u)-'password')::jsonb AS public_user,row_to_json(p) AS profile,(to_jsonb(a)-'password')::jsonb AS admin_user,row_to_json(uni) AS university
+FROM ruang_curhats rc
+LEFT JOIN public_users u ON u.id=rc.user_id
+LEFT JOIN profiles p ON p.user_id=u.id
+LEFT JOIN admin_users a ON a.id=rc.counselor_id
+LEFT JOIN universities uni ON uni.id=p.university_id
+WHERE rc.id = @id::integer;
+
+-- name: ListCounselingAdministrators :many
+SELECT id,email,display_name,role_code
+FROM admin_users
+WHERE is_active=true
+ORDER BY display_name ASC NULLS LAST,id ASC;
 
 -- name: UpdateCounseling :one
 UPDATE ruang_curhats SET counselor_id=CAST(CAST(sqlc.narg('counselor_id') AS text) AS integer),status=CAST(CAST(sqlc.narg('status') AS text) AS integer),additional_notes=sqlc.narg('additional_notes')::text,

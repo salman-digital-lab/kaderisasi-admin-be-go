@@ -577,6 +577,15 @@
   },
   {
     "method": "GET",
+    "path": "/v2/ruang-curhat/counselors",
+    "controller": "ruang_curhats_controller",
+    "action": "counselors",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "counseling.manage"
+  },
+  {
+    "method": "GET",
     "path": "/v2/ruang-curhat/:id",
     "controller": "ruang_curhats_controller",
     "action": "show",

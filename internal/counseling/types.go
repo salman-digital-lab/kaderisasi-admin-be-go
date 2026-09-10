@@ -24,6 +24,12 @@ type Detail struct {
 	Response
 	PublicUser *member.UserWithProfile  `json:"publicUser"`
 	AdminUser  *auth.AdminModelResponse `json:"adminUser"`
+	University *dbgen.University        `json:"university"`
+}
+type CounselorOption struct {
+	ID          int32   `json:"id"`
+	Email       string  `json:"email"`
+	DisplayName *string `json:"display_name"`
 }
 type Filters struct {
 	Status, Name, Gender, AdminName *string
@@ -37,7 +43,7 @@ type Page struct {
 func view(row dbgen.RuangCurhat, location *time.Location) Response {
 	return Response{RuangCurhat: row, CreatedAt: domain.ModelTimestamp(row.CreatedAt, location), UpdatedAt: domain.ModelTimestamp(row.UpdatedAt, location)}
 }
-func details(row dbgen.RuangCurhat, user, profile, admin []byte, location *time.Location) (Detail, error) {
+func details(row dbgen.RuangCurhat, user, profile, admin, university []byte, location *time.Location) (Detail, error) {
 	result := Detail{Response: view(row, location)}
 	var err error
 	result.PublicUser, err = member.UserFromRelation(user, profile, true)
@@ -45,5 +51,13 @@ func details(row dbgen.RuangCurhat, user, profile, admin []byte, location *time.
 		return result, err
 	}
 	result.AdminUser, err = auth.AdminModelFromRelation(admin, location)
+	if err != nil {
+		return result, err
+	}
+	if len(university) > 0 {
+		if err = json.Unmarshal(university, &result.University); err != nil {
+			return result, err
+		}
+	}
 	return result, err
 }

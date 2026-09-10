@@ -2,10 +2,14 @@ package counseling
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
+	"kaderisasi/admin/internal/domain"
 	"reflect"
 	"strconv"
 	"strings"
@@ -15,6 +19,10 @@ import (
 type Service struct {
 	Pool     *pgxpool.Pool
 	Location *time.Location
+}
+
+func eligibleCounselor(roleCode *string, active bool) bool {
+	return active && auth.ForRole(roleCode, true).Allows("counseling.manage")
 }
 
 func (s Service) List(ctx context.Context, filters Filters) (Page, error) {
@@ -36,7 +44,7 @@ func (s Service) List(ctx context.Context, filters Filters) (Page, error) {
 		return result, database.LegacyQueryError(err, filterStatement(filters, false))
 	}
 	for _, row := range rows {
-		detail, err := details(row.RuangCurhat, row.PublicUser, row.Profile, row.AdminUser, s.Location)
+		detail, err := details(row.RuangCurhat, row.PublicUser, row.Profile, row.AdminUser, nil, s.Location)
 		if err != nil {
 			return result, err
 		}
@@ -54,7 +62,21 @@ func (s Service) Show(ctx context.Context, id string) (Detail, error) {
 	if err != nil {
 		return Detail{}, err
 	}
-	return details(row.RuangCurhat, row.PublicUser, row.Profile, row.AdminUser, s.Location)
+	return details(row.RuangCurhat, row.PublicUser, row.Profile, row.AdminUser, row.University, s.Location)
+}
+func (s Service) CounselorOptions(ctx context.Context) ([]CounselorOption, error) {
+	rows, err := dbgen.New(s.Pool).ListCounselingAdministrators(ctx)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]CounselorOption, 0, len(rows))
+	for _, row := range rows {
+		if !eligibleCounselor(row.RoleCode, true) {
+			continue
+		}
+		result = append(result, CounselorOption{ID: row.ID, Email: row.Email, DisplayName: row.DisplayName})
+	}
+	return result, nil
 }
 func number(value *int32) *string {
 	if value == nil {
@@ -72,6 +94,13 @@ func (s Service) Update(ctx context.Context, id string, input Input) (Response, 
 	params := dbgen.UpdateCounselingParams{ID: row.ID, CounselorID: number(row.CounselorID), Status: number(row.Status), AdditionalNotes: row.AdditionalNotes}
 	if input.CounselorID != nil {
 		value := input.CounselorID.String()
+		candidate, candidateErr := q.FindAdminByIdentifier(ctx, value)
+		if errors.Is(candidateErr, pgx.ErrNoRows) || candidateErr == nil && !eligibleCounselor(candidate.RoleCode, candidate.IsActive) {
+			return Response{}, domain.Fail(422, "INVALID_COUNSELOR")
+		}
+		if candidateErr != nil {
+			return Response{}, candidateErr
+		}
 		params.CounselorID = &value
 	}
 	if input.Status != nil {

@@ -35,8 +35,13 @@ func (q *Queries) CounselingByIdentifier(ctx context.Context, identifier string)
 }
 
 const counselingDetails = `-- name: CounselingDetails :one
-SELECT rc.id, rc.user_id, rc.problem_ownership, rc.owner_name, rc.problem_category, rc.problem_description, rc.handling_technic, rc.counselor_gender, rc.counselor_id, rc.status, rc.additional_notes, rc.created_at, rc.updated_at,(to_jsonb(u)-'password')::jsonb AS public_user,row_to_json(p) AS profile,(to_jsonb(a)-'password')::jsonb AS admin_user
-FROM ruang_curhats rc LEFT JOIN public_users u ON u.id=rc.user_id LEFT JOIN profiles p ON p.user_id=u.id LEFT JOIN admin_users a ON a.id=rc.counselor_id WHERE rc.id = $1::integer
+SELECT rc.id, rc.user_id, rc.problem_ownership, rc.owner_name, rc.problem_category, rc.problem_description, rc.handling_technic, rc.counselor_gender, rc.counselor_id, rc.status, rc.additional_notes, rc.created_at, rc.updated_at,(to_jsonb(u)-'password')::jsonb AS public_user,row_to_json(p) AS profile,(to_jsonb(a)-'password')::jsonb AS admin_user,row_to_json(uni) AS university
+FROM ruang_curhats rc
+LEFT JOIN public_users u ON u.id=rc.user_id
+LEFT JOIN profiles p ON p.user_id=u.id
+LEFT JOIN admin_users a ON a.id=rc.counselor_id
+LEFT JOIN universities uni ON uni.id=p.university_id
+WHERE rc.id = $1::integer
 `
 
 type CounselingDetailsRow struct {
@@ -44,6 +49,7 @@ type CounselingDetailsRow struct {
 	PublicUser  []byte      `json:"public_user"`
 	Profile     []byte      `json:"profile"`
 	AdminUser   []byte      `json:"admin_user"`
+	University  []byte      `json:"university"`
 }
 
 func (q *Queries) CounselingDetails(ctx context.Context, id int32) (CounselingDetailsRow, error) {
@@ -66,6 +72,7 @@ func (q *Queries) CounselingDetails(ctx context.Context, id int32) (CounselingDe
 		&i.PublicUser,
 		&i.Profile,
 		&i.AdminUser,
+		&i.University,
 	)
 	return i, err
 }
@@ -156,6 +163,45 @@ func (q *Queries) ListCounseling(ctx context.Context, arg ListCounselingParams) 
 			&i.PublicUser,
 			&i.Profile,
 			&i.AdminUser,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listCounselingAdministrators = `-- name: ListCounselingAdministrators :many
+SELECT id,email,display_name,role_code
+FROM admin_users
+WHERE is_active=true
+ORDER BY display_name ASC NULLS LAST,id ASC
+`
+
+type ListCounselingAdministratorsRow struct {
+	ID          int32   `json:"id"`
+	Email       string  `json:"email"`
+	DisplayName *string `json:"display_name"`
+	RoleCode    *string `json:"role_code"`
+}
+
+func (q *Queries) ListCounselingAdministrators(ctx context.Context) ([]ListCounselingAdministratorsRow, error) {
+	rows, err := q.db.Query(ctx, listCounselingAdministrators)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListCounselingAdministratorsRow{}
+	for rows.Next() {
+		var i ListCounselingAdministratorsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.DisplayName,
+			&i.RoleCode,
 		); err != nil {
 			return nil, err
 		}

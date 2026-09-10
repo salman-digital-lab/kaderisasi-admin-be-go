@@ -36,6 +36,31 @@ func TestCounselingAchievementAndLeaderboard(t *testing.T) {
 	cp := fmt.Sprintf("/v2/ruang-curhat/%d", counseling.ID("id"))
 	f.call("GET", cp, nil, f.token, 200)
 	f.call("PUT", cp, map[string]interface{}{"status": 1, "additional_notes": "Synthetic notes"}, f.token, 200)
+	counselorID := f.admin("konselor")
+	counselorToken := f.tokenFor(counselorID)
+	f.call("GET", cp, nil, counselorToken, 200)
+	options := f.call("GET", "/v2/ruang-curhat/counselors", nil, counselorToken, 200)
+	var optionRows []database.Object
+	if err = json.Unmarshal(options["data"], &optionRows); err != nil {
+		t.Fatal(err)
+	}
+	foundCounselor := false
+	for _, option := range optionRows {
+		if option.ID("id") == counselorID {
+			foundCounselor = true
+		}
+		if _, exposesRole := option["role_code"]; exposesRole {
+			t.Fatal("counselor options expose role codes")
+		}
+	}
+	if !foundCounselor {
+		t.Fatal("active counselor missing from counseling-scoped options")
+	}
+	f.call("PUT", cp, map[string]interface{}{"counselor_id": counselorID}, counselorToken, 200)
+	ineligibleID := f.admin("member_manager")
+	f.call("PUT", cp, map[string]interface{}{"counselor_id": ineligibleID}, counselorToken, 422)
+	f.call("GET", fmt.Sprintf("/v2/profiles/user/%d", u.ID("id")), nil, counselorToken, 403)
+	f.call("GET", "/v2/admin-users", nil, counselorToken, 403)
 	a := database.Object{}
 	a.Set("user_id", u.ID("id"))
 	a.Set("name", "Synthetic award")
