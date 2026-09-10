@@ -4,7 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parseEnv } from 'node:util';
-import { root, workspace, legacy, testEnvironment } from './env.mjs';
+import { root, workspace, legacy, migrations, testEnvironment } from './env.mjs';
 import { acquireFixtureLease } from './fixture-lease.mjs';
 
 acquireFixtureLease();
@@ -40,8 +40,8 @@ try {
         await client.query(`COMMENT ON SCHEMA ${quote(name)} IS 'admin Go rewrite fixture ${run}'`);
         await client.query('COMMIT');
       }catch(error){await client.query('ROLLBACK');throw error;}
-      const childEnv = testEnvironment({ PGOPTIONS: `-c search_path=${name}`, ADMIN_BOOTSTRAP_EMAILS: '', NODE_ENV: 'test' });
-      const migrated = spawnSync('node', ['ace', 'migration:run', '--force'], { cwd: legacy, env: childEnv, encoding: 'utf8' });
+      const childEnv = testEnvironment({ DB_SCHEMA: name, PGOPTIONS: `-c search_path=${name}`, ADMIN_BOOTSTRAP_EMAILS: 'bootstrap@example.test', NODE_ENV: 'test' });
+      const migrated = spawnSync('node', ['ace', 'migration:run', '--force'], { cwd: migrations, env: childEnv, encoding: 'utf8' });
       writeFileSync(resolve(artifacts, `${suffix}-migrations.log`), migrated.stdout + migrated.stderr);
       if (migrated.status !== 0) throw new Error(`Ace migration failed for ${suffix}; see artifact log`);
       const tables = await client.query('SELECT count(*)::int AS total FROM information_schema.tables WHERE table_schema=$1', [name]);

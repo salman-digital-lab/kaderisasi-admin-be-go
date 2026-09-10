@@ -38,7 +38,7 @@ COPY internal ./internal
 COPY tests ./tests
 COPY scripts/crypto-fixture.cjs ./scripts/crypto-fixture.cjs
 COPY --from=interop /usr/local/bin/node /usr/local/bin/node
-COPY --from=interop /kaderisasi-admin-be /kaderisasi-admin-be
+COPY --from=interop /kaderisasi-admin-be ./tests/interop
 RUN go vet ./... && go test -race -count=1 -timeout=10m ./... \
     && go build -trimpath -ldflags='-s -w' -o /out/admin-api ./cmd/api \
     && go build -trimpath -ldflags='-s -w' -o /out/admin-jobs ./cmd/jobs

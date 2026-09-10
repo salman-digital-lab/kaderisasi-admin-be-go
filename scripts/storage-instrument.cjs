@@ -2,7 +2,7 @@
 const {createRequire}=require('node:module');
 const {readFileSync,writeFileSync,renameSync}=require('node:fs');
 const {resolve}=require('node:path');
-const legacy=createRequire(resolve(__dirname,'../../kaderisasi-admin-be/package.json'));
+const legacy=createRequire(resolve(require('./legacy-path.cjs'),'package.json'));
 const {S3Client}=legacy('@aws-sdk/client-s3');
 const journal=process.env.GO_REWRITE_STORAGE_LEDGER;
 const fixtureEnvironment=process.env.NODE_ENV==='test'||(process.env.NODE_ENV==='production'&&process.env.GO_REWRITE_PRODUCTION_CONTRACT==='1');

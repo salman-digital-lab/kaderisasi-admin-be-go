@@ -1,6 +1,6 @@
 # Admin backend in Go
 
-Parallel implementation of the Kaderisasi admin API on port **3334**. It serves
+The Kaderisasi admin API on port **3334**. It serves
 `/v2` and `/health`; it never starts scheduled jobs. Adonis remains the only owner
 of database migrations, seeders, and RBAC preflight.
 
@@ -8,8 +8,8 @@ of database migrations, seeders, and RBAC preflight.
 jobs, and 17 verification stages passed on September 10, 2026. See the
 [verification report](docs/VERIFICATION.md), [route matrix](docs/COMPATIBILITY.md),
 and [progress ledger](PROGRESS.md). Production now runs Go through
-[Coolify](docs/COOLIFY.md). Adonis remains the local workspace launcher's default
-and continues to own database migrations, seeders, and RBAC preflight.
+[Coolify](docs/COOLIFY.md). Go is also the local workspace launcher's default. The former Adonis API
+repository now contains only database maintenance code.
 
 ## Local setup
 
@@ -26,6 +26,7 @@ go version
 pkg-config --modversion vips
 go mod download
 npm ci
+make prepare-reference
 npx playwright install chromium
 make build
 make package
@@ -42,10 +43,14 @@ executables reach startup validation. Install the runtime described in its
 `RUNTIME.txt` on the destination. Build on Linux for a Linux destination; the
 verified macOS archive is not a cross-platform distribution.
 
-The test harness also uses the existing Adonis installation for Ace, Vine,
-password/cookie fixtures, PostgreSQL, Sharp, and ExcelJS. Run `npm ci` in the
-existing applications if their dependencies are absent. Frontend source remains
-in its original application.
+The differential harness uses a detached historical Adonis checkout at the revision
+in `docs/BASELINE.json`. Run `make prepare-reference` to create it under
+`.artifacts/legacy-admin-be` and install its locked dependencies plus the standalone
+crypto fixture dependencies in `tests/interop`. Set `ADONIS_REFERENCE_DIR` to use
+another checkout at that same revision. The original `kaderisasi-admin-be` Git
+history must be available; do not use a shallow clone that omits the baseline.
+Ace migrations always run from the current migration-only `kaderisasi-admin-be`
+repository. Run `npm ci` there and in the existing frontends/web backend as needed.
 
 ## Running
 
@@ -72,17 +77,15 @@ separated allowlist; local public frontend requests require
 `http://localhost:3000` alongside `http://localhost:3005`. `APP_KEY` must be identical
 to Adonis for session transfer. Never print or commit env files.
 
-The workspace launcher supports an opt-in selection:
+The workspace launcher starts Go on port 3334 by default:
 
 ```sh
-../start-all.sh test --admin-go
-# Return to the default implementation:
 ../start-all.sh test
 ```
 
-The launcher preserves all four ports. Its existing environment-copy behavior
-continues for the three original applications; Go receives injected configuration.
-Switching implementation restarts the workspace tmux stack.
+`--admin-go` remains accepted for compatibility. All four ports are preserved.
+The launcher copies environment files for the frontends and web backend; Go
+receives injected configuration. It does not start the migration repository.
 
 ## Database ownership
 
@@ -168,7 +171,7 @@ configuration. Stop the old API before starting Go on 3334. Schedule each Go job
 separately and remove its Adonis schedule to avoid running both copies.
 
 Check `/health`, login/refresh, permissions, a member read, and a certificate read.
-To return to Adonis, stop Go and its job schedule, start Adonis on 3334, and restore
+To return to Adonis, stop Go and its job schedule, start the pinned historical Adonis checkout or retained rollback image on 3334, and restore
 its job schedule. The shared schema is unchanged; do not roll back migrations or
 reset tables. Session/password transfer is tested in both directions.
 

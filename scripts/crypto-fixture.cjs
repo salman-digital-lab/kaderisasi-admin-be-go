@@ -1,7 +1,7 @@
 const { createRequire } = require('node:module');
 const { resolve } = require('node:path');
 const { readFileSync } = require('node:fs');
-const legacy = createRequire(resolve(__dirname, '../../kaderisasi-admin-be/package.json'));
+const legacy = createRequire(resolve(__dirname, '../tests/interop/package.json'));
 const { Scrypt } = legacy('@adonisjs/hash/drivers/scrypt');
 const { Encryption } = legacy('@adonisjs/encryption');
 const jwt = legacy('jsonwebtoken');

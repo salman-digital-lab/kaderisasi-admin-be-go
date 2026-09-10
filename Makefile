@@ -1,4 +1,7 @@
-.PHONY: check build package run test-unit fixtures test-integration test-contract test-browser test-shared test-jobs benchmark verify clean-fixtures
+prepare-reference:
+	node scripts/prepare-reference.mjs
+
+.PHONY: prepare-reference check build package run test-unit fixtures test-integration test-contract test-browser test-shared test-jobs benchmark verify clean-fixtures
 
 BORROW_WORKSPACE ?= --borrow-workspace
 

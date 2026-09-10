@@ -12,12 +12,15 @@ function listeners(port) {
 export async function borrowWorkspacePort(port, allowed) {
   if (!listeners(port).length) return async()=>{};
   if (!allowed) throw new Error(`Port ${port} is occupied; use --borrow-workspace to suspend and restore the recognized workspace service`);
-  const application={3334:'kaderisasi-admin-be',3333:'kaderisasi-web-be',3005:'kaderisasi-admin-fe',3000:'kaderisasi-web-fe'}[port];
+  const application={3334:'kaderisasi-admin-be-go',3333:'kaderisasi-web-be',3005:'kaderisasi-admin-fe',3000:'kaderisasi-web-fe'}[port];
   if(!application)throw new Error('Unallocated workspace port');
   const directory = resolve(workspace,application);
   const panes = spawnSync('tmux',['list-panes','-a','-F','#{pane_id}\t#{pane_pid}\t#{pane_current_path}\t#{session_name}:#{window_index}'],{encoding:'utf8'}).stdout.trim().split('\n').map(row=>row.split('\t'));
   const pane=panes.find(row=>row[2]===directory);
   if (!pane) throw new Error(`Port ${port} is not managed by the expected workspace pane`);
+  const mode = spawnSync('tmux',['show-option','-v','-t',pane[3],'@kaderisasi_environment'],{encoding:'utf8'}).stdout.trim();
+  if(port === 3334 && !['test','prod'].includes(mode))throw new Error('Cannot restore Go without a recorded workspace environment');
+  const resumeCommand = port === 3334 ? `node scripts/run.mjs --environment=${mode} api` : 'npm run dev';
   for(const listener of listeners(port)) {
     let pid=listener,owned=false;
     for(let n=0;n<10&&pid>1;n++) { if(pid===Number(pane[1])){owned=true;break;} pid=Number(spawnSync('ps',['-p',String(pid),'-o','ppid='],{encoding:'utf8'}).stdout.trim()); }
@@ -31,11 +34,11 @@ export async function borrowWorkspacePort(port, allowed) {
     if(listeners(port).length)throw new Error(`Cannot restore occupied port ${port}`);
     const live=spawnSync('tmux',['list-panes','-a','-F','#{pane_id}'],{encoding:'utf8'}).stdout.trim().split('\n');
     if(live.includes(pane[0])) {
-      spawnSync('tmux',['send-keys','-t',pane[0],'-l',`cd '${directory}' && npm run dev`]);
+      spawnSync('tmux',['send-keys','-t',pane[0],'-l',`cd '${directory}' && ${resumeCommand}`]);
       spawnSync('tmux',['send-keys','-t',pane[0],'Enter']);
     } else {
       // The original launcher may close a pane when npm receives Ctrl-C.
-      const replacement=spawnSync('tmux',['split-window','-d','-t',pane[3],'-c',directory,'-P','-F','#{pane_id}','npm run dev; exec /bin/zsh -l'],{encoding:'utf8'});
+      const replacement=spawnSync('tmux',['split-window','-d','-t',pane[3],'-c',directory,'-P','-F','#{pane_id}',`${resumeCommand}; exec /bin/zsh -l`],{encoding:'utf8'});
       if(replacement.status!==0)throw new Error('Failed to restore workspace pane');
       pane[0]=replacement.stdout.trim();
       spawnSync('tmux',['select-layout','-t',pane[3],'tiled']);

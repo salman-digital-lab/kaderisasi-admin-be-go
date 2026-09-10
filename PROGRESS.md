@@ -602,3 +602,17 @@ limit on the slower shared database. The integration runner now has a bounded
 workload are unchanged. The current fixture run is `a62222104353e081`; approved
 localhost CORS is applied. A final aggregate must run on the updated source before
 reporting completion.
+
+## Migration-only Adonis repository (2026-09-10)
+
+The former API repository now contains Ace migrations, seeders, RBAC preflight,
+and their database helpers. Historical migration contents are unchanged. The
+workspace launcher defaults to Go. Differential testing uses a detached checkout
+of the recorded Adonis API revision, prepared with `make prepare-reference`;
+current Ace migrations still run from `../kaderisasi-admin-be`.
+
+Crypto fixtures now install their own locked Node dependencies under
+`tests/interop`; the Docker build uses that same directory. Production API/job
+Go source is unchanged. Validation for this maintenance change is recorded in
+`../kaderisasi-admin-be/VERIFICATION.md`; it does not replace the earlier full
+rewrite verification report or imply a new production deployment.

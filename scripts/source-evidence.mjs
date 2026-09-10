@@ -2,16 +2,16 @@ import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {readdirSync,readFileSync,mkdirSync,writeFileSync,existsSync} from 'node:fs';
 import {resolve,relative} from 'node:path';
-import {root,workspace} from './env.mjs';
+import {root,workspace,legacy} from './env.mjs';
 
-function files(directory){return readdirSync(directory,{withFileTypes:true}).flatMap(entry=>entry.isDirectory()?files(resolve(directory,entry.name)):/\.(go|json|sql|mjs|cjs)$/.test(entry.name)?[resolve(directory,entry.name)]:[]);}
+function files(directory){return readdirSync(directory,{withFileTypes:true}).flatMap(entry=>entry.isDirectory()?(entry.name==='node_modules'?[]:files(resolve(directory,entry.name))):/\.(go|json|sql|mjs|cjs)$/.test(entry.name)?[resolve(directory,entry.name)]:[]);}
 export function sourceEvidence(){
   // Changes to fixtures, comparison rules or query generation invalidate old
   // evidence just as application changes do. Never include environment files.
   const inputs=[...['cmd','internal','database','scripts','tests'].flatMap(dir=>files(resolve(root,dir))),...['go.mod','go.sum','package.json','package-lock.json','sqlc.yaml','playwright.config.mjs','Makefile','docs/BASELINE.json'].map(path=>resolve(root,path))].sort();
   const applications={};
-  for(const name of ['admin-be','web-be','admin-fe','web-fe']){
-    const directory=resolve(workspace,'kaderisasi-'+name);
+  for(const name of ['admin-be','web-be','admin-fe','web-fe','adonis-reference']){
+    const directory=name==='adonis-reference'?legacy:resolve(workspace,'kaderisasi-'+name);
     const paths=execFileSync('git',['ls-files','--cached','--others','--exclude-standard','-z'],{cwd:directory,encoding:'utf8'}).split('\0');
     // Include real source/configuration and tests, excluding environment files,
     // generated Next declarations, and build outputs changed by normal checks.
