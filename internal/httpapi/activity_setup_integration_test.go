@@ -14,7 +14,21 @@ func TestActivitySetupPermissionsAndHandoff(t *testing.T) {
 	ctx := context.Background()
 	panitia := f.tokenFor(f.admin("activity_manager"))
 	operational := f.tokenFor(f.admin("admin"))
-	draft := objectData(t, f.call("POST", "/v2/activities", map[string]interface{}{"name": "Setup fixture"}, panitia, 200))
+	// The browser sends additional_config even before the registration step.
+	draftPayload := map[string]interface{}{
+		"name":                 "Setup fixture",
+		"description":          "",
+		"club_id":              nil,
+		"is_published":         0,
+		"is_registration_open": false,
+		"additional_config": map[string]interface{}{
+			"allow_guest_registration": false,
+			"custom_selection_status":  []string{},
+			"mandatory_profile_data":   []interface{}{},
+			"additional_questionnaire": []interface{}{},
+		},
+	}
+	draft := objectData(t, f.call("POST", "/v2/activities", draftPayload, panitia, 200))
 	id := draft.ID("id")
 	defer func() {
 		if _, err := f.pool.Exec(ctx, "DELETE FROM custom_forms WHERE feature_type='activity_registration' AND feature_id=$1", id); err != nil {
@@ -29,6 +43,7 @@ func TestActivitySetupPermissionsAndHandoff(t *testing.T) {
 	if row.Bool("is_published") || row.Bool("is_registration_open") {
 		t.Fatal("new activity is not a closed draft")
 	}
+	f.call("PUT", path, draftPayload, panitia, 200)
 	f.call("POST", "/v2/activities", map[string]interface{}{"name": "Forged", "is_published": 1}, panitia, 403)
 	f.call("PUT", path, map[string]interface{}{"name": "Must roll back", "is_published": 1}, panitia, 403)
 	row = objectData(t, f.call("GET", path, nil, panitia, 200))
