@@ -58,7 +58,7 @@ func (s Service) ListRegistrations(ctx context.Context, identifier string, filte
 		return RegistrationPage{}, err
 	}
 	for _, field := range fields {
-		if _, exists := known[field]; exists || field == "*" {
+		if _, exists := known[field]; exists || field == "*" || field == "current_education" {
 			continue
 		}
 		// A saved configuration can reference a removed/unknown column. Execute

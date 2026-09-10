@@ -62,7 +62,7 @@ func (s *Server) registerMembers() {
 	})
 	s.registerProfileReads()
 	s.register("profiles_controller", "update", func(w http.ResponseWriter, r *http.Request) error {
-		data, ok := validatedInputAs[member.ProfileUpdate](w, r, "updateProfileValidator", true)
+		data, ok := validatedInputAs[member.ProfileUpdate](w, r, "memberProfileUpdateValidator", true)
 		if !ok {
 			return nil
 		}

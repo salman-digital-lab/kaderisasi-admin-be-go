@@ -39,6 +39,7 @@ type RegistrationGuest struct {
 	OriginCityID     json.RawMessage `json:"origin_city_id"`
 	UniversityID     json.RawMessage `json:"university_id"`
 	EducationHistory json.RawMessage `json:"education_history"`
+	WorkHistory      json.RawMessage `json:"work_history"`
 	CurrentEducation json.RawMessage `json:"current_education"`
 }
 type RegistrationLocations struct {

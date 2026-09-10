@@ -39,7 +39,7 @@ func ProfileView(row dbgen.Profile) ProfileResponse {
 		text := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.Local).UTC().Format("2006-01-02T15:04:05.000Z")
 		birthDate = &text
 	}
-	return ProfileResponse{Profile: row, BirthDate: birthDate, Badges: normalizeBadges(row.Badges), EducationHistory: row.EducationHistory, WorkHistory: row.WorkHistory, ExtraData: row.ExtraData, CreatedAt: memberTime(row.CreatedAt), UpdatedAt: memberTime(row.UpdatedAt)}
+	return ProfileResponse{Profile: row, BirthDate: birthDate, Badges: normalizeBadges(row.Badges), EducationHistory: NormalizeEducationHistory(row.EducationHistory), WorkHistory: NormalizeWorkHistory(row.WorkHistory), ExtraData: row.ExtraData, CreatedAt: memberTime(row.CreatedAt), UpdatedAt: memberTime(row.UpdatedAt)}
 }
 
 func ProfileWithUser(row dbgen.Profile, rawUser []byte) (ProfileSummary, error) {

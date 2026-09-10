@@ -8,11 +8,11 @@ type CredentialRequest struct {
 }
 
 type EducationEntry struct {
-	Degree      string      `json:"degree"`
-	Institution string      `json:"institution"`
-	Faculty     string      `json:"faculty"`
-	Major       string      `json:"major"`
-	IntakeYear  json.Number `json:"intake_year"`
+	Degree      *string      `json:"degree,omitempty"`
+	Institution string       `json:"institution"`
+	Faculty     string       `json:"faculty"`
+	Major       string       `json:"major"`
+	IntakeYear  *json.Number `json:"intake_year,omitempty"`
 }
 type WorkEntry struct {
 	JobTitle  string       `json:"job_title"`

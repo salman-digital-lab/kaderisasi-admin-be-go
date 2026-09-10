@@ -5,6 +5,7 @@ import (
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
+	"kaderisasi/admin/internal/member"
 	"time"
 )
 
@@ -57,6 +58,10 @@ func (row RegistrationSummary) MarshalJSON() ([]byte, error) {
 		if key != "status" && key != "created_at" {
 			result[key] = value
 		}
+	}
+	result["education_history"] = member.NormalizeEducationHistory(result["education_history"])
+	if raw, ok := result["work_history"]; ok {
+		result["work_history"] = member.NormalizeWorkHistory(raw)
 	}
 	return json.Marshal(result)
 }
@@ -120,7 +125,26 @@ func registrationSummary(row dbgen.ListRegistrationsFilteredRow, fields []string
 		return result, err
 	}
 	for _, field := range fields {
-		if field == "*" {
+		if field == "current_education" {
+			current := json.RawMessage("null")
+			history := member.NormalizeEducationHistory(row.EducationHistory)
+			if row.UserID == nil {
+				var guest struct {
+					Current json.RawMessage `json:"current_education"`
+					History json.RawMessage `json:"education_history"`
+				}
+				_ = json.Unmarshal(row.GuestData, &guest)
+				history = member.NormalizeEducationHistory(guest.History)
+				if database.JSONTruthy(guest.Current) {
+					current = guest.Current
+				}
+			}
+			var entries []json.RawMessage
+			if !database.JSONTruthy(current) && json.Unmarshal(history, &entries) == nil && len(entries) > 0 {
+				current = entries[len(entries)-1]
+			}
+			result.ProfileFields[field] = current
+		} else if field == "*" {
 			for key, value := range profile {
 				result.ProfileFields[key] = value
 			}

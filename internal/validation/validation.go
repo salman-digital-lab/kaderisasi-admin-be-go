@@ -67,15 +67,25 @@ func Validate(name string, input Object) (Object, []Issue) {
 	if err := json.Unmarshal(schemasJSON, &schemas); err != nil {
 		panic(err)
 	}
-	rule, ok := schemas[name]
+	schemaName := name
+	if name == "memberProfileUpdateValidator" {
+		schemaName = "updateProfileValidator"
+	}
+	rule, ok := schemas[schemaName]
 	if !ok {
 		panic("unknown validator: " + name)
+	}
+	if name == "memberProfileUpdateValidator" {
+		rule = memberProfileRule(rule)
 	}
 	raw, _ := json.Marshal(input)
 	output, issues := validate(rule, raw, "")
 	result := Object{}
 	if len(output) > 0 {
 		_ = json.Unmarshal(output, &result)
+	}
+	if name == "memberProfileUpdateValidator" && len(issues) == 0 {
+		issues = workHistoryIssues(result)
 	}
 	return result, issues
 }

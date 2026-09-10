@@ -21,18 +21,11 @@ func truthyText(raw json.RawMessage) string {
 	return Text(raw)
 }
 func historyText(raw json.RawMessage, fields ...string) (string, error) {
-	var entries []json.RawMessage
-	if len(raw) == 0 || raw[0] != '[' || json.Unmarshal(raw, &entries) != nil {
-		return Text(raw), nil
-	}
 	lines := []string{}
-	for _, entry := range entries {
+	for _, entry := range member.HistoryEntries(raw) {
 		parts := []string{}
 		for _, field := range fields {
-			part, err := documentProperty(entry, field)
-			if err != nil {
-				return "", err
-			}
+			part := entry[field]
 			if text := truthyText(part); text != "" {
 				parts = append(parts, text)
 			}
@@ -74,23 +67,26 @@ func RegistrationRow(number int, registration Registration, questions []Question
 	if label, ok := map[int32]string{0: "JAMAAH", 3: "AKTIVIS", 6: "KADER", 10: "KADER LANJUT"}[levelValue]; ok {
 		level = label
 	}
-	education := profile.EducationHistory
+	education := member.NormalizeEducationHistory(profile.EducationHistory)
+	work := member.NormalizeWorkHistory(profile.WorkHistory)
 	if registration.UserID == nil {
 		name, email, whatsapp = Text(guest.Name), Text(guest.Email), Text(guest.Whatsapp)
 		birthDate, country, major = Text(guest.BirthDate), Text(guest.Country), Text(guest.Major)
 		intakeYear, level, education = truthyText(guest.IntakeYear), "Tamu", guest.EducationHistory
+		education = member.NormalizeEducationHistory(education)
+		work = member.NormalizeWorkHistory(guest.WorkHistory)
 	}
 	educationText, err := historyText(education, "degree", "institution", "faculty", "major", "intake_year")
 	if err != nil {
 		return nil, err
 	}
-	workText, err := historyText(profile.WorkHistory, "job_title", "company", "start_year", "end_year")
+	workText, err := historyText(work, "job_title", "company", "start_year", "end_year")
 	if err != nil {
 		return nil, err
 	}
 	current := guest.CurrentEducation
 	var history []json.RawMessage
-	if json.Unmarshal(profile.EducationHistory, &history) == nil && len(history) > 0 && database.JSONTruthy(history[len(history)-1]) {
+	if (registration.UserID != nil || !database.JSONTruthy(current)) && json.Unmarshal(education, &history) == nil && len(history) > 0 {
 		current = history[len(history)-1]
 	}
 	locations := registration.Locations
