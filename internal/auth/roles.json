@@ -52,14 +52,14 @@
   },
   {
     "code": "admin",
-    "name": "Admin Operasional",
-    "description": "Mengelola operasional dan sertifikat.",
+    "name": "Asisten Manager Program",
+    "description": "Mengelola program, penayangan, dan sertifikat.",
     "capabilities": [
-      "Mengelola fitur operasional",
+      "Mengelola kegiatan, komunitas, kelas, anggota, dan prestasi",
       "Menayangkan kegiatan dan membuka atau menutup pendaftaran",
       "Mengelola dan menerbitkan sertifikat"
     ],
-    "limitation": "Pengelolaan akun dan hak akses admin dilakukan oleh Super Admin.",
+    "limitation": "Tidak memiliki akses Ruang Curhat. Akun dan hak akses admin dikelola oleh Super Admin.",
     "is_requestable": true,
     "permissions": [
       "achievements.export",
@@ -83,8 +83,6 @@
       "club_registrations.read",
       "clubs.manage",
       "clubs.read",
-      "counseling.manage",
-      "counseling.read",
       "courses.manage",
       "courses.read",
       "custom_forms.manage",
@@ -99,14 +97,14 @@
   },
   {
     "code": "activity_manager",
-    "name": "Panitia Kegiatan",
-    "description": "Menyiapkan kegiatan dan mengelola peserta.",
+    "name": "Panitia Program/Kegiatan",
+    "description": "Menyiapkan program atau kegiatan dan mengelola peserta.",
     "capabilities": [
       "Membuat dan mengubah kegiatan serta formulir",
       "Mengelola peserta dan status peserta",
       "Mengunduh data pendaftaran"
     ],
-    "limitation": "Tidak dapat menayangkan atau mengembalikan kegiatan ke draf, maupun membuka atau menutup pendaftaran. Minta bantuan Admin Operasional atau Super Admin.",
+    "limitation": "Tidak dapat menayangkan atau mengembalikan kegiatan ke draf, maupun membuka atau menutup pendaftaran. Minta bantuan Asisten Manager Program atau Super Admin.",
     "is_requestable": true,
     "permissions": [
       "activities.manage",
@@ -119,6 +117,35 @@
       "custom_forms.manage",
       "custom_forms.read",
       "dashboard.read",
+      "members.read"
+    ]
+  },
+  {
+    "code": "achievement_manager",
+    "name": "Pengelola Prestasi",
+    "description": "Menyiapkan kegiatan serta mengelola prestasi dan leaderboard.",
+    "capabilities": [
+      "Seluruh akses Panitia Program/Kegiatan",
+      "Memeriksa, menyetujui, atau menolak prestasi dan mengubah skornya",
+      "Mengunduh data prestasi dan melihat leaderboard"
+    ],
+    "limitation": "Tidak dapat menayangkan atau mengembalikan kegiatan ke draf, maupun membuka atau menutup pendaftaran. Minta bantuan Asisten Manager Program atau Super Admin.",
+    "is_requestable": true,
+    "permissions": [
+      "achievements.export",
+      "achievements.read",
+      "achievements.review",
+      "activities.manage",
+      "activities.read",
+      "activity_registrations.export",
+      "activity_registrations.manage",
+      "activity_registrations.read",
+      "certificate.read",
+      "certificate.template.read",
+      "custom_forms.manage",
+      "custom_forms.read",
+      "dashboard.read",
+      "leaderboards.read",
       "members.read"
     ]
   },
@@ -144,28 +171,6 @@
       "custom_forms.manage",
       "custom_forms.read",
       "dashboard.read",
-      "members.read"
-    ]
-  },
-  {
-    "code": "member_manager",
-    "name": "Petugas Anggota",
-    "description": "Mengelola anggota dan memeriksa prestasi.",
-    "capabilities": [
-      "Mengelola profil dan akun anggota",
-      "Mengubah email dan kata sandi anggota",
-      "Memeriksa prestasi dan melihat peringkat"
-    ],
-    "limitation": "Tidak dapat mengubah penayangan atau status pendaftaran kegiatan.",
-    "is_requestable": true,
-    "permissions": [
-      "achievements.export",
-      "achievements.read",
-      "achievements.review",
-      "dashboard.read",
-      "leaderboards.read",
-      "members.credentials.manage",
-      "members.manage",
       "members.read"
     ]
   },

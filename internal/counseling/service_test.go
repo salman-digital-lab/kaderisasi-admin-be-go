@@ -9,7 +9,8 @@ func TestEligibleCounselor(t *testing.T) {
 		want   bool
 	}{
 		{role: "super_admin", active: true, want: true},
-		{role: "admin", active: true, want: true},
+		{role: "admin", active: true, want: false},
+		{role: "achievement_manager", active: true, want: false},
 		{role: "konselor", active: true, want: true},
 		{role: "member_manager", active: true, want: false},
 		{role: "konselor", active: false, want: false},

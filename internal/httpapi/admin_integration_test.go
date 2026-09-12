@@ -4,6 +4,7 @@ package httpapi
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"kaderisasi/admin/internal/auth"
@@ -18,6 +19,44 @@ func mustUser(t *testing.T, pool *pgxpool.Pool, id int32) dbgen.AdminUser {
 		t.Fatal(err)
 	}
 	return user
+}
+
+func TestAchievementManagerRequestAndCurrentSessionPermissions(t *testing.T) {
+	f := newHTTPFixture(t)
+	id := f.admin("")
+	token := f.tokenFor(id)
+	targets := objectData(t, f.call("GET", "/v2/rbac/requestable-targets", nil, token, 200))
+	var roles []auth.Role
+	if err := json.Unmarshal(targets["roles"], &roles); err != nil {
+		t.Fatal(err)
+	}
+	found := false
+	for _, role := range roles {
+		if role.Code == "achievement_manager" {
+			found = role.IsRequestable && role.Name == "Pengelola Prestasi"
+		}
+	}
+	if !found {
+		t.Fatal("Pengelola Prestasi missing from requestable targets")
+	}
+	f.call("GET", "/v2/leaderboards/lifetime", nil, token, 403)
+	request := objectData(t, f.call("POST", "/v2/access-requests",
+		map[string]string{"role_code": "achievement_manager", "reason": "Mengelola kegiatan dan memeriksa prestasi"}, token, 201))
+	f.call("POST", fmt.Sprintf("/v2/tickets/review/%d/approve", request.ID("id")), nil, f.token, 200)
+	if fresh := mustUser(t, f.pool, id); fresh.RoleCode == nil || *fresh.RoleCode != "achievement_manager" {
+		t.Fatal("approved Pengelola Prestasi role not applied")
+	}
+	// The same JWT must use the current role, including after access is removed.
+	f.call("GET", "/v2/leaderboards/lifetime", nil, token, 200)
+	f.call("GET", "/v2/activities", nil, token, 200)
+	userPath := fmt.Sprintf("/v2/admin-users/%d", id)
+	f.call("PUT", userPath, map[string]string{"role_code": "konselor"}, f.token, 200)
+	f.call("GET", "/v2/ruang-curhat", nil, token, 200)
+	f.call("PUT", userPath, map[string]string{"role_code": "admin"}, f.token, 200)
+	f.call("GET", "/v2/ruang-curhat", nil, token, 403)
+	f.call("GET", "/v2/activities", nil, token, 200)
+	f.call("PUT", userPath, map[string]string{"role_code": "achievement_manager"}, f.token, 200)
+	f.call("GET", "/v2/leaderboards/lifetime", nil, token, 200)
 }
 func TestAdministratorAndTicketWorkflows(t *testing.T) {
 	f := newHTTPFixture(t)

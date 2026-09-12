@@ -23,6 +23,14 @@ func TestVineCompatibility(t *testing.T) {
 	}
 	for _, f := range fixtures {
 		t.Run(f.Name+"/"+f.Label, func(t *testing.T) {
+			// Role choices intentionally changed after the captured Vine baseline.
+			// Keep every other error property and validation contract unchanged.
+			if f.Label == "invalid-role_code" {
+				f.Issues[0].Meta = map[string]interface{}{"choices": []interface{}{
+					"super_admin", "admin", "activity_manager", "achievement_manager",
+					"club_manager", "konselor",
+				}}
+			}
 			output, issues := Validate(f.Name, f.Input)
 			if len(issues) != len(f.Issues) {
 				t.Fatalf("issues got %+v want %+v", issues, f.Issues)

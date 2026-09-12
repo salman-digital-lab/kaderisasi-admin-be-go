@@ -1,7 +1,8 @@
 # Admin access and activity setup
 
-The catalog contains six roles: Super Admin, Admin Operasional, Panitia Kegiatan,
-Pengelola Komunitas, Petugas Anggota, and Konselor. The five roles other than
+The catalog contains six roles: Super Admin, Asisten Manager Program,
+Panitia Program/Kegiatan, Pengelola Prestasi, Pengelola Komunitas,
+and Konselor. The five roles other than
 Super Admin can be requested. A successful review replaces the applicant's
 current role. Retired role names remain readable on completed requests and do
 not authorize accounts.
@@ -9,9 +10,24 @@ not authorize accounts.
 `activities.manage` allows activity preparation and content edits, including
 live activities. `activities.publish` controls publication and unpublication;
 `activities.registration.manage` controls opening and closing registration.
-Only Admin Operasional and Super Admin receive the latter two permissions.
-Panitia Kegiatan receives neither. Certificate mutation permissions belong to
-the operational roles, rather than Panitia.
+Only Asisten Manager Program and Super Admin receive the latter two permissions.
+Panitia Program/Kegiatan and Pengelola Prestasi receive neither. Certificate
+mutation permissions belong to Asisten Manager Program and Super Admin.
+
+Pengelola Prestasi (`achievement_manager`) has every Panitia permission plus
+achievement read, review, export, and leaderboard read access. Reviewing approved
+achievement scores updates the leaderboard through the existing workflow.
+Asisten Manager Program (`admin`) has no Ruang Curhat access and cannot be selected
+as a counselor. Counseling remains available to Super Admin and Konselor.
+The renamed roles retain their existing codes (`admin` and `activity_manager`),
+so existing accounts and pending requests use the updated names automatically.
+Petugas Anggota (`member_manager`) is retired and grants no access. Completed
+requests retain its historical label. The approved
+[direct SQL](sql/retire-member-manager.sql) makes its existing account roleless
+and cancels any open requests, preserving account status, credentials, and
+completed request history. No schema migration is needed. Registration, admin
+editing, and access-request validators accept exactly the active role codes;
+unit tests keep these choices aligned with authorization.
 
 The admin frontend starts role applications at `/my-requests/new`, using task
 choices and short capability summaries. `/my-requests` shows current access and

@@ -58,6 +58,9 @@ func RoleByCode(code string) *Role {
 
 // Historical labels are display-only: retired codes never authorize an account.
 func HistoricalRoleName(code string) string {
+	if code == "member_manager" {
+		return "Petugas Anggota"
+	}
 	if role := RoleByCode(code); role != nil {
 		return role.Name
 	}
