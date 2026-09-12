@@ -1,0 +1,18 @@
+{
+  "schema": {
+    "version": 2,
+    "fields": [
+      {"id":"profile","section_name":"profile_data","fields":[{"key":"name","label":"Nama","type":"text","required":true}]},
+      {"id":"choice","section_name":"Pilihan","fields":[{"key":"track","label":"Jalur","type":"radio","required":true,"options":[{"label":"Detail","value":"detail"},{"label":"Lewati","value":"skip"},{"label":"Selesai","value":"finish"}]}],"navigation":{"defaultTarget":{"type":"next"},"questionKey":"track","routes":[{"optionValue":"skip","target":{"type":"section","sectionId":"end"}},{"optionValue":"finish","target":{"type":"submit"}}]}},
+      {"id":"detail","section_name":"Detail","description":"Lengkapi informasi tambahan.","fields":[{"key":"reason","label":"Alasan","type":"text","required":true}]},
+      {"id":"end","section_name":"Penutup","fields":[{"key":"note","label":"Catatan","type":"text","required":false}]}
+    ]
+  },
+  "cases": [
+    {"name":"default route","answers":{"track":"detail","reason":"Alasan"},"route":["choice","detail","end"],"kept":{"track":"detail","reason":"Alasan"},"valid":true},
+    {"name":"skip required section","answers":{"track":"skip","reason":"stale","note":"OK"},"route":["choice","end"],"kept":{"track":"skip","note":"OK"},"valid":true},
+    {"name":"early submission","answers":{"track":"finish","reason":"stale","note":"stale"},"route":["choice"],"kept":{"track":"finish"},"valid":true},
+    {"name":"missing reachable required answer","answers":{"track":"detail"},"route":["choice","detail","end"],"kept":{"track":"detail"},"valid":false},
+    {"name":"invalid routing choice","answers":{"track":"forged","reason":"Alasan"},"route":["choice","detail","end"],"kept":{"track":"forged","reason":"Alasan"},"valid":false}
+  ]
+}

@@ -78,6 +78,9 @@ func Validate(name string, input Object) (Object, []Issue) {
 	if name == "memberProfileUpdateValidator" {
 		rule = memberProfileRule(rule)
 	}
+	if name == "customFormValidator" || name == "updateCustomFormValidator" {
+		rule = formRoutingRule(rule)
+	}
 	raw, _ := json.Marshal(input)
 	output, issues := validate(rule, raw, "")
 	result := Object{}
@@ -86,6 +89,9 @@ func Validate(name string, input Object) (Object, []Issue) {
 	}
 	if name == "memberProfileUpdateValidator" && len(issues) == 0 {
 		issues = workHistoryIssues(result)
+	}
+	if (name == "customFormValidator" || name == "updateCustomFormValidator") && len(issues) == 0 {
+		issues = formRoutingIssues(result)
 	}
 	return result, issues
 }

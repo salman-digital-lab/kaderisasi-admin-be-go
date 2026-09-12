@@ -9,6 +9,7 @@ import (
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
+	"kaderisasi/admin/internal/formschema"
 	"kaderisasi/admin/internal/storage"
 	"time"
 )
@@ -79,12 +80,16 @@ func (s Service) Update(ctx context.Context, id string, data Input) (Response, e
 		return Response{}, lookupError(err, true)
 	}
 	if data.IsRegistrationOpen != nil && *data.IsRegistrationOpen {
-		active, err := q.ClubHasActiveForm(ctx, &old.ID)
+		active, err := q.ActiveFormByFeature(ctx, dbgen.ActiveFormByFeatureParams{FeatureType: "club_registration", Identifier: database.JSNumber(float64(old.ID))})
+		if errors.Is(err, pgx.ErrNoRows) {
+			return Response{}, domain.Fail(400, "ACTIVE_CUSTOM_FORM_REQUIRED")
+		}
 		if err != nil {
 			return Response{}, err
 		}
-		if !active {
-			return Response{}, domain.Fail(400, "ACTIVE_CUSTOM_FORM_REQUIRED")
+		var schema formschema.Schema
+		if json.Unmarshal(active.FormSchema, &schema) != nil || !formschema.ValidRouting(schema) {
+			return Response{}, domain.Fail(400, "INVALID_FORM_SCHEMA")
 		}
 		end := old.RegistrationEndDate
 		if data.RegistrationEndDate.Present {

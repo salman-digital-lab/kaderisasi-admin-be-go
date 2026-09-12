@@ -12,6 +12,7 @@ test('current education selection preserves edits to the full education history'
     ],
   });
   const activity=await api('POST','/activities',{name:'History form activity',additional_config:{custom_selection_status:[],mandatory_profile_data:[],additional_questionnaire:[]}});
+  await fixture.db.query("UPDATE activities SET is_published=true,is_registration_open=true,registration_start=CURRENT_DATE-1,registration_end=CURRENT_DATE+1 WHERE id=$1",[activity.id]);
   await api('POST','/custom-forms',{
     formName:'Education form',featureType:'activity_registration',featureId:activity.id,isActive:true,
     formSchema:{fields:[

@@ -3,6 +3,7 @@ package form
 import (
 	"encoding/json"
 	"kaderisasi/admin/internal/domain"
+	"kaderisasi/admin/internal/formschema"
 )
 
 type Input struct {
@@ -15,40 +16,11 @@ type Input struct {
 	IsActive           *bool                        `json:"isActive,omitempty"`
 }
 
-type Schema struct {
-	Fields []Section `json:"fields"`
-}
-type Section struct {
-	Name   string  `json:"section_name"`
-	Fields []Field `json:"fields"`
-}
-type Field struct {
-	Key          string           `json:"key"`
-	Label        string           `json:"label"`
-	Required     bool             `json:"required"`
-	Type         string           `json:"type"`
-	Placeholder  *string          `json:"placeholder,omitempty"`
-	HelpText     *string          `json:"helpText,omitempty"`
-	Description  *string          `json:"description,omitempty"`
-	Options      *[]Option        `json:"options,omitempty"`
-	Validation   *FieldValidation `json:"validation,omitempty"`
-	DefaultValue json.RawMessage  `json:"defaultValue,omitempty"`
-	Hidden       *bool            `json:"hidden,omitempty"`
-	Disabled     *bool            `json:"disabled,omitempty"`
-}
-type Option struct {
-	Label    string          `json:"label"`
-	Value    json.RawMessage `json:"value,omitempty"`
-	Disabled *bool           `json:"disabled,omitempty"`
-}
-type FieldValidation struct {
-	Min           *json.Number `json:"min,omitempty"`
-	Max           *json.Number `json:"max,omitempty"`
-	MinLength     *json.Number `json:"minLength,omitempty"`
-	MaxLength     *json.Number `json:"maxLength,omitempty"`
-	Pattern       *string      `json:"pattern,omitempty"`
-	CustomMessage *string      `json:"customMessage,omitempty"`
-}
+type Schema = formschema.Schema
+type Section = formschema.Section
+type Field = formschema.Field
+type Option = formschema.Option
+type FieldValidation = formschema.FieldValidation
 type ClubAttachment struct {
 	ClubID json.Number `json:"clubId"`
 }

@@ -4,6 +4,7 @@ import {writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {root,workspace,legacy} from './env.mjs';
 import {sharedClubChecks} from './shared-clubs.mjs';
+import {sharedFormRoutingChecks} from './shared-form-routing.mjs';
 import {sourceEvidence} from './source-evidence.mjs';
 import {execFileSync} from 'node:child_process';
 import {fixtureDatabase,resetFixture,legacyRequire,fixtureKey,fixturePassword} from './fixture-db.mjs';
@@ -42,7 +43,9 @@ try{
   await call('web','Update profile through public backend','PUT','/profiles',{whatsapp:'628123456789',extra_data:{preferred_name:'Web updated'}},{token});
   profile=await call('go','Read public backend changes in Go','GET',`/profiles/${member.profile.id}`);
   assert.equal(profile.profile[0].whatsapp,'628123456789');assert.equal(profile.profile[0].extra_data.preferred_name,'Web updated');
-  const activity=await call('go','Create shared activity','POST','/activities',{name:'Shared activity',is_published:1,activity_start:'2026-02-28',additional_config:{custom_selection_status:[],mandatory_profile_data:[],additional_questionnaire:[]}});
+  const activity=await call('go','Create shared activity','POST','/activities',{name:'Shared activity',activity_start:'2026-02-28',additional_config:{custom_selection_status:[],mandatory_profile_data:[],additional_questionnaire:[]}});
+  // Publishing has its own readiness suite; this owned fixture tests shared records.
+  await fixture.db.query('UPDATE activities SET is_published=true,is_registration_open=true WHERE id=$1',[activity.id]);
   await call('go','Register member in Go','POST',`/activities/${activity.id}/registrations`,{user_id:member.profile.id,questionnaire_answer:{}});
   let registrations=await call('web','Read Go registration through web-be','GET','/profiles/activities',undefined,{token});
   assert.equal(registrations[0].activity.name,'Shared activity');assert.equal(registrations[0].certificate_state,'not_eligible');
@@ -71,6 +74,7 @@ try{
   assert.equal(revoked.valid,false);assert.equal(revoked.state,'issued_revoked');
   await call('web','Reject download after Go revocation','GET',`/certificates/code/${code}/download`,undefined,{token,status:410});
   await sharedClubChecks({call,db:fixture.db,token,otherToken:other.token.token});
+  await sharedFormRoutingChecks({call,db:fixture.db,token});
   const revisions=Object.fromEntries([['admin-be',legacy],['web-be',resolve(workspace,'kaderisasi-web-be')]].map(([name,cwd])=>[name,execFileSync('git',['rev-parse','HEAD'],{cwd,encoding:'utf8'}).trim()]));
   writeFileSync(resolve(root,'.artifacts/shared-database.json'),JSON.stringify({status:'passed',source:sourceEvidence(),revisions,schema:fixture.schema,checks},null,2));
   console.log(`Shared database: ${checks.length} checks passed against real Go and web-be APIs`);
