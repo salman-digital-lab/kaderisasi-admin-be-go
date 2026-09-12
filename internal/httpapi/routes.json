@@ -1,5 +1,23 @@
 [
   {
+    "method": "DELETE",
+    "path": "/v2/activities/:id",
+    "controller": "activities_controller",
+    "action": "delete",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "activities.manage"
+  },
+  {
+    "method": "DELETE",
+    "path": "/v2/clubs/:id",
+    "controller": "clubs_controller",
+    "action": "delete",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "clubs.manage"
+  },
+  {
     "method": "PUT",
     "path": "/v2/auth/profile",
     "controller": "auth_controller",

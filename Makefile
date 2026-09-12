@@ -22,6 +22,11 @@ run:
 test-unit:
 	go test -race -count=1 ./...
 
+.PHONY: test-feature-deletion
+test-feature-deletion: fixtures
+	node scripts/feature-deletion.mjs --browser $(BORROW_WORKSPACE)
+	node scripts/coverage.mjs --native=feature-deletion --check
+
 fixtures:
 	node scripts/ensure-fixtures.mjs
 

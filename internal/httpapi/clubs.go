@@ -22,6 +22,7 @@ func (s *Server) clubService() club.Service {
 func (s *Server) registerClubs() {
 	controller := "clubs_controller"
 	service := s.clubService()
+	s.register(controller, "delete", s.featureDeletion(service.Delete))
 	s.register(controller, "index", func(w http.ResponseWriter, r *http.Request) error {
 		params := r.URL.Query()
 		page, size := pageParams(r, 10, 0)

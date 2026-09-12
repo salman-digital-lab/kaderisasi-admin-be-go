@@ -18,6 +18,9 @@ SELECT * FROM clubs WHERE id=CAST(CAST(@identifier AS text) AS integer);
 -- name: LockClubByIdentifier :one
 SELECT * FROM clubs WHERE id=CAST(CAST(@identifier AS text) AS integer) FOR UPDATE;
 
+-- name: DeleteClub :exec
+DELETE FROM clubs WHERE id=$1;
+
 -- name: LatestClubForm :one
 SELECT * FROM custom_forms WHERE feature_type='club_registration' AND feature_id=$1 ORDER BY updated_at DESC,id DESC LIMIT 1;
 

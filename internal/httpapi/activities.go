@@ -4,7 +4,6 @@ import (
 	"errors"
 	"kaderisasi/admin/internal/activity"
 	"kaderisasi/admin/internal/auth"
-	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
 	"net/http"
 )
@@ -58,18 +57,5 @@ func (s *Server) registerActivities() {
 			return nil
 		})
 	}
-	// Kept for source parity; this action has no route declaration.
-	s.register("activities_controller", "delete", func(w http.ResponseWriter, r *http.Request) error {
-		removed, err := dbgen.New(s.Pool).DeleteActivityByIdentifier(r.Context(), pathID(r, "id"))
-		if err != nil {
-			legacyFailure(w, err)
-			return nil
-		}
-		if removed == 0 {
-			message(w, 200, "ACTIVITY_NOT_FOUND")
-		} else {
-			message(w, 200, "DELETE_DATA_SUCCESS")
-		}
-		return nil
-	})
+	s.register("activities_controller", "delete", s.featureDeletion(service.Delete))
 }

@@ -12,7 +12,7 @@ const nativeApplicability=JSON.parse(readFileSync(resolve(root,'tests/native-rou
 const requestedSuite=process.argv.find(arg=>arg.startsWith('--native='))?.slice('--native='.length);
 const selectedSuite=nativeApplicability.suites.find(suite=>suite.name===requestedSuite);
 if(requestedSuite&&!selectedSuite)throw new Error('Unknown native coverage suite');
-const routes=requestedSuite?inventory.filter(route=>route.controller===selectedSuite.controller):inventory;
+const routes=requestedSuite?inventory.filter(route=>nativeApplicability.routes.some(review=>review.suite===requestedSuite&&review.route===route.method+' '+route.path)):inventory;
 if(applicability.baseline_revision!==baseline.revision)throw new Error('Route applicability must be reviewed for the adopted source');
 const allReviews=requestedSuite?nativeApplicability.routes.filter(row=>row.suite===requestedSuite):[...applicability.routes,...nativeApplicability.routes];
 const reviews=new Map(allReviews.map(row=>[row.route,row]));

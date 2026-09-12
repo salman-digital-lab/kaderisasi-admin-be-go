@@ -56,3 +56,7 @@ UPDATE custom_forms SET feature_type='activity_registration',feature_id=CAST(CAS
 
 -- name: DetachFormFromActivity :one
 UPDATE custom_forms SET feature_id=null,updated_at=now() WHERE id=$1 RETURNING *;
+
+-- name: DetachDeletedFeatureForms :exec
+UPDATE custom_forms SET feature_id=null,is_active=false,updated_at=now()
+WHERE feature_type = @feature_type::text AND feature_id = @feature_id::integer;

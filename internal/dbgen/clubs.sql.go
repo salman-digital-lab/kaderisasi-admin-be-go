@@ -123,6 +123,15 @@ func (q *Queries) CreateClub(ctx context.Context, arg CreateClubParams) (Club, e
 	return i, err
 }
 
+const deleteClub = `-- name: DeleteClub :exec
+DELETE FROM clubs WHERE id=$1
+`
+
+func (q *Queries) DeleteClub(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteClub, id)
+	return err
+}
+
 const latestClubForm = `-- name: LatestClubForm :one
 SELECT id, form_name, form_description, feature_id, form_schema, is_active, created_at, updated_at, feature_type, post_submission_info FROM custom_forms WHERE feature_type='club_registration' AND feature_id=$1 ORDER BY updated_at DESC,id DESC LIMIT 1
 `

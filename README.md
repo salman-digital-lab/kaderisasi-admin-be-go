@@ -107,6 +107,16 @@ migration source. No Go migration runner or general demo seeder exists.
 
 ## Verification
 
+`DELETE /v2/activities/:id` and `DELETE /v2/clubs/:id` require Super Admin
+(`super_admin`) or Asisten Manager Program (`admin`) and a JSON body containing
+`confirmation` equal to the current saved name. The transaction deletes registrations,
+detaches and deactivates registration forms, and preserves member accounts. Club
+activities remain with their club association cleared. Activities with issued
+certificates or approval history return 409 without deleting data. Existing media
+objects remain in storage. No schema migration is needed. Run
+`make test-feature-deletion` for native authorization, data-effect, and desktop/mobile
+browser checks; the full verification runner includes this suite.
+
 ```sh
 make check
 make test-unit

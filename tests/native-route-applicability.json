@@ -1,6 +1,11 @@
 {
   "suites": [
     {
+      "name": "feature-deletion",
+      "report": ".artifacts/feature-deletion.json",
+      "command": "make test-feature-deletion"
+    },
+    {
       "name": "courses",
       "controller": "courses_controller",
       "report": ".artifacts/courses.json",
@@ -8,6 +13,22 @@
     }
   ],
   "routes": [
+    {
+      "route": "DELETE /v2/activities/:id",
+      "source": "activities_controller.delete",
+      "evidence": "native",
+      "suite": "feature-deletion",
+      "invalid_input": { "applicable": true, "reason": "An exact, nonempty saved name is required; missing, mismatched and non-string confirmations are rejected." },
+      "missing_resource": { "applicable": true, "reason": "Deleting an absent or already deleted activity returns 404." }
+    },
+    {
+      "route": "DELETE /v2/clubs/:id",
+      "source": "clubs_controller.delete",
+      "evidence": "native",
+      "suite": "feature-deletion",
+      "invalid_input": { "applicable": true, "reason": "An exact, nonempty saved name is required; missing, mismatched and non-string confirmations are rejected." },
+      "missing_resource": { "applicable": true, "reason": "Deleting an absent or already deleted club returns 404." }
+    },
     {
       "route": "GET /v2/courses",
       "source": "courses_controller.index",

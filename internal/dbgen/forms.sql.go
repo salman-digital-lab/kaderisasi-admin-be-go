@@ -142,6 +142,21 @@ func (q *Queries) DeleteForm(ctx context.Context, id int32) error {
 	return err
 }
 
+const detachDeletedFeatureForms = `-- name: DetachDeletedFeatureForms :exec
+UPDATE custom_forms SET feature_id=null,is_active=false,updated_at=now()
+WHERE feature_type = $1::text AND feature_id = $2::integer
+`
+
+type DetachDeletedFeatureFormsParams struct {
+	FeatureType string `json:"feature_type"`
+	FeatureID   int32  `json:"feature_id"`
+}
+
+func (q *Queries) DetachDeletedFeatureForms(ctx context.Context, arg DetachDeletedFeatureFormsParams) error {
+	_, err := q.db.Exec(ctx, detachDeletedFeatureForms, arg.FeatureType, arg.FeatureID)
+	return err
+}
+
 const detachFormFromActivity = `-- name: DetachFormFromActivity :one
 UPDATE custom_forms SET feature_id=null,updated_at=now() WHERE id=$1 RETURNING id, form_name, form_description, feature_id, form_schema, is_active, created_at, updated_at, feature_type, post_submission_info
 `
