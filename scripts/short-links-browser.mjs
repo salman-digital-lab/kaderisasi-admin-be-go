@@ -28,6 +28,12 @@ export async function shortLinksBrowser(db,schema,artifacts){
   await expect(page.getByText(destination,{exact:true})).toBeVisible();
   await page.getByRole('button',{name:'Salin tautan baru',exact:true}).click();
   assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),'http://localhost:4000/Kajian26');
+  await page.getByRole('button',{name:'Kode QR',exact:true}).click();dialog=page.getByRole('dialog');
+  await expect(dialog.getByText('http://localhost:4000/Kajian26',{exact:true})).toBeVisible();
+  const downloaded=page.waitForEvent('download');await dialog.getByRole('button',{name:'Unduh PNG',exact:true}).click();
+  const png=await downloaded;assert.equal(png.suggestedFilename(),'short-link-Kajian26.png');await png.saveAs(resolve(artifacts,'short-link-Kajian26.png'));
+  await page.screenshot({path:resolve(artifacts,'qr-desktop.png'),animations:'disabled'});
+  await dialog.getByRole('button',{name:'Tutup',exact:true}).click();
   await page.getByRole('button',{name:'Buat tautan',exact:true}).click();dialog=page.getByRole('dialog');
   await dialog.getByLabel('Alamat tujuan',{exact:true}).fill(destination);await dialog.getByLabel('Kode khusus (opsional)',{exact:true}).fill('Kajian26');await dialog.getByRole('button',{name:'Buat tautan',exact:true}).click();
   await expect(dialog.getByText('Kode sudah digunakan. Pilih kode lain.',{exact:true})).toBeVisible();
@@ -46,6 +52,15 @@ export async function shortLinksBrowser(db,schema,artifacts){
   await page.goto('http://localhost:3005/short-links');await expect(page.getByRole('heading',{name:'Tautan Pendek',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Ubah',exact:true})).toBeVisible();
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   await expect(page.locator('.ant-spin-spinning')).toHaveCount(0);await expect(page.getByRole('button',{name:'Buat tautan',exact:true})).toBeEnabled();await expect(page.getByRole('button',{name:'Buat tautan',exact:true})).toHaveCSS('color','rgb(255, 255, 255)');await expect(page.getByRole('button',{name:'Buat tautan',exact:true})).toHaveCSS('background-image','none');await expect(page.locator('main .ant-typography-secondary').first()).toHaveCSS('color','rgb(89, 89, 89)');await page.screenshot({path:resolve(artifacts,'short-links-mobile.png'),fullPage:true,animations:'disabled'});
+  await page.getByRole('button',{name:'Kode QR',exact:true}).click();dialog=page.getByRole('dialog');
+  await expect(dialog.getByText('http://localhost:4000/Kajian26',{exact:true})).toBeVisible();
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+  await dialog.getByRole('button',{name:'Unduh PNG',exact:true}).focus();
+  await page.waitForTimeout(350);
+  await page.screenshot({path:resolve(artifacts,'qr-mobile.png'),animations:'disabled'});
+  await page.evaluate(()=>{HTMLCanvasElement.prototype.toDataURL=()=>{throw new Error('fixture export denied');};});
+  await dialog.getByRole('button',{name:'Unduh PNG',exact:true}).click();await expect(dialog.getByText('Kode QR belum dapat diunduh. Silakan coba lagi.',{exact:true})).toBeVisible();
+  await dialog.getByRole('button',{name:'Tutup',exact:true}).press('Escape');await expect(dialog).not.toBeVisible();
   await page.getByRole('button',{name:'Ubah',exact:true}).click();await expect(page.getByRole('dialog')).toBeVisible();await page.getByRole('dialog').getByLabel('Alamat tujuan',{exact:true}).press('Escape');await expect(page.getByRole('dialog')).not.toBeVisible();
   await page.getByRole('button',{name:'Hapus',exact:true}).click();await page.getByRole('button',{name:'Batal',exact:true}).click();
   await page.getByRole('button',{name:'Hapus',exact:true}).click();await page.getByRole('button',{name:'Hapus tautan',exact:true}).click();await expect(page.getByText('Belum ada tautan pendek.',{exact:true})).toBeVisible();
