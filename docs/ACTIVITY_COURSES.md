@@ -1,14 +1,16 @@
 # Linked activity courses
 
-Activity editors can save an ordered list of courses in the registration step of
-activity setup. Registrant readers see current progress for those courses; export
+Activity and club editors can save an ordered list of courses from the Kelas Online
+tab. Activity setup also offers the same searchable, paginated chooser. Current
+progress lives in a separate table below course configuration, rather than the
+ordinary participant-management table. Registrant readers see progress; export
 permission remains separate. No course permission, registration prerequisite,
 publication requirement, or automatic participant-status change is introduced.
 
 ## API
 
 - `GET /v2/activities/course-options?search=&page=1&per_page=50` requires
-  `activities.manage`; returns a paginated list of ID, title, status, and lesson count.
+  `activities.manage`; returns a paginated list of ID, title, summary, minimum level, status, and lesson count.
 - `GET /v2/activities/:id/courses` requires `activities.read` or
   `activity_registrations.read`; returns the ordered linked-course metadata.
 - `PUT /v2/activities/:id/courses` requires `activities.manage`; accepts
@@ -85,3 +87,39 @@ These historical suites are not green; their reports remain under
 
 For application rollback, retain the additive schema and restore the previous
 API/frontend versions. Do not roll back migrations or delete learning history.
+
+
+## Club support and dedicated progress tables
+
+The additive `1789283638947_create_create_club_courses_table` Ace migration adds
+`club_courses` and `club_course_progress`. It does not change activity links or
+learning records. Club progress includes every registration status, including
+approved members. Null member accounts are unverifiable. Clubs use the same
+current-lesson calculation as activities.
+
+- `GET /v2/clubs/course-options` uses `clubs.manage` and the same paginated metadata
+  catalogue as activities, including draft and archived classes.
+- `GET /v2/clubs/:id/courses` allows `clubs.read` or `club_registrations.read`.
+- `PUT /v2/clubs/:id/courses` uses `clubs.manage`, ordered `course_ids`, 422 validation,
+  and a club-row lock for atomic replacements.
+- `GET /v2/{activities|clubs}/:id/course-progress` requires the corresponding
+  registration-read permission. It returns ordered `courses`, paginated `data`
+  (registration ID, name, email, registration status, course progress), and `meta`.
+  Search, registration status, `course_id`, and `course_completion` filters apply
+  before pagination with identical count predicates and a repeatable-read snapshot.
+- The same path with `/export` uses registration-export permission and exports
+  all registrants, regardless of screen filters. Columns contain course IDs.
+
+No endpoint adds a `courses.read` requirement. The existing club-manager role does
+already have course access; activity-manager tests independently cover admins
+without it. Ordinary club registration responses and exports remain compatible.
+
+The chooser shows summary, course status, minimum level and current lesson count.
+Selections persist across catalogue pages and searches; admins can reorder them
+before saving. Cancel discards modal edits. Saving refreshes the progress table and
+resets its filters. Progress columns have preferences separate from participant
+profile fields. Failed progress loads show an explicit retry/reset state.
+
+Deploy the club migration before the updated Go API (its dedicated progress queries
+reference both views), then deploy the frontend. Leave both additive schemas in
+place during an application rollback.

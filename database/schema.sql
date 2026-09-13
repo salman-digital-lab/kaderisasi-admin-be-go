@@ -2004,3 +2004,32 @@ CROSS JOIN LATERAL (
  FROM course_lesson_progress p JOIN course_lessons l ON l.id = p.lesson_id
  WHERE p.user_id = ar.user_id AND l.course_id = ac.course_id AND l.deleted_at IS NULL
 ) progress;
+
+CREATE TABLE club_courses (
+ id serial PRIMARY KEY,
+ club_id integer NOT NULL REFERENCES clubs(id) ON DELETE CASCADE,
+ course_id integer NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+ position integer NOT NULL CHECK (position > 0),
+ UNIQUE (club_id, course_id)
+);
+CREATE INDEX club_courses_course_id_index ON club_courses(course_id);
+CREATE VIEW club_course_progress AS
+SELECT ar.club_id, ar.id AS registration_id, ac.course_id, ac.position,
+ totals.total_lessons, progress.completed_lessons,
+ CASE WHEN ar.member_id IS NULL THEN 'unverifiable'
+ WHEN totals.total_lessons = 0 THEN 'empty'
+ WHEN progress.completed_lessons = totals.total_lessons THEN 'completed'
+ WHEN progress.visited_lessons > 0 THEN 'in_progress'
+ ELSE 'not_started' END AS status
+FROM club_registrations ar
+JOIN club_courses ac ON ac.club_id = ar.club_id
+CROSS JOIN LATERAL (
+ SELECT count(*)::integer AS total_lessons FROM course_lessons l
+ WHERE l.course_id = ac.course_id AND l.deleted_at IS NULL
+) totals
+CROSS JOIN LATERAL (
+ SELECT count(*)::integer AS visited_lessons,
+ count(*) FILTER (WHERE p.completed_at IS NOT NULL)::integer AS completed_lessons
+ FROM course_lesson_progress p JOIN course_lessons l ON l.id = p.lesson_id
+ WHERE p.user_id = ar.member_id AND l.course_id = ac.course_id AND l.deleted_at IS NULL
+) progress;

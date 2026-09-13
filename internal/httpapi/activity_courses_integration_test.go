@@ -40,7 +40,7 @@ func (f *activityCourseFixture) call(method, path string, body interface{}, toke
 	if status == 422 || strings.Contains(path, "/bad/") {
 		label = "invalid-input: " + label
 	}
-	if strings.Contains(path, "2147483647/courses") {
+	if status == 404 {
 		label = "missing-resource: " + label
 	}
 	f.checks = append(f.checks, activityCourseCheck{Owner: "admin", Label: label, Method: method, Path: strings.TrimPrefix(path, "/v2"), Status: status})
@@ -291,4 +291,5 @@ func TestActivityCoursesWorkflow(t *testing.T) {
 	if err := f.pool.QueryRow(ctx, "SELECT count(*) FROM course_lesson_progress WHERE user_id=ANY($1::int[])", users).Scan(&count); err != nil || count != 3 {
 		t.Fatal("unlink changed learning history", err, count)
 	}
+	testLinkedCoursePeople(t, f, activityID, courses, users, lessons)
 }

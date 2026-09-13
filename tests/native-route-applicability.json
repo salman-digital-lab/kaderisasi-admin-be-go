@@ -289,6 +289,13 @@
         "applicable": true,
         "reason": "Absent codes return 404."
       }
-    }
+    },
+    {"route":"GET /v2/activities/:id/course-progress","source":"activity_course_progress_controller.index","evidence":"native","suite":"activity-courses","invalid_input":{"applicable":true,"reason":"Duplicate/invalid links and invalid progress filters return 422."},"missing_resource":{"applicable":true,"reason":"Missing owners return 404."}},
+    {"route":"GET /v2/activities/:id/course-progress/export","source":"activity_course_progress_controller.export","evidence":"native","suite":"activity-courses","invalid_input":{"applicable":false,"reason":"No request body; pagination is bounded."},"missing_resource":{"applicable":true,"reason":"Missing owners return 404."}},
+    {"route":"GET /v2/clubs/:id/course-progress","source":"club_course_progress_controller.index","evidence":"native","suite":"activity-courses","invalid_input":{"applicable":true,"reason":"Duplicate/invalid links and invalid progress filters return 422."},"missing_resource":{"applicable":true,"reason":"Missing owners return 404."}},
+    {"route":"GET /v2/clubs/:id/course-progress/export","source":"club_course_progress_controller.export","evidence":"native","suite":"activity-courses","invalid_input":{"applicable":false,"reason":"No request body; pagination is bounded."},"missing_resource":{"applicable":true,"reason":"Missing owners return 404."}},
+    {"route":"GET /v2/clubs/course-options","source":"club_courses_controller.options","evidence":"native","suite":"activity-courses","invalid_input":{"applicable":false,"reason":"No request body; pagination is bounded."},"missing_resource":{"applicable":false,"reason":"Catalogue lookup does not address an owner."}},
+    {"route":"GET /v2/clubs/:id/courses","source":"club_courses_controller.show","evidence":"native","suite":"activity-courses","invalid_input":{"applicable":false,"reason":"No request body; pagination is bounded."},"missing_resource":{"applicable":true,"reason":"Missing owners return 404."}},
+    {"route":"PUT /v2/clubs/:id/courses","source":"club_courses_controller.update","evidence":"native","suite":"activity-courses","invalid_input":{"applicable":true,"reason":"Duplicate/invalid links and invalid progress filters return 422."},"missing_resource":{"applicable":true,"reason":"Missing owners return 404."}}
   ]
 }

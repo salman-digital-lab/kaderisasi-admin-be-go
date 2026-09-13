@@ -1,4 +1,11 @@
 [
+  {"method":"GET","path":"/v2/activities/:id/course-progress","controller":"activity_course_progress_controller","action":"index","auth":true,"permission":"activity_registrations.read"},
+  {"method":"GET","path":"/v2/activities/:id/course-progress/export","controller":"activity_course_progress_controller","action":"export","auth":true,"permission":"activity_registrations.export"},
+  {"method":"GET","path":"/v2/clubs/:id/course-progress","controller":"club_course_progress_controller","action":"index","auth":true,"permission":"club_registrations.read"},
+  {"method":"GET","path":"/v2/clubs/:id/course-progress/export","controller":"club_course_progress_controller","action":"export","auth":true,"permission":"club_registrations.export"},
+  {"method":"GET","path":"/v2/clubs/course-options","controller":"club_courses_controller","action":"options","auth":true,"permission":"clubs.manage"},
+  {"method":"GET","path":"/v2/clubs/:id/courses","controller":"club_courses_controller","action":"show","auth":true},
+  {"method":"PUT","path":"/v2/clubs/:id/courses","controller":"club_courses_controller","action":"update","auth":true,"permission":"clubs.manage"},
   {"method":"GET","path":"/v2/activities/course-options","controller":"activity_courses_controller","action":"options","auth":true,"permission":"activities.manage"},
   {"method":"GET","path":"/v2/activities/:id/courses","controller":"activity_courses_controller","action":"show","auth":true},
   {"method":"PUT","path":"/v2/activities/:id/courses","controller":"activity_courses_controller","action":"update","auth":true,"permission":"activities.manage"},

@@ -10,7 +10,7 @@ import (
 )
 
 const activityCourseOptions = `-- name: ActivityCourseOptions :many
-SELECT c.id, c.title, c.status,
+SELECT c.id, c.title, c.status, c.summary, c.minimum_level,
  (SELECT count(*)::integer FROM course_lessons l WHERE l.course_id=c.id AND l.deleted_at IS NULL) AS lesson_count
 FROM courses c WHERE c.title ILIKE '%' || $1::text || '%'
 ORDER BY c.title, c.id LIMIT $3 OFFSET $2
@@ -23,10 +23,12 @@ type ActivityCourseOptionsParams struct {
 }
 
 type ActivityCourseOptionsRow struct {
-	ID          int32  `json:"id"`
-	Title       string `json:"title"`
-	Status      string `json:"status"`
-	LessonCount int32  `json:"lesson_count"`
+	ID           int32  `json:"id"`
+	Title        string `json:"title"`
+	Status       string `json:"status"`
+	Summary      string `json:"summary"`
+	MinimumLevel int32  `json:"minimum_level"`
+	LessonCount  int32  `json:"lesson_count"`
 }
 
 func (q *Queries) ActivityCourseOptions(ctx context.Context, arg ActivityCourseOptionsParams) ([]ActivityCourseOptionsRow, error) {
@@ -42,6 +44,8 @@ func (q *Queries) ActivityCourseOptions(ctx context.Context, arg ActivityCourseO
 			&i.ID,
 			&i.Title,
 			&i.Status,
+			&i.Summary,
+			&i.MinimumLevel,
 			&i.LessonCount,
 		); err != nil {
 			return nil, err
@@ -101,17 +105,19 @@ func (q *Queries) InsertActivityCourses(ctx context.Context, arg InsertActivityC
 }
 
 const linkedActivityCourses = `-- name: LinkedActivityCourses :many
-SELECT c.id, c.title, c.status,
+SELECT c.id, c.title, c.status, c.summary, c.minimum_level,
  (SELECT count(*)::integer FROM course_lessons l WHERE l.course_id=c.id AND l.deleted_at IS NULL) AS lesson_count
 FROM activity_courses ac JOIN courses c ON c.id=ac.course_id
 WHERE ac.activity_id=$1 ORDER BY ac.position, ac.course_id
 `
 
 type LinkedActivityCoursesRow struct {
-	ID          int32  `json:"id"`
-	Title       string `json:"title"`
-	Status      string `json:"status"`
-	LessonCount int32  `json:"lesson_count"`
+	ID           int32  `json:"id"`
+	Title        string `json:"title"`
+	Status       string `json:"status"`
+	Summary      string `json:"summary"`
+	MinimumLevel int32  `json:"minimum_level"`
+	LessonCount  int32  `json:"lesson_count"`
 }
 
 func (q *Queries) LinkedActivityCourses(ctx context.Context, activityID int32) ([]LinkedActivityCoursesRow, error) {
@@ -127,6 +133,8 @@ func (q *Queries) LinkedActivityCourses(ctx context.Context, activityID int32) (
 			&i.ID,
 			&i.Title,
 			&i.Status,
+			&i.Summary,
+			&i.MinimumLevel,
 			&i.LessonCount,
 		); err != nil {
 			return nil, err

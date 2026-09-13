@@ -1,5 +1,5 @@
 -- name: ActivityCourseOptions :many
-SELECT c.id, c.title, c.status,
+SELECT c.id, c.title, c.status, c.summary, c.minimum_level,
  (SELECT count(*)::integer FROM course_lessons l WHERE l.course_id=c.id AND l.deleted_at IS NULL) AS lesson_count
 FROM courses c WHERE c.title ILIKE '%' || @search::text || '%'
 ORDER BY c.title, c.id LIMIT @page_limit OFFSET @page_offset;
@@ -8,7 +8,7 @@ ORDER BY c.title, c.id LIMIT @page_limit OFFSET @page_offset;
 SELECT count(*) FROM courses WHERE title ILIKE '%' || @search::text || '%';
 
 -- name: LinkedActivityCourses :many
-SELECT c.id, c.title, c.status,
+SELECT c.id, c.title, c.status, c.summary, c.minimum_level,
  (SELECT count(*)::integer FROM course_lessons l WHERE l.course_id=c.id AND l.deleted_at IS NULL) AS lesson_count
 FROM activity_courses ac JOIN courses c ON c.id=ac.course_id
 WHERE ac.activity_id=$1 ORDER BY ac.position, ac.course_id;

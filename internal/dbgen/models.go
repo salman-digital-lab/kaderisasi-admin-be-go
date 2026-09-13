@@ -210,6 +210,23 @@ type Club struct {
 	ClubType            string             `json:"club_type"`
 }
 
+type ClubCourse struct {
+	ID       int32 `json:"id"`
+	ClubID   int32 `json:"club_id"`
+	CourseID int32 `json:"course_id"`
+	Position int32 `json:"position"`
+}
+
+type ClubCourseProgress struct {
+	ClubID           *int32 `json:"club_id"`
+	RegistrationID   int32  `json:"registration_id"`
+	CourseID         int32  `json:"course_id"`
+	Position         int32  `json:"position"`
+	TotalLessons     int32  `json:"total_lessons"`
+	CompletedLessons int32  `json:"completed_lessons"`
+	Status           string `json:"status"`
+}
+
 type ClubMemberRole struct {
 	ID                 int32              `json:"id"`
 	ClubRegistrationID int32              `json:"club_registration_id"`
