@@ -1447,5 +1447,41 @@
     "auth": true,
     "trusted_origin": true,
     "permission": "courses.manage"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/short-links",
+    "controller": "short_links_controller",
+    "action": "index",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "short_links.read"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/short-links",
+    "controller": "short_links_controller",
+    "action": "store",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "short_links.manage"
+  },
+  {
+    "method": "PATCH",
+    "path": "/v2/short-links/:code",
+    "controller": "short_links_controller",
+    "action": "update",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "short_links.manage"
+  },
+  {
+    "method": "DELETE",
+    "path": "/v2/short-links/:code",
+    "controller": "short_links_controller",
+    "action": "delete",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "short_links.manage"
   }
 ]

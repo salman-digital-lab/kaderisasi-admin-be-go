@@ -47,7 +47,9 @@
       "members.read",
       "rbac.read",
       "reference_data.manage",
-      "tickets.review"
+      "tickets.review",
+      "short_links.manage",
+      "short_links.read"
     ]
   },
   {
@@ -92,7 +94,9 @@
       "members.credentials.manage",
       "members.manage",
       "members.read",
-      "reference_data.manage"
+      "reference_data.manage",
+      "short_links.manage",
+      "short_links.read"
     ]
   },
   {
@@ -117,7 +121,9 @@
       "custom_forms.manage",
       "custom_forms.read",
       "dashboard.read",
-      "members.read"
+      "members.read",
+      "short_links.manage",
+      "short_links.read"
     ]
   },
   {
@@ -146,7 +152,9 @@
       "custom_forms.read",
       "dashboard.read",
       "leaderboards.read",
-      "members.read"
+      "members.read",
+      "short_links.manage",
+      "short_links.read"
     ]
   },
   {
@@ -171,7 +179,9 @@
       "custom_forms.manage",
       "custom_forms.read",
       "dashboard.read",
-      "members.read"
+      "members.read",
+      "short_links.manage",
+      "short_links.read"
     ]
   },
   {
@@ -187,7 +197,9 @@
     "permissions": [
       "counseling.manage",
       "counseling.read",
-      "dashboard.read"
+      "dashboard.read",
+      "short_links.manage",
+      "short_links.read"
     ]
   }
 ]

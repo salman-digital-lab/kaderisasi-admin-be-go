@@ -59,3 +59,19 @@ func TestCounselingRestrictedToSuperAdminAndKonselor(t *testing.T) {
 		}
 	}
 }
+
+func TestShortLinksAvailableToEveryActiveRole(t *testing.T) {
+	for _, role := range Roles() {
+		for _, permission := range []string{"short_links.read", "short_links.manage"} {
+			if !ForRole(&role.Code, true).Allows(permission) {
+				t.Fatalf("%s missing %s", role.Code, permission)
+			}
+			if ForRole(&role.Code, false).Allows(permission) {
+				t.Fatalf("inactive %s grants %s", role.Code, permission)
+			}
+			if ForRole(nil, true).Allows(permission) {
+				t.Fatalf("unassigned role grants %s", permission)
+			}
+		}
+	}
+}

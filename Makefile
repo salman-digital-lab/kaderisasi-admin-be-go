@@ -65,3 +65,8 @@ verify:
 
 clean-fixtures:
 	node scripts/cleanup.mjs
+
+.PHONY: test-short-links
+test-short-links:
+	node scripts/short-links.mjs --browser
+	node scripts/coverage.mjs --native=short-links --check

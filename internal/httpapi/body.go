@@ -28,6 +28,12 @@ func requestData(r *http.Request) validation.Object {
 // Adonis runs its body parser after route matching, before named authentication
 // and origin middleware. Query fields override body fields in request.all().
 func prepareRequest(w http.ResponseWriter, r *http.Request, route Route) (*http.Request, error) {
+	if route.Controller == "short_links_controller" {
+		if r.Body != nil {
+			r.Body = http.MaxBytesReader(w, r.Body, 65536)
+		}
+		return r, nil
+	}
 	body := map[string]any{}
 	kind, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
 	allowed := r.Method == "POST" || r.Method == "PUT" || r.Method == "PATCH" || r.Method == "DELETE"

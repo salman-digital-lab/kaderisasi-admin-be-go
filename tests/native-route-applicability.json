@@ -10,6 +10,12 @@
       "controller": "courses_controller",
       "report": ".artifacts/courses.json",
       "command": "make test-courses-browser"
+    },
+    {
+      "name": "short-links",
+      "controller": "short_links_controller",
+      "report": ".artifacts/short-links/verification.json",
+      "command": "make test-short-links"
     }
   ],
   "routes": [
@@ -18,16 +24,28 @@
       "source": "activities_controller.delete",
       "evidence": "native",
       "suite": "feature-deletion",
-      "invalid_input": { "applicable": true, "reason": "An exact, nonempty saved name is required; missing, mismatched and non-string confirmations are rejected." },
-      "missing_resource": { "applicable": true, "reason": "Deleting an absent or already deleted activity returns 404." }
+      "invalid_input": {
+        "applicable": true,
+        "reason": "An exact, nonempty saved name is required; missing, mismatched and non-string confirmations are rejected."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Deleting an absent or already deleted activity returns 404."
+      }
     },
     {
       "route": "DELETE /v2/clubs/:id",
       "source": "clubs_controller.delete",
       "evidence": "native",
       "suite": "feature-deletion",
-      "invalid_input": { "applicable": true, "reason": "An exact, nonempty saved name is required; missing, mismatched and non-string confirmations are rejected." },
-      "missing_resource": { "applicable": true, "reason": "Deleting an absent or already deleted club returns 404." }
+      "invalid_input": {
+        "applicable": true,
+        "reason": "An exact, nonempty saved name is required; missing, mismatched and non-string confirmations are rejected."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Deleting an absent or already deleted club returns 404."
+      }
     },
     {
       "route": "GET /v2/courses",
@@ -195,6 +213,62 @@
       "missing_resource": {
         "applicable": true,
         "reason": "Requests for a missing addressed course return 404."
+      }
+    },
+    {
+      "route": "GET /v2/short-links",
+      "source": "short_links_controller.index",
+      "evidence": "native",
+      "suite": "short-links",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Pagination is bounded."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "Collection route does not require an existing link."
+      }
+    },
+    {
+      "route": "POST /v2/short-links",
+      "source": "short_links_controller.store",
+      "evidence": "native",
+      "suite": "short-links",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Invalid destinations and codes are rejected."
+      },
+      "missing_resource": {
+        "applicable": false,
+        "reason": "Collection route does not require an existing link."
+      }
+    },
+    {
+      "route": "PATCH /v2/short-links/:code",
+      "source": "short_links_controller.update",
+      "evidence": "native",
+      "suite": "short-links",
+      "invalid_input": {
+        "applicable": true,
+        "reason": "Invalid destinations and codes are rejected."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Absent codes return 404."
+      }
+    },
+    {
+      "route": "DELETE /v2/short-links/:code",
+      "source": "short_links_controller.delete",
+      "evidence": "native",
+      "suite": "short-links",
+      "invalid_input": {
+        "applicable": false,
+        "reason": "Deletion takes no body; absent codes return 404."
+      },
+      "missing_resource": {
+        "applicable": true,
+        "reason": "Absent codes return 404."
       }
     }
   ]

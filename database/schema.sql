@@ -1999,3 +1999,10 @@ CREATE TABLE public.certificate_approvals (
 CREATE UNIQUE INDEX certificate_approvals_pending_registration ON public.certificate_approvals(registration_id) WHERE status = 'pending';
 CREATE INDEX certificate_approvals_signer_id_status_id_index ON public.certificate_approvals(signer_id, status, id);
 CREATE INDEX certificate_approvals_activity_id_status_id_index ON public.certificate_approvals(activity_id, status, id);
+
+CREATE TABLE urls (
+    id character varying(10) PRIMARY KEY,
+    original_url text NOT NULL,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    visit_count bigint NOT NULL DEFAULT 0
+);

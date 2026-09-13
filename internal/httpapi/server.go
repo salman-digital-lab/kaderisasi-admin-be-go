@@ -85,6 +85,7 @@ func (s *Server) Handler() http.Handler {
 	s.registerCertificateTemplates()
 	s.registerCertificates()
 	s.registerCourses()
+	s.registerShortLinks()
 	// Adonis permits overlapping parameter paths which ServeMux rejects. Keep
 	// its static-segment precedence in a small net/http compatibility dispatcher.
 	type entry struct {

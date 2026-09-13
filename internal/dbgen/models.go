@@ -397,3 +397,10 @@ type University struct {
 	ProvinceID *int32 `json:"province_id"`
 	IsActive   *bool  `json:"is_active"`
 }
+
+type Url struct {
+	ID          string             `json:"id"`
+	OriginalUrl string             `json:"original_url"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	VisitCount  int64              `json:"visit_count"`
+}

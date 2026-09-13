@@ -1,0 +1,57 @@
+import {chromium,expect} from '@playwright/test';
+import assert from 'node:assert/strict';
+import {randomBytes,scryptSync} from 'node:crypto';
+import {resolve} from 'node:path';
+
+export async function shortLinksBrowser(db,schema,artifacts){
+ const password='Short-link-fixture-2026!';const salt=randomBytes(16);
+ const hash=`$scrypt$n=16384,r=8,p=1$${salt.toString('base64').replaceAll('=','')}$${scryptSync(password,salt,64,{N:16384,r:8,p:1}).toString('base64').replaceAll('=','')}`;
+ await db.query(`INSERT INTO "${schema}".admin_users(email,normalized_email,password,display_name,is_active,role_code,created_at,updated_at) VALUES('short-browser@example.test','short-browser@example.test',$1,'Short link browser',true,'super_admin',now(),now())`,[hash]);
+ const browser=await chromium.launch();const errors=[];
+ try{
+  const context=await browser.newContext({viewport:{width:1280,height:900},locale:'id-ID',permissions:['clipboard-read','clipboard-write']});
+  const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
+  await page.goto('http://localhost:3005/login');
+  await page.getByLabel('Email',{exact:true}).fill('short-browser@example.test');await page.getByLabel('Password',{exact:true}).fill(password);
+  await page.getByRole('button',{name:/\bLogin$/}).click();await expect(page).toHaveURL(/\/dashboard$/);
+  await page.getByRole('link',{name:'Tautan Pendek',exact:true}).click();
+  await expect(page.getByText('Belum ada tautan pendek.',{exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Buat tautan',exact:true}).click();
+  let dialog=page.getByRole('dialog');await dialog.getByRole('button',{name:'Buat tautan',exact:true}).click();
+  await expect(dialog.getByText('Masukkan alamat tujuan.',{exact:true})).toBeVisible();
+  await dialog.getByLabel('Alamat tujuan',{exact:true}).fill('javascript:alert(1)');
+  await dialog.getByRole('button',{name:'Buat tautan',exact:true}).click();
+  await expect(dialog.getByText('Gunakan URL HTTP/HTTPS, tanpa kredensial, dan bukan domain tautan pendek.',{exact:true})).toBeVisible();
+  const destination='https://salmanitb.com/kegiatan?source=short-link-test#jadwal';
+  await dialog.getByLabel('Alamat tujuan',{exact:true}).fill(destination);await dialog.getByLabel('Kode khusus (opsional)',{exact:true}).fill('Kajian26');
+  await dialog.getByRole('button',{name:'Buat tautan',exact:true}).click();await expect(dialog).not.toBeVisible();
+  await expect(page.getByText(destination,{exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Salin tautan baru',exact:true}).click();
+  assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),'http://localhost:4000/Kajian26');
+  await page.getByRole('button',{name:'Buat tautan',exact:true}).click();dialog=page.getByRole('dialog');
+  await dialog.getByLabel('Alamat tujuan',{exact:true}).fill(destination);await dialog.getByLabel('Kode khusus (opsional)',{exact:true}).fill('Kajian26');await dialog.getByRole('button',{name:'Buat tautan',exact:true}).click();
+  await expect(dialog.getByText('Kode sudah digunakan. Pilih kode lain.',{exact:true})).toBeVisible();
+  await dialog.getByRole('button',{name:'Batal',exact:true}).click();
+  await page.getByRole('button',{name:'Ubah',exact:true}).click();dialog=page.getByRole('dialog');
+  await expect(dialog.getByLabel('Kode tautan',{exact:true})).toBeDisabled();
+  await dialog.getByLabel('Alamat tujuan',{exact:true}).fill('https://salmanitb.com/baru');await dialog.getByRole('button',{name:'Simpan perubahan',exact:true}).click();
+  await expect(dialog).not.toBeVisible();await expect(page.getByText('https://salmanitb.com/baru',{exact:true})).toBeVisible();
+  await page.getByLabel('Cari tautan',{exact:true}).fill('absent');await page.getByLabel('Cari tautan',{exact:true}).press('Enter');await expect(page.getByText('Tidak ada tautan yang sesuai.',{exact:true})).toBeVisible();
+  await page.getByLabel('Cari tautan',{exact:true}).fill('');await page.getByLabel('Cari tautan',{exact:true}).press('Enter');await expect(page.getByRole('button',{name:'Ubah',exact:true})).toBeVisible();
+  await page.evaluate(()=>Object.defineProperty(navigator.clipboard,'writeText',{configurable:true,value:()=>Promise.reject(new Error('fixture denied'))}));
+  await page.getByRole('button',{name:'Salin',exact:true}).click();await expect(page.getByLabel('Alamat untuk disalin',{exact:true})).toHaveValue('http://localhost:4000/Kajian26');
+  await page.screenshot({path:resolve(artifacts,'short-links-desktop.png'),fullPage:true});
+  await page.getByRole('link',{name:'Kelas',exact:true}).click();await expect(page.getByRole('heading',{name:'Kelas',exact:true})).toBeVisible();await page.screenshot({path:resolve(artifacts,'courses-desktop.png'),fullPage:true});
+  await page.setViewportSize({width:390,height:844});await page.screenshot({path:resolve(artifacts,'courses-mobile.png'),fullPage:true});
+  await page.goto('http://localhost:3005/short-links');await expect(page.getByRole('heading',{name:'Tautan Pendek',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Ubah',exact:true})).toBeVisible();
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+  await expect(page.locator('.ant-spin-spinning')).toHaveCount(0);await page.screenshot({path:resolve(artifacts,'short-links-mobile.png'),fullPage:true});
+  await page.getByRole('button',{name:'Ubah',exact:true}).click();await expect(page.getByRole('dialog')).toBeVisible();await page.getByRole('dialog').getByLabel('Alamat tujuan',{exact:true}).press('Escape');await expect(page.getByRole('dialog')).not.toBeVisible();
+  await page.getByRole('button',{name:'Hapus',exact:true}).click();await page.getByRole('button',{name:'Batal',exact:true}).click();
+  await page.getByRole('button',{name:'Hapus',exact:true}).click();await page.getByRole('button',{name:'Hapus tautan',exact:true}).click();await expect(page.getByText('Belum ada tautan pendek.',{exact:true})).toBeVisible();
+  await page.route('**/v2/short-links?**',route=>route.fulfill({status:503,contentType:'application/json',body:'{"message":"GENERAL_ERROR"}'}));
+  await page.getByRole('button',{name:'Muat ulang',exact:true}).click();await expect(page.getByText('Tautan tidak dapat dimuat',{exact:true})).toBeVisible();
+  await page.unroute('**/v2/short-links?**');await page.getByRole('button',{name:'Coba lagi',exact:true}).click();await expect(page.getByText('Belum ada tautan pendek.',{exact:true})).toBeVisible();
+  assert.deepEqual(errors,[]);console.log('Short-link browser workflow passed at desktop and mobile widths');
+ }finally{await browser.close();}
+}

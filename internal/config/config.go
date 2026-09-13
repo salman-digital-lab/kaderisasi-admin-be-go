@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"net"
+	"net/url"
 	"os"
 	"regexp"
 	"strconv"
@@ -11,26 +12,27 @@ import (
 )
 
 type Config struct {
-	Environment    string
-	Host           string
-	Port           int
-	AppKey         string
-	LogLevel       string
-	DBHost         string
-	DBPort         uint16
-	DBUser         string
-	DBPassword     string
-	DBName         string
-	DBSchema       string
-	GoogleClientID string
-	Origins        []string
-	DriveDisk      string
-	DriveKey       string
-	DriveSecret    string
-	DriveEndpoint  string
-	DriveBucket    string
-	DriveRegion    string
-	Location       *time.Location
+	ShortURLBaseURL string
+	Environment     string
+	Host            string
+	Port            int
+	AppKey          string
+	LogLevel        string
+	DBHost          string
+	DBPort          uint16
+	DBUser          string
+	DBPassword      string
+	DBName          string
+	DBSchema        string
+	GoogleClientID  string
+	Origins         []string
+	DriveDisk       string
+	DriveKey        string
+	DriveSecret     string
+	DriveEndpoint   string
+	DriveBucket     string
+	DriveRegion     string
+	Location        *time.Location
 }
 
 func Load() (Config, error) {
@@ -65,6 +67,15 @@ func Load() (Config, error) {
 	}
 	if len(c.AppKey) < 16 || c.DBHost == "" || c.DBUser == "" || c.DBName == "" {
 		return Config{}, errors.New("APP_KEY and database configuration are required")
+	}
+	shortBase := "http://localhost:4000"
+	if c.Environment == "production" {
+		shortBase = "https://s.salmanitb.com"
+	}
+	c.ShortURLBaseURL = strings.TrimRight(value("SHORT_URL_BASE_URL", shortBase), "/")
+	u, err := url.Parse(c.ShortURLBaseURL)
+	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Hostname() == "" || u.User != nil || u.Path != "" || u.RawQuery != "" || u.Fragment != "" {
+		return Config{}, errors.New("invalid SHORT_URL_BASE_URL")
 	}
 	return c, nil
 }

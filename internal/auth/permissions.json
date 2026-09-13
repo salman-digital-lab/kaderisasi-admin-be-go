@@ -35,5 +35,7 @@
   "members.read",
   "rbac.read",
   "reference_data.manage",
-  "tickets.review"
+  "tickets.review",
+  "short_links.manage",
+  "short_links.read"
 ]
