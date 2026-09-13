@@ -298,20 +298,6 @@ type IssuedCertificate struct {
 	RevokedBy           *int32             `json:"revoked_by"`
 }
 
-type LegacyMember struct {
-	ID         int32    `json:"id"`
-	Name       *string  `json:"name"`
-	Gender     *string  `json:"gender"`
-	Email      *string  `json:"email"`
-	Phone      *string  `json:"phone"`
-	LineID     *string  `json:"line_id"`
-	IntakeYear *string  `json:"intake_year"`
-	Password   *string  `json:"password"`
-	Ssc        *float32 `json:"ssc"`
-	Lmd        *float32 `json:"lmd"`
-	Spectra    *float32 `json:"spectra"`
-}
-
 type LifetimeLeaderboard struct {
 	ID                  int32              `json:"id"`
 	UserID              *int32             `json:"user_id"`

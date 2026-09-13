@@ -636,45 +636,6 @@ ALTER SEQUENCE public.issued_certificates_id_seq OWNED BY public.issued_certific
 
 
 --
--- Name: legacy_members; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.legacy_members (
-    id integer NOT NULL,
-    name character varying(255),
-    gender character varying(255),
-    email character varying(255),
-    phone character varying(255),
-    line_id character varying(255),
-    intake_year character varying(255),
-    password character varying(255),
-    ssc real,
-    lmd real,
-    spectra real
-);
-
-
---
--- Name: legacy_members_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.legacy_members_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: legacy_members_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.legacy_members_id_seq OWNED BY public.legacy_members.id;
-
-
---
 -- Name: lifetime_leaderboards; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1089,13 +1050,6 @@ ALTER TABLE ONLY public.issued_certificates ALTER COLUMN id SET DEFAULT nextval(
 
 
 --
--- Name: legacy_members id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.legacy_members ALTER COLUMN id SET DEFAULT nextval('public.legacy_members_id_seq'::regclass);
-
-
---
 -- Name: lifetime_leaderboards id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1341,14 +1295,6 @@ ALTER TABLE ONLY public.issued_certificates
 
 ALTER TABLE ONLY public.issued_certificates
     ADD CONSTRAINT issued_certificates_registration_id_unique UNIQUE (registration_id);
-
-
---
--- Name: legacy_members legacy_members_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.legacy_members
-    ADD CONSTRAINT legacy_members_pkey PRIMARY KEY (id);
 
 
 --
