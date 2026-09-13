@@ -2,8 +2,9 @@
 
 Activity and club editors can save an ordered list of courses from the Kelas Online
 tab. Activity setup also offers the same searchable, paginated chooser. Current
-progress lives in a separate table below course configuration, rather than the
-ordinary participant-management table. Registrant readers see progress; export
+progress appears in a separate table below course configuration and in the activity
+participant-management table. Its Excel export includes course status and completed/total lessons.
+Registrant readers see progress; export
 permission remains separate. No course permission, registration prerequisite,
 publication requirement, or automatic participant-status change is introduced.
 

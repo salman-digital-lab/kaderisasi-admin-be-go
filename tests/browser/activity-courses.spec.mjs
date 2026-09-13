@@ -57,7 +57,13 @@ for(const kind of ['activity','club'])test(`linked courses: ${kind} chooser and 
  await page.route(`**/v2/${prefix}/${owner.id}/course-progress?*`,route=>route.fulfill({status:503,json:{message:'UNAVAILABLE'}}));await page.getByRole('button',{name:'Muat ulang progres',exact:true}).click();await expect(page.getByText('Progres kelas gagal dimuat',{exact:true})).toBeVisible();await expect(page.getByText('Selesai · 1/1 materi',{exact:true})).toHaveCount(0);
  await page.unroute(`**/v2/${prefix}/${owner.id}/course-progress?*`);await page.getByRole('button',{name:'Coba lagi',exact:true}).click();await reveal();
  if(kind==='activity'){
-  await page.goto(`/activity/${owner.id}/participants`);await expect(page.getByText('Peserta Selesai',{exact:true})).toBeVisible();await expect(page.getByRole('combobox',{name:'Kelas untuk filter progres',exact:true})).toHaveCount(0);await expect(page.getByText('Selesai · 1/1 materi',{exact:true})).toHaveCount(0);
+  await page.goto(`/activity/${owner.id}/participants`);await reveal();await expect(page.getByText('Selesai · 1/1 materi',{exact:true})).toBeVisible();await expect(page.getByText('Belum ada materi · 0/0 materi',{exact:true})).toBeVisible();
+  await page.getByText('Selesai · 1/1 materi',{exact:true}).scrollIntoViewIfNeeded();await evidence(page,testInfo,'activity-participants-courses');
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  const participantDownload=page.waitForEvent('download');await page.getByRole('button',{name:'Ekspor semua peserta',exact:true}).click();const participantFile=await participantDownload;const participantPath=testInfo.outputPath('participants.xlsx');await participantFile.saveAs(participantPath);
+  const participantWorkbook=new(legacyRequire('exceljs').Workbook)();await participantWorkbook.xlsx.readFile(participantPath);const participantSheet=participantWorkbook.getWorksheet('Registrations');expect(participantSheet.rowCount).toBe(3);
+  const headers=participantSheet.getRow(1).values;const completionColumn=headers.indexOf(`${courses[0].title} (#${courses[0].id}) - Status`);expect(completionColumn).toBeGreaterThan(0);expect(headers[completionColumn+1]).toBe(`${courses[0].title} (#${courses[0].id}) - Materi selesai/total`);
+  const completedRow=[participantSheet.getRow(2),participantSheet.getRow(3)].find(row=>row.getCell(completionColumn).value==='Selesai');expect(completedRow).toBeTruthy();expect(completedRow.getCell(completionColumn+1).value).toBe('1/1');expect([participantSheet.getRow(2).getCell(completionColumn).value,participantSheet.getRow(3).getCell(completionColumn).value]).toContain('Tidak dapat diverifikasi');
   await page.goto(`/activity/${owner.id}/setup?step=2`);await expect(page.getByRole('button',{name:'Pilih kelas online',exact:true})).toBeVisible();await expect(page.getByText(courses[0].summary,{exact:true})).toBeVisible();
  }
 });
