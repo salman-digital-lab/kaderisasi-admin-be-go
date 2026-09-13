@@ -13,7 +13,12 @@ import (
 )
 
 func (s Service) ExportRegistrations(ctx context.Context, identifier string) (export.Document, error) {
-	q := dbgen.New(s.Pool)
+	tx, err := s.Pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead, AccessMode: pgx.ReadOnly})
+	if err != nil {
+		return export.Document{}, err
+	}
+	defer tx.Rollback(ctx)
+	q := dbgen.New(tx)
 	activity, err := q.RegistrationActivityByIdentifier(ctx, identifier)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -28,6 +33,14 @@ func (s Service) ExportRegistrations(ctx context.Context, identifier string) (ex
 	ids := make([]int32, len(rows))
 	for i, row := range rows {
 		ids[i] = row.ID
+	}
+	links, err := q.LinkedActivityCourses(ctx, activity.ID)
+	if err != nil {
+		return export.Document{}, err
+	}
+	progress, err := registrationCourseProgress(ctx, q, activity.ID, ids)
+	if err != nil {
+		return export.Document{}, err
 	}
 	relations, err := q.RegistrationExportRelations(ctx, ids)
 	if err != nil {
@@ -87,6 +100,10 @@ func (s Service) ExportRegistrations(ctx context.Context, identifier string) (ex
 	for _, question := range questions {
 		headers = append(headers, question.Label)
 	}
+	for _, link := range links {
+		prefix := fmt.Sprintf("%s (#%d)", link.Title, link.ID)
+		headers = append(headers, prefix+" - Status", prefix+" - Materi selesai/total")
+	}
 	cells := make([][]interface{}, len(registrations))
 	badge := ""
 	if activity.Badge != nil {
@@ -96,6 +113,13 @@ func (s Service) ExportRegistrations(ctx context.Context, identifier string) (ex
 		cells[i], err = export.RegistrationRow(i+1, record, questions, badge)
 		if err != nil {
 			return export.Document{}, err
+		}
+		for _, item := range progress[record.ID] {
+			count := fmt.Sprintf("%d/%d", item.CompletedLessons, item.TotalLessons)
+			if item.Status == "unverifiable" {
+				count = ""
+			}
+			cells[i] = append(cells[i], courseProgressLabel(item.Status), count)
 		}
 	}
 	body, err := export.Workbook("Registrations", headers, cells)

@@ -10,6 +10,8 @@ import (
 )
 
 type RegistrationFilters struct {
+	CourseID                                             int32
+	CourseCompletion                                     string
 	Search, Status, UniversityID, ProvinceID, IntakeYear *string
 	SortBy                                               string
 	Ascending                                            bool
@@ -20,6 +22,7 @@ type RegistrationPage struct {
 	Data []RegistrationSummary  `json:"data"`
 }
 type RegistrationSummary struct {
+	CourseProgress   []CourseProgress           `json:"course_progress"`
 	ID               int32                      `json:"id"`
 	UserID           *int32                     `json:"user_id"`
 	Email            *string                    `json:"email"`

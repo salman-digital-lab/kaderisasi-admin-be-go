@@ -1,4 +1,7 @@
 [
+  {"method":"GET","path":"/v2/activities/course-options","controller":"activity_courses_controller","action":"options","auth":true,"permission":"activities.manage"},
+  {"method":"GET","path":"/v2/activities/:id/courses","controller":"activity_courses_controller","action":"show","auth":true},
+  {"method":"PUT","path":"/v2/activities/:id/courses","controller":"activity_courses_controller","action":"update","auth":true,"permission":"activities.manage"},
   {"method":"GET","path":"/v2/activities/:id/scoring/rubric","controller":"scoring_controller","action":"rubric","auth":true,"permission":"activities.read"},
   {"method":"PUT","path":"/v2/activities/:id/scoring/rubric","controller":"scoring_controller","action":"saveRubric","auth":true,"permission":"activities.manage"},
   {"method":"GET","path":"/v2/activities/:id/scoring","controller":"scoring_controller","action":"index","auth":true,"permission":"activities.read"},

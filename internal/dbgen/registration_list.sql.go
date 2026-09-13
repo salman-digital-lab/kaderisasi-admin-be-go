@@ -14,25 +14,38 @@ import (
 const countRegistrationsFiltered = `-- name: CountRegistrationsFiltered :one
 SELECT count(*) FROM activity_registrations ar LEFT JOIN public_users u ON u.id=ar.user_id LEFT JOIN profiles p ON p.user_id=ar.user_id
 WHERE ar.activity_id = $1::integer
-AND ($2::text IS NULL OR p.name ILIKE '%'||$2||'%' OR u.email ILIKE '%'||$2||'%' OR ar.guest_data->>'name' ILIKE '%'||$2||'%' OR ar.guest_data->>'email' ILIKE '%'||$2||'%')
-AND ($3::text IS NULL OR ar.status ILIKE '%'||$3||'%')
-AND ($4::text IS NULL OR p.university_id=CAST(CAST($4 AS text) AS integer))
-AND ($5::text IS NULL OR p.province_id=CAST(CAST($5 AS text) AS integer))
-AND ($6::text IS NULL OR p.intake_year=CAST(CAST($6 AS text) AS integer))
+AND ($2::text = '' OR ar.id IN (
+ SELECT registration_id FROM activity_course_progress cp
+ WHERE cp.activity_id = $1 AND ($3::integer=0 OR cp.course_id = $3)
+ GROUP BY registration_id
+ HAVING CASE $2::text
+ WHEN 'completed' THEN bool_and(cp.status='completed')
+ WHEN 'incomplete' THEN bool_or(cp.status NOT IN ('completed','unverifiable'))
+ WHEN 'unverifiable' THEN bool_and(cp.status='unverifiable') ELSE false END
+))
+AND ($4::text IS NULL OR p.name ILIKE '%'||$4||'%' OR u.email ILIKE '%'||$4||'%' OR ar.guest_data->>'name' ILIKE '%'||$4||'%' OR ar.guest_data->>'email' ILIKE '%'||$4||'%')
+AND ($5::text IS NULL OR ar.status ILIKE '%'||$5||'%')
+AND ($6::text IS NULL OR p.university_id=CAST(CAST($6 AS text) AS integer))
+AND ($7::text IS NULL OR p.province_id=CAST(CAST($7 AS text) AS integer))
+AND ($8::text IS NULL OR p.intake_year=CAST(CAST($8 AS text) AS integer))
 `
 
 type CountRegistrationsFilteredParams struct {
-	ActivityID   int32   `json:"activity_id"`
-	Search       *string `json:"search"`
-	Status       *string `json:"status"`
-	UniversityID *string `json:"university_id"`
-	ProvinceID   *string `json:"province_id"`
-	IntakeYear   *string `json:"intake_year"`
+	ActivityID       int32   `json:"activity_id"`
+	CourseCompletion string  `json:"course_completion"`
+	CourseID         int32   `json:"course_id"`
+	Search           *string `json:"search"`
+	Status           *string `json:"status"`
+	UniversityID     *string `json:"university_id"`
+	ProvinceID       *string `json:"province_id"`
+	IntakeYear       *string `json:"intake_year"`
 }
 
 func (q *Queries) CountRegistrationsFiltered(ctx context.Context, arg CountRegistrationsFilteredParams) (int64, error) {
 	row := q.db.QueryRow(ctx, countRegistrationsFiltered,
 		arg.ActivityID,
+		arg.CourseCompletion,
+		arg.CourseID,
 		arg.Search,
 		arg.Status,
 		arg.UniversityID,
@@ -48,47 +61,58 @@ const listRegistrationsFiltered = `-- name: ListRegistrationsFiltered :many
 SELECT ar.id,u.id AS user_id,COALESCE(u.email,ar.guest_data->>'email') AS email,to_jsonb(COALESCE(p.name,ar.guest_data->>'name')) AS name_json,p.level,p.university_id,p.province_id,p.intake_year,p.major,COALESCE(p.gender,ar.guest_data->>'gender') AS gender,COALESCE(p.whatsapp,ar.guest_data->>'whatsapp') AS whatsapp,p.instagram,p.line,p.personal_id,p.education_history,ar.guest_data,ar.status,ar.created_at,to_jsonb(p) AS profile
 FROM activity_registrations ar LEFT JOIN public_users u ON u.id=ar.user_id LEFT JOIN profiles p ON p.user_id=ar.user_id
 WHERE ar.activity_id = $1::integer
-AND ($2::text IS NULL OR p.name ILIKE '%'||$2||'%' OR u.email ILIKE '%'||$2||'%' OR ar.guest_data->>'name' ILIKE '%'||$2||'%' OR ar.guest_data->>'email' ILIKE '%'||$2||'%')
-AND ($3::text IS NULL OR ar.status ILIKE '%'||$3||'%')
-AND ($4::text IS NULL OR p.university_id=CAST(CAST($4 AS text) AS integer))
-AND ($5::text IS NULL OR p.province_id=CAST(CAST($5 AS text) AS integer))
-AND ($6::text IS NULL OR p.intake_year=CAST(CAST($6 AS text) AS integer))
-ORDER BY CASE WHEN $7::text='created_at' AND $8::boolean=true THEN ar.created_at END ASC NULLS LAST,
-CASE WHEN $7::text='name' AND $8::boolean=true THEN p.name END ASC NULLS LAST,
-CASE WHEN $7::text='email' AND $8::boolean=true THEN u.email END ASC NULLS LAST,
-CASE WHEN $7::text='status' AND $8::boolean=true THEN ar.status END ASC NULLS LAST,
-CASE WHEN $7::text='level' AND $8::boolean=true THEN p.level END ASC NULLS LAST,
-CASE WHEN $7::text='university_id' AND $8::boolean=true THEN p.university_id END ASC NULLS LAST,
-CASE WHEN $7::text='province_id' AND $8::boolean=true THEN p.province_id END ASC NULLS LAST,
-CASE WHEN $7::text='intake_year' AND $8::boolean=true THEN p.intake_year END ASC NULLS LAST,
-CASE WHEN $7::text='major' AND $8::boolean=true THEN p.major END ASC NULLS LAST,
-CASE WHEN $7::text='whatsapp' AND $8::boolean=true THEN p.whatsapp END ASC NULLS LAST,
-CASE WHEN $8::boolean=true THEN ar.id END ASC,
-CASE WHEN $7::text='created_at' AND $8::boolean=false THEN ar.created_at END DESC NULLS LAST,
-CASE WHEN $7::text='name' AND $8::boolean=false THEN p.name END DESC NULLS LAST,
-CASE WHEN $7::text='email' AND $8::boolean=false THEN u.email END DESC NULLS LAST,
-CASE WHEN $7::text='status' AND $8::boolean=false THEN ar.status END DESC NULLS LAST,
-CASE WHEN $7::text='level' AND $8::boolean=false THEN p.level END DESC NULLS LAST,
-CASE WHEN $7::text='university_id' AND $8::boolean=false THEN p.university_id END DESC NULLS LAST,
-CASE WHEN $7::text='province_id' AND $8::boolean=false THEN p.province_id END DESC NULLS LAST,
-CASE WHEN $7::text='intake_year' AND $8::boolean=false THEN p.intake_year END DESC NULLS LAST,
-CASE WHEN $7::text='major' AND $8::boolean=false THEN p.major END DESC NULLS LAST,
-CASE WHEN $7::text='whatsapp' AND $8::boolean=false THEN p.whatsapp END DESC NULLS LAST,
-CASE WHEN $8::boolean=false THEN ar.id END DESC
-LIMIT CAST($10::text AS bigint) OFFSET CAST($9::text AS bigint)
+AND ($2::text = '' OR ar.id IN (
+ SELECT registration_id FROM activity_course_progress cp
+ WHERE cp.activity_id = $1 AND ($3::integer=0 OR cp.course_id = $3)
+ GROUP BY registration_id
+ HAVING CASE $2::text
+ WHEN 'completed' THEN bool_and(cp.status='completed')
+ WHEN 'incomplete' THEN bool_or(cp.status NOT IN ('completed','unverifiable'))
+ WHEN 'unverifiable' THEN bool_and(cp.status='unverifiable') ELSE false END
+))
+AND ($4::text IS NULL OR p.name ILIKE '%'||$4||'%' OR u.email ILIKE '%'||$4||'%' OR ar.guest_data->>'name' ILIKE '%'||$4||'%' OR ar.guest_data->>'email' ILIKE '%'||$4||'%')
+AND ($5::text IS NULL OR ar.status ILIKE '%'||$5||'%')
+AND ($6::text IS NULL OR p.university_id=CAST(CAST($6 AS text) AS integer))
+AND ($7::text IS NULL OR p.province_id=CAST(CAST($7 AS text) AS integer))
+AND ($8::text IS NULL OR p.intake_year=CAST(CAST($8 AS text) AS integer))
+ORDER BY CASE WHEN $9::text='created_at' AND $10::boolean=true THEN ar.created_at END ASC NULLS LAST,
+CASE WHEN $9::text='name' AND $10::boolean=true THEN p.name END ASC NULLS LAST,
+CASE WHEN $9::text='email' AND $10::boolean=true THEN u.email END ASC NULLS LAST,
+CASE WHEN $9::text='status' AND $10::boolean=true THEN ar.status END ASC NULLS LAST,
+CASE WHEN $9::text='level' AND $10::boolean=true THEN p.level END ASC NULLS LAST,
+CASE WHEN $9::text='university_id' AND $10::boolean=true THEN p.university_id END ASC NULLS LAST,
+CASE WHEN $9::text='province_id' AND $10::boolean=true THEN p.province_id END ASC NULLS LAST,
+CASE WHEN $9::text='intake_year' AND $10::boolean=true THEN p.intake_year END ASC NULLS LAST,
+CASE WHEN $9::text='major' AND $10::boolean=true THEN p.major END ASC NULLS LAST,
+CASE WHEN $9::text='whatsapp' AND $10::boolean=true THEN p.whatsapp END ASC NULLS LAST,
+CASE WHEN $10::boolean=true THEN ar.id END ASC,
+CASE WHEN $9::text='created_at' AND $10::boolean=false THEN ar.created_at END DESC NULLS LAST,
+CASE WHEN $9::text='name' AND $10::boolean=false THEN p.name END DESC NULLS LAST,
+CASE WHEN $9::text='email' AND $10::boolean=false THEN u.email END DESC NULLS LAST,
+CASE WHEN $9::text='status' AND $10::boolean=false THEN ar.status END DESC NULLS LAST,
+CASE WHEN $9::text='level' AND $10::boolean=false THEN p.level END DESC NULLS LAST,
+CASE WHEN $9::text='university_id' AND $10::boolean=false THEN p.university_id END DESC NULLS LAST,
+CASE WHEN $9::text='province_id' AND $10::boolean=false THEN p.province_id END DESC NULLS LAST,
+CASE WHEN $9::text='intake_year' AND $10::boolean=false THEN p.intake_year END DESC NULLS LAST,
+CASE WHEN $9::text='major' AND $10::boolean=false THEN p.major END DESC NULLS LAST,
+CASE WHEN $9::text='whatsapp' AND $10::boolean=false THEN p.whatsapp END DESC NULLS LAST,
+CASE WHEN $10::boolean=false THEN ar.id END DESC
+LIMIT CAST($12::text AS bigint) OFFSET CAST($11::text AS bigint)
 `
 
 type ListRegistrationsFilteredParams struct {
-	ActivityID   int32   `json:"activity_id"`
-	Search       *string `json:"search"`
-	Status       *string `json:"status"`
-	UniversityID *string `json:"university_id"`
-	ProvinceID   *string `json:"province_id"`
-	IntakeYear   *string `json:"intake_year"`
-	SortBy       string  `json:"sort_by"`
-	Ascending    bool    `json:"ascending"`
-	PageOffset   string  `json:"page_offset"`
-	PageSize     *string `json:"page_size"`
+	ActivityID       int32   `json:"activity_id"`
+	CourseCompletion string  `json:"course_completion"`
+	CourseID         int32   `json:"course_id"`
+	Search           *string `json:"search"`
+	Status           *string `json:"status"`
+	UniversityID     *string `json:"university_id"`
+	ProvinceID       *string `json:"province_id"`
+	IntakeYear       *string `json:"intake_year"`
+	SortBy           string  `json:"sort_by"`
+	Ascending        bool    `json:"ascending"`
+	PageOffset       string  `json:"page_offset"`
+	PageSize         *string `json:"page_size"`
 }
 
 type ListRegistrationsFilteredRow struct {
@@ -116,6 +140,8 @@ type ListRegistrationsFilteredRow struct {
 func (q *Queries) ListRegistrationsFiltered(ctx context.Context, arg ListRegistrationsFilteredParams) ([]ListRegistrationsFilteredRow, error) {
 	rows, err := q.db.Query(ctx, listRegistrationsFiltered,
 		arg.ActivityID,
+		arg.CourseCompletion,
+		arg.CourseID,
 		arg.Search,
 		arg.Status,
 		arg.UniversityID,

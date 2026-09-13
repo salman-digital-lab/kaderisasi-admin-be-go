@@ -11,6 +11,13 @@ export class ContractNormalizer {
   constructor(started){this.started=started;this.random=new Map();this.hashes=new Map();}
   response(result){
     const normalized=this.normalize(result);
+    // The additive activity-course field is verified by the native suite.
+    // Historical list fixtures have no links; retain every nonempty value.
+    if(result.method==='GET'&&/^\/v2\/activities\/[^/]+\/registrations$/.test(result.path.split('?')[0])&&result.status===200){
+      for(const row of normalized.body?.data?.data??[]){
+        if(Array.isArray(row.course_progress)&&row.course_progress.length===0)delete row.course_progress;
+      }
+    }
     if(result.status===500&&result.body?.frames){
       assert.equal(result.body.status,500);
       assert.equal(result.body.name,'error');

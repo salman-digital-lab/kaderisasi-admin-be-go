@@ -6,6 +6,20 @@ const sample=(rows,path='/v2/activities/1/registrations-export')=>({method:'GET'
 const normalize=result=>new ContractNormalizer(Date.now()).response(result);
 const alice=[1,'Alice fixture','alice@example.test'],bob=[2,'Bob fixture','bob@example.test'];
 
+test('only empty additive course progress is excluded from historical registration lists',()=>{
+  const original={method:'GET',path:'/v2/activities/1/registrations',status:200,body:{data:{data:[{id:1,name:'Alice'}]}}};
+  const candidate=structuredClone(original);candidate.body.data.data[0].course_progress=[];
+  assert.deepEqual(normalize(original),normalize(candidate));
+  assert.deepEqual(candidate.body.data.data[0].course_progress,[]);
+  candidate.body.data.data[0].course_progress=[{course_id:1,status:'completed'}];
+  assert.notDeepEqual(normalize(original),normalize(candidate));
+  candidate.body.data.data[0].course_progress=null;
+  assert.notDeepEqual(normalize(original),normalize(candidate));
+  original.path=candidate.path='/v2/activity-registrations/1';
+  candidate.body.data.data[0].course_progress=[];
+  assert.notDeepEqual(normalize(original),normalize(candidate));
+});
+
 test('unordered registration export retains values and verifies visible numbering',()=>{
   const original=sample([alice,bob]);
   const reordered=sample([[1,...bob.slice(1)],[2,...alice.slice(1)]]);

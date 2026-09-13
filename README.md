@@ -15,6 +15,8 @@ repository now contains only database maintenance code.
 
 Kelas adds course management, learner progress, and private PDF storage. See
 [course configuration, rollout, and native verification](docs/COURSES.md).
+Activities can also track linked courses in their registrant list and Excel
+exports. See [linked activity courses](docs/ACTIVITY_COURSES.md).
 
 ## Local setup
 

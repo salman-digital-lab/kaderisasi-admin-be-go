@@ -1,6 +1,15 @@
 -- name: CountRegistrationsFiltered :one
 SELECT count(*) FROM activity_registrations ar LEFT JOIN public_users u ON u.id=ar.user_id LEFT JOIN profiles p ON p.user_id=ar.user_id
 WHERE ar.activity_id = @activity_id::integer
+AND (@course_completion::text = '' OR ar.id IN (
+ SELECT registration_id FROM activity_course_progress cp
+ WHERE cp.activity_id = @activity_id AND (@course_id::integer=0 OR cp.course_id = @course_id)
+ GROUP BY registration_id
+ HAVING CASE @course_completion::text
+ WHEN 'completed' THEN bool_and(cp.status='completed')
+ WHEN 'incomplete' THEN bool_or(cp.status NOT IN ('completed','unverifiable'))
+ WHEN 'unverifiable' THEN bool_and(cp.status='unverifiable') ELSE false END
+))
 AND (sqlc.narg('search')::text IS NULL OR p.name ILIKE '%'||sqlc.narg('search')||'%' OR u.email ILIKE '%'||sqlc.narg('search')||'%' OR ar.guest_data->>'name' ILIKE '%'||sqlc.narg('search')||'%' OR ar.guest_data->>'email' ILIKE '%'||sqlc.narg('search')||'%')
 AND (sqlc.narg('status')::text IS NULL OR ar.status ILIKE '%'||sqlc.narg('status')||'%')
 AND (sqlc.narg('university_id')::text IS NULL OR p.university_id=CAST(CAST(sqlc.narg('university_id') AS text) AS integer))
@@ -11,6 +20,15 @@ AND (sqlc.narg('intake_year')::text IS NULL OR p.intake_year=CAST(CAST(sqlc.narg
 SELECT ar.id,u.id AS user_id,COALESCE(u.email,ar.guest_data->>'email') AS email,to_jsonb(COALESCE(p.name,ar.guest_data->>'name')) AS name_json,p.level,p.university_id,p.province_id,p.intake_year,p.major,COALESCE(p.gender,ar.guest_data->>'gender') AS gender,COALESCE(p.whatsapp,ar.guest_data->>'whatsapp') AS whatsapp,p.instagram,p.line,p.personal_id,p.education_history,ar.guest_data,ar.status,ar.created_at,to_jsonb(p) AS profile
 FROM activity_registrations ar LEFT JOIN public_users u ON u.id=ar.user_id LEFT JOIN profiles p ON p.user_id=ar.user_id
 WHERE ar.activity_id = @activity_id::integer
+AND (@course_completion::text = '' OR ar.id IN (
+ SELECT registration_id FROM activity_course_progress cp
+ WHERE cp.activity_id = @activity_id AND (@course_id::integer=0 OR cp.course_id = @course_id)
+ GROUP BY registration_id
+ HAVING CASE @course_completion::text
+ WHEN 'completed' THEN bool_and(cp.status='completed')
+ WHEN 'incomplete' THEN bool_or(cp.status NOT IN ('completed','unverifiable'))
+ WHEN 'unverifiable' THEN bool_and(cp.status='unverifiable') ELSE false END
+))
 AND (sqlc.narg('search')::text IS NULL OR p.name ILIKE '%'||sqlc.narg('search')||'%' OR u.email ILIKE '%'||sqlc.narg('search')||'%' OR ar.guest_data->>'name' ILIKE '%'||sqlc.narg('search')||'%' OR ar.guest_data->>'email' ILIKE '%'||sqlc.narg('search')||'%')
 AND (sqlc.narg('status')::text IS NULL OR ar.status ILIKE '%'||sqlc.narg('status')||'%')
 AND (sqlc.narg('university_id')::text IS NULL OR p.university_id=CAST(CAST(sqlc.narg('university_id') AS text) AS integer))

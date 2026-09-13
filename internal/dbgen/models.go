@@ -50,6 +50,23 @@ type Activity struct {
 	CertificateTemplateID *int32             `json:"certificate_template_id"`
 }
 
+type ActivityCourse struct {
+	ID         int32 `json:"id"`
+	ActivityID int32 `json:"activity_id"`
+	CourseID   int32 `json:"course_id"`
+	Position   int32 `json:"position"`
+}
+
+type ActivityCourseProgress struct {
+	ActivityID       *int32 `json:"activity_id"`
+	RegistrationID   int32  `json:"registration_id"`
+	CourseID         int32  `json:"course_id"`
+	Position         int32  `json:"position"`
+	TotalLessons     int32  `json:"total_lessons"`
+	CompletedLessons int32  `json:"completed_lessons"`
+	Status           string `json:"status"`
+}
+
 type ActivityRegistration struct {
 	ID                  int32              `json:"id"`
 	UserID              *int32             `json:"user_id"`

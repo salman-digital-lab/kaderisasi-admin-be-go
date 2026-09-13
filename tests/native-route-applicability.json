@@ -1,5 +1,6 @@
 {
   "suites": [
+    {"name":"activity-courses","controller":"activity_courses_controller","report":".artifacts/activity-courses.json","command":"make test-activity-courses"},
     {
       "name": "scoring",
       "controller": "scoring_controller",
@@ -25,6 +26,9 @@
     }
   ],
   "routes": [
+    {"route":"GET /v2/activities/course-options","source":"activity_courses_controller.options","evidence":"native","suite":"activity-courses","invalid_input":{"applicable":false,"reason":"Search is free text; pagination uses the existing bounded course pagination defaults."},"missing_resource":{"applicable":false,"reason":"Catalog search has no resource identifier and returns an empty page for no matches."}},
+    {"route":"GET /v2/activities/:id/courses","source":"activity_courses_controller.show","evidence":"native","suite":"activity-courses","invalid_input":{"applicable":true,"reason":"Malformed activity identifiers return 404."},"missing_resource":{"applicable":true,"reason":"Unknown activities return 404."}},
+    {"route":"PUT /v2/activities/:id/courses","source":"activity_courses_controller.update","evidence":"native","suite":"activity-courses","invalid_input":{"applicable":true,"reason":"Missing/null lists, duplicate, nonpositive and unknown course IDs are rejected."},"missing_resource":{"applicable":true,"reason":"Unknown activities return 404."}},
     {"route":"GET /v2/activities/:id/scoring/rubric","source":"scoring_controller.rubric","evidence":"native","suite":"scoring","invalid_input":{"applicable":true,"reason":"Malformed activity identifiers are rejected."},"missing_resource":{"applicable":true,"reason":"Unknown activities return 404."}},
     {"route":"PUT /v2/activities/:id/scoring/rubric","source":"scoring_controller.saveRubric","evidence":"native","suite":"scoring","invalid_input":{"applicable":true,"reason":"Malformed identifiers, invalid definitions, locked rubrics, and stale revisions are rejected."},"missing_resource":{"applicable":true,"reason":"Unknown activities return 404."}},
     {"route":"GET /v2/activities/:id/scoring","source":"scoring_controller.index","evidence":"native","suite":"scoring","invalid_input":{"applicable":true,"reason":"Malformed identifiers and unknown state filters are rejected; pagination is bounded."},"missing_resource":{"applicable":true,"reason":"Unknown activities return 404."}},

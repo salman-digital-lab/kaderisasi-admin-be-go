@@ -1,6 +1,11 @@
 prepare-reference:
 	node scripts/prepare-reference.mjs
 
+.PHONY: test-activity-courses
+test-activity-courses: fixtures
+	node scripts/activity-courses.mjs --browser $(BORROW_WORKSPACE)
+	node scripts/coverage.mjs --native=activity-courses --check
+
 .PHONY: prepare-reference check build package run test-unit fixtures test-integration test-contract test-browser test-courses test-courses-browser test-shared test-jobs benchmark verify clean-fixtures
 
 BORROW_WORKSPACE ?= --borrow-workspace

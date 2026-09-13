@@ -41,13 +41,25 @@ func registrationProfileFields(raw []byte) ([]string, error) {
 	return result, nil
 }
 func (s Service) ListRegistrations(ctx context.Context, identifier string, filters RegistrationFilters) (RegistrationPage, error) {
-	q := dbgen.New(s.Pool)
+	tx, err := s.Pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead, AccessMode: pgx.ReadOnly})
+	if err != nil {
+		return RegistrationPage{}, err
+	}
+	defer tx.Rollback(ctx)
+	q := dbgen.New(tx)
 	activity, err := q.RegistrationActivityByIdentifier(ctx, identifier)
 	if err != nil {
 		return RegistrationPage{}, database.LegacyQueryError(err, `select * from "activities" where "id" = $1 limit $2`)
 	}
 	fields, err := registrationProfileFields(activity.AdditionalConfig)
 	if err != nil {
+		return RegistrationPage{}, err
+	}
+	links, err := q.LinkedActivityCourses(ctx, activity.ID)
+	if err != nil {
+		return RegistrationPage{}, err
+	}
+	if err = validateCourseFilter(links, filters); err != nil {
 		return RegistrationPage{}, err
 	}
 	if registrationSortColumns[filters.SortBy] == "" {
@@ -70,7 +82,7 @@ func (s Service) ListRegistrations(ctx context.Context, identifier string, filte
 		}
 		return RegistrationPage{}, database.LegacyQueryError(err, registrationListStatement(filters, fields, true))
 	}
-	count, err := q.CountRegistrationsFiltered(ctx, dbgen.CountRegistrationsFilteredParams{ActivityID: activity.ID, Search: filters.Search, Status: filters.Status, UniversityID: filters.UniversityID, ProvinceID: filters.ProvinceID, IntakeYear: filters.IntakeYear})
+	count, err := q.CountRegistrationsFiltered(ctx, dbgen.CountRegistrationsFilteredParams{ActivityID: activity.ID, Search: filters.Search, Status: filters.Status, UniversityID: filters.UniversityID, ProvinceID: filters.ProvinceID, IntakeYear: filters.IntakeYear, CourseID: filters.CourseID, CourseCompletion: filters.CourseCompletion})
 	if err != nil {
 		return RegistrationPage{}, database.LegacyQueryError(err, registrationListStatement(filters, fields, true))
 	}
@@ -82,15 +94,24 @@ func (s Service) ListRegistrations(ctx context.Context, identifier string, filte
 	if err != nil {
 		return result, err
 	}
-	rows, err := q.ListRegistrationsFiltered(ctx, dbgen.ListRegistrationsFilteredParams{ActivityID: activity.ID, Search: filters.Search, Status: filters.Status, UniversityID: filters.UniversityID, ProvinceID: filters.ProvinceID, IntakeYear: filters.IntakeYear, SortBy: filters.SortBy, Ascending: filters.Ascending, PageSize: limit, PageOffset: offset})
+	rows, err := q.ListRegistrationsFiltered(ctx, dbgen.ListRegistrationsFilteredParams{ActivityID: activity.ID, Search: filters.Search, Status: filters.Status, UniversityID: filters.UniversityID, ProvinceID: filters.ProvinceID, IntakeYear: filters.IntakeYear, SortBy: filters.SortBy, Ascending: filters.Ascending, PageSize: limit, PageOffset: offset, CourseID: filters.CourseID, CourseCompletion: filters.CourseCompletion})
 	if err != nil {
 		return result, database.LegacyQueryError(err, registrationListStatement(filters, fields, false))
+	}
+	ids := make([]int32, len(rows))
+	for i, row := range rows {
+		ids[i] = row.ID
+	}
+	progress, err := registrationCourseProgress(ctx, q, activity.ID, ids)
+	if err != nil {
+		return result, err
 	}
 	for _, row := range rows {
 		view, err := registrationSummary(row, fields)
 		if err != nil {
 			return result, err
 		}
+		view.CourseProgress = progress[row.ID]
 		result.Data = append(result.Data, view)
 	}
 	return result, nil
