@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
@@ -76,6 +77,11 @@ func (s Service) DeleteRegistration(ctx context.Context, identifier string) (boo
 		return false, database.LegacyQueryError(err, `select * from "activity_registrations" where "id" = $1 limit $2`)
 	}
 	id := row.ID
+	if history, err := q.RegistrationHasScoringPublications(ctx, id); err != nil {
+		return false, err
+	} else if history {
+		return false, domain.Fail(409, "REGISTRATION_HAS_SCORING_HISTORY")
+	}
 	exists, err := q.RegistrationHasCertificate(ctx, id)
 	if err != nil {
 		return false, err
@@ -84,6 +90,10 @@ func (s Service) DeleteRegistration(ctx context.Context, identifier string) (boo
 		return false, domain.Fail(409, "CERTIFICATE_REGISTRATION_HAS_ISSUED_CERTIFICATE")
 	}
 	_, err = q.DeleteActivityRegistration(ctx, id)
+	var constraint *pgconn.PgError
+	if errors.As(err, &constraint) && constraint.Code == "23503" && constraint.TableName == "activity_scoring_publications" {
+		return false, domain.Fail(409, "REGISTRATION_HAS_SCORING_HISTORY")
+	}
 	return true, err
 }
 

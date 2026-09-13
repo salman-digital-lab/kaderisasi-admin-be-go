@@ -1,6 +1,12 @@
 {
   "suites": [
     {
+      "name": "scoring",
+      "controller": "scoring_controller",
+      "report": ".artifacts/scoring.json",
+      "command": "make test-scoring"
+    },
+    {
       "name": "feature-deletion",
       "report": ".artifacts/feature-deletion.json",
       "command": "make test-feature-deletion"
@@ -19,6 +25,15 @@
     }
   ],
   "routes": [
+    {"route":"GET /v2/activities/:id/scoring/rubric","source":"scoring_controller.rubric","evidence":"native","suite":"scoring","invalid_input":{"applicable":true,"reason":"Malformed activity identifiers are rejected."},"missing_resource":{"applicable":true,"reason":"Unknown activities return 404."}},
+    {"route":"PUT /v2/activities/:id/scoring/rubric","source":"scoring_controller.saveRubric","evidence":"native","suite":"scoring","invalid_input":{"applicable":true,"reason":"Malformed identifiers, invalid definitions, locked rubrics, and stale revisions are rejected."},"missing_resource":{"applicable":true,"reason":"Unknown activities return 404."}},
+    {"route":"GET /v2/activities/:id/scoring","source":"scoring_controller.index","evidence":"native","suite":"scoring","invalid_input":{"applicable":true,"reason":"Malformed identifiers and unknown state filters are rejected; pagination is bounded."},"missing_resource":{"applicable":true,"reason":"Unknown activities return 404."}},
+    {"route":"PUT /v2/activities/:id/scoring/registrations/:registrationId","source":"scoring_controller.save","evidence":"native","suite":"scoring","invalid_input":{"applicable":true,"reason":"Malformed identifiers, unknown criteria, out-of-range scores, and stale revisions are rejected."},"missing_resource":{"applicable":true,"reason":"Unknown activities and registrations outside the activity return 404."}},
+    {"route":"POST /v2/activities/:id/scoring/publish","source":"scoring_controller.publish","evidence":"native","suite":"scoring","invalid_input":{"applicable":true,"reason":"Malformed identifiers, incomplete assessments, and stale selections are rejected."},"missing_resource":{"applicable":true,"reason":"Unknown activities or selected registrations return 404."}},
+    {"route":"POST /v2/activities/:id/scoring/withdraw","source":"scoring_controller.withdraw","evidence":"native","suite":"scoring","invalid_input":{"applicable":true,"reason":"Malformed identifiers and stale or unpublished selections are rejected."},"missing_resource":{"applicable":true,"reason":"Unknown activities or selected registrations return 404."}},
+    {"route":"GET /v2/activities/:id/scoring/excel","source":"scoring_controller.excel","evidence":"native","suite":"scoring","invalid_input":{"applicable":true,"reason":"Malformed identifiers and unsupported export modes are rejected."},"missing_resource":{"applicable":true,"reason":"Unknown activities return 404."}},
+    {"route":"POST /v2/activities/:id/scoring/import/preview","source":"scoring_controller.preview","evidence":"native","suite":"scoring","invalid_input":{"applicable":true,"reason":"Malformed identifiers, wrong-activity templates, and invalid workbook contents are rejected."},"missing_resource":{"applicable":true,"reason":"Unknown activities return 404."}},
+    {"route":"POST /v2/activities/:id/scoring/import/commit","source":"scoring_controller.commit","evidence":"native","suite":"scoring","invalid_input":{"applicable":true,"reason":"Malformed identifiers, changed previews, and imports containing errors are rejected."},"missing_resource":{"applicable":true,"reason":"Unknown activities return 404."}},
     {
       "route": "DELETE /v2/activities/:id",
       "source": "activities_controller.delete",

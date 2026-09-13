@@ -1,4 +1,13 @@
 [
+  {"method":"GET","path":"/v2/activities/:id/scoring/rubric","controller":"scoring_controller","action":"rubric","auth":true,"permission":"activities.read"},
+  {"method":"PUT","path":"/v2/activities/:id/scoring/rubric","controller":"scoring_controller","action":"saveRubric","auth":true,"permission":"activities.manage"},
+  {"method":"GET","path":"/v2/activities/:id/scoring","controller":"scoring_controller","action":"index","auth":true,"permission":"activities.read"},
+  {"method":"PUT","path":"/v2/activities/:id/scoring/registrations/:registrationId","controller":"scoring_controller","action":"save","auth":true,"permission":"activities.registration.manage"},
+  {"method":"POST","path":"/v2/activities/:id/scoring/publish","controller":"scoring_controller","action":"publish","auth":true,"permission":"activities.registration.manage"},
+  {"method":"POST","path":"/v2/activities/:id/scoring/withdraw","controller":"scoring_controller","action":"withdraw","auth":true,"permission":"activities.registration.manage"},
+  {"method":"GET","path":"/v2/activities/:id/scoring/excel","controller":"scoring_controller","action":"excel","auth":true,"permission":"activities.read"},
+  {"method":"POST","path":"/v2/activities/:id/scoring/import/preview","controller":"scoring_controller","action":"preview","auth":true,"permission":"activities.registration.manage"},
+  {"method":"POST","path":"/v2/activities/:id/scoring/import/commit","controller":"scoring_controller","action":"commit","auth":true,"permission":"activities.registration.manage"},
   {
     "method": "DELETE",
     "path": "/v2/activities/:id",

@@ -45,7 +45,7 @@ func (q *Queries) CertificateActivityByIdentifier(ctx context.Context, identifie
 }
 
 const certificateBulkRegistrations = `-- name: CertificateBulkRegistrations :many
-SELECT id, user_id, activity_id, status, questionnaire_answer, created_at, updated_at, guest_data FROM activity_registrations WHERE activity_id=CAST(CAST($1 AS text) AS integer) AND status= $2::text
+SELECT id, user_id, activity_id, status, questionnaire_answer, scoring_data, created_at, updated_at, guest_data FROM activity_registrations WHERE activity_id=CAST(CAST($1 AS text) AS integer) AND status= $2::text
 `
 
 type CertificateBulkRegistrationsParams struct {
@@ -68,6 +68,7 @@ func (q *Queries) CertificateBulkRegistrations(ctx context.Context, arg Certific
 			&i.ActivityID,
 			&i.Status,
 			&i.QuestionnaireAnswer,
+			&i.ScoringData,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.GuestData,
@@ -211,7 +212,7 @@ func (q *Queries) CertificateRecipientNames(ctx context.Context, registrationIds
 }
 
 const certificateRegistrationByIdentifier = `-- name: CertificateRegistrationByIdentifier :one
-SELECT id, user_id, activity_id, status, questionnaire_answer, created_at, updated_at, guest_data FROM activity_registrations WHERE id=CAST(CAST($1 AS text) AS integer)
+SELECT id, user_id, activity_id, status, questionnaire_answer, scoring_data, created_at, updated_at, guest_data FROM activity_registrations WHERE id=CAST(CAST($1 AS text) AS integer)
 `
 
 func (q *Queries) CertificateRegistrationByIdentifier(ctx context.Context, identifier string) (ActivityRegistration, error) {
@@ -223,6 +224,7 @@ func (q *Queries) CertificateRegistrationByIdentifier(ctx context.Context, ident
 		&i.ActivityID,
 		&i.Status,
 		&i.QuestionnaireAnswer,
+		&i.ScoringData,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.GuestData,
@@ -502,7 +504,7 @@ func (q *Queries) LockCertificateActivityByIdentifier(ctx context.Context, ident
 }
 
 const lockCertificateRegistrationByIdentifier = `-- name: LockCertificateRegistrationByIdentifier :one
-SELECT id, user_id, activity_id, status, questionnaire_answer, created_at, updated_at, guest_data FROM activity_registrations WHERE id=CAST(CAST($1 AS text) AS integer) FOR UPDATE
+SELECT id, user_id, activity_id, status, questionnaire_answer, scoring_data, created_at, updated_at, guest_data FROM activity_registrations WHERE id=CAST(CAST($1 AS text) AS integer) FOR UPDATE
 `
 
 func (q *Queries) LockCertificateRegistrationByIdentifier(ctx context.Context, identifier string) (ActivityRegistration, error) {
@@ -514,6 +516,7 @@ func (q *Queries) LockCertificateRegistrationByIdentifier(ctx context.Context, i
 		&i.ActivityID,
 		&i.Status,
 		&i.QuestionnaireAnswer,
+		&i.ScoringData,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.GuestData,

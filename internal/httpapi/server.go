@@ -75,6 +75,7 @@ func (s *Server) Handler() http.Handler {
 	s.registerTickets()
 	s.registerMembers()
 	s.registerActivities()
+	s.registerScoring()
 	s.registerRegistrations()
 	s.registerClubs()
 	s.registerForms()

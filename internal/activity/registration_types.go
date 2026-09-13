@@ -26,6 +26,7 @@ type RegistrationBulkStatusInput struct {
 }
 type RegistrationResponse struct {
 	dbgen.ActivityRegistration
+	ScoringData         *struct{}       `json:"scoring_data,omitempty"`
 	QuestionnaireAnswer json.RawMessage `json:"questionnaire_answer"`
 	GuestData           json.RawMessage `json:"guest_data"`
 	CreatedAt           *string         `json:"created_at"`

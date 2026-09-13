@@ -56,9 +56,31 @@ type ActivityRegistration struct {
 	ActivityID          *int32             `json:"activity_id"`
 	Status              *string            `json:"status"`
 	QuestionnaireAnswer []byte             `json:"questionnaire_answer"`
+	ScoringData         []byte             `json:"scoring_data"`
 	CreatedAt           pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt           pgtype.Timestamptz `json:"updated_at"`
 	GuestData           []byte             `json:"guest_data"`
+}
+
+type ActivityScoringPublication struct {
+	ID             int32              `json:"id"`
+	ActivityID     int32              `json:"activity_id"`
+	RegistrationID int32              `json:"registration_id"`
+	Revision       int32              `json:"revision"`
+	Action         string             `json:"action"`
+	Snapshot       []byte             `json:"snapshot"`
+	ActorID        int32              `json:"actor_id"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+}
+
+type ActivityScoringRubric struct {
+	ID         int32              `json:"id"`
+	ActivityID int32              `json:"activity_id"`
+	Definition []byte             `json:"definition"`
+	Revision   int32              `json:"revision"`
+	LockedAt   pgtype.Timestamptz `json:"locked_at"`
+	UpdatedBy  int32              `json:"updated_by"`
+	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
 }
 
 type AdminAuthIdentity struct {

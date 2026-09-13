@@ -124,9 +124,32 @@ CREATE TABLE public.activity_registrations (
     activity_id integer,
     status character varying(50),
     questionnaire_answer jsonb DEFAULT '{}'::jsonb,
+    scoring_data jsonb,
     created_at timestamp with time zone,
     updated_at timestamp with time zone,
     guest_data jsonb
+);
+
+CREATE TABLE public.activity_scoring_rubrics (
+    id serial PRIMARY KEY,
+    activity_id integer NOT NULL UNIQUE REFERENCES public.activities(id) ON DELETE CASCADE,
+    definition jsonb NOT NULL,
+    revision integer NOT NULL DEFAULT 1,
+    locked_at timestamptz,
+    updated_by integer NOT NULL REFERENCES public.admin_users(id),
+    updated_at timestamptz NOT NULL
+);
+
+CREATE TABLE public.activity_scoring_publications (
+    id serial PRIMARY KEY,
+    activity_id integer NOT NULL REFERENCES public.activities(id) ON DELETE RESTRICT,
+    registration_id integer NOT NULL REFERENCES public.activity_registrations(id) ON DELETE RESTRICT,
+    revision integer NOT NULL,
+    action varchar(16) NOT NULL,
+    snapshot jsonb,
+    actor_id integer NOT NULL REFERENCES public.admin_users(id),
+    created_at timestamptz NOT NULL,
+    UNIQUE (registration_id, revision)
 );
 
 

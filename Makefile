@@ -70,3 +70,8 @@ clean-fixtures:
 test-short-links:
 	node scripts/short-links.mjs --browser
 	node scripts/coverage.mjs --native=short-links --check
+
+.PHONY: test-scoring
+test-scoring: fixtures
+	node scripts/scoring-workflows.mjs --browser $(BORROW_WORKSPACE)
+	node scripts/coverage.mjs --native=scoring --check

@@ -103,7 +103,8 @@ func prepareRequest(w http.ResponseWriter, r *http.Request, route Route) (*http.
 	return r.WithContext(context.WithValue(r.Context(), requestDataKey{}, data)), nil
 }
 func isUploadRoute(route Route) bool {
-	return route.Controller == "courses_controller" && route.Action == "uploadDocument" ||
+	return route.Controller == "scoring_controller" && (route.Action == "preview" || route.Action == "commit") ||
+		route.Controller == "courses_controller" && route.Action == "uploadDocument" ||
 		route.Controller == "activities_controller" && route.Action == "uploadImage" ||
 		route.Controller == "clubs_controller" && (route.Action == "uploadLogo" || route.Action == "uploadImageMedia") ||
 		route.Controller == "certificate_templates_controller" && (route.Action == "uploadBackground" || route.Action == "uploadAsset")

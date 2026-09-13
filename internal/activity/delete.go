@@ -26,6 +26,11 @@ func (s Service) Delete(ctx context.Context, identifier, confirmation string) er
 	if confirmation == "" || confirmation != row.Name {
 		return domain.Fail(422, "DELETE_CONFIRMATION_MISMATCH")
 	}
+	if hasHistory, err := q.HasScoringPublications(ctx, row.ID); err != nil {
+		return err
+	} else if hasHistory {
+		return domain.Fail(409, "ACTIVITY_HAS_SCORING_HISTORY")
+	}
 	if _, err = q.DeleteActivity(ctx, row.ID); err != nil {
 		var constraint *pgconn.PgError
 		if errors.As(err, &constraint) && constraint.Code == "23503" {
