@@ -1,3 +1,4 @@
+import {detailShortLinksBrowser} from './detail-short-links-browser.mjs';
 import {chromium,expect} from '@playwright/test';
 import assert from 'node:assert/strict';
 import {randomBytes,scryptSync} from 'node:crypto';
@@ -67,6 +68,7 @@ export async function shortLinksBrowser(db,schema,artifacts){
   await page.route('**/v2/short-links?**',route=>route.fulfill({status:503,contentType:'application/json',body:'{"message":"GENERAL_ERROR"}'}));
   await page.getByRole('button',{name:'Muat ulang',exact:true}).click();await expect(page.getByText('Tautan tidak dapat dimuat',{exact:true})).toBeVisible();
   await page.unroute('**/v2/short-links?**');await page.getByRole('button',{name:'Coba lagi',exact:true}).click();await expect(page.getByText('Belum ada tautan pendek.',{exact:true})).toBeVisible();
+  await detailShortLinksBrowser(page,db,schema,artifacts);
   assert.deepEqual(errors,[]);console.log('Short-link browser workflow passed at desktop and mobile widths');
  }finally{await browser.close();}
 }

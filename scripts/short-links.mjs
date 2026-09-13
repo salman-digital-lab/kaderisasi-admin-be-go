@@ -30,7 +30,7 @@ try {
   const frontend=resolve(workspace,'kaderisasi-admin-fe');
   let vite;
   try{await fetch('http://localhost:3005');}catch{
-   vite=spawn(process.execPath,[resolve(frontend,'node_modules/vite/bin/vite.js'),'--port','3005','--strictPort'],{cwd:frontend,env:{...env,VITE_PUBLIC_BE_ADMIN_API:'http://localhost:3334/v2'},stdio:'ignore'});
+   vite=spawn(process.execPath,[resolve(frontend,'node_modules/vite/bin/vite.js'),'--port','3005','--strictPort'],{cwd:frontend,env:{...env,VITE_PUBLIC_BE_ADMIN_API:'http://localhost:3334/v2',VITE_PUBLIC_WEB_URL:'http://127.0.0.1:3000'},stdio:'ignore'});
   }
   const fd=openSync(resolve(artifacts,'api.log'),'w',0o600);
   const api=spawn(resolve(artifacts,'admin-api'),[],{cwd:root,env,stdio:['ignore',fd,fd]});
