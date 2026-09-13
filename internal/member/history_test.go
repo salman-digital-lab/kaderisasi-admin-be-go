@@ -7,6 +7,13 @@ import (
 )
 
 func TestHistoryNormalization(t *testing.T) {
+	for _, degree := range []string{"high_school", "diploma"} {
+		raw := []byte(`[{"degree":"` + degree + `","institution":"School"}]`)
+		var entries []EducationEntry
+		if err := json.Unmarshal(NormalizeEducationHistory(raw), &entries); err != nil || len(entries) != 1 || entries[0].Degree == nil || *entries[0].Degree != degree {
+			t.Fatalf("degree lost after normalization: %s", raw)
+		}
+	}
 	raw, _ := json.Marshal(`[null,{"degree":"bachelor","institution":" ITB ","intake_year":"2017"}]`)
 	view := ProfileView(dbgen.Profile{EducationHistory: raw, WorkHistory: []byte(`[null,{"job_title":" Engineer ","company":"Company","start_year":"2021","end_year":null}]`)})
 	if string(view.EducationHistory) != `[{"degree":"bachelor","institution":"ITB","faculty":"","major":"","intake_year":2017}]` {

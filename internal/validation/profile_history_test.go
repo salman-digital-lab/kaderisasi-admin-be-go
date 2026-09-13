@@ -7,6 +7,7 @@ import (
 
 func TestMemberProfileHistoryValidation(t *testing.T) {
 	for _, input := range []string{
+		`{"education_history":[{"degree":"high_school","institution":"SMA","faculty":""},{"degree":"diploma","institution":"Politeknik"}]}`,
 		`{"education_history":[{"major":"Physics","intake_year":null}],"work_history":[{"job_title":" Engineer ","company":" Company ","start_year":"2021","end_year":""}]}`,
 		`{"education_history":[],"work_history":[]}`,
 		`{"name":"Fixture"}`,
@@ -28,6 +29,7 @@ func TestMemberProfileHistoryValidation(t *testing.T) {
 		`{"work_history":[{"job_title":" ","company":"Company"}]}`,
 		`{"work_history":[{"job_title":"Engineer","company":"Company","start_year":2021.5}]}`,
 		`{"education_history":[null]}`,
+		`{"education_history":[{"degree":"unknown"}]}`,
 	} {
 		var request Object
 		_ = json.Unmarshal([]byte(input), &request)

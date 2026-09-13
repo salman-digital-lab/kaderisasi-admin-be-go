@@ -18,6 +18,9 @@ func memberProfileRule(base Rule) Rule {
 	_ = json.Unmarshal(educationArray.Args[0], &educationObject)
 	_ = json.Unmarshal(educationObject.Args[0], &education)
 	for key, rule := range education {
+		if key == "degree" {
+			rule.Args = []json.RawMessage{marshal([]string{"high_school", "diploma", "bachelor", "master", "doctoral"})}
+		}
 		rule.Chain = append(rule.Chain, Constraint{Method: "optional", Args: []json.RawMessage{}})
 		if rule.Kind == "string" {
 			rule.Chain = append(rule.Chain, Constraint{Method: "trim", Args: []json.RawMessage{}})

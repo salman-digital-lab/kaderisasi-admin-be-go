@@ -32,6 +32,16 @@ try {
   const login=await call('web','Login shared member','POST','/auth/login',{email:'history@example.test',password:fixturePassword});
   publicToken=login.token.token;
   const path='/profiles/'+member.profile.id;
+  for(const degree of ['high_school','diploma']) {
+    for(const backend of ['web','go']) {
+      await call(backend,backend+' saves '+degree,'PUT',backend==='go'?path:'/profiles',{education_history:[{degree,institution:'School',faculty:''}]});
+      const adminRead=(await call('go','Admin reloads '+backend+' '+degree,'GET',path)).profile[0];
+      const webRead=(await call('web','Public reloads '+backend+' '+degree,'GET','/profiles')).profile;
+      assert.equal(adminRead.education_history[0].degree,degree);
+      assert.equal(webRead.education_history[0].degree,degree);
+      assert.equal((await fixture.db.query('SELECT education_history FROM profiles WHERE id=$1',[member.profile.id])).rows[0].education_history[0].degree,degree);
+    }
+  }
   const education=[{degree:'bachelor',institution:'ITB',major:'Physics',intake_year:'2017'}];
   const work=[{job_title:'Engineer',company:'Company',start_year:'2021',end_year:null}];
   await call('web','Public accepts partial education and active work','PUT','/profiles',{education_history:education,work_history:work});

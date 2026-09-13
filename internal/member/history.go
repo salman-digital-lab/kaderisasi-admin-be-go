@@ -62,7 +62,7 @@ func NormalizeEducationHistory(raw json.RawMessage) json.RawMessage {
 			IntakeYear:  historyYear(entry["intake_year"]),
 		}
 		degree := historyString(entry["degree"])
-		if degree == "bachelor" || degree == "master" || degree == "doctoral" {
+		if degree == "high_school" || degree == "diploma" || degree == "bachelor" || degree == "master" || degree == "doctoral" {
 			value.Degree = &degree
 		}
 		result = append(result, value)
