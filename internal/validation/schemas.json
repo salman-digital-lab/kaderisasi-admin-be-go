@@ -1010,6 +1010,31 @@
               "args": []
             }
           ]
+        },
+        "role_codes": {
+          "kind": "array",
+          "args": [
+            {
+              "kind": "enum",
+              "args": [
+                [
+                  "super_admin",
+                  "admin",
+                  "activity_manager",
+                  "achievement_manager",
+                  "club_manager",
+                  "konselor"
+                ]
+              ],
+              "chain": []
+            }
+          ],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
         }
       }
     ],
@@ -1115,10 +1140,26 @@
           "kind": "string",
           "args": [],
           "chain": [
-            { "method": "trim", "args": [] },
-            { "method": "minLength", "args": [1] },
-            { "method": "maxLength", "args": [255] },
-            { "method": "optional", "args": [] }
+            {
+              "method": "trim",
+              "args": []
+            },
+            {
+              "method": "minLength",
+              "args": [
+                1
+              ]
+            },
+            {
+              "method": "maxLength",
+              "args": [
+                255
+              ]
+            },
+            {
+              "method": "optional",
+              "args": []
+            }
           ]
         },
         "role_code": {
@@ -1147,6 +1188,31 @@
         "isActive": {
           "kind": "boolean",
           "args": [],
+          "chain": [
+            {
+              "method": "optional",
+              "args": []
+            }
+          ]
+        },
+        "role_codes": {
+          "kind": "array",
+          "args": [
+            {
+              "kind": "enum",
+              "args": [
+                [
+                  "super_admin",
+                  "admin",
+                  "activity_manager",
+                  "achievement_manager",
+                  "club_manager",
+                  "konselor"
+                ]
+              ],
+              "chain": []
+            }
+          ],
           "chain": [
             {
               "method": "optional",

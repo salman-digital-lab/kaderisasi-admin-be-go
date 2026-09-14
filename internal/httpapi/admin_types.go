@@ -9,16 +9,18 @@ import (
 )
 
 type adminCreateRequest struct {
-	DisplayName string  `json:"displayName"`
-	Email       string  `json:"email"`
-	Password    string  `json:"password"`
-	RoleCode    *string `json:"role_code"`
+	RoleCodes   domain.Optional[[]string] `json:"role_codes"`
+	DisplayName string                    `json:"displayName"`
+	Email       string                    `json:"email"`
+	Password    string                    `json:"password"`
+	RoleCode    *string                   `json:"role_code"`
 }
 
 type adminUpdateRequest struct {
-	DisplayName *string                 `json:"displayName"`
-	RoleCode    domain.Optional[string] `json:"role_code"`
-	IsActive    domain.Optional[bool]   `json:"isActive"`
+	RoleCodes   domain.Optional[[]string] `json:"role_codes"`
+	DisplayName *string                   `json:"displayName"`
+	RoleCode    domain.Optional[string]   `json:"role_code"`
+	IsActive    domain.Optional[bool]     `json:"isActive"`
 }
 
 type passwordRequest struct {
@@ -33,6 +35,8 @@ type adminIdentityResponse struct {
 }
 
 type adminResponse struct {
+	RoleCodes             []string                `json:"role_codes"`
+	Roles                 []auth.AssignedRole     `json:"roles"`
 	ID                    int32                   `json:"id"`
 	Email                 string                  `json:"email"`
 	NormalizedEmail       string                  `json:"normalized_email"`

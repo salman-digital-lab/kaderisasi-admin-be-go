@@ -34,7 +34,8 @@ func TestCertificateApprovalWorkflow(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	signer := f.admin("certificate_manager")
+	signer := f.admin("konselor")
+	f.call("PUT", fmt.Sprintf("/v2/admin-users/%d", signer), map[string]interface{}{"role_codes": []string{"konselor", "admin"}}, f.token, 200)
 	c, err := config.Load()
 	if err != nil {
 		t.Fatal(err)

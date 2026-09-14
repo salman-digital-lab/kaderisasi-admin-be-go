@@ -57,7 +57,7 @@ func (q *Queries) AdminIdentities(ctx context.Context, adminUserID int32) ([]Adm
 }
 
 const countActiveSuperAdmins = `-- name: CountActiveSuperAdmins :one
-SELECT count(*) FROM admin_users WHERE is_active=true AND role_code='super_admin'
+SELECT count(*) FROM admin_users WHERE is_active=true AND (role_code='super_admin' OR 'super_admin'=ANY(additional_role_codes))
 `
 
 func (q *Queries) CountActiveSuperAdmins(ctx context.Context) (int64, error) {
@@ -69,7 +69,7 @@ func (q *Queries) CountActiveSuperAdmins(ctx context.Context) (int64, error) {
 
 const countAdmins = `-- name: CountAdmins :one
 SELECT count(*) FROM admin_users WHERE (email ILIKE $1::text OR display_name ILIKE $1::text)
-AND ($2::text IS NULL OR COALESCE(role_code,'unassigned')=$2::text)
+AND ($2::text IS NULL OR role_code=$2::text OR $2::text=ANY(additional_role_codes) OR ($2::text='unassigned' AND role_code IS NULL AND cardinality(additional_role_codes)=0))
 AND ($3::boolean IS NULL OR is_active=$3::boolean)
 `
 
@@ -87,15 +87,16 @@ func (q *Queries) CountAdmins(ctx context.Context, arg CountAdminsParams) (int64
 }
 
 const createAdmin = `-- name: CreateAdmin :one
-INSERT INTO admin_users(email,normalized_email,password,display_name,is_active,role_code,created_at,updated_at)
-VALUES ($1,$1,$2,$3,true,$4,now(),now()) RETURNING id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code
+INSERT INTO admin_users(email,normalized_email,password,display_name,is_active,role_code,additional_role_codes,created_at,updated_at)
+VALUES ($1,$1,$2,$3,true,$4,$5::text[],now(),now()) RETURNING id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code, additional_role_codes
 `
 
 type CreateAdminParams struct {
-	Email       string  `json:"email"`
-	Password    *string `json:"password"`
-	DisplayName *string `json:"display_name"`
-	RoleCode    *string `json:"role_code"`
+	Email               string   `json:"email"`
+	Password            *string  `json:"password"`
+	DisplayName         *string  `json:"display_name"`
+	RoleCode            *string  `json:"role_code"`
+	AdditionalRoleCodes []string `json:"additional_role_codes"`
 }
 
 func (q *Queries) CreateAdmin(ctx context.Context, arg CreateAdminParams) (AdminUser, error) {
@@ -104,6 +105,7 @@ func (q *Queries) CreateAdmin(ctx context.Context, arg CreateAdminParams) (Admin
 		arg.Password,
 		arg.DisplayName,
 		arg.RoleCode,
+		arg.AdditionalRoleCodes,
 	)
 	var i AdminUser
 	err := row.Scan(
@@ -116,13 +118,14 @@ func (q *Queries) CreateAdmin(ctx context.Context, arg CreateAdminParams) (Admin
 		&i.IsActive,
 		&i.NormalizedEmail,
 		&i.RoleCode,
+		&i.AdditionalRoleCodes,
 	)
 	return i, err
 }
 
 const listAdmins = `-- name: ListAdmins :many
-SELECT id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code FROM admin_users WHERE (email ILIKE $1::text OR display_name ILIKE $1::text)
-AND ($2::text IS NULL OR COALESCE(role_code,'unassigned')=$2::text)
+SELECT id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code, additional_role_codes FROM admin_users WHERE (email ILIKE $1::text OR display_name ILIKE $1::text)
+AND ($2::text IS NULL OR role_code=$2::text OR $2::text=ANY(additional_role_codes) OR ($2::text='unassigned' AND role_code IS NULL AND cardinality(additional_role_codes)=0))
 AND ($3::boolean IS NULL OR is_active=$3::boolean)
 ORDER BY created_at DESC LIMIT CAST($5::text AS bigint) OFFSET CAST($4::text AS bigint)
 `
@@ -160,6 +163,7 @@ func (q *Queries) ListAdmins(ctx context.Context, arg ListAdminsParams) ([]Admin
 			&i.IsActive,
 			&i.NormalizedEmail,
 			&i.RoleCode,
+			&i.AdditionalRoleCodes,
 		); err != nil {
 			return nil, err
 		}
@@ -172,7 +176,7 @@ func (q *Queries) ListAdmins(ctx context.Context, arg ListAdminsParams) ([]Admin
 }
 
 const lockAdmin = `-- name: LockAdmin :one
-SELECT id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code FROM admin_users WHERE id=$1 FOR UPDATE
+SELECT id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code, additional_role_codes FROM admin_users WHERE id=$1 FOR UPDATE
 `
 
 func (q *Queries) LockAdmin(ctx context.Context, id int32) (AdminUser, error) {
@@ -188,12 +192,13 @@ func (q *Queries) LockAdmin(ctx context.Context, id int32) (AdminUser, error) {
 		&i.IsActive,
 		&i.NormalizedEmail,
 		&i.RoleCode,
+		&i.AdditionalRoleCodes,
 	)
 	return i, err
 }
 
 const setAdminDisplayName = `-- name: SetAdminDisplayName :one
-UPDATE admin_users SET display_name=$2,updated_at=now() WHERE id=$1 RETURNING id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code
+UPDATE admin_users SET display_name=$2,updated_at=now() WHERE id=$1 RETURNING id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code, additional_role_codes
 `
 
 type SetAdminDisplayNameParams struct {
@@ -214,6 +219,7 @@ func (q *Queries) SetAdminDisplayName(ctx context.Context, arg SetAdminDisplayNa
 		&i.IsActive,
 		&i.NormalizedEmail,
 		&i.RoleCode,
+		&i.AdditionalRoleCodes,
 	)
 	return i, err
 }
@@ -235,22 +241,25 @@ func (q *Queries) SetAdminPassword(ctx context.Context, arg SetAdminPasswordPara
 const updateAdminAccess = `-- name: UpdateAdminAccess :exec
 UPDATE admin_users SET
 role_code=CASE WHEN $1::boolean THEN $2::text ELSE role_code END,
-is_active=CASE WHEN $3::boolean THEN $4::boolean ELSE is_active END,
-updated_at=now() WHERE id = $5
+additional_role_codes=CASE WHEN $1::boolean THEN $3::text[] ELSE additional_role_codes END,
+is_active=CASE WHEN $4::boolean THEN $5::boolean ELSE is_active END,
+updated_at=now() WHERE id = $6
 `
 
 type UpdateAdminAccessParams struct {
-	RolePresent   bool    `json:"role_present"`
-	RoleCode      *string `json:"role_code"`
-	ActivePresent bool    `json:"active_present"`
-	IsActive      bool    `json:"is_active"`
-	ID            int32   `json:"id"`
+	RolePresent         bool     `json:"role_present"`
+	RoleCode            *string  `json:"role_code"`
+	AdditionalRoleCodes []string `json:"additional_role_codes"`
+	ActivePresent       bool     `json:"active_present"`
+	IsActive            bool     `json:"is_active"`
+	ID                  int32    `json:"id"`
 }
 
 func (q *Queries) UpdateAdminAccess(ctx context.Context, arg UpdateAdminAccessParams) error {
 	_, err := q.db.Exec(ctx, updateAdminAccess,
 		arg.RolePresent,
 		arg.RoleCode,
+		arg.AdditionalRoleCodes,
 		arg.ActivePresent,
 		arg.IsActive,
 		arg.ID,

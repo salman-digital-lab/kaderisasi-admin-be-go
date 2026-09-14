@@ -93,6 +93,12 @@ func Validate(name string, input Object) (Object, []Issue) {
 	if (name == "customFormValidator" || name == "updateCustomFormValidator") && len(issues) == 0 {
 		issues = formRoutingIssues(result)
 	}
+	if (name == "registerValidator" || name == "editAdminUser") && input.Has("role_code") && input.Has("role_codes") {
+		issues = append(issues, Issue{Message: "Use either role_code or role_codes", Rule: "exclusive", Field: "role_codes"})
+	}
+	if (name == "registerValidator" || name == "editAdminUser") && input.Has("role_codes") && bytes.Equal(bytes.TrimSpace(input["role_codes"]), []byte("null")) {
+		issues = append(issues, Issue{Message: "The role_codes field must be an array", Rule: "array", Field: "role_codes"})
+	}
 	return result, issues
 }
 

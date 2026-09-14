@@ -27,7 +27,7 @@ LEFT JOIN universities uni ON uni.id=p.university_id
 WHERE rc.id = @id::integer;
 
 -- name: ListCounselingAdministrators :many
-SELECT id,email,display_name,role_code
+SELECT id,email,display_name,role_code,additional_role_codes
 FROM admin_users
 WHERE is_active=true
 ORDER BY display_name ASC NULLS LAST,id ASC;

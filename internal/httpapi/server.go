@@ -148,7 +148,7 @@ func (s *Server) Handler() http.Handler {
 					returnError(w, err)
 					return
 				}
-				if route.Permission != "" && !auth.ForRole(user.RoleCode, user.IsActive).Allows(route.Permission) {
+				if route.Permission != "" && !auth.ForUser(user).Allows(route.Permission) {
 					write(w, 403, struct {
 						Message    string `json:"message"`
 						Permission string `json:"permission"`

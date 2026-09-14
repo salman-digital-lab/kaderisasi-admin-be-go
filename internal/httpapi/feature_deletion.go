@@ -3,15 +3,18 @@ package httpapi
 import (
 	"context"
 	"encoding/json"
+	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/domain"
 	"net/http"
+	"slices"
 	"strconv"
 )
 
 func (s *Server) featureDeletion(remove func(context.Context, string, string) error) Handler {
 	return func(w http.ResponseWriter, r *http.Request) error {
-		role := actor(r).RoleCode
-		if role == nil || (*role != "super_admin" && *role != "admin") {
+		user := actor(r)
+		codes := auth.RoleCodes(user.RoleCode, user.AdditionalRoleCodes)
+		if !user.IsActive || (!slices.Contains(codes, "super_admin") && !slices.Contains(codes, "admin")) {
 			return domain.Fail(403, "FORBIDDEN")
 		}
 		identifier := pathID(r, "id")

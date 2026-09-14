@@ -128,15 +128,16 @@ type AdminRefreshToken struct {
 }
 
 type AdminUser struct {
-	ID              int32              `json:"id"`
-	Email           string             `json:"email"`
-	Password        *string            `json:"password"`
-	DisplayName     *string            `json:"display_name"`
-	CreatedAt       pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
-	IsActive        bool               `json:"is_active"`
-	NormalizedEmail string             `json:"normalized_email"`
-	RoleCode        *string            `json:"role_code"`
+	ID                  int32              `json:"id"`
+	Email               string             `json:"email"`
+	Password            *string            `json:"password"`
+	DisplayName         *string            `json:"display_name"`
+	CreatedAt           pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt           pgtype.Timestamptz `json:"updated_at"`
+	IsActive            bool               `json:"is_active"`
+	NormalizedEmail     string             `json:"normalized_email"`
+	RoleCode            *string            `json:"role_code"`
+	AdditionalRoleCodes []string           `json:"additional_role_codes"`
 }
 
 type AdonisSchema struct {

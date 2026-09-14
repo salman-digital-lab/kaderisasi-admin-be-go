@@ -53,7 +53,7 @@ func (s *Server) registerCertificateApprovals() {
 		if data.Action == "cancel" {
 			permission = "certificate.issue"
 		}
-		if !auth.ForRole(user.RoleCode, user.IsActive).Allows(permission) {
+		if !auth.ForUser(user).Allows(permission) {
 			return domain.Fail(403, "FORBIDDEN")
 		}
 		out, err := service.DecideApprovals(r.Context(), data, user.ID)

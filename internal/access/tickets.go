@@ -101,7 +101,7 @@ func (service Tickets) Resolve(ctx context.Context, id string, actor int32, reso
 	if err != nil {
 		return err
 	}
-	if !auth.ForRole(reviewer.RoleCode, reviewer.IsActive).Allows("tickets.review") {
+	if !auth.ForUser(reviewer).Allows("tickets.review") {
 		return domain.Fail(403, "FORBIDDEN")
 	}
 	ticket, err := q.LockTicketByIdentifier(ctx, id)
@@ -123,7 +123,13 @@ func (service Tickets) Resolve(ctx context.Context, id string, actor int32, reso
 		if role == nil || !role.IsRequestable {
 			return domain.Fail(409, "ROLE_NOT_REQUESTABLE")
 		}
-		if err = Change(ctx, tx, strconv.FormatInt(int64(ticket.RequesterAdminUserID), 10), Update{RoleCode: domain.Value(role.Code)}); err != nil {
+		requester, err := q.LockAdmin(ctx, ticket.RequesterAdminUserID)
+		if err != nil {
+			return err
+		}
+		codes := auth.RoleCodes(requester.RoleCode, requester.AdditionalRoleCodes)
+		codes = append(codes, role.Code)
+		if err = Change(ctx, tx, strconv.FormatInt(int64(ticket.RequesterAdminUserID), 10), Update{RoleCodes: domain.Value(codes)}); err != nil {
 			return err
 		}
 	}

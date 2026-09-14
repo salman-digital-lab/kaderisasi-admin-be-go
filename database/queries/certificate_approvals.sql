@@ -1,5 +1,5 @@
 -- name: CertificateSigners :many
-SELECT id, display_name, role_code, is_active FROM admin_users
+SELECT id, display_name, role_code, additional_role_codes, is_active FROM admin_users
 WHERE is_active = true AND display_name IS NOT NULL ORDER BY display_name, id;
 
 -- name: InsertCertificateApproval :one

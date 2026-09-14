@@ -90,7 +90,7 @@ func TestAdministratorAndTicketWorkflows(t *testing.T) {
 	f.call("GET", "/v2/tickets/review?status=open", nil, f.token, 200)
 	f.call("GET", fmt.Sprintf("/v2/tickets/review/%d", ticketID), nil, f.token, 200)
 	f.call("POST", fmt.Sprintf("/v2/tickets/review/%d/approve", ticketID), nil, f.token, 200)
-	if fresh := mustUser(t, f.pool, id); fresh.RoleCode == nil || *fresh.RoleCode != "club_manager" {
+	if fresh := mustUser(t, f.pool, id); !auth.ForUser(fresh).Allows("clubs.manage") || !auth.ForUser(fresh).Allows("counseling.manage") {
 		t.Fatal("approved role not applied")
 	}
 	f.call("POST", fmt.Sprintf("/v2/tickets/review/%d/approve", ticketID), nil, f.token, 409)

@@ -187,7 +187,7 @@ func (q *Queries) DeleteUniversityByIdentifier(ctx context.Context, identifier s
 }
 
 const findAdminByIdentifier = `-- name: FindAdminByIdentifier :one
-SELECT id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code FROM admin_users WHERE id = CAST(CAST($1 AS text) AS integer)
+SELECT id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code, additional_role_codes FROM admin_users WHERE id = CAST(CAST($1 AS text) AS integer)
 `
 
 func (q *Queries) FindAdminByIdentifier(ctx context.Context, identifier string) (AdminUser, error) {
@@ -203,6 +203,7 @@ func (q *Queries) FindAdminByIdentifier(ctx context.Context, identifier string) 
 		&i.IsActive,
 		&i.NormalizedEmail,
 		&i.RoleCode,
+		&i.AdditionalRoleCodes,
 	)
 	return i, err
 }
@@ -241,7 +242,7 @@ func (q *Queries) LockActivityByIdentifier(ctx context.Context, identifier strin
 }
 
 const lockAdminByIdentifier = `-- name: LockAdminByIdentifier :one
-SELECT id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code FROM admin_users WHERE id=CAST(CAST($1 AS text) AS integer) FOR UPDATE
+SELECT id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code, additional_role_codes FROM admin_users WHERE id=CAST(CAST($1 AS text) AS integer) FOR UPDATE
 `
 
 func (q *Queries) LockAdminByIdentifier(ctx context.Context, identifier string) (AdminUser, error) {
@@ -257,6 +258,7 @@ func (q *Queries) LockAdminByIdentifier(ctx context.Context, identifier string) 
 		&i.IsActive,
 		&i.NormalizedEmail,
 		&i.RoleCode,
+		&i.AdditionalRoleCodes,
 	)
 	return i, err
 }

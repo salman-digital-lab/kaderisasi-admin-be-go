@@ -13,7 +13,7 @@ func (s *Server) registerActivities() {
 	s.registerActivityMedia()
 	service := activity.Service{Pool: s.Pool, Storage: s.Storage}
 	s.register("activities_controller", "readiness", func(w http.ResponseWriter, r *http.Request) error {
-		result, err := service.Readiness(r.Context(), pathID(r, "id"), auth.ForRole(actor(r).RoleCode, true))
+		result, err := service.Readiness(r.Context(), pathID(r, "id"), auth.ForUser(actor(r)))
 		if err != nil {
 			return err
 		}
@@ -30,7 +30,7 @@ func (s *Server) registerActivities() {
 			if !ok {
 				return nil
 			}
-			permissions := auth.ForRole(actor(r).RoleCode, true)
+			permissions := auth.ForUser(actor(r))
 			if action == "store" {
 				created, err := service.Create(r.Context(), data, permissions)
 				if err != nil {

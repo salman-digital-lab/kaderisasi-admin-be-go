@@ -33,8 +33,8 @@ func (s *Server) adminView(ctx context.Context, user dbgen.AdminUser) (adminResp
 		}
 		views[i] = adminIdentityResponse{Provider: identity.Provider, Email: identity.Email, LastUsedAt: timestamp(identity.LastUsedAt, time.UTC), CreatedAt: timestamp(identity.CreatedAt, time.UTC)}
 	}
-	a := auth.ForRole(user.RoleCode, user.IsActive)
-	return adminResponse{ID: user.ID, Email: user.Email, NormalizedEmail: user.NormalizedEmail, DisplayName: user.DisplayName, CreatedAt: domain.ModelTimestamp(user.CreatedAt, s.Config.Location), UpdatedAt: domain.ModelTimestamp(user.UpdatedAt, s.Config.Location), IsActive: user.IsActive, RoleCode: user.RoleCode, Role: a.Role, EffectivePermissions: a.Permissions, IsSuperAdmin: a.IsSuperAdmin, AuthenticationMethods: methods, GoogleLinked: google, Identities: views}, nil
+	a := auth.ForUser(user)
+	return adminResponse{ID: user.ID, Email: user.Email, NormalizedEmail: user.NormalizedEmail, DisplayName: user.DisplayName, CreatedAt: domain.ModelTimestamp(user.CreatedAt, s.Config.Location), UpdatedAt: domain.ModelTimestamp(user.UpdatedAt, s.Config.Location), IsActive: user.IsActive, RoleCode: user.RoleCode, Role: a.Role, Roles: a.Roles, RoleCodes: auth.RoleCodes(user.RoleCode, user.AdditionalRoleCodes), EffectivePermissions: a.Permissions, IsSuperAdmin: a.IsSuperAdmin, AuthenticationMethods: methods, GoogleLinked: google, Identities: views}, nil
 }
 func (s *Server) adminReply(w http.ResponseWriter, r *http.Request, status int, msg string, id string) error {
 	user, err := dbgen.New(s.Pool).FindAdminByIdentifier(r.Context(), id)
@@ -116,7 +116,11 @@ func (s *Server) registerAdmin() {
 		if err != nil {
 			return err
 		}
-		user, err := dbgen.New(s.Pool).CreateAdmin(r.Context(), dbgen.CreateAdminParams{Email: email, Password: &hash, DisplayName: &data.DisplayName, RoleCode: data.RoleCode})
+		primary, additional, err := access.ResolveRoles(data.RoleCode, data.RoleCodes)
+		if err != nil {
+			return err
+		}
+		user, err := dbgen.New(s.Pool).CreateAdmin(r.Context(), dbgen.CreateAdminParams{Email: email, Password: &hash, DisplayName: &data.DisplayName, RoleCode: primary, AdditionalRoleCodes: additional})
 		if err != nil {
 			return err
 		}
@@ -162,7 +166,7 @@ func (s *Server) registerAdmin() {
 		if data.IsActive.Present && data.IsActive.Value != nil && !*data.IsActive.Value && database.NumberIdentifier(id) == strconv.FormatInt(int64(currentActor.ID), 10) {
 			return domain.Fail(409, "SELF_DEACTIVATION_NOT_ALLOWED")
 		}
-		change := access.Update{RoleCode: data.RoleCode, IsActive: data.IsActive}
+		change := access.Update{RoleCode: data.RoleCode, RoleCodes: data.RoleCodes, IsActive: data.IsActive}
 		tx, err := s.Pool.Begin(r.Context())
 		if err != nil {
 			return err
@@ -175,7 +179,7 @@ func (s *Server) registerAdmin() {
 		if err != nil {
 			return err
 		}
-		if !fresh.IsActive || fresh.RoleCode == nil || *fresh.RoleCode != "super_admin" {
+		if !auth.ForUser(fresh).IsSuperAdmin {
 			return domain.Fail(403, "SUPER_ADMIN_REQUIRED")
 		}
 		if err = access.Change(r.Context(), tx, database.NumberIdentifier(id), change); err != nil {

@@ -22,7 +22,7 @@ func (s *Server) registerActivityCourses() {
 	})
 	s.register("activity_courses_controller", "show", func(w http.ResponseWriter, r *http.Request) error {
 		user := actor(r)
-		permissions := auth.ForRole(user.RoleCode, user.IsActive)
+		permissions := auth.ForUser(user)
 		if !permissions.Allows("activities.read") && !permissions.Allows("activity_registrations.read") {
 			return domain.Fail(403, "FORBIDDEN")
 		}

@@ -16,6 +16,7 @@ import (
 func TestConcurrentLastSuperAdminProtection(t *testing.T) {
 	f := newHTTPFixture(t)
 	second := f.admin("super_admin")
+	f.call("PUT", fmt.Sprintf("/v2/admin-users/%d", second), map[string]interface{}{"role_codes": []string{"konselor", "super_admin"}}, f.token, 200)
 	c, err := config.Load()
 	if err != nil {
 		t.Fatal(err)
@@ -34,7 +35,7 @@ func TestConcurrentLastSuperAdminProtection(t *testing.T) {
 	}{{f.adminID, f.token}, {second, session.AccessToken}} {
 		wg.Go(func() {
 			<-start
-			r := httptest.NewRequest("PUT", fmt.Sprintf("/v2/admin-users/%d", actor.id), bytes.NewBufferString(`{"role_code":null}`))
+			r := httptest.NewRequest("PUT", fmt.Sprintf("/v2/admin-users/%d", actor.id), bytes.NewBufferString(`{"role_codes":[]}`))
 			r.Header.Set("Content-Type", "application/json")
 			r.Header.Set("Authorization", "Bearer "+actor.token)
 			w := httptest.NewRecorder()
@@ -53,7 +54,7 @@ func TestConcurrentLastSuperAdminProtection(t *testing.T) {
 		t.Fatalf("concurrent removal statuses: %v", counts)
 	}
 	var remaining int
-	if err = f.pool.QueryRow(context.Background(), "SELECT count(*) FROM admin_users WHERE is_active=true AND role_code='super_admin'").Scan(&remaining); err != nil || remaining != 1 {
+	if err = f.pool.QueryRow(context.Background(), "SELECT count(*) FROM admin_users WHERE is_active=true AND (role_code='super_admin' OR 'super_admin'=ANY(additional_role_codes))").Scan(&remaining); err != nil || remaining != 1 {
 		t.Fatal("last Super Admin lost", remaining, err)
 	}
 }

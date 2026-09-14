@@ -40,15 +40,16 @@ func (q *Queries) CertificateApprovalByID(ctx context.Context, id int32) (Certif
 }
 
 const certificateSigners = `-- name: CertificateSigners :many
-SELECT id, display_name, role_code, is_active FROM admin_users
+SELECT id, display_name, role_code, additional_role_codes, is_active FROM admin_users
 WHERE is_active = true AND display_name IS NOT NULL ORDER BY display_name, id
 `
 
 type CertificateSignersRow struct {
-	ID          int32   `json:"id"`
-	DisplayName *string `json:"display_name"`
-	RoleCode    *string `json:"role_code"`
-	IsActive    bool    `json:"is_active"`
+	ID                  int32    `json:"id"`
+	DisplayName         *string  `json:"display_name"`
+	RoleCode            *string  `json:"role_code"`
+	AdditionalRoleCodes []string `json:"additional_role_codes"`
+	IsActive            bool     `json:"is_active"`
 }
 
 func (q *Queries) CertificateSigners(ctx context.Context) ([]CertificateSignersRow, error) {
@@ -64,6 +65,7 @@ func (q *Queries) CertificateSigners(ctx context.Context) ([]CertificateSignersR
 			&i.ID,
 			&i.DisplayName,
 			&i.RoleCode,
+			&i.AdditionalRoleCodes,
 			&i.IsActive,
 		); err != nil {
 			return nil, err

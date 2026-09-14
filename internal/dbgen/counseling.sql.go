@@ -175,17 +175,18 @@ func (q *Queries) ListCounseling(ctx context.Context, arg ListCounselingParams) 
 }
 
 const listCounselingAdministrators = `-- name: ListCounselingAdministrators :many
-SELECT id,email,display_name,role_code
+SELECT id,email,display_name,role_code,additional_role_codes
 FROM admin_users
 WHERE is_active=true
 ORDER BY display_name ASC NULLS LAST,id ASC
 `
 
 type ListCounselingAdministratorsRow struct {
-	ID          int32   `json:"id"`
-	Email       string  `json:"email"`
-	DisplayName *string `json:"display_name"`
-	RoleCode    *string `json:"role_code"`
+	ID                  int32    `json:"id"`
+	Email               string   `json:"email"`
+	DisplayName         *string  `json:"display_name"`
+	RoleCode            *string  `json:"role_code"`
+	AdditionalRoleCodes []string `json:"additional_role_codes"`
 }
 
 func (q *Queries) ListCounselingAdministrators(ctx context.Context) ([]ListCounselingAdministratorsRow, error) {
@@ -202,6 +203,7 @@ func (q *Queries) ListCounselingAdministrators(ctx context.Context) ([]ListCouns
 			&i.Email,
 			&i.DisplayName,
 			&i.RoleCode,
+			&i.AdditionalRoleCodes,
 		); err != nil {
 			return nil, err
 		}

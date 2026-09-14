@@ -83,7 +83,7 @@ func (s Issuance) Signers(ctx context.Context) ([]Signer, error) {
 		return result, err
 	}
 	for _, row := range rows {
-		if row.DisplayName != nil && strings.TrimSpace(*row.DisplayName) != "" && auth.ForRole(row.RoleCode, row.IsActive).Allows("certificate.approve") {
+		if row.DisplayName != nil && strings.TrimSpace(*row.DisplayName) != "" && auth.ForRoles(auth.RoleCodes(row.RoleCode, row.AdditionalRoleCodes), row.IsActive).Allows("certificate.approve") {
 			result = append(result, Signer{row.ID, *row.DisplayName})
 		}
 	}
@@ -149,7 +149,7 @@ func (s Issuance) requestApproval(ctx context.Context, id int32, input ApprovalR
 	if err != nil {
 		return empty, domain.Fail(422, "INVALID_CERTIFICATE_SIGNER")
 	}
-	if !auth.ForRole(signer.RoleCode, signer.IsActive).Allows("certificate.approve") || signer.DisplayName == nil || strings.TrimSpace(*signer.DisplayName) == "" {
+	if !auth.ForUser(signer).Allows("certificate.approve") || signer.DisplayName == nil || strings.TrimSpace(*signer.DisplayName) == "" {
 		return empty, domain.Fail(422, "INVALID_CERTIFICATE_SIGNER")
 	}
 	hash, err := ApprovalHash(source.Data, signer.ID, *signer.DisplayName, input.SignerTitle)
@@ -262,7 +262,7 @@ func (s Issuance) decideApproval(ctx context.Context, item ApprovalDecisionItem,
 		if err != nil {
 			return empty, err
 		}
-		if !auth.ForRole(signer.RoleCode, signer.IsActive).Allows("certificate.approve") || signer.DisplayName == nil || *signer.DisplayName != row.SignerName {
+		if !auth.ForUser(signer).Allows("certificate.approve") || signer.DisplayName == nil || *signer.DisplayName != row.SignerName {
 			return empty, domain.Fail(403, "APPROVAL_SIGNER_REQUIRED")
 		}
 		hash, err := ApprovalHash(current.Data, row.SignerID, row.SignerName, row.SignerTitle)

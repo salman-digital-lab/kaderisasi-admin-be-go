@@ -3,6 +3,7 @@ package auth
 import (
 	_ "embed"
 	"encoding/json"
+	"kaderisasi/admin/internal/dbgen"
 	"slices"
 )
 
@@ -35,9 +36,10 @@ type AssignedRole struct {
 	Name string `json:"name"`
 }
 type Authorization struct {
-	Role         *AssignedRole `json:"role"`
-	Permissions  []string      `json:"permissions"`
-	IsSuperAdmin bool          `json:"is_super_admin"`
+	Role         *AssignedRole  `json:"role"`
+	Roles        []AssignedRole `json:"roles"`
+	Permissions  []string       `json:"permissions"`
+	IsSuperAdmin bool           `json:"is_super_admin"`
 }
 
 func Roles() []Role {
@@ -71,14 +73,48 @@ func HistoricalRoleName(code string) string {
 	return code
 }
 func ForRole(code *string, active bool) Authorization {
-	result := Authorization{Permissions: []string{}}
-	if !active || code == nil {
-		return result
+	return ForRoles(RoleCodes(code, nil), active)
+}
+
+func ForUser(user dbgen.AdminUser) Authorization {
+	return ForRoles(RoleCodes(user.RoleCode, user.AdditionalRoleCodes), user.IsActive)
+}
+
+func RoleCodes(primary *string, additional []string) []string {
+	codes := []string{}
+	if primary != nil {
+		codes = append(codes, *primary)
 	}
-	if role := RoleByCode(*code); role != nil {
-		result.Role = &AssignedRole{Code: role.Code, Name: role.Name}
-		result.Permissions = role.Permissions
-		result.IsSuperAdmin = role.Code == "super_admin"
+	for _, code := range additional {
+		if !slices.Contains(codes, code) {
+			codes = append(codes, code)
+		}
+	}
+	return codes
+}
+
+func ForRoles(codes []string, active bool) Authorization {
+	result := Authorization{Roles: []AssignedRole{}, Permissions: []string{}}
+	seen := map[string]bool{}
+	for _, code := range codes {
+		role := RoleByCode(code)
+		if role == nil || seen[code] {
+			continue
+		}
+		seen[code] = true
+		result.Roles = append(result.Roles, AssignedRole{Code: role.Code, Name: role.Name})
+		if !active {
+			continue
+		}
+		if result.Role == nil {
+			result.Role = &AssignedRole{Code: role.Code, Name: role.Name}
+		}
+		result.IsSuperAdmin = result.IsSuperAdmin || code == "super_admin"
+		for _, permission := range role.Permissions {
+			if !slices.Contains(result.Permissions, permission) {
+				result.Permissions = append(result.Permissions, permission)
+			}
+		}
 	}
 	return result
 }

@@ -5,6 +5,26 @@ import (
 	"testing"
 )
 
+func TestMergedRoles(t *testing.T) {
+	a := ForRoles([]string{"activity_manager", "konselor", "activity_manager", "retired"}, true)
+	if len(a.Roles) != 2 || !a.Allows("activities.manage") || !a.Allows("counseling.manage") || a.Allows("admin_users.manage") {
+		t.Fatalf("incorrect merged authorization: %+v", a)
+	}
+	seen := map[string]bool{}
+	for _, permission := range a.Permissions {
+		if seen[permission] {
+			t.Fatalf("duplicate permission %s", permission)
+		}
+		seen[permission] = true
+	}
+	if inactive := ForRoles([]string{"activity_manager", "super_admin"}, false); len(inactive.Permissions) != 0 || inactive.IsSuperAdmin {
+		t.Fatal("inactive account grants access")
+	}
+	if !ForRoles([]string{"konselor", "super_admin"}, true).IsSuperAdmin {
+		t.Fatal("secondary Super Admin role ignored")
+	}
+}
+
 func TestSixRolesAndPublicationAuthority(t *testing.T) {
 	if len(Roles()) != 6 {
 		t.Fatal("exactly six active roles required")

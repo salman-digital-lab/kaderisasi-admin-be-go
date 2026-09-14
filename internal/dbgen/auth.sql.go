@@ -37,7 +37,7 @@ func (q *Queries) AdminIdentityProviders(ctx context.Context, adminUserID int32)
 
 const createGoogleAdmin = `-- name: CreateGoogleAdmin :one
 INSERT INTO admin_users (email, normalized_email, display_name, is_active, created_at, updated_at)
-VALUES ($1, $1, $2, true, now(), now()) RETURNING id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code
+VALUES ($1, $1, $2, true, now(), now()) RETURNING id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code, additional_role_codes
 `
 
 type CreateGoogleAdminParams struct {
@@ -58,6 +58,7 @@ func (q *Queries) CreateGoogleAdmin(ctx context.Context, arg CreateGoogleAdminPa
 		&i.IsActive,
 		&i.NormalizedEmail,
 		&i.RoleCode,
+		&i.AdditionalRoleCodes,
 	)
 	return i, err
 }
@@ -124,7 +125,7 @@ func (q *Queries) CreateRefresh(ctx context.Context, arg CreateRefreshParams) (A
 }
 
 const findAdminByEmail = `-- name: FindAdminByEmail :one
-SELECT id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code FROM admin_users WHERE normalized_email = $1
+SELECT id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code, additional_role_codes FROM admin_users WHERE normalized_email = $1
 `
 
 func (q *Queries) FindAdminByEmail(ctx context.Context, normalizedEmail string) (AdminUser, error) {
@@ -140,12 +141,13 @@ func (q *Queries) FindAdminByEmail(ctx context.Context, normalizedEmail string) 
 		&i.IsActive,
 		&i.NormalizedEmail,
 		&i.RoleCode,
+		&i.AdditionalRoleCodes,
 	)
 	return i, err
 }
 
 const findAdminByID = `-- name: FindAdminByID :one
-SELECT id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code FROM admin_users WHERE id = $1
+SELECT id, email, password, display_name, created_at, updated_at, is_active, normalized_email, role_code, additional_role_codes FROM admin_users WHERE id = $1
 `
 
 func (q *Queries) FindAdminByID(ctx context.Context, id int32) (AdminUser, error) {
@@ -161,6 +163,7 @@ func (q *Queries) FindAdminByID(ctx context.Context, id int32) (AdminUser, error
 		&i.IsActive,
 		&i.NormalizedEmail,
 		&i.RoleCode,
+		&i.AdditionalRoleCodes,
 	)
 	return i, err
 }

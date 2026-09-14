@@ -23,7 +23,7 @@ func (s *Server) registerLinkedCourses() {
 	})
 	s.register("club_courses_controller", "show", func(w http.ResponseWriter, r *http.Request) error {
 		a := actor(r)
-		p := auth.ForRole(a.RoleCode, a.IsActive)
+		p := auth.ForUser(a)
 		if !p.Allows("clubs.read") && !p.Allows("club_registrations.read") {
 			return domain.Fail(403, "FORBIDDEN")
 		}

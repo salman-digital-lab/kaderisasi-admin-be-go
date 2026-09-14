@@ -263,7 +263,8 @@ CREATE TABLE public.admin_users (
     updated_at timestamp with time zone,
     is_active boolean DEFAULT true NOT NULL,
     normalized_email character varying(255) NOT NULL,
-    role_code character varying(100)
+    role_code character varying(100),
+    additional_role_codes text[] DEFAULT '{}'::text[] NOT NULL
 );
 
 

@@ -15,11 +15,12 @@ import (
 )
 
 type UserView struct {
-	ID          int32         `json:"id"`
-	Email       string        `json:"email"`
-	DisplayName *string       `json:"display_name"`
-	IsActive    bool          `json:"is_active"`
-	Role        *AssignedRole `json:"role"`
+	ID          int32          `json:"id"`
+	Email       string         `json:"email"`
+	DisplayName *string        `json:"display_name"`
+	IsActive    bool           `json:"is_active"`
+	Role        *AssignedRole  `json:"role"`
+	Roles       []AssignedRole `json:"roles"`
 }
 type LegacyToken struct {
 	Type      string `json:"type"`
@@ -108,8 +109,8 @@ func (s *Service) Build(ctx context.Context, user dbgen.AdminUser) (Session, err
 			methods = append(methods, p)
 		}
 	}
-	a := ForRole(user.RoleCode, user.IsActive)
-	return Session{AccessToken: token, AccessTokenExpiresIn: 900, User: UserView{user.ID, user.Email, user.DisplayName, user.IsActive, a.Role}, AuthenticationMethods: methods, Permissions: a.Permissions, IsSuperAdmin: a.IsSuperAdmin, Token: LegacyToken{"bearer", token, "15m"}}, nil
+	a := ForUser(user)
+	return Session{AccessToken: token, AccessTokenExpiresIn: 900, User: UserView{user.ID, user.Email, user.DisplayName, user.IsActive, a.Role, a.Roles}, AuthenticationMethods: methods, Permissions: a.Permissions, IsSuperAdmin: a.IsSuperAdmin, Token: LegacyToken{"bearer", token, "15m"}}, nil
 }
 func (s *Service) Issue(ctx context.Context, user dbgen.AdminUser, info ClientInfo) (Session, string, error) {
 	value, err := RandomToken()

@@ -71,7 +71,7 @@ func (s Service) CounselorOptions(ctx context.Context) ([]CounselorOption, error
 	}
 	result := make([]CounselorOption, 0, len(rows))
 	for _, row := range rows {
-		if !eligibleCounselor(row.RoleCode, true) {
+		if !auth.ForRoles(auth.RoleCodes(row.RoleCode, row.AdditionalRoleCodes), true).Allows("counseling.manage") {
 			continue
 		}
 		result = append(result, CounselorOption{ID: row.ID, Email: row.Email, DisplayName: row.DisplayName})
@@ -95,7 +95,7 @@ func (s Service) Update(ctx context.Context, id string, input Input) (Response, 
 	if input.CounselorID != nil {
 		value := input.CounselorID.String()
 		candidate, candidateErr := q.FindAdminByIdentifier(ctx, value)
-		if errors.Is(candidateErr, pgx.ErrNoRows) || candidateErr == nil && !eligibleCounselor(candidate.RoleCode, candidate.IsActive) {
+		if errors.Is(candidateErr, pgx.ErrNoRows) || candidateErr == nil && !auth.ForUser(candidate).Allows("counseling.manage") {
 			return Response{}, domain.Fail(422, "INVALID_COUNSELOR")
 		}
 		if candidateErr != nil {

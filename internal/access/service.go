@@ -8,11 +8,32 @@ import (
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
+	"slices"
 )
 
 type Update struct {
-	RoleCode domain.Optional[string]
-	IsActive domain.Optional[bool]
+	RoleCode  domain.Optional[string]
+	RoleCodes domain.Optional[[]string]
+	IsActive  domain.Optional[bool]
+}
+
+func ResolveRoles(primary *string, roles domain.Optional[[]string]) (*string, []string, error) {
+	codes := auth.RoleCodes(primary, nil)
+	if roles.Present {
+		if roles.Value == nil {
+			return nil, nil, domain.Fail(422, "INVALID_ROLE_CODES")
+		}
+		codes = auth.RoleCodes(nil, *roles.Value)
+	}
+	for _, code := range codes {
+		if auth.RoleByCode(code) == nil {
+			return nil, nil, domain.Fail(409, "UNKNOWN_ROLE")
+		}
+	}
+	if len(codes) == 0 {
+		return nil, []string{}, nil
+	}
+	return &codes[0], codes[1:], nil
 }
 
 // Change runs inside the caller's transaction after advisory lock (7411,1).
@@ -26,12 +47,17 @@ func Change(ctx context.Context, tx pgx.Tx, identifier string, change Update) er
 	if err != nil {
 		return err
 	}
-	if change.RoleCode.Present && change.RoleCode.Value != nil && auth.RoleByCode(*change.RoleCode.Value) == nil {
-		return domain.Fail(409, "UNKNOWN_ROLE")
+	if change.RoleCode.Present && change.RoleCodes.Present {
+		return domain.Fail(422, "CONFLICTING_ROLE_FIELDS")
 	}
+	primary, additional, err := ResolveRoles(change.RoleCode.Value, change.RoleCodes)
+	if err != nil {
+		return err
+	}
+	rolePresent := change.RoleCode.Present || change.RoleCodes.Present
 	deactivate := change.IsActive.Present && change.IsActive.Value != nil && !*change.IsActive.Value
-	removeSuper := change.RoleCode.Present && (change.RoleCode.Value == nil || *change.RoleCode.Value != "super_admin")
-	if user.IsActive && user.RoleCode != nil && *user.RoleCode == "super_admin" && (deactivate || removeSuper) {
+	removeSuper := rolePresent && !slices.Contains(auth.RoleCodes(primary, additional), "super_admin")
+	if auth.ForUser(user).IsSuperAdmin && (deactivate || removeSuper) {
 		total, err := q.CountActiveSuperAdmins(ctx)
 		if err != nil {
 			return err
@@ -44,7 +70,7 @@ func Change(ctx context.Context, tx pgx.Tx, identifier string, change Update) er
 	if change.IsActive.Value != nil {
 		active = *change.IsActive.Value
 	}
-	if err = q.UpdateAdminAccess(ctx, dbgen.UpdateAdminAccessParams{ID: user.ID, RolePresent: change.RoleCode.Present, RoleCode: change.RoleCode.Value, ActivePresent: change.IsActive.Present, IsActive: active}); err != nil {
+	if err = q.UpdateAdminAccess(ctx, dbgen.UpdateAdminAccessParams{ID: user.ID, RolePresent: rolePresent, RoleCode: primary, AdditionalRoleCodes: additional, ActivePresent: change.IsActive.Present, IsActive: active}); err != nil {
 		return err
 	}
 	if deactivate {
