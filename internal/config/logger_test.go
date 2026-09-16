@@ -28,3 +28,27 @@ func TestConfiguredLogFiltering(t *testing.T) {
 		t.Fatal("unknown log level must fail startup")
 	}
 }
+
+func TestLoggerUsesTerminalTextOutsideProduction(t *testing.T) {
+	t.Setenv("NODE_ENV", "development")
+	var development bytes.Buffer
+	logger, err := NewLogger(&development, "info")
+	if err != nil {
+		t.Fatal(err)
+	}
+	logger.Info("request completed", "status", 200)
+	if got := development.String(); !strings.Contains(got, "level=INFO") || strings.Contains(got, `"level"`) {
+		t.Fatalf("development log = %q, want readable terminal text", got)
+	}
+
+	var production bytes.Buffer
+	t.Setenv("NODE_ENV", "production")
+	logger, err = NewLogger(&production, "info")
+	if err != nil {
+		t.Fatal(err)
+	}
+	logger.Info("request completed", "status", 200)
+	if got := production.String(); !strings.Contains(got, `"level":"INFO"`) {
+		t.Fatalf("production log = %q, want JSON", got)
+	}
+}

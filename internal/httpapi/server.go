@@ -156,6 +156,10 @@ func (s *Server) Handler() http.Handler {
 					return
 				}
 				r = r.WithContext(context.WithValue(r.Context(), userContextKey{}, user))
+				observation, _ := r.Context().Value(requestObservationContextKey{}).(*requestObservation)
+				if observation != nil {
+					observation.actorID = user.ID
+				}
 			}
 			h, ok := s.handlers[route.Controller+"."+route.Action]
 			if !ok {
@@ -209,12 +213,20 @@ func (s *Server) Handler() http.Handler {
 	})
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		started := time.Now()
+		observation := &requestObservation{}
+		r = r.WithContext(context.WithValue(r.Context(), requestObservationContextKey{}, observation))
+		w = &responseRecorder{ResponseWriter: w, observation: observation}
+		logger := s.Logger
+		if logger == nil {
+			logger = slog.Default()
+		}
 		defer func() {
 			if recovered := recover(); recovered != nil {
-				s.Logger.Error("request panic", "path", r.URL.Path)
+				observation.panicRecovered = true
+				logger.Error("request panic", "path", r.URL.Path)
 				returnError(w, domain.Fail(500, "GENERAL_ERROR"))
 			}
-			s.Logger.Info("request", "method", r.Method, "path", r.URL.Path, "duration_ms", time.Since(started).Milliseconds())
+			logRequest(logger, r, *observation, started)
 		}()
 		origin := r.Header.Get("Origin")
 		if origin != "" {
@@ -248,6 +260,8 @@ func (s *Server) Handler() http.Handler {
 }
 
 var requestIDPattern = regexp.MustCompile(`^[A-Za-z0-9._:-]+$`)
+
+type requestObservationContextKey struct{}
 
 func (s *Server) register(controller, action string, h Handler) {
 	s.handlers[controller+"."+action] = h
