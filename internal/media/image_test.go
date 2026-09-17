@@ -14,7 +14,7 @@ func TestImagePresets(t *testing.T) {
 	for _, tt := range []struct {
 		preset             Preset
 		w, h, wantW, wantH int
-	}{{Logo, 1600, 800, 1024, 512}, {Gallery, 3000, 1500, 2400, 1200}, {Certificate, 6000, 1000, 5000, 833}, {Logo, 100, 50, 100, 50}} {
+	}{{Logo, 1600, 800, 1024, 512}, {Gallery, 3000, 1500, 2400, 1200}, {Certificate, 6000, 1000, 5000, 833}, {Logo, 100, 50, 100, 50}, {FormUpload, 3000, 1500, 2400, 1200}, {FormUpload, 100, 50, 100, 50}} {
 		t.Run(string(tt.preset), func(t *testing.T) {
 			img := image.NewRGBA(image.Rect(0, 0, tt.w, tt.h))
 			img.Set(0, 0, color.RGBA{R: 255, A: 255})
@@ -37,5 +37,14 @@ func TestImagePresets(t *testing.T) {
 	}
 	if _, err := Optimize([]byte("not-an-image"), Logo); !errors.Is(err, ErrInvalidImage) {
 		t.Fatal("malformed image accepted")
+	}
+	if _, err := Optimize([]byte("not-an-image"), FormUpload); !errors.Is(err, ErrInvalidImage) {
+		t.Fatal("malformed form image accepted")
+	}
+	if !hasAnimation(append([]byte{137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 8}, []byte("acTL")...)) {
+		t.Fatal("animated PNG control chunk missed")
+	}
+	if !hasAnimation(append([]byte("RIFF0000WEBPANIM"), []byte{0, 0, 0, 0}...)) {
+		t.Fatal("animated WebP control chunk missed")
 	}
 }

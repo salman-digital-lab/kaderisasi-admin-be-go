@@ -3,8 +3,17 @@ package formschema
 import "encoding/json"
 
 type Schema struct {
-	Version *int      `json:"version,omitempty"`
-	Fields  []Section `json:"fields"`
+	Settings *Settings `json:"settings,omitempty"`
+	Version  *int      `json:"version,omitempty"`
+	Fields   []Section `json:"fields"`
+}
+type Settings struct {
+	AccessMode string `json:"accessMode"`
+}
+type FileSettings struct {
+	Accept    string `json:"accept"`
+	MaxFiles  int    `json:"maxFiles"`
+	MaxSizeMB int    `json:"maxSizeMB"`
 }
 type Section struct {
 	ID          *string            `json:"id,omitempty"`
@@ -27,6 +36,7 @@ type AnswerRoute struct {
 	Target      Destination `json:"target"`
 }
 type Field struct {
+	File         *FileSettings    `json:"file,omitempty"`
 	Key          string           `json:"key"`
 	Label        string           `json:"label"`
 	Required     bool             `json:"required"`

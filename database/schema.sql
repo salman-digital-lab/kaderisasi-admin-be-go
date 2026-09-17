@@ -2034,3 +2034,23 @@ CROSS JOIN LATERAL (
  FROM course_lesson_progress p JOIN course_lessons l ON l.id = p.lesson_id
  WHERE p.user_id = ar.member_id AND l.course_id = ac.course_id AND l.deleted_at IS NULL
 ) progress;
+
+CREATE TABLE custom_form_sessions (
+ id uuid PRIMARY KEY, form_id integer NOT NULL REFERENCES custom_forms(id) ON DELETE CASCADE,
+ token_hash varchar(64) NOT NULL UNIQUE, user_id integer REFERENCES public_users(id) ON DELETE SET NULL,
+ schema_hash varchar(64) NOT NULL, expires_at timestamptz NOT NULL, completed_at timestamptz,
+ created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE custom_form_responses (
+ id uuid PRIMARY KEY, form_id integer NOT NULL REFERENCES custom_forms(id) ON DELETE RESTRICT,
+ session_id uuid NOT NULL UNIQUE REFERENCES custom_form_sessions(id) ON DELETE RESTRICT,
+ user_id integer REFERENCES public_users(id) ON DELETE SET NULL, form_snapshot jsonb NOT NULL,
+ answers jsonb NOT NULL, created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE custom_form_attachments (
+ id uuid PRIMARY KEY, session_id uuid NOT NULL REFERENCES custom_form_sessions(id) ON DELETE RESTRICT,
+ field_key varchar(255) NOT NULL, storage_key varchar(512) NOT NULL UNIQUE,
+ original_name varchar(255) NOT NULL, download_name varchar(255) NOT NULL,
+ mime_type varchar(100) NOT NULL, size_bytes integer NOT NULL, source_size_bytes integer NOT NULL,
+ width integer, height integer, claimed_at timestamptz, created_at timestamptz NOT NULL DEFAULT now()
+);

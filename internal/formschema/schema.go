@@ -37,6 +37,9 @@ func ValidSchema(raw []byte) bool {
 }
 
 func ValidRouting(schema Schema) bool {
+	if schema.Settings != nil && schema.Settings.AccessMode != "public" && schema.Settings.AccessMode != "members" {
+		return false
+	}
 	if schema.Version != nil && *schema.Version != 2 {
 		return false
 	}
@@ -45,6 +48,9 @@ func ValidRouting(schema Schema) bool {
 	profiles := 0
 	for index, section := range schema.Fields {
 		for _, field := range section.Fields {
+			if field.Type == "file" && (field.File == nil || (field.File.Accept != "pdf" && field.File.Accept != "image" && field.File.Accept != "pdf_or_image") || field.File.MaxFiles < 1 || field.File.MaxFiles > 5 || field.File.MaxSizeMB < 1 || field.File.MaxSizeMB > 10) {
+				return false
+			}
 			if strings.TrimSpace(field.Key) == "" || keys[field.Key] {
 				return false
 			}

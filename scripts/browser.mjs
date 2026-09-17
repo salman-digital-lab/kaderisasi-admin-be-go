@@ -16,9 +16,16 @@ const build=spawnSync('go',['build','-o',resolve(root,'.artifacts/admin-api'),'.
 if(build.status!==0)throw new Error('Go build failed');
 const restorations=[];
 const publicBrowser=process.argv.includes('--public');
+const reuseAdminFrontend=process.argv.includes('--reuse-admin-frontend');
+if(reuseAdminFrontend) {
+  if(publicBrowser)throw new Error('Frontend reuse is only available for admin browser checks');
+  const source=await (await fetch('http://127.0.0.1:3005/src/api/axios.ts')).text();
+  const endpoint=source.match(/"VITE_PUBLIC_BE_ADMIN_API"\s*:\s*"([^"]+)"/)?.[1];
+  if(endpoint!=='http://localhost:3334/v2')throw new Error('Existing admin frontend must target the local fixture API');
+}
 let api,frontend,web,journal;
 try{
-  for(const port of publicBrowser?[3334,3333,3000]:[3334,3005])restorations.push(await borrowWorkspacePort(port,process.argv.includes('--borrow-workspace')));
+  for(const port of publicBrowser?[3334,3333,3000]:reuseAdminFrontend?[3334]:[3334,3005])restorations.push(await borrowWorkspacePort(port,process.argv.includes('--borrow-workspace')));
   const journalPath=resolve(root,'.artifacts/storage-browser-go.json');
   writeFileSync(journalPath,'[]',{flag:'wx',mode:0o600});
   journal=journalPath;
@@ -34,11 +41,11 @@ try{
     }
     web=await startWebBackend(fixture.schema,'browser-web-be');frontend=await startPublicFrontend({...process.env,...frontendEnv});
   }
-  else frontend=await startAdminFrontend({...process.env,...frontendEnv});
+  else if(!reuseAdminFrontend)frontend=await startAdminFrontend({...process.env,...frontendEnv});
   const results=resolve(root,'.artifacts/browser',new Date().toISOString().replace(/[:.]/g,'-'));
   mkdirSync(results,{recursive:true});
   writeFileSync(resolve(root,'.artifacts/browser/latest.json'),JSON.stringify({results}));
-  const child=spawn('node',['node_modules/@playwright/test/cli.js','test',...process.argv.slice(2).filter(x=>!['--borrow-workspace','--public'].includes(x))],{cwd:root,env:{...process.env,GO_REWRITE_BROWSER:'1',GO_REWRITE_PUBLIC_BROWSER:publicBrowser?'1':'0',GO_REWRITE_BROWSER_RESULTS:results},stdio:'inherit'});
+  const child=spawn('node',['node_modules/@playwright/test/cli.js','test',...process.argv.slice(2).filter(x=>!['--borrow-workspace','--public','--reuse-admin-frontend'].includes(x))],{cwd:root,env:{...process.env,GO_REWRITE_BROWSER:'1',GO_REWRITE_PUBLIC_BROWSER:publicBrowser?'1':'0',GO_REWRITE_BROWSER_RESULTS:results},stdio:'inherit'});
   const [code]=await once(child,'exit');process.exitCode=code??1;
 }finally{
   const failures=[];

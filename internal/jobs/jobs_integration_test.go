@@ -49,6 +49,9 @@ func TestJobsDateBoundariesAndRepeatedExecution(t *testing.T) {
 				t.Fatal(err)
 			}
 			for _, name := range Names {
+				if name == "forms:clean-uploads" {
+					continue
+				} // Upload expiry is tested separately from calendar jobs.
 				t.Run(name, func(t *testing.T) {
 					tx, err := pool.Begin(ctx)
 					if err != nil {
@@ -131,6 +134,9 @@ func TestJobFailuresAreReturnedAndLogged(t *testing.T) {
 	pool := jobPool(t)
 	ctx := context.Background()
 	for _, name := range Names {
+		if name == "forms:clean-uploads" {
+			continue
+		} // Storage failures have their own transactional fixture below.
 		t.Run(name, func(t *testing.T) {
 			tx, err := pool.BeginTx(ctx, pgx.TxOptions{AccessMode: pgx.ReadOnly})
 			if err != nil {

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {randomBytes,scryptSync} from 'node:crypto';
 import {resolve} from 'node:path';
 
-export async function shortLinksBrowser(db,schema,artifacts){
+export async function shortLinksBrowser(db,schema,artifacts,shortBase='http://localhost:4000'){
  const password='Short-link-fixture-2026!';const salt=randomBytes(16);
  const hash=`$scrypt$n=16384,r=8,p=1$${salt.toString('base64').replaceAll('=','')}$${scryptSync(password,salt,64,{N:16384,r:8,p:1}).toString('base64').replaceAll('=','')}`;
  await db.query(`INSERT INTO "${schema}".admin_users(email,normalized_email,password,display_name,is_active,role_code,created_at,updated_at) VALUES('short-browser@example.test','short-browser@example.test',$1,'Short link browser',true,'super_admin',now(),now())`,[hash]);
@@ -28,9 +28,9 @@ export async function shortLinksBrowser(db,schema,artifacts){
   await dialog.getByRole('button',{name:'Buat tautan',exact:true}).click();await expect(dialog).not.toBeVisible();
   await expect(page.getByText(destination,{exact:true})).toBeVisible();
   await page.getByRole('button',{name:'Salin tautan baru',exact:true}).click();
-  assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),'http://localhost:4000/Kajian26');
+  assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),`${shortBase}/Kajian26`);
   await page.getByRole('button',{name:'Kode QR',exact:true}).click();dialog=page.getByRole('dialog');
-  await expect(dialog.getByText('http://localhost:4000/Kajian26',{exact:true})).toBeVisible();
+  await expect(dialog.getByText(`${shortBase}/Kajian26`,{exact:true})).toBeVisible();
   const downloaded=page.waitForEvent('download');await dialog.getByRole('button',{name:'Unduh PNG',exact:true}).click();
   const png=await downloaded;assert.equal(png.suggestedFilename(),'short-link-Kajian26.png');await png.saveAs(resolve(artifacts,'short-link-Kajian26.png'));
   await page.screenshot({path:resolve(artifacts,'qr-desktop.png'),animations:'disabled'});
@@ -46,7 +46,7 @@ export async function shortLinksBrowser(db,schema,artifacts){
   await page.getByLabel('Cari tautan',{exact:true}).fill('absent');await page.getByLabel('Cari tautan',{exact:true}).press('Enter');await expect(page.getByText('Tidak ada tautan yang sesuai.',{exact:true})).toBeVisible();
   await page.getByLabel('Cari tautan',{exact:true}).fill('');await page.getByLabel('Cari tautan',{exact:true}).press('Enter');await expect(page.getByRole('button',{name:'Ubah',exact:true})).toBeVisible();
   await page.evaluate(()=>Object.defineProperty(navigator.clipboard,'writeText',{configurable:true,value:()=>Promise.reject(new Error('fixture denied'))}));
-  await page.getByRole('button',{name:'Salin',exact:true}).click();await expect(page.getByLabel('Alamat untuk disalin',{exact:true})).toHaveValue('http://localhost:4000/Kajian26');
+  await page.getByRole('button',{name:'Salin',exact:true}).click();await expect(page.getByLabel('Alamat untuk disalin',{exact:true})).toHaveValue(`${shortBase}/Kajian26`);
   await page.screenshot({path:resolve(artifacts,'short-links-desktop.png'),fullPage:true,animations:'disabled'});
   await page.getByRole('link',{name:'Kelas',exact:true}).click();await expect(page.getByRole('heading',{name:'Kelas',exact:true})).toBeVisible();await page.screenshot({path:resolve(artifacts,'courses-desktop.png'),fullPage:true,animations:'disabled'});
   await page.setViewportSize({width:390,height:844});await page.waitForFunction(()=>document.querySelector('main')?.getBoundingClientRect().left<30);await expect(page.locator('.ant-spin-spinning')).toHaveCount(0);await page.screenshot({path:resolve(artifacts,'courses-mobile.png'),fullPage:true,animations:'disabled'});
@@ -54,7 +54,7 @@ export async function shortLinksBrowser(db,schema,artifacts){
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   await expect(page.locator('.ant-spin-spinning')).toHaveCount(0);await expect(page.getByRole('button',{name:'Buat tautan',exact:true})).toBeEnabled();await expect(page.getByRole('button',{name:'Buat tautan',exact:true})).toHaveCSS('color','rgb(255, 255, 255)');await expect(page.getByRole('button',{name:'Buat tautan',exact:true})).toHaveCSS('background-image','none');await expect(page.locator('main .ant-typography-secondary').first()).toHaveCSS('color','rgb(89, 89, 89)');await page.screenshot({path:resolve(artifacts,'short-links-mobile.png'),fullPage:true,animations:'disabled'});
   await page.getByRole('button',{name:'Kode QR',exact:true}).click();dialog=page.getByRole('dialog');
-  await expect(dialog.getByText('http://localhost:4000/Kajian26',{exact:true})).toBeVisible();
+  await expect(dialog.getByText(`${shortBase}/Kajian26`,{exact:true})).toBeVisible();
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   await dialog.getByRole('button',{name:'Unduh PNG',exact:true}).focus();
   await page.waitForTimeout(350);
@@ -68,7 +68,7 @@ export async function shortLinksBrowser(db,schema,artifacts){
   await page.route('**/v2/short-links?**',route=>route.fulfill({status:503,contentType:'application/json',body:'{"message":"GENERAL_ERROR"}'}));
   await page.getByRole('button',{name:'Muat ulang',exact:true}).click();await expect(page.getByText('Tautan tidak dapat dimuat',{exact:true})).toBeVisible();
   await page.unroute('**/v2/short-links?**');await page.getByRole('button',{name:'Coba lagi',exact:true}).click();await expect(page.getByText('Belum ada tautan pendek.',{exact:true})).toBeVisible();
-  await detailShortLinksBrowser(page,db,schema,artifacts);
+  await detailShortLinksBrowser(page,db,schema,artifacts,shortBase);
   assert.deepEqual(errors,[]);console.log('Short-link browser workflow passed at desktop and mobile widths');
  }finally{await browser.close();}
 }

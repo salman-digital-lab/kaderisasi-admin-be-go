@@ -10,6 +10,7 @@ import (
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
+	"kaderisasi/admin/internal/formschema"
 	"math"
 	"reflect"
 	"slices"
@@ -73,6 +74,9 @@ func merged(row dbgen.CustomForm, input Input) (dbgen.UpdateFormParams, error) {
 	if input.FeatureID.Present {
 		result.FeatureID = numberText(input.FeatureID.Value)
 	}
+	if result.FeatureType != nil && *result.FeatureType == "independent_form" {
+		result.FeatureID = nil
+	}
 	if input.IsActive != nil {
 		result.IsActive = input.IsActive
 	}
@@ -124,6 +128,17 @@ func noOtherForm(ctx context.Context, q *dbgen.Queries, clubID string, formID in
 	return nil
 }
 func (s Service) Create(ctx context.Context, input Input) (Created, error) {
+	if input.FeatureType != nil && *input.FeatureType == "independent_form" {
+		if input.FormSchema == nil {
+			input.FormSchema = &Schema{Fields: []Section{}}
+		}
+		if input.FormSchema.Settings == nil {
+			input.FormSchema.Settings = &formschema.Settings{AccessMode: "public"}
+		}
+		closed := false
+		input.IsActive = &closed
+		input.FeatureID = domain.Optional[json.Number]{Present: true}
+	}
 	params := dbgen.CreateFormParams{FormName: *input.FormName, FormDescription: input.FormDescription.Value, PostSubmissionInfo: input.PostSubmissionInfo.Value, FeatureType: input.FeatureType, FeatureID: numberText(input.FeatureID.Value), IsActive: input.IsActive}
 	if input.FormSchema != nil {
 		var err error
@@ -201,6 +216,13 @@ func (s Service) Update(ctx context.Context, rawID string, input Input, attach b
 	next, err := merged(current, input)
 	if err != nil {
 		return Response{}, err
+	}
+	if !reflect.DeepEqual(current.FeatureType, next.FeatureType) || !reflect.DeepEqual(storedNumber(current.FeatureID), next.FeatureID) {
+		if exists, err := q.FormHasResponses(ctx, current.ID); err != nil {
+			return Response{}, err
+		} else if exists {
+			return Response{}, domain.Fail(409, "FORM_HAS_RESPONSES")
+		}
 	}
 	if err = guardActivityForm(ctx, q, current, next); err != nil {
 		return Response{}, err

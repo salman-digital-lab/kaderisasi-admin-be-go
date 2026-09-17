@@ -17,6 +17,18 @@ func formRoutingRule(base Rule) Rule {
 	var section Rule
 	_ = json.Unmarshal(sections.Args[0], &section)
 	str := Rule{Kind: "string", Args: []json.RawMessage{}}
+	var sectionFields map[string]Rule
+	_ = json.Unmarshal(section.Args[0], &sectionFields)
+	fields := sectionFields["fields"]
+	var field Rule
+	_ = json.Unmarshal(fields.Args[0], &field)
+	number := Rule{Kind: "number", Args: []json.RawMessage{}}
+	field = appendFormRules(field, map[string]Rule{"file": optionalFormRule(Rule{Kind: "object", Args: []json.RawMessage{marshal(map[string]Rule{
+		"accept": {Kind: "enum", Args: []json.RawMessage{marshal([]string{"pdf", "image", "pdf_or_image"})}}, "maxFiles": number, "maxSizeMB": number,
+	})}})})
+	fields.Args[0] = marshal(field)
+	sectionFields["fields"] = fields
+	section.Args[0] = orderedRuleUpdates(section.Args[0], sectionFields)
 	destination := Rule{Kind: "object", Args: []json.RawMessage{marshal(map[string]Rule{
 		"type":      {Kind: "enum", Args: []json.RawMessage{marshal([]string{"next", "section", "submit"})}},
 		"sectionId": optionalFormRule(str),
@@ -36,6 +48,7 @@ func formRoutingRule(base Rule) Rule {
 	schemaFields["fields"] = sections
 	schema.Args[0] = orderedRuleUpdates(schema.Args[0], schemaFields)
 	schema = appendFormRules(schema, map[string]Rule{"version": optionalFormRule(Rule{Kind: "enum", Args: []json.RawMessage{marshal([]int{2})}})})
+	schema = appendFormRules(schema, map[string]Rule{"settings": optionalFormRule(Rule{Kind: "object", Args: []json.RawMessage{marshal(map[string]Rule{"accessMode": {Kind: "enum", Args: []json.RawMessage{marshal([]string{"public", "members"})}}})}})})
 	root["formSchema"] = schema
 	base.Args[0] = orderedRuleUpdates(base.Args[0], root)
 	return base

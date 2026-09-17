@@ -33,10 +33,11 @@ try {
    vite=spawn(process.execPath,[resolve(frontend,'node_modules/vite/bin/vite.js'),'--port','3005','--strictPort'],{cwd:frontend,env:{...env,VITE_PUBLIC_BE_ADMIN_API:'http://localhost:3334/v2',VITE_PUBLIC_WEB_URL:'http://127.0.0.1:3000'},stdio:'ignore'});
   }
   const fd=openSync(resolve(artifacts,'api.log'),'w',0o600);
-  const api=spawn(resolve(artifacts,'admin-api'),[],{cwd:root,env,stdio:['ignore',fd,fd]});
+  const browserShortBase=process.env.SHORT_LINK_TEST_SHORT_BASE??env.SHORT_URL_BASE_URL;
+  const api=spawn(resolve(artifacts,'admin-api'),[],{cwd:root,env:{...env,SHORT_URL_BASE_URL:browserShortBase},stdio:['ignore',fd,fd]});
   try{
    for(let i=0;i<100;i++){try{if((await fetch('http://localhost:3334/health')).ok)break;}catch{}if(i===99)throw new Error('API readiness failed');await new Promise(r=>setTimeout(r,100));}
-   await shortLinksBrowser(db,schema,artifacts);
+   await shortLinksBrowser(db,schema,artifacts,browserShortBase);
    report.browser='passed';
   }finally{if(api.exitCode===null){api.kill('SIGTERM');await new Promise(r=>api.once('exit',r));}if(vite?.exitCode===null){vite.kill('SIGTERM');await new Promise(r=>vite.once('exit',r));}closeSync(fd);}
  }

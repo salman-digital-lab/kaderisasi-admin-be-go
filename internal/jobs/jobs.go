@@ -6,13 +6,15 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
+	"kaderisasi/admin/internal/storage"
 	"log/slog"
 	"time"
 )
 
-var Names = []string{"close:registration", "clubs:close-registration", "clubs:update-visibility"}
+var Names = []string{"close:registration", "clubs:close-registration", "clubs:update-visibility", "forms:clean-uploads"}
 
 type Runner struct {
+	Storage  storage.Store
 	DB       dbgen.DBTX
 	Location *time.Location
 	Logger   *slog.Logger
@@ -45,6 +47,28 @@ func (r Runner) Run(ctx context.Context, name string, now time.Time) (Result, er
 	result := Result{Job: name, Cutoff: cutoff.Format("2006-01-02"), IDs: []int32{}}
 	q := dbgen.New(r.DB)
 	switch name {
+	case "forms:clean-uploads":
+		if r.Storage == nil {
+			return result, fmt.Errorf("form upload storage unavailable")
+		}
+		for {
+			files, err := q.ExpiredFormAttachments(ctx)
+			if err != nil {
+				return result, r.failure(name, err)
+			}
+			if len(files) == 0 {
+				return result, nil
+			}
+			for _, file := range files {
+				if err := r.Storage.Delete(ctx, file.StorageKey); err != nil {
+					return result, r.failure(name, err)
+				}
+				if err := q.DeleteExpiredFormAttachment(ctx, file.ID); err != nil {
+					return result, r.failure(name, err)
+				}
+				result.Count++
+			}
+		}
 	case "close:registration":
 		rows, err := q.CloseActivityRegistration(ctx, date)
 		if err != nil {

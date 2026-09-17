@@ -8,16 +8,18 @@ import (
 	"kaderisasi/admin/internal/config"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/jobs"
+	"kaderisasi/admin/internal/storage"
 	"log/slog"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 )
 
 func run() error {
 	if len(os.Args) != 2 {
-		return fmt.Errorf("usage: admin-jobs <%s>", "close:registration|clubs:close-registration|clubs:update-visibility")
+		return fmt.Errorf("usage: admin-jobs <%s>", strings.Join(jobs.Names, "|"))
 	}
 	name := os.Args[1]
 	known := false
@@ -45,7 +47,7 @@ func run() error {
 		return err
 	}
 	slog.SetDefault(logger)
-	result, err := (jobs.Runner{DB: pool, Location: c.Location, Logger: logger}).Run(ctx, name, time.Now())
+	result, err := (jobs.Runner{DB: pool, Location: c.Location, Logger: logger, Storage: storage.NewCourseDocuments(c)}).Run(ctx, name, time.Now())
 	if err != nil {
 		return err
 	}

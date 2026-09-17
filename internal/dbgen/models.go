@@ -311,6 +311,43 @@ type CustomForm struct {
 	PostSubmissionInfo *string            `json:"post_submission_info"`
 }
 
+type CustomFormAttachment struct {
+	ID              pgtype.UUID        `json:"id"`
+	SessionID       pgtype.UUID        `json:"session_id"`
+	FieldKey        string             `json:"field_key"`
+	StorageKey      string             `json:"storage_key"`
+	OriginalName    string             `json:"original_name"`
+	DownloadName    string             `json:"download_name"`
+	MimeType        string             `json:"mime_type"`
+	SizeBytes       int32              `json:"size_bytes"`
+	SourceSizeBytes int32              `json:"source_size_bytes"`
+	Width           *int32             `json:"width"`
+	Height          *int32             `json:"height"`
+	ClaimedAt       pgtype.Timestamptz `json:"claimed_at"`
+	CreatedAt       pgtype.Timestamptz `json:"created_at"`
+}
+
+type CustomFormResponse struct {
+	ID           pgtype.UUID        `json:"id"`
+	FormID       int32              `json:"form_id"`
+	SessionID    pgtype.UUID        `json:"session_id"`
+	UserID       *int32             `json:"user_id"`
+	FormSnapshot []byte             `json:"form_snapshot"`
+	Answers      []byte             `json:"answers"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+}
+
+type CustomFormSession struct {
+	ID          pgtype.UUID        `json:"id"`
+	FormID      int32              `json:"form_id"`
+	TokenHash   string             `json:"token_hash"`
+	UserID      *int32             `json:"user_id"`
+	SchemaHash  string             `json:"schema_hash"`
+	ExpiresAt   pgtype.Timestamptz `json:"expires_at"`
+	CompletedAt pgtype.Timestamptz `json:"completed_at"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+}
+
 type IssuedCertificate struct {
 	ApprovalSnapshot    []byte             `json:"approval_snapshot"`
 	ID                  int32              `json:"id"`

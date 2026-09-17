@@ -8,6 +8,7 @@ import (
 )
 
 func (s *Server) registerForms() {
+	s.registerFormResponses()
 	s.registerFormReads()
 	controller := "custom_forms_controller"
 	service := form.Service{Pool: s.Pool, Location: s.Config.Location}

@@ -30,7 +30,7 @@ export async function runScoringBrowser({member,participantToken,call,record,res
     const context=await browser.newContext({viewport:{width:1440,height:1000},locale:'id-ID',timezoneId:'Asia/Jakarta'});
     admin=await context.newPage();admin.setDefaultTimeout(15000);admin.on('pageerror',error=>errors.push(error.message));
     await admin.goto('http://localhost:3005/login');
-    await admin.getByLabel('Email',{exact:true}).fill('super@example.test');
+    await admin.getByLabel('Email',{exact:true}).fill('panitia@example.test');
     await admin.getByLabel('Password',{exact:true}).fill(fixturePassword);
     await admin.getByRole('button',{name:/\bLogin$/}).click();
     await expect(admin).toHaveURL(/\/dashboard$/);

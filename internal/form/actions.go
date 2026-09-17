@@ -52,6 +52,16 @@ func (s Service) Delete(ctx context.Context, id string) error {
 	if err = guardActivityForm(ctx, q, row, dbgen.UpdateFormParams{}); err != nil {
 		return err
 	}
+	if exists, err := q.FormHasResponses(ctx, row.ID); err != nil {
+		return err
+	} else if exists {
+		return domain.Fail(409, "FORM_HAS_RESPONSES")
+	}
+	if exists, err := q.FormHasAttachments(ctx, row.ID); err != nil {
+		return err
+	} else if exists {
+		return domain.Fail(409, "FORM_HAS_ATTACHMENTS")
+	}
 	if err = q.DeleteForm(ctx, row.ID); err != nil {
 		return err
 	}
@@ -105,6 +115,11 @@ func (s Service) AttachActivity(ctx context.Context, id string, input ActivityAt
 	}
 	if row.FeatureID != nil && *row.FeatureID != 0 {
 		return ActivityAttached{}, domain.Fail(400, "FORM_ALREADY_ATTACHED")
+	}
+	if exists, err := q.FormHasResponses(ctx, row.ID); err != nil {
+		return ActivityAttached{}, err
+	} else if exists {
+		return ActivityAttached{}, domain.Fail(409, "FORM_HAS_RESPONSES")
 	}
 	params, err := merged(row, Input{})
 	if err != nil {
