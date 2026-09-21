@@ -384,6 +384,24 @@
   },
   {
     "method": "GET",
+    "path": "/v2/profiles/export/preview",
+    "controller": "profiles_controller",
+    "action": "exportPreview",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "members.read"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/profiles/export",
+    "controller": "profiles_controller",
+    "action": "export",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "members.read"
+  },
+  {
+    "method": "GET",
     "path": "/v2/profiles/user/:id",
     "controller": "profiles_controller",
     "action": "showByUserId",

@@ -19,8 +19,7 @@ type profileDetailsResponse struct {
 func (s *Server) registerProfileReads() {
 	q := dbgen.New(s.Pool)
 	s.register("profiles_controller", "index", func(w http.ResponseWriter, r *http.Request) error {
-		params := r.URL.Query()
-		filters := dbgen.CountProfilesFilteredParams{Search: params.Get("search"), MemberNumber: params.Get("member_id"), Institution: params.Get("education_institution"), Badge: params.Get("badge")}
+		filters := profileFilters(r)
 		total, err := q.CountProfilesFiltered(r.Context(), filters)
 		if err != nil {
 			legacyFailure(w, paginationError(r, err))
