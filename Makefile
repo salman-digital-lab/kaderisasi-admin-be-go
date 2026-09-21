@@ -1,6 +1,11 @@
 prepare-reference:
 	node scripts/prepare-reference.mjs
 
+.PHONY: test-calendar
+test-calendar: fixtures
+	node scripts/calendar.mjs --browser $(BORROW_WORKSPACE)
+	node scripts/coverage.mjs --native=calendar --check
+
 .PHONY: test-activity-courses
 test-activity-courses: fixtures
 	node scripts/activity-courses.mjs --browser $(BORROW_WORKSPACE)

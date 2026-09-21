@@ -1524,5 +1524,59 @@
     "auth": true,
     "trusted_origin": true,
     "permission": "short_links.manage"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/calendar-events",
+    "controller": "calendar_events_controller",
+    "action": "public",
+    "auth": false,
+    "trusted_origin": false,
+    "permission": ""
+  },
+  {
+    "method": "GET",
+    "path": "/v2/admin/calendar-events",
+    "controller": "calendar_events_controller",
+    "action": "index",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "calendar.read"
+  },
+  {
+    "method": "GET",
+    "path": "/v2/admin/calendar-events/:id",
+    "controller": "calendar_events_controller",
+    "action": "show",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "calendar.read"
+  },
+  {
+    "method": "POST",
+    "path": "/v2/admin/calendar-events",
+    "controller": "calendar_events_controller",
+    "action": "store",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "calendar.manage"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/admin/calendar-events/:id",
+    "controller": "calendar_events_controller",
+    "action": "update",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "calendar.manage"
+  },
+  {
+    "method": "DELETE",
+    "path": "/v2/admin/calendar-events/:id",
+    "controller": "calendar_events_controller",
+    "action": "delete",
+    "auth": true,
+    "trusted_origin": true,
+    "permission": "calendar.manage"
   }
 ]

@@ -2054,3 +2054,20 @@ CREATE TABLE custom_form_attachments (
  mime_type varchar(100) NOT NULL, size_bytes integer NOT NULL, source_size_bytes integer NOT NULL,
  width integer, height integer, claimed_at timestamptz, created_at timestamptz NOT NULL DEFAULT now()
 );
+
+CREATE TABLE public.calendar_events (
+    id serial PRIMARY KEY,
+    title varchar(255) NOT NULL CHECK (length(trim(title)) > 0),
+    description text,
+    location varchar(500),
+    starts_at timestamptz NOT NULL,
+    ends_at timestamptz NOT NULL,
+    all_day boolean NOT NULL DEFAULT false,
+    activity_id integer REFERENCES public.activities(id) ON DELETE SET NULL,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    CHECK (ends_at > starts_at)
+);
+CREATE INDEX calendar_events_starts_at_index ON public.calendar_events(starts_at);
+CREATE INDEX calendar_events_ends_at_index ON public.calendar_events(ends_at);
+CREATE INDEX calendar_events_activity_id_index ON public.calendar_events(activity_id);

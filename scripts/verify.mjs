@@ -40,6 +40,7 @@ try{
   await run('short-links','node',['scripts/short-links.mjs','--browser']);
   await run('scoring','node',['scripts/scoring-workflows.mjs','--browser',...process.argv.slice(2)]);
   await run('activity-courses','node',['scripts/activity-courses.mjs','--browser',...process.argv.slice(2)]);
+  await run('calendar','node',['scripts/calendar.mjs','--browser',...process.argv.slice(2)]);
   await run('route-coverage','node',['scripts/coverage.mjs','--check']);
 }catch(error){results.push({name:'orchestration',status:'failed',error:error.message});}
 finally{

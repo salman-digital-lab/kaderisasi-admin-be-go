@@ -49,7 +49,9 @@
       "reference_data.manage",
       "tickets.review",
       "short_links.manage",
-      "short_links.read"
+      "short_links.read",
+      "calendar.read",
+      "calendar.manage"
     ]
   },
   {
@@ -96,7 +98,9 @@
       "members.read",
       "reference_data.manage",
       "short_links.manage",
-      "short_links.read"
+      "short_links.read",
+      "calendar.read",
+      "calendar.manage"
     ]
   },
   {
@@ -123,7 +127,8 @@
       "dashboard.read",
       "members.read",
       "short_links.manage",
-      "short_links.read"
+      "short_links.read",
+      "calendar.read"
     ]
   },
   {
@@ -154,7 +159,8 @@
       "leaderboards.read",
       "members.read",
       "short_links.manage",
-      "short_links.read"
+      "short_links.read",
+      "calendar.read"
     ]
   },
   {
@@ -181,7 +187,8 @@
       "dashboard.read",
       "members.read",
       "short_links.manage",
-      "short_links.read"
+      "short_links.read",
+      "calendar.read"
     ]
   },
   {
@@ -199,7 +206,8 @@
       "counseling.read",
       "dashboard.read",
       "short_links.manage",
-      "short_links.read"
+      "short_links.read",
+      "calendar.read"
     ]
   }
 ]

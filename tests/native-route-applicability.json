@@ -1,5 +1,6 @@
 {
   "suites": [
+    {"name": "calendar", "controller": "calendar_events_controller", "report": ".artifacts/calendar.json", "command": "make test-calendar"},
     {"name":"activity-courses","controller":"activity_courses_controller","report":".artifacts/activity-courses.json","command":"make test-activity-courses"},
     {
       "name": "scoring",
@@ -26,6 +27,12 @@
     }
   ],
   "routes": [
+    {"route": "GET /v2/calendar-events", "source": "calendar_events_controller.public", "evidence": "native", "suite": "calendar", "invalid_input": {"applicable": true, "reason": "Invalid or absent date ranges, event data, or malformed resource identifiers are rejected."}, "missing_resource": {"applicable": false, "reason": "No event resource identifier; invalid linked activities are input errors."}},
+    {"route": "GET /v2/admin/calendar-events", "source": "calendar_events_controller.index", "evidence": "native", "suite": "calendar", "invalid_input": {"applicable": true, "reason": "Invalid or absent date ranges, event data, or malformed resource identifiers are rejected."}, "missing_resource": {"applicable": false, "reason": "No event resource identifier; invalid linked activities are input errors."}},
+    {"route": "GET /v2/admin/calendar-events/:id", "source": "calendar_events_controller.show", "evidence": "native", "suite": "calendar", "invalid_input": {"applicable": true, "reason": "Invalid or absent date ranges, event data, or malformed resource identifiers are rejected."}, "missing_resource": {"applicable": true, "reason": "Missing event identifiers return 404."}},
+    {"route": "POST /v2/admin/calendar-events", "source": "calendar_events_controller.store", "evidence": "native", "suite": "calendar", "invalid_input": {"applicable": true, "reason": "Invalid or absent date ranges, event data, or malformed resource identifiers are rejected."}, "missing_resource": {"applicable": false, "reason": "No event resource identifier; invalid linked activities are input errors."}},
+    {"route": "PUT /v2/admin/calendar-events/:id", "source": "calendar_events_controller.update", "evidence": "native", "suite": "calendar", "invalid_input": {"applicable": true, "reason": "Invalid or absent date ranges, event data, or malformed resource identifiers are rejected."}, "missing_resource": {"applicable": true, "reason": "Missing event identifiers return 404."}},
+    {"route": "DELETE /v2/admin/calendar-events/:id", "source": "calendar_events_controller.delete", "evidence": "native", "suite": "calendar", "invalid_input": {"applicable": true, "reason": "Invalid or absent date ranges, event data, or malformed resource identifiers are rejected."}, "missing_resource": {"applicable": true, "reason": "Missing event identifiers return 404."}},
     {"route":"GET /v2/activities/course-options","source":"activity_courses_controller.options","evidence":"native","suite":"activity-courses","invalid_input":{"applicable":false,"reason":"Search is free text; pagination uses the existing bounded course pagination defaults."},"missing_resource":{"applicable":false,"reason":"Catalog search has no resource identifier and returns an empty page for no matches."}},
     {"route":"GET /v2/activities/:id/courses","source":"activity_courses_controller.show","evidence":"native","suite":"activity-courses","invalid_input":{"applicable":true,"reason":"Malformed activity identifiers return 404."},"missing_resource":{"applicable":true,"reason":"Unknown activities return 404."}},
     {"route":"PUT /v2/activities/:id/courses","source":"activity_courses_controller.update","evidence":"native","suite":"activity-courses","invalid_input":{"applicable":true,"reason":"Missing/null lists, duplicate, nonpositive and unknown course IDs are rejected."},"missing_resource":{"applicable":true,"reason":"Unknown activities return 404."}},

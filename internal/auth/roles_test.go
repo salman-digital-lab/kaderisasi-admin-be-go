@@ -25,6 +25,24 @@ func TestMergedRoles(t *testing.T) {
 	}
 }
 
+func TestCalendarAuthority(t *testing.T) {
+	for _, role := range Roles() {
+		access := ForRoles([]string{role.Code}, true)
+		if !access.Allows("calendar.read") || access.Allows("calendar.manage") != (role.Code == "admin" || role.Code == "super_admin") {
+			t.Fatalf("incorrect calendar authority: %s", role.Code)
+		}
+	}
+	if !ForRoles([]string{"konselor", "admin"}, true).Allows("calendar.manage") {
+		t.Fatal("secondary editor role ignored")
+	}
+	if ForRoles([]string{"activity_manager", "club_manager"}, true).Allows("calendar.manage") {
+		t.Fatal("reader role union grants mutation")
+	}
+	if ForRoles([]string{"super_admin"}, false).Allows("calendar.manage") {
+		t.Fatal("inactive editor allowed")
+	}
+}
+
 func TestSixRolesAndPublicationAuthority(t *testing.T) {
 	if len(Roles()) != 6 {
 		t.Fatal("exactly six active roles required")

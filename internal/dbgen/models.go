@@ -151,6 +151,19 @@ type AdonisSchemaVersion struct {
 	Version int32 `json:"version"`
 }
 
+type CalendarEvent struct {
+	ID          int32              `json:"id"`
+	Title       string             `json:"title"`
+	Description *string            `json:"description"`
+	Location    *string            `json:"location"`
+	StartsAt    pgtype.Timestamptz `json:"starts_at"`
+	EndsAt      pgtype.Timestamptz `json:"ends_at"`
+	AllDay      bool               `json:"all_day"`
+	ActivityID  *int32             `json:"activity_id"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+}
+
 type CertificateApproval struct {
 	ID             int32              `json:"id"`
 	RegistrationID int32              `json:"registration_id"`

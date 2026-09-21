@@ -37,5 +37,7 @@
   "reference_data.manage",
   "tickets.review",
   "short_links.manage",
-  "short_links.read"
+  "short_links.read",
+  "calendar.read",
+  "calendar.manage"
 ]
