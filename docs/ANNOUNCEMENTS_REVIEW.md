@@ -77,3 +77,26 @@ stopped. The existing admin bundle-size warning remains unrelated to this change
 No production deployment or shared-database migration was performed. Apply the
 additive migration before deploying the APIs and frontends, following
 [the rollout notes](ANNOUNCEMENTS.md).
+
+## Composer simplification — September 22, 2026
+
+The admin composer now separates message, recipients, and review within one
+bounded dialog. Optional action-link fields and audience-specific controls are
+revealed on demand. Footer actions stay visible while long content scrolls.
+Drafts preserve their fields across steps and reopen with the saved audience.
+Removing a recipient group clears its account/group selections; removing a link
+clears both link fields. Failed recipient previews can retry against the saved
+draft version without creating another draft.
+
+Validated the refined composer at 1440×1000 and 390×844 alongside the existing
+Akses Saya page. Admin lint, TypeScript/Vite build, and 169 unit tests passed.
+The updated announcement browser suite passed all eight cases, including
+message/link validation, empty recipients, long content, save/reopen, targeted
+member/role labels, preview retry, group removal, keyboard navigation, publish,
+read state, withdrawal, and permission isolation. Scoped axe checks found no
+violations in the exercised composer/inbox regions. All expanded recipient
+controls retained visible footer actions on mobile. Owned fixture schemas and
+recorded storage cleanup completed.
+
+Browser evidence: `.artifacts/browser/2026-09-22T08-14-16-359Z/`.
+Frontend revision: `73188ea4e73ab82b71eb5df3fe28bba653cc20cd`.
