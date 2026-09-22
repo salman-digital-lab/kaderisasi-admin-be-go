@@ -43,9 +43,11 @@ FROM club_registrations cr LEFT JOIN public_users u ON u.id=cr.member_id LEFT JO
 WHERE cr.id= @id::integer;
 
 -- name: ClubRegistrationExport :many
-SELECT sqlc.embed(cr),(to_jsonb(u)-'password')::jsonb AS member,row_to_json(p) AS profile,province.name AS province,university.name AS university
+SELECT sqlc.embed(cr),(to_jsonb(u)-'password')::jsonb AS member,row_to_json(p) AS profile,province.name AS province,university.name AS university,
+city.name AS city,origin_province.name AS origin_province,origin_city.name AS origin_city
 FROM club_registrations cr LEFT JOIN public_users u ON u.id=cr.member_id LEFT JOIN profiles p ON p.user_id=u.id LEFT JOIN provinces province ON province.id=p.province_id LEFT JOIN universities university ON university.id=p.university_id
-WHERE cr.club_id= @club_id::integer ORDER BY cr.created_at DESC;
+LEFT JOIN cities city ON city.id=p.city_id LEFT JOIN provinces origin_province ON origin_province.id=p.origin_province_id LEFT JOIN cities origin_city ON origin_city.id=p.origin_city_id
+WHERE cr.club_id= @club_id::integer ORDER BY cr.created_at DESC,cr.id DESC;
 
 -- name: ClubRoleByIdentifier :one
 SELECT * FROM club_member_roles WHERE id=CAST(CAST(@identifier AS text) AS integer);

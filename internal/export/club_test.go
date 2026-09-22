@@ -9,7 +9,7 @@ import (
 func TestClubExportQuestionOrder(t *testing.T) {
 	schema := []byte(`{"fields":[{"section_name":"profile_data","fields":[{"key":"name","label":"Nama"}]},{"section_name":"Motivasi","fields":[{"key":"motivation","label":"Motivasi"},{"key":"division","label":"Divisi"}]}]}`)
 	got := ClubQuestions(schema, [][]byte{[]byte(`{"motivation":"Belajar","old_question":"Jawaban lama"}`)})
-	want := []Question{{"motivation", "Motivasi"}, {"division", "Divisi"}, {"old_question", "Old question"}}
+	want := []ClubField{{Key: "motivation", Label: "Motivasi"}, {Key: "division", Label: "Divisi"}, {Key: "old_question", Label: "Old question"}}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("question order %v", got)
 	}

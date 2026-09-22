@@ -59,24 +59,75 @@ func ObjectKeys(raw []byte) []string {
 	}
 	return append(out, keys...)
 }
-func ClubQuestions(schema []byte, answerSets [][]byte) []Question {
-	result := []Question{}
+
+type ClubField struct {
+	Key     string `json:"key"`
+	Label   string `json:"label"`
+	Options []struct {
+		Value json.RawMessage `json:"value"`
+		Label string          `json:"label"`
+	} `json:"options,omitempty"`
+}
+
+type clubFormSchema struct {
+	Fields []struct {
+		SectionName string      `json:"section_name"`
+		Fields      []ClubField `json:"fields"`
+	} `json:"fields"`
+}
+
+func ClubQuestions(schema []byte, answerSets [][]byte) []ClubField {
+	var form clubFormSchema
+	_ = json.Unmarshal(schema, &form)
+	result := []ClubField{}
 	seen := map[string]bool{}
-	for _, q := range FormQuestions(schema) {
-		if !seen[q.Key] {
-			seen[q.Key] = true
-			result = append(result, q)
+	for _, section := range form.Fields {
+		if section.SectionName == "profile_data" {
+			for _, field := range section.Fields {
+				seen[field.Key] = true
+			}
+		}
+	}
+	for _, section := range form.Fields {
+		if section.SectionName == "profile_data" {
+			continue
+		}
+		for _, field := range section.Fields {
+			if !seen[field.Key] {
+				seen[field.Key] = true
+				result = append(result, field)
+			}
 		}
 	}
 	for _, answers := range answerSets {
 		for _, key := range ObjectKeys(answers) {
 			if !seen[key] {
 				seen[key] = true
-				result = append(result, Question{Key: key, Label: humanize(key)})
+				result = append(result, ClubField{Key: key, Label: humanize(key)})
 			}
 		}
 	}
 	return result
+}
+
+func (field ClubField) Answer(raw json.RawMessage) interface{} {
+	if len(raw) == 0 || bytes.Equal(bytes.TrimSpace(raw), []byte("null")) {
+		return ""
+	}
+	var array []json.RawMessage
+	if json.Unmarshal(raw, &array) == nil {
+		parts := make([]string, len(array))
+		for i, value := range array {
+			parts[i] = fmt.Sprint(field.Answer(value))
+		}
+		return strings.Join(parts, ", ")
+	}
+	for _, option := range field.Options {
+		if Text(raw) == Text(option.Value) {
+			return option.Label
+		}
+	}
+	return ClubAnswer(raw)
 }
 func ClubAnswer(raw json.RawMessage) interface{} {
 	if len(raw) == 0 || bytes.Equal(raw, []byte("null")) {

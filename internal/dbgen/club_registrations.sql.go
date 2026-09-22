@@ -124,9 +124,11 @@ func (q *Queries) ClubRegistrationDuplicate(ctx context.Context, arg ClubRegistr
 }
 
 const clubRegistrationExport = `-- name: ClubRegistrationExport :many
-SELECT cr.id, cr.club_id, cr.member_id, cr.status, cr.additional_data, cr.created_at, cr.updated_at,(to_jsonb(u)-'password')::jsonb AS member,row_to_json(p) AS profile,province.name AS province,university.name AS university
+SELECT cr.id, cr.club_id, cr.member_id, cr.status, cr.additional_data, cr.created_at, cr.updated_at,(to_jsonb(u)-'password')::jsonb AS member,row_to_json(p) AS profile,province.name AS province,university.name AS university,
+city.name AS city,origin_province.name AS origin_province,origin_city.name AS origin_city
 FROM club_registrations cr LEFT JOIN public_users u ON u.id=cr.member_id LEFT JOIN profiles p ON p.user_id=u.id LEFT JOIN provinces province ON province.id=p.province_id LEFT JOIN universities university ON university.id=p.university_id
-WHERE cr.club_id= $1::integer ORDER BY cr.created_at DESC
+LEFT JOIN cities city ON city.id=p.city_id LEFT JOIN provinces origin_province ON origin_province.id=p.origin_province_id LEFT JOIN cities origin_city ON origin_city.id=p.origin_city_id
+WHERE cr.club_id= $1::integer ORDER BY cr.created_at DESC,cr.id DESC
 `
 
 type ClubRegistrationExportRow struct {
@@ -135,6 +137,9 @@ type ClubRegistrationExportRow struct {
 	Profile          []byte           `json:"profile"`
 	Province         *string          `json:"province"`
 	University       *string          `json:"university"`
+	City             *string          `json:"city"`
+	OriginProvince   *string          `json:"origin_province"`
+	OriginCity       *string          `json:"origin_city"`
 }
 
 func (q *Queries) ClubRegistrationExport(ctx context.Context, clubID int32) ([]ClubRegistrationExportRow, error) {
@@ -158,6 +163,9 @@ func (q *Queries) ClubRegistrationExport(ctx context.Context, clubID int32) ([]C
 			&i.Profile,
 			&i.Province,
 			&i.University,
+			&i.City,
+			&i.OriginProvince,
+			&i.OriginCity,
 		); err != nil {
 			return nil, err
 		}
