@@ -2,6 +2,7 @@ package certificate
 
 import (
 	"encoding/json"
+	"kaderisasi/admin/internal/scoring"
 	"testing"
 )
 
@@ -28,6 +29,17 @@ func TestApprovalHashBindsContentAndSigner(t *testing.T) {
 	changedContent, _ := ApprovalHash(data, 2, "Signer", "Ketua")
 	if changedContent == original {
 		t.Fatal("recipient not bound")
+	}
+	withoutScore := changedContent
+	data.Participant.ScoringResult = &scoring.PublishedResult{Revision: 3}
+	withScore, _ := ApprovalHash(data, 2, "Signer", "Ketua")
+	if withScore == withoutScore {
+		t.Fatal("score sheet not bound to approval")
+	}
+	data.Participant.ScoringResult.Revision++
+	changedScore, _ := ApprovalHash(data, 2, "Signer", "Ketua")
+	if changedScore == withScore {
+		t.Fatal("published score revision not bound")
 	}
 }
 

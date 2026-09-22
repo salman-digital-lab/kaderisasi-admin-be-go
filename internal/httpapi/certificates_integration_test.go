@@ -9,12 +9,14 @@ import (
 	"fmt"
 	"kaderisasi/admin/internal/certificate"
 	"kaderisasi/admin/internal/database"
+	"kaderisasi/admin/internal/scoring"
 	"net/http/httptest"
 	"net/url"
 	"reflect"
 	"strings"
 	"sync"
 	"testing"
+	"time"
 )
 
 type certificateFixture struct {
@@ -72,6 +74,52 @@ func certificateResponse(t *testing.T, result database.Object) certificate.Respo
 		t.Fatal(err)
 	}
 	return response
+}
+
+func setCertificateScore(t *testing.T, fixture *certificateFixture, id int32, total float64) {
+	t.Helper()
+	published := &scoring.Snapshot{
+		SchemaVersion: 1, ActivityID: fixture.activity.ID("id"), RegistrationID: id,
+		Revision: 2, PublishedAt: time.Date(2026, 9, 22, 0, 0, 0, 0, time.UTC),
+		Rubric: scoring.Definition{Groups: []scoring.Group{{ID: "group", Name: "Karakter", Criteria: []scoring.Criterion{{ID: "criterion", Name: "Amanah", Maximum: 100, Weight: 1}}}}, Grades: []scoring.Grade{}},
+		Draft:  scoring.Draft{Note: "Published note"},
+		Result: scoring.Result{Complete: true, Total: &total, Criteria: []scoring.CriterionResult{{CriterionID: "criterion", Score: &total, Normalized: &total}}},
+	}
+	raw, err := json.Marshal(scoring.Data{SchemaVersion: 1, State: "changed", Draft: scoring.Draft{Note: "Private correction"}, Published: published})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = fixture.f.pool.Exec(context.Background(), "UPDATE activity_registrations SET scoring_data=$2 WHERE id=$1", id, raw); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestCertificateScoreSnapshot(t *testing.T) {
+	fixture := newCertificateFixture(t, 2)
+	f := fixture.f
+	id := fixture.ids[0]
+	setCertificateScore(t, fixture, id, 77.5)
+	preview := certificateResponse(t, f.call("POST", "/v2/certificates/generate-single", map[string]int32{"registration_id": id}, f.token, 200))
+	if preview.Participant.ScoringResult == nil || *preview.Participant.ScoringResult.Result.Total != 77.5 || preview.Participant.ScoringResult.Note != "Published note" {
+		t.Fatal("preview did not use the published score")
+	}
+	issued := certificateResponse(t, f.call("POST", "/v2/certificates/issue-single", map[string]int32{"registration_id": id}, f.token, 201))
+	setCertificateScore(t, fixture, id, 100)
+	after := certificateResponse(t, f.call("GET", fmt.Sprintf("/v2/certificates/%d", issued.Certificate.ID), nil, f.token, 200))
+	if !reflect.DeepEqual(issued.Participant.ScoringResult, after.Participant.ScoringResult) {
+		t.Fatal("editing published scores changed the issued score sheet")
+	}
+	if _, err := f.pool.Exec(context.Background(), "UPDATE activity_registrations SET scoring_data=NULL WHERE id=$1", id); err != nil {
+		t.Fatal(err)
+	}
+	after = certificateResponse(t, f.call("GET", fmt.Sprintf("/v2/certificates/%d", issued.Certificate.ID), nil, f.token, 200))
+	if !reflect.DeepEqual(issued.Participant.ScoringResult, after.Participant.ScoringResult) {
+		t.Fatal("withdrawing scores changed the issued score sheet")
+	}
+	plain := certificateResponse(t, f.call("POST", "/v2/certificates/issue-single", map[string]int32{"registration_id": fixture.ids[1]}, f.token, 201))
+	if plain.Participant.ScoringResult != nil {
+		t.Fatal("certificate without published scores has a score sheet")
+	}
 }
 func TestCertificateIssuanceSnapshotsAndRevocation(t *testing.T) {
 	fixture := newCertificateFixture(t, 4)

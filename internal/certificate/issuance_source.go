@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
+	"kaderisasi/admin/internal/scoring"
 	"strconv"
 	"strings"
 	"time"
@@ -68,6 +69,11 @@ func guestText(raw json.RawMessage) string {
 }
 func (s Issuance) participant(ctx context.Context, q *dbgen.Queries, registration dbgen.ActivityRegistration, activity dbgen.Activity) (Participant, error) {
 	data := Participant{RegistrationID: registration.ID, UserID: registration.UserID, ActivityName: activity.Name}
+	score, err := scoring.PublishedForRegistration(registration.ScoringData, registration.ID, activity.ID)
+	if err != nil {
+		return data, err
+	}
+	data.ScoringResult = score
 	if activity.ActivityStart.Valid {
 		date := activity.ActivityStart.Time
 		data.ActivityDate = fmt.Sprintf("%02d %s %04d", date.Day(), indonesianMonths[int(date.Month())-1], date.Year())

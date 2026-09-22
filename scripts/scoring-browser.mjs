@@ -104,7 +104,7 @@ export async function runScoringBrowser({member,participantToken,call,record,res
     const page=await publicContext.newPage();page.on('pageerror',error=>errors.push(error.message));
     await page.goto(`http://localhost:3000/profile/activity/${activity.slug}`);
     await expect(page.getByRole('heading',{name:'Hasil penilaian',exact:true})).toBeVisible();
-    await expect(page.getByText('85 · A',{exact:true})).toBeVisible();
+    await expect(page.getByText('85 / 100 · A',{exact:true})).toBeVisible();
     await evidence(page,'participant-result-mobile');
     await page.setViewportSize({width:1440,height:1000});await evidence(page,'participant-result-desktop');
     await admin.setViewportSize({width:1440,height:1000});await evidence(admin,'admin-scores-desktop');

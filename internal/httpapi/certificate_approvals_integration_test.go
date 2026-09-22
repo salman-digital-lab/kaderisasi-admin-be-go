@@ -47,6 +47,8 @@ func TestCertificateApprovalWorkflow(t *testing.T) {
 	}
 	expected := certificate.Expectation{ActivityID: float64(fixture.activity.ID("id")), TemplateID: float64(fixture.template.ID("id")), TemplateVersion: float64(fixture.template.ID("version"))}
 	input := certificate.ApprovalRequestInput{RegistrationIDs: fixture.ids, SignerID: signer, SignerTitle: "Ketua kegiatan", Expected: expected}
+	setCertificateScore(t, fixture, fixture.ids[0], 77.5)
+	setCertificateScore(t, fixture, fixture.ids[3], 80)
 	f.call("POST", "/v2/certificates/issue-single", map[string]int32{"registration_id": fixture.ids[0]}, f.token, 409)
 	f.call("POST", "/v2/certificates/approvals", input, "", 401)
 	created := approvalOutcomes(t, f.call("POST", "/v2/certificates/approvals", input, f.token, 200))
@@ -90,6 +92,15 @@ func TestCertificateApprovalWorkflow(t *testing.T) {
 	payload := certificateResponse(t, f.call("GET", fmt.Sprintf("/v2/certificates/%d", *approved[0].CertificateID), nil, f.token, 200))
 	if payload.Certificate.Approval == nil || payload.Certificate.Approval.SignerID != signer || payload.Certificate.Approval.ContentHash != details[0].ContentHash {
 		t.Fatalf("missing approval evidence %+v", payload.Certificate)
+	}
+	if payload.Participant.ScoringResult == nil || *payload.Participant.ScoringResult.Result.Total != 77.5 {
+		t.Fatal("approved certificate lost the reviewed score sheet")
+	}
+	setCertificateScore(t, fixture, fixture.ids[3], 90)
+	scoreDecision := certificate.ApprovalDecisionInput{Items: details[3:], Action: "approve", Consent: true}
+	staleScore := approvalOutcomes(t, f.call("POST", "/v2/certificates/approvals/decide", scoreDecision, session.AccessToken, 200))
+	if staleScore[0].Reason != "CERTIFICATE_CONTEXT_CHANGED" {
+		t.Fatal("changed score sheet was approved without review", staleScore)
 	}
 	decision.Items = details[:1]
 	replay := approvalOutcomes(t, f.call("POST", "/v2/certificates/approvals/decide", decision, session.AccessToken, 200))

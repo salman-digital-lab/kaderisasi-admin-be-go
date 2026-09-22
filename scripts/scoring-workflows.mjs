@@ -123,6 +123,27 @@ try {
   await workbook(activity.id,'draft');await workbook(activity.id,'published');record.checks.push({label:'draft and published Excel exports open successfully'});
   await call('admin','publish imported result','POST',`${base}/publish`,batch([registration.id,8]));
   const raw=(await fixture.db.query('SELECT questionnaire_answer,status FROM activity_registrations WHERE id=$1',[registration.id])).rows[0];assert.deepEqual(raw.questionnaire_answer,{reason:'keep'});assert.equal(raw.status,'TERDAFTAR');
+  const certificateTemplate=await call('admin','create score certificate template','POST','/certificate-templates',{name:'Certificate score sheet fixture',templateData:{backgroundUrl:null,canvasWidth:800,canvasHeight:566,elements:[{id:'title',type:'static-text',content:'SERTIFIKAT',x:100,y:90,width:600,height:60,fontSize:36,textAlign:'center'},{id:'name',type:'variable-text',variable:'{{name}}',x:70,y:240,width:660,height:80,fontSize:28,textAlign:'center'}]}},{status:201});
+  await call('admin','publish score certificate template','POST',`/certificate-templates/${certificateTemplate.id}/publish`,{expectedVersion:certificateTemplate.version});
+  await call('admin','assign score certificate template','PUT',`/activities/${activity.id}`,{certificate_template_id:certificateTemplate.id,activity_start:'2026-09-22'});
+  await call('admin','mark scored participant eligible','PUT','/activity-registrations',{registrations_id:[registration.id],status:'LULUS KEGIATAN'});
+  const certificate=await call('admin','issue certificate with published scores','POST','/certificates/issue-single',{registration_id:registration.id},{status:201});
+  assert.ok(certificate.participant.scoring_result);
+  const certificatePath=`/certificates/code/${certificate.certificate.certificate_code}`;
+  const ownerCertificate=await call('web','owner receives issued score sheet','GET',`${certificatePath}/download`,undefined,{token:participantToken});
+  assert.deepEqual(ownerCertificate.participant.scoring_result,certificate.participant.scoring_result);
+  for(const suffix of ['', '/access']) {
+    const publicCertificate=await call('web',`score sheet private on ${suffix||'public certificate'}`,'GET',`${certificatePath}${suffix}`,undefined,suffix?{token:otherLogin.token.token}:{});
+    assert.ok(!JSON.stringify(publicCertificate).includes('scoring_result'));
+  }
+  await call('web','other participant cannot download score sheet','GET',`${certificatePath}/download`,undefined,{token:otherLogin.token.token,status:403});
+  await call('admin','withdraw scoring after certificate issuance','POST',`${base}/withdraw`,batch([registration.id,9]));
+  const frozenCertificate=await call('web','issued score sheet survives withdrawal','GET',`${certificatePath}/download`,undefined,{token:participantToken});
+  assert.deepEqual(frozenCertificate.participant.scoring_result,certificate.participant.scoring_result);
+  if(process.argv.includes('--certificate-scores-browser')) {
+    const {runCertificateScoresBrowser}=await import('./certificate-scores-browser.mjs');
+    await runCertificateScoresBrowser({certificate,activity,registration,guest,call,fixture,participantToken,record,restorations});
+  }
   if(process.argv.includes('--browser')) {
     const {runScoringBrowser}=await import('./scoring-browser.mjs');
     await runScoringBrowser({activity,member,participantToken,call,record,restorations,fixture});
@@ -135,7 +156,9 @@ finally {
   for(const cleanup of [()=>web?.stop(),()=>api?.stop(),async()=>{
     // The fixture lease and ownership check above restrict cleanup to this test schema.
     await fixture.db.query('DELETE FROM activity_scoring_publications');
+    await fixture.db.query('DELETE FROM issued_certificates');
     await fixture.db.query('DELETE FROM activities');
+    await fixture.db.query('DELETE FROM certificate_templates');
     await fixture.db.query('DELETE FROM public_users');
     assert.equal((await fixture.db.query('SELECT count(*)::int AS n FROM activity_scoring_publications')).rows[0].n,0);
     record.scoring_cleanup='complete';
