@@ -1578,5 +1578,19 @@
     "auth": true,
     "trusted_origin": true,
     "permission": "calendar.manage"
-  }
+  },
+  {"method":"GET","path":"/v2/announcements","controller":"announcements_controller","action":"index","auth":true,"trusted_origin":false,"permission":"announcements.manage"},
+  {"method":"POST","path":"/v2/announcements","controller":"announcements_controller","action":"store","auth":true,"trusted_origin":true,"permission":"announcements.manage"},
+  {"method":"GET","path":"/v2/announcements/options","controller":"announcements_controller","action":"options","auth":true,"trusted_origin":false,"permission":"announcements.manage"},
+  {"method":"GET","path":"/v2/announcements/:id","controller":"announcements_controller","action":"show","auth":true,"trusted_origin":false,"permission":"announcements.manage"},
+  {"method":"PATCH","path":"/v2/announcements/:id","controller":"announcements_controller","action":"update","auth":true,"trusted_origin":true,"permission":"announcements.manage"},
+  {"method":"DELETE","path":"/v2/announcements/:id","controller":"announcements_controller","action":"delete","auth":true,"trusted_origin":true,"permission":"announcements.manage"},
+  {"method":"POST","path":"/v2/announcements/:id/preview","controller":"announcements_controller","action":"preview","auth":true,"trusted_origin":true,"permission":"announcements.manage"},
+  {"method":"POST","path":"/v2/announcements/:id/publish","controller":"announcements_controller","action":"publish","auth":true,"trusted_origin":true,"permission":"announcements.manage"},
+  {"method":"POST","path":"/v2/announcements/:id/withdraw","controller":"announcements_controller","action":"withdraw","auth":true,"trusted_origin":true,"permission":"announcements.manage"},
+  {"method":"GET","path":"/v2/notifications","controller":"notifications_controller","action":"index","auth":true,"trusted_origin":false,"permission":""},
+  {"method":"GET","path":"/v2/notifications/unread-count","controller":"notifications_controller","action":"count","auth":true,"trusted_origin":false,"permission":""},
+  {"method":"GET","path":"/v2/notifications/:id","controller":"notifications_controller","action":"show","auth":true,"trusted_origin":false,"permission":""},
+  {"method":"PUT","path":"/v2/notifications/:id/read","controller":"notifications_controller","action":"read","auth":true,"trusted_origin":true,"permission":""},
+  {"method":"PUT","path":"/v2/notifications/read-all","controller":"notifications_controller","action":"readAll","auth":true,"trusted_origin":true,"permission":""}
 ]

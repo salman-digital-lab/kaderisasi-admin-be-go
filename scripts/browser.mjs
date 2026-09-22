@@ -17,6 +17,8 @@ if(build.status!==0)throw new Error('Go build failed');
 const restorations=[];
 const publicBrowser=process.argv.includes('--public');
 const reuseAdminFrontend=process.argv.includes('--reuse-admin-frontend');
+const reusePublicFrontend=process.argv.includes('--reuse-public-frontend');
+if(reusePublicFrontend&&!publicBrowser)throw new Error('Public frontend reuse requires --public');
 if(reuseAdminFrontend) {
   if(publicBrowser)throw new Error('Frontend reuse is only available for admin browser checks');
   const source=await (await fetch('http://127.0.0.1:3005/src/api/axios.ts')).text();
@@ -25,7 +27,7 @@ if(reuseAdminFrontend) {
 }
 let api,frontend,web,journal;
 try{
-  for(const port of publicBrowser?[3334,3333,3000]:reuseAdminFrontend?[3334]:[3334,3005])restorations.push(await borrowWorkspacePort(port,process.argv.includes('--borrow-workspace')));
+  for(const port of publicBrowser?(reusePublicFrontend?[3334,3333]:[3334,3333,3000]):reuseAdminFrontend?[3334]:[3334,3005])restorations.push(await borrowWorkspacePort(port,process.argv.includes('--borrow-workspace')));
   const journalPath=resolve(root,'.artifacts/storage-browser-go.json');
   writeFileSync(journalPath,'[]',{flag:'wx',mode:0o600});
   journal=journalPath;
@@ -39,13 +41,25 @@ try{
       const response=await fetch(`http://localhost:3334/v2/${path}`,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
       if(!response.ok)throw new Error('Could not prepare public reference fixtures');
     }
-    web=await startWebBackend(fixture.schema,'browser-web-be');frontend=await startPublicFrontend({...process.env,...frontendEnv});
+    web=await startWebBackend(fixture.schema,'browser-web-be');
+    if(reusePublicFrontend){
+      // A signed synthetic account must reach the owned database through the
+      // existing Next proxy before browser tests are allowed to mutate read state.
+      const check=await fixtureDatabase('candidate');
+      try{
+        const member=(await check.db.query("INSERT INTO public_users(email,account_status,created_at) VALUES('proxy-preflight@example.test','active',now()) RETURNING id")).rows[0];
+        const token=legacyRequire('jsonwebtoken').sign({userId:member.id,email:'proxy-preflight@example.test',aud:'kaderisasi-public'},fixtureKey,{expiresIn:'5m'});
+        const response=await fetch('http://localhost:3000/api/notifications/unread-count',{headers:{Cookie:`session=${token}`},signal:AbortSignal.timeout(30000)});
+        if(!response.ok||(await response.json()).data?.unread!==0)throw new Error('Existing public frontend must proxy notifications to the isolated local web API');
+        await check.db.query('DELETE FROM public_users WHERE id=$1',[member.id]);
+      }finally{await check.db.end();}
+    }else frontend=await startPublicFrontend({...process.env,...frontendEnv});
   }
   else if(!reuseAdminFrontend)frontend=await startAdminFrontend({...process.env,...frontendEnv});
   const results=resolve(root,'.artifacts/browser',new Date().toISOString().replace(/[:.]/g,'-'));
   mkdirSync(results,{recursive:true});
   writeFileSync(resolve(root,'.artifacts/browser/latest.json'),JSON.stringify({results}));
-  const child=spawn('node',['node_modules/@playwright/test/cli.js','test',...process.argv.slice(2).filter(x=>!['--borrow-workspace','--public','--reuse-admin-frontend'].includes(x))],{cwd:root,env:{...process.env,GO_REWRITE_BROWSER:'1',GO_REWRITE_PUBLIC_BROWSER:publicBrowser?'1':'0',GO_REWRITE_BROWSER_RESULTS:results},stdio:'inherit'});
+  const child=spawn('node',['node_modules/@playwright/test/cli.js','test',...process.argv.slice(2).filter(x=>!['--borrow-workspace','--public','--reuse-admin-frontend','--reuse-public-frontend'].includes(x))],{cwd:root,env:{...process.env,GO_REWRITE_BROWSER:'1',GO_REWRITE_PUBLIC_BROWSER:publicBrowser?'1':'0',GO_REWRITE_BROWSER_RESULTS:results},stdio:'inherit'});
   const [code]=await once(child,'exit');process.exitCode=code??1;
 }finally{
   const failures=[];

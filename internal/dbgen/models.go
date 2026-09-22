@@ -151,6 +151,32 @@ type AdonisSchemaVersion struct {
 	Version int32 `json:"version"`
 }
 
+type Announcement struct {
+	ID             int32              `json:"id"`
+	Title          string             `json:"title"`
+	Body           string             `json:"body"`
+	LinkLabel      *string            `json:"link_label"`
+	LinkUrl        *string            `json:"link_url"`
+	Audience       []byte             `json:"audience"`
+	State          string             `json:"state"`
+	Version        int32              `json:"version"`
+	AuthorID       *int32             `json:"author_id"`
+	PublisherID    *int32             `json:"publisher_id"`
+	PublishedAt    pgtype.Timestamptz `json:"published_at"`
+	WithdrawnAt    pgtype.Timestamptz `json:"withdrawn_at"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+	RecipientCount int32              `json:"recipient_count"`
+}
+
+type AnnouncementRecipient struct {
+	ID             int32              `json:"id"`
+	AnnouncementID int32              `json:"announcement_id"`
+	AdminUserID    *int32             `json:"admin_user_id"`
+	PublicUserID   *int32             `json:"public_user_id"`
+	ReadAt         pgtype.Timestamptz `json:"read_at"`
+}
+
 type CalendarEvent struct {
 	ID          int32              `json:"id"`
 	Title       string             `json:"title"`

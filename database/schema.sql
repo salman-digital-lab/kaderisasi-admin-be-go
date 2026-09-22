@@ -2071,3 +2071,27 @@ CREATE TABLE public.calendar_events (
 CREATE INDEX calendar_events_starts_at_index ON public.calendar_events(starts_at);
 CREATE INDEX calendar_events_ends_at_index ON public.calendar_events(ends_at);
 CREATE INDEX calendar_events_activity_id_index ON public.calendar_events(activity_id);
+
+CREATE TABLE public.announcements (
+ id serial PRIMARY KEY, title varchar(160) NOT NULL, body text NOT NULL,
+ link_label varchar(100), link_url text, audience jsonb NOT NULL,
+ state varchar(20) NOT NULL DEFAULT 'draft', version integer NOT NULL DEFAULT 1,
+ author_id integer REFERENCES public.admin_users(id) ON DELETE SET NULL,
+ publisher_id integer REFERENCES public.admin_users(id) ON DELETE SET NULL,
+ published_at timestamptz, withdrawn_at timestamptz,
+ created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now(),
+ recipient_count integer NOT NULL DEFAULT 0,
+ CHECK (state IN ('draft','published','withdrawn')),
+ CHECK (length(trim(title)) > 0 AND length(trim(body)) BETWEEN 1 AND 10000),
+ CHECK ((link_label IS NULL) = (link_url IS NULL))
+);
+CREATE TABLE public.announcement_recipients (
+ id serial PRIMARY KEY, announcement_id integer NOT NULL REFERENCES public.announcements(id) ON DELETE CASCADE,
+ admin_user_id integer REFERENCES public.admin_users(id) ON DELETE CASCADE,
+ public_user_id integer REFERENCES public.public_users(id) ON DELETE CASCADE,
+ read_at timestamptz,
+ CHECK ((admin_user_id IS NOT NULL) <> (public_user_id IS NOT NULL)),
+ UNIQUE(announcement_id, admin_user_id), UNIQUE(announcement_id, public_user_id)
+);
+CREATE INDEX ON public.announcement_recipients(admin_user_id, read_at, id);
+CREATE INDEX ON public.announcement_recipients(public_user_id, read_at, id);

@@ -1,0 +1,73 @@
+import {test,expect,api,evidence} from '../browser/fixture.mjs';
+import {fixtureKey,legacyRequire} from '../../scripts/fixture-db.mjs';
+import {verifyNotificationPolling} from '../browser/announcement-polling.mjs';
+import {auditNotificationUI,verifyInboxRecovery} from '../browser/notification-ux.mjs';
+
+test('member announcements: shared delivery, private proxy, read cutoff and withdrawal',async({page,fixture},testInfo)=>{
+  await page.clock.install();
+  const renderErrors=[];
+  page.on('pageerror',error=>renderErrors.push(error.message));
+  page.on('console',entry=>{if(entry.type()==='error'&&!entry.text().includes('Failed to load resource'))renderErrors.push(entry.text());});
+  const member=(await fixture.db.query("INSERT INTO public_users(email,account_status,created_at) VALUES('member@example.test','active',now()) RETURNING id")).rows[0];
+  const other=(await fixture.db.query("INSERT INTO public_users(email,account_status,created_at) VALUES('other@example.test','active',now()) RETURNING id")).rows[0];
+  const token=legacyRequire('jsonwebtoken').sign({userId:member.id,email:'member@example.test',aud:'kaderisasi-public'},fixtureKey,{expiresIn:'15m'});
+  const stranger=legacyRequire('jsonwebtoken').sign({userId:other.id,email:'other@example.test',aud:'kaderisasi-public'},fixtureKey,{expiresIn:'15m'});
+  const announce=async(title)=>{
+    const row=await api('POST','/announcements',{title,body:'Pengumuman untuk anggota.\n<script>teks aman</script>',link_label:'Buka situs',link_url:'https://example.com',audience:{member_ids:[member.id],admin_ids:[1]}});
+    return api('POST',`/announcements/${row.id}/publish`,{version:1});
+  };
+  const first=await announce('Informasi anggota');
+  const call=async(path,method='GET',body,bearer=token)=>{
+    const result=await fetch('http://localhost:3333/v2/notifications'+path,{method,headers:{Authorization:`Bearer ${bearer}`,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});
+    return {status:result.status,body:await result.json()};
+  };
+  const list=await call('');expect(list.status).toBe(200);expect(list.body.data.items).toHaveLength(1);
+  const id=list.body.data.items[0].id;
+  expect((await call(`/${id}`,'GET',undefined,stranger)).status).toBe(404);
+  expect((await call(`/${id}/read`,'PUT',{},stranger)).status).toBe(404);
+  await announce('Pesan setelah cutoff');
+  expect((await call('/read-all','PUT',{cutoff:list.body.data.cutoff})).status).toBe(200);
+  expect((await call('/unread-count')).body.data.unread).toBe(1);
+  // Session cookie is read only by the Next proxy; it is never passed to the notification client.
+  const {readFileSync}=await import('node:fs');
+  const constants=readFileSync(new URL('../../../kaderisasi-web-fe/src/constants/index.ts',import.meta.url),'utf8');
+  const cookieName=constants.match(/SESSION_COOKIE_NAME\s*=\s*["']([^"']+)/)?.[1];
+  expect(cookieName).toBeTruthy();
+  await page.context().addCookies([{name:cookieName,value:token,url:'http://localhost:3000',httpOnly:true,sameSite:'Lax'}]);
+  await page.goto('http://localhost:3000/activity');
+  await expect(page.getByRole('heading',{level:1})).toBeVisible();
+  // Preserve input styles while the comparison page finishes streaming/hydrating.
+  const relatedPath=testInfo.outputPath('related-public-page.png');
+  await page.screenshot({path:relatedPath,fullPage:true,caret:'initial'});
+  await testInfo.attach('related-public-page',{path:relatedPath,contentType:'image/png'});
+  await page.getByRole('button',{name:/Notifikasi, /}).click();
+  await expect(page.getByRole('link',{name:'Pesan setelah cutoff',exact:true})).toBeVisible();
+  expect((await call('/unread-count')).body.data.unread).toBe(1);
+  await page.getByRole('link',{name:'Pesan setelah cutoff',exact:true}).click();
+  await expect(page.getByRole('dialog')).toContainText('<script>teks aman</script>');
+  await expect(page.getByRole('dialog').getByRole('link',{name:'Buka situs'})).toHaveAttribute('href','https://example.com');
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).not.toBeVisible();
+  await expect(page.getByRole('button',{name:'Informasi anggota',exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:/Notifikasi, 0 belum/})).toBeVisible();
+  await evidence(page,testInfo,'member-inbox');
+  await auditNotificationUI(page,'main');
+  await verifyInboxRecovery(page,'/api/notifications','Informasi anggota');
+  expect(renderErrors).toEqual([]);
+  await verifyNotificationPolling(page,'/api/notifications/unread-count');
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  const privateResponse=await page.request.get('http://localhost:3000/api/notifications');
+  expect(privateResponse.headers()['cache-control']).toContain('no-store');
+  expect((await page.request.put('http://localhost:3000/api/notifications/read-all',{headers:{Origin:'https://untrusted.example'},data:{cutoff:list.body.data.cutoff}})).status()).toBe(403);
+  await api('POST',`/announcements/${first.id}/withdraw`,{});
+  expect((await call(`/${id}`)).status).toBe(404);
+  await page.reload();
+  await expect(page.getByRole('button',{name:'Informasi anggota',exact:true})).toHaveCount(0);
+  await page.route('**/api/notifications?*',route=>route.fulfill({status:503,json:{message:'UNAVAILABLE'}}));
+  await page.reload();await expect(page.getByText('Notifikasi belum dapat dimuat.',{exact:true})).toBeVisible();
+  await page.unroute('**/api/notifications?*');await page.getByRole('button',{name:'Coba lagi'}).click();
+  await expect(page.getByRole('button',{name:'Pesan setelah cutoff',exact:true})).toBeVisible();
+  await page.context().addCookies([{name:cookieName,value:'expired-token',url:'http://localhost:3000',httpOnly:true,sameSite:'Lax'}]);
+  await page.reload();await expect(page).toHaveURL(/\/login/);
+  expect((await page.context().cookies()).some(cookie=>cookie.name===cookieName)).toBe(false);
+});

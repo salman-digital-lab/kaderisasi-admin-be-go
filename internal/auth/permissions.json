@@ -39,5 +39,6 @@
   "short_links.manage",
   "short_links.read",
   "calendar.read",
-  "calendar.manage"
+  "calendar.manage",
+  "announcements.manage"
 ]
