@@ -66,6 +66,6 @@ test('busy dates retain every event and multi-day occurrences',async({page},test
   await page.getByRole('dialog').getByRole('button',{name:'Tutup',exact:true}).click();
   await page.getByText('Agenda',{exact:true}).click();
   const occurrences=page.getByRole('button',{name:/Agenda tim 8/});
-  expect(await occurrences.count()).toBeGreaterThanOrEqual(2);
+  await expect.poll(() => occurrences.count()).toBeGreaterThanOrEqual(2);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
 });

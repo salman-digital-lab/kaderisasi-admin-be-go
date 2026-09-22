@@ -15,9 +15,12 @@ test('calendar create, edit, delete and read-only roles',async({page,fixture},te
   await dialog.getByLabel('Judul acara').fill('Musyawarah BMKA');
   await expect(dialog.getByRole('switch')).toHaveCount(0);
   await expect(dialog.locator('input[type="datetime-local"]')).toHaveCount(0);
+  await expect(dialog.locator('.ant-picker')).toHaveCount(2);
   const today=new Date(Date.now()+7*3600000).toISOString().slice(0,10);
-  await dialog.getByLabel('Tanggal mulai',{exact:true}).fill(today);
-  await dialog.getByLabel('Tanggal terakhir (termasuk)').fill(today);
+  await dialog.getByLabel('Tanggal mulai',{exact:true}).fill(new Date(today+'T12:00:00Z').toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric',timeZone:'UTC'}));
+  await dialog.getByLabel('Tanggal mulai',{exact:true}).press('Tab');
+  await dialog.getByLabel('Tanggal terakhir (termasuk)').fill(new Date(today+'T12:00:00Z').toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric',timeZone:'UTC'}));
+  await dialog.getByLabel('Tanggal terakhir (termasuk)').press('Tab');
   await dialog.getByLabel('Lokasi (opsional)').fill('Masjid Salman');
   await dialog.getByLabel('Deskripsi (opsional)').fill('Koordinasi agenda bersama.');
   await dialog.getByRole('combobox',{name:'Kegiatan terkait (opsional)'}).fill('Kegiatan tertaut');
@@ -39,7 +42,7 @@ test('calendar create, edit, delete and read-only roles',async({page,fixture},te
   await expect(dialog.getByText('Koordinasi agenda bersama.')).toBeVisible();
   await dialog.getByRole('button',{name:'Ubah acara'}).click();
   dialog=page.getByRole('dialog',{name:'Ubah acara'});
-  await expect(dialog.getByLabel('Tanggal terakhir (termasuk)')).toHaveValue(today);
+  await expect(dialog.getByLabel('Tanggal terakhir (termasuk)')).toHaveValue(new Date(today+'T12:00:00Z').toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric',timeZone:'UTC'}));
   await dialog.getByLabel('Judul acara').fill('Musyawarah diperbarui');
   await dialog.getByRole('button',{name:'Simpan acara'}).click();
   await expect(dialog).not.toBeVisible();
