@@ -20,6 +20,18 @@ test('only empty additive course progress is excluded from historical registrati
   assert.notDeepEqual(normalize(original),normalize(candidate));
 });
 
+test('registration list answers are checked and excluded only from historical list comparisons',()=>{
+  const original={method:'GET',path:'/v2/activities/1/registrations',status:200,body:{data:{data:[{id:1,name:'Alice'}]}}};
+  const candidate=structuredClone(original);candidate.body.data.data[0].questionnaire_answer={motivation:'Learn'};
+  assert.deepEqual(normalize(original),normalize(candidate));
+  assert.deepEqual(candidate.body.data.data[0].questionnaire_answer,{motivation:'Learn'});
+  candidate.body.data.data[0].questionnaire_answer=['invalid'];
+  assert.throws(()=>normalize(candidate),/registration list answers/);
+  candidate.body.data.data[0].questionnaire_answer={motivation:'Learn'};
+  original.path=candidate.path='/v2/activity-registrations/1';
+  assert.notDeepEqual(normalize(original),normalize(candidate));
+});
+
 test('unordered registration export retains values and verifies visible numbering',()=>{
   const original=sample([alice,bob]);
   const reordered=sample([[1,...bob.slice(1)],[2,...alice.slice(1)]]);

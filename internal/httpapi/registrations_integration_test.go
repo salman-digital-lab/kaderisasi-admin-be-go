@@ -62,6 +62,19 @@ func TestRegistrationWorkflowAndExport(t *testing.T) {
 	if len(matches) != 1 || matches[0].String("name") != "Guest fixture" {
 		t.Fatalf("guest search %s", page["data"])
 	}
+	var guestAnswers map[string]json.RawMessage
+	if err := json.Unmarshal(matches[0]["questionnaire_answer"], &guestAnswers); err != nil || string(guestAnswers["motivation"]) != `["Learn","Share"]` {
+		t.Fatalf("guest list answers %s: %v", matches[0]["questionnaire_answer"], err)
+	}
+	memberPage := objectData(t, f.call("GET", path+"?search=Registrant", nil, f.token, 200))
+	var memberMatches []database.Object
+	if err := json.Unmarshal(memberPage["data"], &memberMatches); err != nil || len(memberMatches) != 1 {
+		t.Fatalf("member list %s: %v", memberPage["data"], err)
+	}
+	var memberAnswers map[string]json.RawMessage
+	if err := json.Unmarshal(memberMatches[0]["questionnaire_answer"], &memberAnswers); err != nil || string(memberAnswers["motivation"]) != `"Learn"` {
+		t.Fatalf("member list answers %s: %v", memberMatches[0]["questionnaire_answer"], err)
+	}
 	f.call("PUT", "/v2/activity-registrations", map[string]interface{}{"registrations_id": []int32{id, guestReg.ID("id")}, "status": "LULUS KEGIATAN"}, f.token, 200)
 	f.call("PUT", "/v2/activity-registrations", map[string]interface{}{"registrations_id": []int32{id}, "status": "LULUS KEGIATAN"}, f.token, 200)
 	var level, badgeCount int

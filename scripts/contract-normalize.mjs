@@ -11,10 +11,15 @@ export class ContractNormalizer {
   constructor(started){this.started=started;this.random=new Map();this.hashes=new Map();}
   response(result){
     const normalized=this.normalize(result);
-    // The additive activity-course field is verified by the native suite.
-    // Historical list fixtures have no links; retain every nonempty value.
+    // Native integration tests verify the added list answers. The historical
+    // Adonis list did not select them, so omit that one additive field here.
+    // Historical list fixtures have no course links; retain nonempty progress.
     if(result.method==='GET'&&/^\/v2\/activities\/[^/]+\/registrations$/.test(result.path.split('?')[0])&&result.status===200){
       for(const row of normalized.body?.data?.data??[]){
+        if(Object.hasOwn(row,'questionnaire_answer')){
+          assert.ok(row.questionnaire_answer===null||(typeof row.questionnaire_answer==='object'&&!Array.isArray(row.questionnaire_answer)),'registration list answers must be a JSON object or null');
+          delete row.questionnaire_answer;
+        }
         if(Array.isArray(row.course_progress)&&row.course_progress.length===0)delete row.course_progress;
       }
     }

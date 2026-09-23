@@ -58,7 +58,7 @@ func (q *Queries) CountRegistrationsFiltered(ctx context.Context, arg CountRegis
 }
 
 const listRegistrationsFiltered = `-- name: ListRegistrationsFiltered :many
-SELECT ar.id,u.id AS user_id,COALESCE(u.email,ar.guest_data->>'email') AS email,to_jsonb(COALESCE(p.name,ar.guest_data->>'name')) AS name_json,p.level,p.university_id,p.province_id,p.intake_year,p.major,COALESCE(p.gender,ar.guest_data->>'gender') AS gender,COALESCE(p.whatsapp,ar.guest_data->>'whatsapp') AS whatsapp,p.instagram,p.line,p.personal_id,p.education_history,ar.guest_data,ar.status,ar.created_at,to_jsonb(p) AS profile
+SELECT ar.id,u.id AS user_id,COALESCE(u.email,ar.guest_data->>'email') AS email,to_jsonb(COALESCE(p.name,ar.guest_data->>'name')) AS name_json,p.level,p.university_id,p.province_id,p.intake_year,p.major,COALESCE(p.gender,ar.guest_data->>'gender') AS gender,COALESCE(p.whatsapp,ar.guest_data->>'whatsapp') AS whatsapp,p.instagram,p.line,p.personal_id,p.education_history,ar.guest_data,ar.questionnaire_answer,ar.status,ar.created_at,to_jsonb(p) AS profile
 FROM activity_registrations ar LEFT JOIN public_users u ON u.id=ar.user_id LEFT JOIN profiles p ON p.user_id=ar.user_id
 WHERE ar.activity_id = $1::integer
 AND ($2::text = '' OR ar.id IN (
@@ -116,25 +116,26 @@ type ListRegistrationsFilteredParams struct {
 }
 
 type ListRegistrationsFilteredRow struct {
-	ID               int32              `json:"id"`
-	UserID           *int32             `json:"user_id"`
-	Email            *string            `json:"email"`
-	NameJson         []byte             `json:"name_json"`
-	Level            *int32             `json:"level"`
-	UniversityID     *int32             `json:"university_id"`
-	ProvinceID       *int32             `json:"province_id"`
-	IntakeYear       *int32             `json:"intake_year"`
-	Major            *string            `json:"major"`
-	Gender           *string            `json:"gender"`
-	Whatsapp         *string            `json:"whatsapp"`
-	Instagram        *string            `json:"instagram"`
-	Line             *string            `json:"line"`
-	PersonalID       *string            `json:"personal_id"`
-	EducationHistory []byte             `json:"education_history"`
-	GuestData        []byte             `json:"guest_data"`
-	Status           *string            `json:"status"`
-	CreatedAt        pgtype.Timestamptz `json:"created_at"`
-	Profile          []byte             `json:"profile"`
+	ID                  int32              `json:"id"`
+	UserID              *int32             `json:"user_id"`
+	Email               *string            `json:"email"`
+	NameJson            []byte             `json:"name_json"`
+	Level               *int32             `json:"level"`
+	UniversityID        *int32             `json:"university_id"`
+	ProvinceID          *int32             `json:"province_id"`
+	IntakeYear          *int32             `json:"intake_year"`
+	Major               *string            `json:"major"`
+	Gender              *string            `json:"gender"`
+	Whatsapp            *string            `json:"whatsapp"`
+	Instagram           *string            `json:"instagram"`
+	Line                *string            `json:"line"`
+	PersonalID          *string            `json:"personal_id"`
+	EducationHistory    []byte             `json:"education_history"`
+	GuestData           []byte             `json:"guest_data"`
+	QuestionnaireAnswer []byte             `json:"questionnaire_answer"`
+	Status              *string            `json:"status"`
+	CreatedAt           pgtype.Timestamptz `json:"created_at"`
+	Profile             []byte             `json:"profile"`
 }
 
 func (q *Queries) ListRegistrationsFiltered(ctx context.Context, arg ListRegistrationsFilteredParams) ([]ListRegistrationsFilteredRow, error) {
@@ -176,6 +177,7 @@ func (q *Queries) ListRegistrationsFiltered(ctx context.Context, arg ListRegistr
 			&i.PersonalID,
 			&i.EducationHistory,
 			&i.GuestData,
+			&i.QuestionnaireAnswer,
 			&i.Status,
 			&i.CreatedAt,
 			&i.Profile,

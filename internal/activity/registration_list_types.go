@@ -22,26 +22,27 @@ type RegistrationPage struct {
 	Data []RegistrationSummary  `json:"data"`
 }
 type RegistrationSummary struct {
-	CourseProgress   []CourseProgress           `json:"course_progress"`
-	ID               int32                      `json:"id"`
-	UserID           *int32                     `json:"user_id"`
-	Email            *string                    `json:"email"`
-	Name             *string                    `json:"name"`
-	Level            *int32                     `json:"level"`
-	UniversityID     *int32                     `json:"university_id"`
-	ProvinceID       *int32                     `json:"province_id"`
-	IntakeYear       *int32                     `json:"intake_year"`
-	Major            *string                    `json:"major"`
-	Gender           *string                    `json:"gender"`
-	Whatsapp         *string                    `json:"whatsapp"`
-	Instagram        *string                    `json:"instagram"`
-	Line             *string                    `json:"line"`
-	PersonalID       *string                    `json:"personal_id"`
-	EducationHistory json.RawMessage            `json:"education_history"`
-	GuestData        json.RawMessage            `json:"guest_data"`
-	Status           *string                    `json:"status"`
-	CreatedAt        *string                    `json:"created_at"`
-	ProfileFields    map[string]json.RawMessage `json:"-"`
+	CourseProgress      []CourseProgress           `json:"course_progress"`
+	ID                  int32                      `json:"id"`
+	UserID              *int32                     `json:"user_id"`
+	Email               *string                    `json:"email"`
+	Name                *string                    `json:"name"`
+	Level               *int32                     `json:"level"`
+	UniversityID        *int32                     `json:"university_id"`
+	ProvinceID          *int32                     `json:"province_id"`
+	IntakeYear          *int32                     `json:"intake_year"`
+	Major               *string                    `json:"major"`
+	Gender              *string                    `json:"gender"`
+	Whatsapp            *string                    `json:"whatsapp"`
+	Instagram           *string                    `json:"instagram"`
+	Line                *string                    `json:"line"`
+	PersonalID          *string                    `json:"personal_id"`
+	EducationHistory    json.RawMessage            `json:"education_history"`
+	GuestData           json.RawMessage            `json:"guest_data"`
+	QuestionnaireAnswer json.RawMessage            `json:"questionnaire_answer"`
+	Status              *string                    `json:"status"`
+	CreatedAt           *string                    `json:"created_at"`
+	ProfileFields       map[string]json.RawMessage `json:"-"`
 }
 
 // Mandatory profile fields are a genuinely dynamic part of this endpoint. The
@@ -117,7 +118,7 @@ func profileProjection(raw []byte) (map[string]json.RawMessage, error) {
 	return result, nil
 }
 func registrationSummary(row dbgen.ListRegistrationsFilteredRow, fields []string) (RegistrationSummary, error) {
-	result := RegistrationSummary{ID: row.ID, UserID: row.UserID, Email: row.Email, Level: row.Level, UniversityID: row.UniversityID, ProvinceID: row.ProvinceID, IntakeYear: row.IntakeYear, Major: row.Major, Gender: row.Gender, Whatsapp: row.Whatsapp, Instagram: row.Instagram, Line: row.Line, PersonalID: row.PersonalID, EducationHistory: row.EducationHistory, GuestData: row.GuestData, Status: row.Status, CreatedAt: domain.Timestamp(row.CreatedAt, time.UTC), ProfileFields: map[string]json.RawMessage{}}
+	result := RegistrationSummary{ID: row.ID, UserID: row.UserID, Email: row.Email, Level: row.Level, UniversityID: row.UniversityID, ProvinceID: row.ProvinceID, IntakeYear: row.IntakeYear, Major: row.Major, Gender: row.Gender, Whatsapp: row.Whatsapp, Instagram: row.Instagram, Line: row.Line, PersonalID: row.PersonalID, EducationHistory: row.EducationHistory, GuestData: row.GuestData, QuestionnaireAnswer: row.QuestionnaireAnswer, Status: row.Status, CreatedAt: domain.Timestamp(row.CreatedAt, time.UTC), ProfileFields: map[string]json.RawMessage{}}
 	if len(row.NameJson) > 0 {
 		if err := json.Unmarshal(row.NameJson, &result.Name); err != nil {
 			return result, err

@@ -17,7 +17,7 @@ AND (sqlc.narg('province_id')::text IS NULL OR p.province_id=CAST(CAST(sqlc.narg
 AND (sqlc.narg('intake_year')::text IS NULL OR p.intake_year=CAST(CAST(sqlc.narg('intake_year') AS text) AS integer));
 
 -- name: ListRegistrationsFiltered :many
-SELECT ar.id,u.id AS user_id,COALESCE(u.email,ar.guest_data->>'email') AS email,to_jsonb(COALESCE(p.name,ar.guest_data->>'name')) AS name_json,p.level,p.university_id,p.province_id,p.intake_year,p.major,COALESCE(p.gender,ar.guest_data->>'gender') AS gender,COALESCE(p.whatsapp,ar.guest_data->>'whatsapp') AS whatsapp,p.instagram,p.line,p.personal_id,p.education_history,ar.guest_data,ar.status,ar.created_at,to_jsonb(p) AS profile
+SELECT ar.id,u.id AS user_id,COALESCE(u.email,ar.guest_data->>'email') AS email,to_jsonb(COALESCE(p.name,ar.guest_data->>'name')) AS name_json,p.level,p.university_id,p.province_id,p.intake_year,p.major,COALESCE(p.gender,ar.guest_data->>'gender') AS gender,COALESCE(p.whatsapp,ar.guest_data->>'whatsapp') AS whatsapp,p.instagram,p.line,p.personal_id,p.education_history,ar.guest_data,ar.questionnaire_answer,ar.status,ar.created_at,to_jsonb(p) AS profile
 FROM activity_registrations ar LEFT JOIN public_users u ON u.id=ar.user_id LEFT JOIN profiles p ON p.user_id=ar.user_id
 WHERE ar.activity_id = @activity_id::integer
 AND (@course_completion::text = '' OR ar.id IN (
