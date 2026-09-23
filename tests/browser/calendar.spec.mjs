@@ -9,7 +9,12 @@ test('calendar create, edit, delete and read-only roles',async({page,fixture},te
   await evidence(page,testInfo,'related-activity');
   await page.goto('/calendar');
   await expect(page.getByRole('heading',{name:'Kalender Kegiatan'})).toBeVisible();
-  await expect(page.getByText('Belum ada acara pada periode ini')).toBeVisible();
+  if(testInfo.project.name==='mobile') {
+    await expect(page.getByText('Belum ada acara pada periode ini')).toBeVisible();
+  } else {
+    await expect(page.getByRole('table')).toBeVisible();
+    await expect(page.getByText('Belum ada acara pada periode ini')).toHaveCount(0);
+  }
   await page.getByRole('button',{name:'Tambah acara'}).click();
   let dialog=page.getByRole('dialog',{name:'Tambah acara'});
   await dialog.getByLabel('Judul acara').fill('Musyawarah BMKA');

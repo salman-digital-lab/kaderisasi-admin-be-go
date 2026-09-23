@@ -46,7 +46,12 @@ test('public calendar navigation, private links and refreshed changes',async({pa
   await api('DELETE',`/admin/calendar-events/${created.id}`);
   await page.getByRole('button',{name:'Hari ini'}).click();
   await expect(page.getByRole('button',{name:/Pertemuan diperbarui/})).toHaveCount(0);
-  await expect(page.getByText('Belum ada acara pada periode ini.')).toBeVisible();
+  if(testInfo.project.name==='mobile') {
+    await expect(page.getByText('Belum ada acara pada periode ini.')).toBeVisible();
+  } else {
+    await expect(page.getByRole('table')).toBeVisible();
+    await expect(page.getByText('Belum ada acara pada periode ini.')).toHaveCount(0);
+  }
 });
 
 test('busy dates retain every event and multi-day occurrences',async({page},testInfo)=>{
