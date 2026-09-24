@@ -96,7 +96,11 @@ func RegistrationRow(number int, registration Registration, questions []Question
 		if err != nil {
 			return nil, err
 		}
-		row = append(row, Text(answer))
+		if len(question.Options) > 0 {
+			row = append(row, (ClubField{Options: question.Options}).Answer(answer))
+		} else {
+			row = append(row, Text(answer))
+		}
 	}
 	return row, nil
 }

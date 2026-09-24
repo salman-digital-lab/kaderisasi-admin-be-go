@@ -61,12 +61,9 @@ func ObjectKeys(raw []byte) []string {
 }
 
 type ClubField struct {
-	Key     string `json:"key"`
-	Label   string `json:"label"`
-	Options []struct {
-		Value json.RawMessage `json:"value"`
-		Label string          `json:"label"`
-	} `json:"options,omitempty"`
+	Key     string         `json:"key"`
+	Label   string         `json:"label"`
+	Options []ChoiceOption `json:"options,omitempty"`
 }
 
 type clubFormSchema struct {

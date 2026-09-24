@@ -8,8 +8,14 @@ import (
 var RegistrationHeaders = []string{"No", "Nama Lengkap", "Jenis Kelamin", "Email", "Foto Profil", "Whatsapp", "Nomor Identitas", "Tanggal Lahir", "Line ID", "Instagram", "TikTok", "LinkedIn", "Provinsi Domisili", "Kota Domisili", "Negara Domisili", "Provinsi Asal", "Kota Asal", "Kampus/Universitas Profil", "Jurusan Profil", "Tahun Masuk Profil", "Institusi Pendidikan Saat Ini", "Fakultas Pendidikan Saat Ini", "Jurusan Pendidikan Saat Ini", "Tahun Masuk Pendidikan Saat Ini", "Riwayat Pendidikan", "Riwayat Pekerjaan", "Data Tambahan", "Jenjang", "Lencana Profil", "Lencana Kegiatan"}
 
 type Question struct {
-	Key   string `json:"key"`
-	Label string `json:"label"`
+	Key     string         `json:"key"`
+	Label   string         `json:"label"`
+	Options []ChoiceOption `json:"options,omitempty"`
+}
+
+type ChoiceOption struct {
+	Value json.RawMessage `json:"value"`
+	Label string          `json:"label"`
 }
 type FormSchema struct {
 	Fields []struct {

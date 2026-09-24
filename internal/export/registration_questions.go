@@ -59,7 +59,10 @@ func RegistrationQuestions(raw json.RawMessage, customForm bool) ([]Question, er
 		} else if string(name) == "null" {
 			identifier = "null"
 		}
-		questions = append(questions, Question{Key: identifier, Label: Text(label)})
+		question := Question{Key: identifier, Label: Text(label)}
+		options, _ := documentProperty(raw, "options")
+		_ = json.Unmarshal(options, &question.Options)
+		questions = append(questions, question)
 		return nil
 	}
 	for _, entry := range entries {
