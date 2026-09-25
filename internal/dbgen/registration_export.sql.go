@@ -123,7 +123,7 @@ func (q *Queries) RegistrationExportRelations(ctx context.Context, dollar_1 []in
 }
 
 const registrationExportRows = `-- name: RegistrationExportRows :many
-SELECT id, user_id, activity_id, status, questionnaire_answer, scoring_data, created_at, updated_at, guest_data FROM activity_registrations WHERE activity_id=$1
+SELECT id, user_id, activity_id, status, questionnaire_answer, scoring_data, created_at, updated_at, guest_data, certificate_group FROM activity_registrations WHERE activity_id=$1
 `
 
 func (q *Queries) RegistrationExportRows(ctx context.Context, activityID *int32) ([]ActivityRegistration, error) {
@@ -145,6 +145,7 @@ func (q *Queries) RegistrationExportRows(ctx context.Context, activityID *int32)
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.GuestData,
+			&i.CertificateGroup,
 		); err != nil {
 			return nil, err
 		}

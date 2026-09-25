@@ -76,6 +76,43 @@ func certificateResponse(t *testing.T, result database.Object) certificate.Respo
 	return response
 }
 
+func TestSalmanCertificateSettingsAndScoreGate(t *testing.T) {
+	fixture := newCertificateFixture(t, 2)
+	f := fixture.f
+	ctx := context.Background()
+	_, err := f.pool.Exec(ctx, `UPDATE certificate_templates SET template_data=jsonb_set(jsonb_set(template_data,'{scoreSheetLayout}','"salman-v1"'::jsonb),'{elements}',template_data->'elements'||'[{"id":"approval","type":"variable-text","variable":"{{approval}}","x":80,"y":250,"width":320,"height":120},{"id":"qr","type":"qr-code","x":500,"y":250,"width":100,"height":100}]'::jsonb) WHERE id=$1`, fixture.template.ID("id"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := fmt.Sprintf("/v2/certificates/activities/%d/settings", fixture.activity.ID("id"))
+	settings := objectData(t, f.call("GET", path, nil, f.token, 200))
+	settings.Set("include_scores", true)
+	f.call("PUT", path, settings, f.token, 200)
+	groupPath := fmt.Sprintf("/v2/certificates/activities/%d/recipients/%d/group", fixture.activity.ID("id"), fixture.ids[0])
+	f.call("PUT", groupPath, map[string]string{"certificate_group": "3"}, f.token, 200)
+	prepare := map[string]interface{}{"activity_id": fixture.activity.ID("id"), "registration_ids": fixture.ids}
+	blocked := objectData(t, f.call("POST", "/v2/certificates/prepare-issuance", prepare, f.token, 200))
+	var failures []certificate.Failure
+	if err := json.Unmarshal(blocked["blocked"], &failures); err != nil || len(failures) != 2 {
+		t.Fatalf("expected both unpublished scores to block approval: %v %v", failures, err)
+	}
+	setCertificateScore(t, fixture, fixture.ids[0], 89.1)
+	blocked = objectData(t, f.call("POST", "/v2/certificates/prepare-issuance", prepare, f.token, 200))
+	if err := json.Unmarshal(blocked["blocked"], &failures); err != nil || len(failures) != 1 || int32(failures[0].RegistrationID) != fixture.ids[1] {
+		t.Fatalf("wrong blocked recipients: %v %v", failures, err)
+	}
+	payload := certificateResponse(t, f.call("POST", "/v2/certificates/generate-single", map[string]int32{"registration_id": fixture.ids[0]}, f.token, 200))
+	if payload.Participant.CertificateGroup == nil || *payload.Participant.CertificateGroup != "3" || payload.Activity.CertificateSettings == nil || !payload.Activity.CertificateSettings.IncludeScores {
+		t.Fatalf("snapshot lacks Salman settings or group: %+v %+v", payload.Activity, payload.Participant)
+	}
+	settings.Set("include_scores", false)
+	f.call("PUT", path, settings, f.token, 200)
+	ready := objectData(t, f.call("POST", "/v2/certificates/prepare-issuance", prepare, f.token, 200))
+	if len(ready["blocked"]) != 0 {
+		t.Fatal("score page disabled but recipients remain blocked")
+	}
+}
+
 func setCertificateScore(t *testing.T, fixture *certificateFixture, id int32, total float64) {
 	t.Helper()
 	published := &scoring.Snapshot{

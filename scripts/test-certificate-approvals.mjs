@@ -32,7 +32,7 @@ try {
   // This freshly created UUID schema belongs exclusively to this process.
   // Avoid the database-wide advisory lock used by unrelated Ace test schemas.
   await command('node', ['ace', 'migration:run', '--force', '--disable-locks', '--compact-output'], migrations);
-  await command('go', ['test', '-tags=integration', '-race', '-count=1', '-timeout=5m', './internal/httpapi', '-run', 'TestCertificateApprovalWorkflow|TestCertificateIssuanceSnapshotsAndRevocation'], root);
+  await command('go', ['test', '-tags=integration', '-race', '-count=1', '-timeout=5m', './internal/httpapi', '-run', 'TestCertificateApprovalWorkflow|TestCertificateIssuanceSnapshotsAndRevocation|TestSalmanCertificateSettingsAndScoreGate'], root);
   evidence.status = 'passed';
 } catch (error) {
   await client.query('ROLLBACK');

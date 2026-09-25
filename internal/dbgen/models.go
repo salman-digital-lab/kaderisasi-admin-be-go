@@ -77,6 +77,7 @@ type ActivityRegistration struct {
 	CreatedAt           pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt           pgtype.Timestamptz `json:"updated_at"`
 	GuestData           []byte             `json:"guest_data"`
+	CertificateGroup    *string            `json:"certificate_group"`
 }
 
 type ActivityScoringPublication struct {

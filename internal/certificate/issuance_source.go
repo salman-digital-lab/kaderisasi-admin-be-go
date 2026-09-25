@@ -68,7 +68,7 @@ func guestText(raw json.RawMessage) string {
 	return strings.TrimSpace(value)
 }
 func (s Issuance) participant(ctx context.Context, q *dbgen.Queries, registration dbgen.ActivityRegistration, activity dbgen.Activity) (Participant, error) {
-	data := Participant{RegistrationID: registration.ID, UserID: registration.UserID, ActivityName: activity.Name}
+	data := Participant{RegistrationID: registration.ID, UserID: registration.UserID, ActivityName: activity.Name, CertificateGroup: registration.CertificateGroup}
 	score, err := scoring.PublishedForRegistration(registration.ScoringData, registration.ID, activity.ID)
 	if err != nil {
 		return data, err
@@ -179,7 +179,25 @@ func (s Issuance) load(ctx context.Context, q *dbgen.Queries, id float64, lock b
 	if err != nil {
 		return source{}, err
 	}
-	return source{Registration: registration, Activity: activity, Template: template, Data: Response{Activity: s.activityData(activity), Template: templateSnapshot(template), Participant: participant}}, nil
+	activityData := s.activityData(activity)
+	if IsSalman(template.TemplateData) {
+		if !HasSavedSettings(activity) {
+			return source{}, Error("CERTIFICATE_SETTINGS_REQUIRED")
+		}
+		hasRubric, err := q.CertificateActivityHasScoringRubric(ctx, activity.ID)
+		if err != nil {
+			return source{}, err
+		}
+		settings, err := ParseSettings(activity, hasRubric, time.Now())
+		if err != nil {
+			return source{}, err
+		}
+		if settings.IncludeScores && participant.ScoringResult == nil {
+			return source{}, Error("CERTIFICATE_SCORE_NOT_PUBLISHED")
+		}
+		activityData.CertificateSettings = &settings
+	}
+	return source{Registration: registration, Activity: activity, Template: template, Data: Response{Activity: activityData, Template: templateSnapshot(template), Participant: participant}}, nil
 }
 func (s Issuance) checkExpected(ctx context.Context, q *dbgen.Queries, id float64, expected Expectation) error {
 	registration, err := q.LockCertificateRegistrationByIdentifier(ctx, database.JSNumber(id))

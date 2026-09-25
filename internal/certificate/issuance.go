@@ -26,20 +26,22 @@ const EligibleStatus = "LULUS KEGIATAN"
 var positiveIDPattern = regexp.MustCompile(`^[0-9]+$`)
 
 type Participant struct {
-	ScoringResult  *scoring.PublishedResult `json:"scoring_result,omitempty"`
-	RegistrationID int32                    `json:"registration_id"`
-	UserID         *int32                   `json:"user_id"`
-	Name           string                   `json:"name"`
-	Email          string                   `json:"email"`
-	University     string                   `json:"university"`
-	Gender         string                   `json:"gender"`
-	ActivityName   string                   `json:"activity_name"`
-	ActivityDate   string                   `json:"activity_date"`
+	ScoringResult    *scoring.PublishedResult `json:"scoring_result,omitempty"`
+	CertificateGroup *string                  `json:"certificate_group,omitempty"`
+	RegistrationID   int32                    `json:"registration_id"`
+	UserID           *int32                   `json:"user_id"`
+	Name             string                   `json:"name"`
+	Email            string                   `json:"email"`
+	University       string                   `json:"university"`
+	Gender           string                   `json:"gender"`
+	ActivityName     string                   `json:"activity_name"`
+	ActivityDate     string                   `json:"activity_date"`
 }
 type ActivityData struct {
-	ID    int32   `json:"id"`
-	Name  string  `json:"name"`
-	Start *string `json:"activity_start"`
+	ID                  int32     `json:"id"`
+	Name                string    `json:"name"`
+	Start               *string   `json:"activity_start"`
+	CertificateSettings *Settings `json:"certificate_settings,omitempty"`
 }
 type TemplateSnapshot struct {
 	ID         int32           `json:"id"`
@@ -92,6 +94,8 @@ func Error(code string, details ...[]string) error {
 	case "CERTIFICATE_CONTEXT_CHANGED", "REGISTRATION_NOT_ELIGIBLE", "CERTIFICATE_ALREADY_REVOKED":
 		status = 409
 	case "NO_CERTIFICATE_TEMPLATE", "CERTIFICATE_TEMPLATE_NOT_PUBLISHED", "CERTIFICATE_TEMPLATE_NOT_READY":
+		status = 422
+	case "CERTIFICATE_SCORE_NOT_PUBLISHED", "CERTIFICATE_SETTINGS_REQUIRED":
 		status = 422
 	}
 	if len(details) > 0 {

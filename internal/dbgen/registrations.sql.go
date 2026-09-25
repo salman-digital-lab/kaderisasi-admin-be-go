@@ -43,7 +43,7 @@ func (q *Queries) ActivityForRegistration(ctx context.Context, identifier string
 }
 
 const activityRegistrationByID = `-- name: ActivityRegistrationByID :one
-SELECT id, user_id, activity_id, status, questionnaire_answer, scoring_data, created_at, updated_at, guest_data FROM activity_registrations WHERE id=CAST(CAST($1 AS text) AS integer)
+SELECT id, user_id, activity_id, status, questionnaire_answer, scoring_data, created_at, updated_at, guest_data, certificate_group FROM activity_registrations WHERE id=CAST(CAST($1 AS text) AS integer)
 `
 
 func (q *Queries) ActivityRegistrationByID(ctx context.Context, identifier string) (ActivityRegistration, error) {
@@ -59,6 +59,7 @@ func (q *Queries) ActivityRegistrationByID(ctx context.Context, identifier strin
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.GuestData,
+		&i.CertificateGroup,
 	)
 	return i, err
 }
@@ -134,7 +135,7 @@ func (q *Queries) CountMemberRegistrations(ctx context.Context, arg CountMemberR
 
 const createActivityRegistration = `-- name: CreateActivityRegistration :one
 INSERT INTO activity_registrations(user_id,activity_id,status,questionnaire_answer,created_at,updated_at)
-VALUES ($1,$2,'TERDAFTAR',$3,now(),now()) RETURNING id, user_id, activity_id, status, questionnaire_answer, scoring_data, created_at, updated_at, guest_data
+VALUES ($1,$2,'TERDAFTAR',$3,now(),now()) RETURNING id, user_id, activity_id, status, questionnaire_answer, scoring_data, created_at, updated_at, guest_data, certificate_group
 `
 
 type CreateActivityRegistrationParams struct {
@@ -156,6 +157,7 @@ func (q *Queries) CreateActivityRegistration(ctx context.Context, arg CreateActi
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.GuestData,
+		&i.CertificateGroup,
 	)
 	return i, err
 }
@@ -401,7 +403,7 @@ func (q *Queries) RegistrationsByActivityUsers(ctx context.Context, arg Registra
 }
 
 const registrationsByUser = `-- name: RegistrationsByUser :many
-SELECT ar.id, ar.user_id, ar.activity_id, ar.status, ar.questionnaire_answer, ar.scoring_data, ar.created_at, ar.updated_at, ar.guest_data,to_jsonb(a) AS activity FROM activity_registrations ar LEFT JOIN activities a ON a.id=ar.activity_id WHERE ar.user_id=CAST(CAST($1 AS text) AS integer)
+SELECT ar.id, ar.user_id, ar.activity_id, ar.status, ar.questionnaire_answer, ar.scoring_data, ar.created_at, ar.updated_at, ar.guest_data, ar.certificate_group,to_jsonb(a) AS activity FROM activity_registrations ar LEFT JOIN activities a ON a.id=ar.activity_id WHERE ar.user_id=CAST(CAST($1 AS text) AS integer)
 `
 
 type RegistrationsByUserRow struct {
@@ -428,6 +430,7 @@ func (q *Queries) RegistrationsByUser(ctx context.Context, identifier string) ([
 			&i.ActivityRegistration.CreatedAt,
 			&i.ActivityRegistration.UpdatedAt,
 			&i.ActivityRegistration.GuestData,
+			&i.ActivityRegistration.CertificateGroup,
 			&i.Activity,
 		); err != nil {
 			return nil, err

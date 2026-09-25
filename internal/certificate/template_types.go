@@ -18,10 +18,11 @@ type TemplateInput struct {
 	ExpectedVersion json.Number             `json:"expectedVersion"`
 }
 type Design struct {
-	BackgroundURL domain.Optional[string] `json:"backgroundUrl,omitzero"`
-	Elements      *[]DesignElement        `json:"elements,omitempty"`
-	CanvasWidth   *float64                `json:"canvasWidth,omitempty"`
-	CanvasHeight  *float64                `json:"canvasHeight,omitempty"`
+	BackgroundURL    domain.Optional[string] `json:"backgroundUrl,omitzero"`
+	ScoreSheetLayout *string                 `json:"scoreSheetLayout,omitempty"`
+	Elements         *[]DesignElement        `json:"elements,omitempty"`
+	CanvasWidth      *float64                `json:"canvasWidth,omitempty"`
+	CanvasHeight     *float64                `json:"canvasHeight,omitempty"`
 }
 type DesignElement struct {
 	ID             string   `json:"id"`

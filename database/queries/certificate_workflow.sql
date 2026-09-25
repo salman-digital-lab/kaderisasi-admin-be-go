@@ -21,7 +21,7 @@ SELECT name FROM universities WHERE id=CAST(CAST(@identifier AS text) AS integer
 SELECT count(*) FROM activity_registrations r LEFT JOIN issued_certificates c ON c.registration_id=r.id WHERE r.activity_id=CAST(CAST(@activity_id AS text) AS integer) AND (sqlc.narg('search')::text IS NULL OR (COALESCE((SELECT NULLIF(p.name,'') FROM profiles p WHERE p.user_id=r.user_id ORDER BY p.id LIMIT 1),NULLIF(r.guest_data->>'name',''),'Peserta')) ILIKE '%'||sqlc.narg('search')::text||'%') AND (sqlc.narg('state')::text IS NULL OR (CASE WHEN c.revoked_at IS NOT NULL THEN 'issued_revoked' WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status='LULUS KEGIATAN' THEN 'eligible_not_issued' ELSE 'not_eligible' END)=sqlc.narg('state')::text) AND (NOT @filter_selected::boolean OR r.id=ANY(CAST(CAST(@registration_ids AS text[]) AS integer[])));
 
 -- name: ListCertificateRecipients :many
-SELECT r.id AS registration_id,r.created_at,r.status,c.id AS certificate_id,c.certificate_code,(COALESCE((SELECT NULLIF(p.name,'') FROM profiles p WHERE p.user_id=r.user_id ORDER BY p.id LIMIT 1),NULLIF(r.guest_data->>'name',''),'Peserta'))::text AS name,(CASE WHEN c.revoked_at IS NOT NULL THEN 'issued_revoked' WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status='LULUS KEGIATAN' THEN 'eligible_not_issued' ELSE 'not_eligible' END)::text AS state FROM activity_registrations r LEFT JOIN issued_certificates c ON c.registration_id=r.id WHERE r.activity_id=CAST(CAST(@activity_id AS text) AS integer) AND (sqlc.narg('search')::text IS NULL OR (COALESCE((SELECT NULLIF(p.name,'') FROM profiles p WHERE p.user_id=r.user_id ORDER BY p.id LIMIT 1),NULLIF(r.guest_data->>'name',''),'Peserta')) ILIKE '%'||sqlc.narg('search')::text||'%') AND (sqlc.narg('state')::text IS NULL OR (CASE WHEN c.revoked_at IS NOT NULL THEN 'issued_revoked' WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status='LULUS KEGIATAN' THEN 'eligible_not_issued' ELSE 'not_eligible' END)=sqlc.narg('state')::text) AND (NOT @filter_selected::boolean OR r.id=ANY(CAST(CAST(@registration_ids AS text[]) AS integer[])))
+SELECT r.id AS registration_id,r.created_at,r.status,r.certificate_group,c.id AS certificate_id,c.certificate_code,(COALESCE((SELECT NULLIF(p.name,'') FROM profiles p WHERE p.user_id=r.user_id ORDER BY p.id LIMIT 1),NULLIF(r.guest_data->>'name',''),'Peserta'))::text AS name,(CASE WHEN c.revoked_at IS NOT NULL THEN 'issued_revoked' WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status='LULUS KEGIATAN' THEN 'eligible_not_issued' ELSE 'not_eligible' END)::text AS state FROM activity_registrations r LEFT JOIN issued_certificates c ON c.registration_id=r.id WHERE r.activity_id=CAST(CAST(@activity_id AS text) AS integer) AND (sqlc.narg('search')::text IS NULL OR (COALESCE((SELECT NULLIF(p.name,'') FROM profiles p WHERE p.user_id=r.user_id ORDER BY p.id LIMIT 1),NULLIF(r.guest_data->>'name',''),'Peserta')) ILIKE '%'||sqlc.narg('search')::text||'%') AND (sqlc.narg('state')::text IS NULL OR (CASE WHEN c.revoked_at IS NOT NULL THEN 'issued_revoked' WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status='LULUS KEGIATAN' THEN 'eligible_not_issued' ELSE 'not_eligible' END)=sqlc.narg('state')::text) AND (NOT @filter_selected::boolean OR r.id=ANY(CAST(CAST(@registration_ids AS text[]) AS integer[])))
 ORDER BY CASE WHEN @ascending::boolean THEN r.created_at END ASC NULLS LAST,CASE WHEN NOT @ascending::boolean THEN r.created_at END DESC NULLS LAST,CASE WHEN @ascending::boolean THEN r.id END ASC,CASE WHEN NOT @ascending::boolean THEN r.id END DESC LIMIT CAST(sqlc.narg('page_size')::text AS bigint) OFFSET CAST(@page_offset::text AS bigint);
 
 -- name: CertificateRecipientCounts :many
@@ -35,6 +35,18 @@ SELECT r.id,(COALESCE((SELECT NULLIF(p.name,'') FROM profiles p WHERE p.user_id=
 
 -- name: CertificateBulkRegistrations :many
 SELECT * FROM activity_registrations WHERE activity_id=CAST(CAST(@activity_id AS text) AS integer) AND status= @status::text;
+
+-- name: UpdateCertificateGroup :execrows
+UPDATE activity_registrations SET certificate_group = sqlc.narg(group_label)::text, updated_at=now()
+WHERE id=sqlc.arg(registration_id)::integer AND activity_id=sqlc.arg(activity_id)::integer
+AND NOT EXISTS (SELECT 1 FROM issued_certificates WHERE registration_id=activity_registrations.id);
+
+-- name: SetActivityCertificateSettings :one
+UPDATE activities SET additional_config=jsonb_set(COALESCE(additional_config,'{}'::jsonb),'{certificate_settings}',sqlc.arg(settings)::jsonb,true),updated_at=now()
+WHERE id=sqlc.arg(activity_id)::integer RETURNING *;
+
+-- name: CertificateActivityHasScoringRubric :one
+SELECT EXISTS(SELECT 1 FROM activity_scoring_rubrics WHERE activity_id=sqlc.arg(activity_id)::integer);
 
 -- name: CountIssuedCertificateList :one
 SELECT count(*) FROM issued_certificates c WHERE (sqlc.narg('activity_id')::text IS NULL OR c.activity_id=CAST(CAST(sqlc.narg('activity_id') AS text) AS integer)) AND (NOT @filter_selected::boolean OR c.registration_id=ANY(CAST(CAST(@registration_ids AS text[]) AS integer[])));

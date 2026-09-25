@@ -25,13 +25,19 @@ type Element struct {
 	Opacity  *float64 `json:"opacity"`
 }
 type TemplateData struct {
-	BackgroundURL *string   `json:"backgroundUrl"`
-	CanvasWidth   float64   `json:"canvasWidth"`
-	CanvasHeight  float64   `json:"canvasHeight"`
-	Elements      []Element `json:"elements"`
+	BackgroundURL    *string   `json:"backgroundUrl"`
+	ScoreSheetLayout string    `json:"scoreSheetLayout"`
+	CanvasWidth      float64   `json:"canvasWidth"`
+	CanvasHeight     float64   `json:"canvasHeight"`
+	Elements         []Element `json:"elements"`
 }
 
-var variables = map[string]bool{"name": true, "activity_name": true, "activity_date": true, "date": true, "certificate_code": true, "certificate_id": true, "university": true, "gender": true, "approval": true}
+func IsSalman(raw []byte) bool {
+	var data TemplateData
+	return json.Unmarshal(raw, &data) == nil && data.ScoreSheetLayout == "salman-v1"
+}
+
+var variables = map[string]bool{"name": true, "activity_name": true, "activity_date": true, "date": true, "certificate_code": true, "certificate_id": true, "university": true, "gender": true, "approval": true, "institution": true, "role": true, "event_details": true, "organizer": true, "document_place_date": true}
 
 func RequiresApproval(raw []byte) bool {
 	var data TemplateData
@@ -128,6 +134,12 @@ func CheckReadinessValues(id int32, name string, raw []byte) Readiness {
 	}
 	if !hasName {
 		add("PARTICIPANT_NAME_VARIABLE_REQUIRED")
+	}
+	if data.ScoreSheetLayout != "" && data.ScoreSheetLayout != "salman-v1" {
+		add("UNSUPPORTED_SCORE_SHEET_LAYOUT")
+	}
+	if data.ScoreSheetLayout == "salman-v1" && (!hasApproval || !hasQR) {
+		add("SALMAN_APPROVAL_AND_QR_REQUIRED")
 	}
 	if RequiresApproval(raw) {
 		if !hasQR {

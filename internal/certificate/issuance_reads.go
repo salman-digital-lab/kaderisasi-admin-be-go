@@ -126,12 +126,19 @@ type Excluded struct {
 	Missing       int `json:"missing"`
 }
 type Prepared struct {
-	ActivityID      int32     `json:"activity_id"`
-	TemplateID      int32     `json:"template_id"`
-	TemplateVersion int32     `json:"template_version"`
-	RegistrationIDs []int32   `json:"registration_ids"`
-	Excluded        Excluded  `json:"excluded"`
-	Preview         *Response `json:"preview"`
+	ActivityID      int32              `json:"activity_id"`
+	TemplateID      int32              `json:"template_id"`
+	TemplateVersion int32              `json:"template_version"`
+	RegistrationIDs []int32            `json:"registration_ids"`
+	Excluded        Excluded           `json:"excluded"`
+	Preview         *Response          `json:"preview"`
+	Blocked         []BlockedRecipient `json:"blocked,omitempty"`
+}
+
+type BlockedRecipient struct {
+	RegistrationID int32  `json:"registration_id"`
+	Name           string `json:"name"`
+	Reason         string `json:"reason"`
 }
 
 func (s Issuance) Prepare(ctx context.Context, id float64, ids []float64) (Prepared, error) {
@@ -174,7 +181,22 @@ func (s Issuance) Prepare(ctx context.Context, id float64, ids []float64) (Prepa
 	if ids != nil {
 		out.Excluded.Missing = len(UniqueIDs(ids)) - len(rows)
 	}
-	if len(out.RegistrationIDs) > 0 {
+	if IsSalman(template.TemplateData) {
+		for _, registrationID := range out.RegistrationIDs {
+			preview, err := s.Preview(ctx, float64(registrationID))
+			if err != nil {
+				var domainError *domain.Error
+				if errors.As(err, &domainError) && domainError.Message == "CERTIFICATE_SCORE_NOT_PUBLISHED" {
+					out.Blocked = append(out.Blocked, BlockedRecipient{RegistrationID: registrationID, Reason: domainError.Message})
+					continue
+				}
+				return Prepared{}, err
+			}
+			if out.Preview == nil {
+				out.Preview = &preview
+			}
+		}
+	} else if len(out.RegistrationIDs) > 0 {
 		preview, err := s.Preview(ctx, float64(out.RegistrationIDs[0]))
 		if err != nil {
 			return Prepared{}, err
@@ -183,6 +205,22 @@ func (s Issuance) Prepare(ctx context.Context, id float64, ids []float64) (Prepa
 			return Prepared{}, Error("CERTIFICATE_CONTEXT_CHANGED")
 		}
 		out.Preview = &preview
+	}
+	if len(out.Blocked) > 0 {
+		ids := make([]float64, len(out.Blocked))
+		for index, item := range out.Blocked {
+			ids[index] = float64(item.RegistrationID)
+		}
+		names, err := s.RecipientNames(ctx, ids)
+		if err != nil {
+			return Prepared{}, err
+		}
+		for index := range out.Blocked {
+			out.Blocked[index].Name = names[out.Blocked[index].RegistrationID]
+		}
+	}
+	if out.Preview != nil && (out.Preview.Template.ID != template.ID || out.Preview.Template.Version != template.Version) {
+		return Prepared{}, Error("CERTIFICATE_CONTEXT_CHANGED")
 	}
 	return out, nil
 }
