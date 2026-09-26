@@ -57,7 +57,6 @@ func TestCertificateApprovalWorkflow(t *testing.T) {
 	f.call("GET", "/v2/certificates/document-signers", nil, f.token, 200)
 	setCertificateScore(t, fixture, fixture.ids[0], 77.5)
 	setCertificateScore(t, fixture, fixture.ids[3], 80)
-	f.call("POST", "/v2/certificates/issue-single", map[string]int32{"registration_id": fixture.ids[0]}, f.token, 409)
 	f.call("POST", "/v2/certificates/approvals", input, "", 401)
 	created := approvalOutcomes(t, f.call("POST", "/v2/certificates/approvals", input, f.token, 200))
 	if len(created) != 5 {

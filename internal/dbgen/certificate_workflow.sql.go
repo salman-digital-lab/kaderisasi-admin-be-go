@@ -131,7 +131,7 @@ func (q *Queries) CertificateParticipantMember(ctx context.Context, id int32) (C
 }
 
 const certificatePreparationRecipients = `-- name: CertificatePreparationRecipients :many
-SELECT r.id AS registration_id,(CASE WHEN c.revoked_at IS NOT NULL THEN 'issued_revoked' WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status='LULUS KEGIATAN' THEN 'eligible_not_issued' ELSE 'not_eligible' END)::text AS state FROM activity_registrations r LEFT JOIN issued_certificates c ON c.registration_id=r.id WHERE r.activity_id=CAST(CAST($1 AS text) AS integer) AND (NOT $2::boolean OR r.id=ANY(CAST(CAST($3 AS text[]) AS integer[]))) ORDER BY r.id
+SELECT r.id AS registration_id,(CASE WHEN c.revoked_at IS NOT NULL THEN 'issued_revoked' WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status='LULUS KEGIATAN' THEN 'eligible_not_issued' ELSE 'not_eligible' END)::text AS state FROM activity_registrations r LEFT JOIN issued_certificates c ON c.registration_id=r.id AND c.revoked_at IS NULL WHERE r.activity_id=CAST(CAST($1 AS text) AS integer) AND (NOT $2::boolean OR r.id=ANY(CAST(CAST($3 AS text[]) AS integer[]))) ORDER BY r.id
 `
 
 type CertificatePreparationRecipientsParams struct {
@@ -166,7 +166,7 @@ func (q *Queries) CertificatePreparationRecipients(ctx context.Context, arg Cert
 }
 
 const certificateRecipientCounts = `-- name: CertificateRecipientCounts :many
-SELECT (CASE WHEN c.revoked_at IS NOT NULL THEN 'issued_revoked' WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status='LULUS KEGIATAN' THEN 'eligible_not_issued' ELSE 'not_eligible' END)::text AS state,count(*) AS total FROM activity_registrations r LEFT JOIN issued_certificates c ON c.registration_id=r.id WHERE r.activity_id=CAST(CAST($1 AS text) AS integer) GROUP BY (CASE WHEN c.revoked_at IS NOT NULL THEN 'issued_revoked' WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status='LULUS KEGIATAN' THEN 'eligible_not_issued' ELSE 'not_eligible' END)
+SELECT (CASE WHEN c.revoked_at IS NOT NULL THEN 'issued_revoked' WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status='LULUS KEGIATAN' THEN 'eligible_not_issued' ELSE 'not_eligible' END)::text AS state,count(*) AS total FROM activity_registrations r LEFT JOIN issued_certificates c ON c.registration_id=r.id AND c.revoked_at IS NULL WHERE r.activity_id=CAST(CAST($1 AS text) AS integer) GROUP BY (CASE WHEN c.revoked_at IS NOT NULL THEN 'issued_revoked' WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status='LULUS KEGIATAN' THEN 'eligible_not_issued' ELSE 'not_eligible' END)
 `
 
 type CertificateRecipientCountsRow struct {
@@ -246,7 +246,7 @@ func (q *Queries) CertificateRegistrationByIdentifier(ctx context.Context, ident
 }
 
 const countCertificateRecipients = `-- name: CountCertificateRecipients :one
-SELECT count(*) FROM activity_registrations r LEFT JOIN issued_certificates c ON c.registration_id=r.id WHERE r.activity_id=CAST(CAST($1 AS text) AS integer) AND ($2::text IS NULL OR (COALESCE((SELECT NULLIF(p.name,'') FROM profiles p WHERE p.user_id=r.user_id ORDER BY p.id LIMIT 1),NULLIF(r.guest_data->>'name',''),'Peserta')) ILIKE '%'||$2::text||'%') AND ($3::text IS NULL OR (CASE WHEN c.revoked_at IS NOT NULL THEN 'issued_revoked' WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status='LULUS KEGIATAN' THEN 'eligible_not_issued' ELSE 'not_eligible' END)=$3::text) AND (NOT $4::boolean OR r.id=ANY(CAST(CAST($5 AS text[]) AS integer[])))
+SELECT count(*) FROM activity_registrations r LEFT JOIN issued_certificates c ON c.registration_id=r.id AND c.revoked_at IS NULL WHERE r.activity_id=CAST(CAST($1 AS text) AS integer) AND ($2::text IS NULL OR (COALESCE((SELECT NULLIF(p.name,'') FROM profiles p WHERE p.user_id=r.user_id ORDER BY p.id LIMIT 1),NULLIF(r.guest_data->>'name',''),'Peserta')) ILIKE '%'||$2::text||'%') AND ($3::text IS NULL OR (CASE WHEN c.revoked_at IS NOT NULL THEN 'issued_revoked' WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status='LULUS KEGIATAN' THEN 'eligible_not_issued' ELSE 'not_eligible' END)=$3::text) AND (NOT $4::boolean OR r.id=ANY(CAST(CAST($5 AS text[]) AS integer[])))
 `
 
 type CountCertificateRecipientsParams struct {
@@ -271,7 +271,7 @@ func (q *Queries) CountCertificateRecipients(ctx context.Context, arg CountCerti
 }
 
 const countIssuedCertificateList = `-- name: CountIssuedCertificateList :one
-SELECT count(*) FROM issued_certificates c WHERE ($1::text IS NULL OR c.activity_id=CAST(CAST($1 AS text) AS integer)) AND (NOT $2::boolean OR c.registration_id=ANY(CAST(CAST($3 AS text[]) AS integer[])))
+SELECT count(*) FROM issued_certificates c WHERE ($1::text IS NULL OR c.activity_id=CAST(CAST($1 AS text) AS integer)) AND (NOT $2::boolean OR c.registration_id=ANY(CAST(CAST($3 AS text[]) AS integer[])) AND c.id=(SELECT max(latest.id) FROM issued_certificates latest WHERE latest.registration_id=c.registration_id))
 `
 
 type CountIssuedCertificateListParams struct {
@@ -319,7 +319,7 @@ func (q *Queries) IssuedCertificateByIdentifier(ctx context.Context, identifier 
 }
 
 const issuedCertificateByRegistrationIdentifier = `-- name: IssuedCertificateByRegistrationIdentifier :one
-SELECT approval_snapshot, id, certificate_code, registration_id, activity_id, user_id, template_id, template_snapshot, participant_snapshot, issued_by, issued_at, revoked_at, revoked_reason, created_at, updated_at, activity_snapshot, snapshot_version, template_version, revoked_by FROM issued_certificates WHERE registration_id=CAST(CAST($1 AS text) AS integer)
+SELECT approval_snapshot, id, certificate_code, registration_id, activity_id, user_id, template_id, template_snapshot, participant_snapshot, issued_by, issued_at, revoked_at, revoked_reason, created_at, updated_at, activity_snapshot, snapshot_version, template_version, revoked_by FROM issued_certificates WHERE registration_id=CAST(CAST($1 AS text) AS integer) AND revoked_at IS NULL
 `
 
 func (q *Queries) IssuedCertificateByRegistrationIdentifier(ctx context.Context, identifier string) (IssuedCertificate, error) {
@@ -350,7 +350,7 @@ func (q *Queries) IssuedCertificateByRegistrationIdentifier(ctx context.Context,
 }
 
 const listCertificateRecipients = `-- name: ListCertificateRecipients :many
-SELECT r.id AS registration_id,r.created_at,r.status,r.certificate_group,c.id AS certificate_id,c.certificate_code,(COALESCE((SELECT NULLIF(p.name,'') FROM profiles p WHERE p.user_id=r.user_id ORDER BY p.id LIMIT 1),NULLIF(r.guest_data->>'name',''),'Peserta'))::text AS name,(CASE WHEN c.revoked_at IS NOT NULL THEN 'issued_revoked' WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status='LULUS KEGIATAN' THEN 'eligible_not_issued' ELSE 'not_eligible' END)::text AS state FROM activity_registrations r LEFT JOIN issued_certificates c ON c.registration_id=r.id WHERE r.activity_id=CAST(CAST($1 AS text) AS integer) AND ($2::text IS NULL OR (COALESCE((SELECT NULLIF(p.name,'') FROM profiles p WHERE p.user_id=r.user_id ORDER BY p.id LIMIT 1),NULLIF(r.guest_data->>'name',''),'Peserta')) ILIKE '%'||$2::text||'%') AND ($3::text IS NULL OR (CASE WHEN c.revoked_at IS NOT NULL THEN 'issued_revoked' WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status='LULUS KEGIATAN' THEN 'eligible_not_issued' ELSE 'not_eligible' END)=$3::text) AND (NOT $4::boolean OR r.id=ANY(CAST(CAST($5 AS text[]) AS integer[])))
+SELECT r.id AS registration_id,r.created_at,r.status,r.certificate_group,c.id AS certificate_id,c.certificate_code,(COALESCE((SELECT NULLIF(p.name,'') FROM profiles p WHERE p.user_id=r.user_id ORDER BY p.id LIMIT 1),NULLIF(r.guest_data->>'name',''),'Peserta'))::text AS name,(CASE WHEN c.revoked_at IS NOT NULL THEN 'issued_revoked' WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status='LULUS KEGIATAN' THEN 'eligible_not_issued' ELSE 'not_eligible' END)::text AS state FROM activity_registrations r LEFT JOIN issued_certificates c ON c.registration_id=r.id AND c.revoked_at IS NULL WHERE r.activity_id=CAST(CAST($1 AS text) AS integer) AND ($2::text IS NULL OR (COALESCE((SELECT NULLIF(p.name,'') FROM profiles p WHERE p.user_id=r.user_id ORDER BY p.id LIMIT 1),NULLIF(r.guest_data->>'name',''),'Peserta')) ILIKE '%'||$2::text||'%') AND ($3::text IS NULL OR (CASE WHEN c.revoked_at IS NOT NULL THEN 'issued_revoked' WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status='LULUS KEGIATAN' THEN 'eligible_not_issued' ELSE 'not_eligible' END)=$3::text) AND (NOT $4::boolean OR r.id=ANY(CAST(CAST($5 AS text[]) AS integer[])))
 ORDER BY CASE WHEN $6::boolean THEN r.created_at END ASC NULLS LAST,CASE WHEN NOT $6::boolean THEN r.created_at END DESC NULLS LAST,CASE WHEN $6::boolean THEN r.id END ASC,CASE WHEN NOT $6::boolean THEN r.id END DESC LIMIT CAST($8::text AS bigint) OFFSET CAST($7::text AS bigint)
 `
 
@@ -416,7 +416,7 @@ func (q *Queries) ListCertificateRecipients(ctx context.Context, arg ListCertifi
 
 const listIssuedCertificates = `-- name: ListIssuedCertificates :many
 SELECT c.id,c.certificate_code,c.registration_id,c.activity_id,c.participant_snapshot,COALESCE(c.template_snapshot->>'name','')::text AS template_name,c.issued_at,c.issued_by,issuer.display_name AS issued_by_name,c.revoked_at,c.revoked_reason,c.revoked_by,revoker.display_name AS revoked_by_name,CASE WHEN c.revoked_at IS NULL THEN 'issued_active' ELSE 'issued_revoked' END::text AS state
-FROM issued_certificates c LEFT JOIN admin_users issuer ON issuer.id=c.issued_by LEFT JOIN admin_users revoker ON revoker.id=c.revoked_by WHERE ($1::text IS NULL OR c.activity_id=CAST(CAST($1 AS text) AS integer)) AND (NOT $2::boolean OR c.registration_id=ANY(CAST(CAST($3 AS text[]) AS integer[]))) ORDER BY c.issued_at DESC LIMIT CAST($5::text AS bigint) OFFSET CAST($4::text AS bigint)
+FROM issued_certificates c LEFT JOIN admin_users issuer ON issuer.id=c.issued_by LEFT JOIN admin_users revoker ON revoker.id=c.revoked_by WHERE ($1::text IS NULL OR c.activity_id=CAST(CAST($1 AS text) AS integer)) AND (NOT $2::boolean OR c.registration_id=ANY(CAST(CAST($3 AS text[]) AS integer[])) AND c.id=(SELECT max(latest.id) FROM issued_certificates latest WHERE latest.registration_id=c.registration_id)) ORDER BY c.issued_at DESC LIMIT CAST($5::text AS bigint) OFFSET CAST($4::text AS bigint)
 `
 
 type ListIssuedCertificatesParams struct {
@@ -613,7 +613,7 @@ func (q *Queries) SetActivityCertificateSettings(ctx context.Context, arg SetAct
 const updateCertificateGroup = `-- name: UpdateCertificateGroup :execrows
 UPDATE activity_registrations SET certificate_group = $1::text, updated_at=now()
 WHERE id=$2::integer AND activity_id=$3::integer
-AND NOT EXISTS (SELECT 1 FROM issued_certificates WHERE registration_id=activity_registrations.id)
+AND NOT EXISTS (SELECT 1 FROM issued_certificates WHERE registration_id=activity_registrations.id AND revoked_at IS NULL)
 `
 
 type UpdateCertificateGroupParams struct {

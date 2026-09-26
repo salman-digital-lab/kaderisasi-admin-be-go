@@ -259,11 +259,11 @@ func TestCertificateIssuanceSnapshotsAndRevocation(t *testing.T) {
 		t.Fatalf("compact bulk results %s", bulk["results"])
 	}
 	full := objectData(t, f.call("POST", "/v2/certificates/issue-bulk", map[string]interface{}{"registration_ids": fixture.ids, "expected": expected}, f.token, 200))
-	if full.ID("total_created") != 0 || full.ID("total_already_issued") != 3 || full.ID("total_skipped") != 1 {
+	if full.ID("total_created") != 0 || full.ID("total_already_issued") != 2 || full.ID("total_skipped") != 2 {
 		t.Fatalf("repeat bulk %v", full)
 	}
 	recipients := objectData(t, f.call("GET", fmt.Sprintf("/v2/certificates/activities/%d/recipients?state=issued_active&per_page=1&sort_order=asc", activityID), nil, f.token, 200))
-	if nestedObject(recipients, "counts").ID("issued_active") != 2 || nestedObject(recipients, "counts").ID("issued_revoked") != 1 {
+	if nestedObject(recipients, "counts").ID("issued_active") != 2 || nestedObject(recipients, "counts").ID("issued_revoked") != 0 {
 		t.Fatal("recipient states")
 	}
 	f.call("POST", "/v2/certificates/lookup", map[string]interface{}{"activity_id": activityID, "registration_ids": []int32{id, id, 2147483647}}, f.token, 200)

@@ -7,10 +7,10 @@ INSERT INTO issued_certificates (
  sqlc.arg(code), sqlc.arg(registration_id), sqlc.arg(activity_id), sqlc.narg(user_id), sqlc.arg(template_id),
  sqlc.arg(template_snapshot), sqlc.arg(participant_snapshot), sqlc.arg(activity_snapshot), 1,
  sqlc.arg(template_version), sqlc.narg(issued_by), sqlc.arg(issued_at), sqlc.arg(issued_at), sqlc.arg(issued_at)
-) ON CONFLICT (registration_id) DO NOTHING RETURNING id;
+) ON CONFLICT (registration_id) WHERE revoked_at IS NULL DO NOTHING RETURNING id;
 
 -- name: IssuedByRegistration :one
-SELECT * FROM issued_certificates WHERE registration_id=$1;
+SELECT * FROM issued_certificates WHERE registration_id=$1 AND revoked_at IS NULL;
 
 -- name: IssuedByID :one
 SELECT * FROM issued_certificates WHERE id=$1;

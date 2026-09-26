@@ -19,8 +19,8 @@ const record = () => writeFileSync(resolve(artifacts, 'result.json'), JSON.strin
 record();
 const client = new Client({ host: env.DB_HOST, port: Number(env.DB_PORT), user: env.DB_USER, password: env.DB_PASSWORD, database: env.DB_DATABASE, connectionTimeoutMillis: 10000 });
 await client.connect();
-async function command(command, args, cwd) {
-  const child = spawn(command, args, { cwd, env: testEnvironment({ NODE_ENV: 'test', DB_SCHEMA: schema, PGOPTIONS: `-c search_path=${schema}`, ADMIN_BOOTSTRAP_EMAILS: 'bootstrap@example.test', GO_REWRITE_ARTIFACTS: artifacts }), stdio: 'inherit' });
+async function command(command, args, cwd, extra = {}) {
+  const child = spawn(command, args, { cwd, env: testEnvironment({ NODE_ENV: 'test', DB_SCHEMA: schema, PGOPTIONS: `-c search_path=${schema}`, ADMIN_BOOTSTRAP_EMAILS: 'bootstrap@example.test', GO_REWRITE_ARTIFACTS: artifacts, ...extra }), stdio: 'inherit' });
   const [code] = await once(child, 'exit');
   if (code !== 0) throw new Error(`${command} failed with exit ${code}`);
 }
@@ -32,7 +32,8 @@ try {
   // This freshly created UUID schema belongs exclusively to this process.
   // Avoid the database-wide advisory lock used by unrelated Ace test schemas.
   await command('node', ['ace', 'migration:run', '--force', '--disable-locks', '--compact-output'], migrations);
-  await command('go', ['test', '-tags=integration', '-race', '-count=1', '-timeout=5m', './internal/httpapi', '-run', 'TestCertificateApprovalWorkflow|TestCertificateIssuanceSnapshotsAndRevocation|TestSalmanCertificateSettingsAndScoreGate'], root);
+  await command('go', ['test', '-tags=integration', '-race', '-count=1', '-timeout=5m', './internal/httpapi', '-run', 'TestCertificateDirectPublicationAndCorrection|TestCertificateApprovalWorkflow|TestCertificateIssuanceSnapshotsAndRevocation|TestSalmanCertificateSettingsAndScoreGate'], root);
+  await command('node', ['ace', 'test', 'unit'], resolve(root, '../kaderisasi-web-be'), { CERTIFICATE_INTEGRATION: '1', CERTIFICATE_TEST_SCHEMA: schema });
   evidence.status = 'passed';
 } catch (error) {
   await client.query('ROLLBACK');

@@ -20,7 +20,7 @@ INSERT INTO issued_certificates (
  $1, $2, $3, $4, $5,
  $6, $7, $8, 1,
  $9, $10, $11, $11, $11
-) ON CONFLICT (registration_id) DO NOTHING RETURNING id
+) ON CONFLICT (registration_id) WHERE revoked_at IS NULL DO NOTHING RETURNING id
 `
 
 type InsertIssuedCertificateParams struct {
@@ -119,7 +119,7 @@ func (q *Queries) IssuedByID(ctx context.Context, id int32) (IssuedCertificate, 
 }
 
 const issuedByRegistration = `-- name: IssuedByRegistration :one
-SELECT approval_snapshot, id, certificate_code, registration_id, activity_id, user_id, template_id, template_snapshot, participant_snapshot, issued_by, issued_at, revoked_at, revoked_reason, created_at, updated_at, activity_snapshot, snapshot_version, template_version, revoked_by FROM issued_certificates WHERE registration_id=$1
+SELECT approval_snapshot, id, certificate_code, registration_id, activity_id, user_id, template_id, template_snapshot, participant_snapshot, issued_by, issued_at, revoked_at, revoked_reason, created_at, updated_at, activity_snapshot, snapshot_version, template_version, revoked_by FROM issued_certificates WHERE registration_id=$1 AND revoked_at IS NULL
 `
 
 func (q *Queries) IssuedByRegistration(ctx context.Context, registrationID int32) (IssuedCertificate, error) {

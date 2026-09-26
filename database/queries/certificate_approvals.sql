@@ -37,3 +37,8 @@ WHERE id=$1 AND status='pending' RETURNING *;
 
 -- name: SetCertificateApprovalSnapshot :exec
 UPDATE issued_certificates SET approval_snapshot=$2 WHERE id=$1 AND approval_snapshot IS NULL;
+
+-- name: CancelPendingApprovalsForPublication :exec
+UPDATE certificate_approvals SET status='cancelled', decided_by=$2, decided_at=$3, updated_at=$3,
+ reason='Digantikan oleh penerbitan langsung oleh admin'
+WHERE registration_id=$1 AND status='pending';

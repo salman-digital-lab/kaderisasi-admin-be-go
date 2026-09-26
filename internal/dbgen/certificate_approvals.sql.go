@@ -11,6 +11,23 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const cancelPendingApprovalsForPublication = `-- name: CancelPendingApprovalsForPublication :exec
+UPDATE certificate_approvals SET status='cancelled', decided_by=$2, decided_at=$3, updated_at=$3,
+ reason='Digantikan oleh penerbitan langsung oleh admin'
+WHERE registration_id=$1 AND status='pending'
+`
+
+type CancelPendingApprovalsForPublicationParams struct {
+	RegistrationID int32              `json:"registration_id"`
+	DecidedBy      *int32             `json:"decided_by"`
+	DecidedAt      pgtype.Timestamptz `json:"decided_at"`
+}
+
+func (q *Queries) CancelPendingApprovalsForPublication(ctx context.Context, arg CancelPendingApprovalsForPublicationParams) error {
+	_, err := q.db.Exec(ctx, cancelPendingApprovalsForPublication, arg.RegistrationID, arg.DecidedBy, arg.DecidedAt)
+	return err
+}
+
 const certificateApprovalByID = `-- name: CertificateApprovalByID :one
 SELECT id, registration_id, activity_id, signer_id, requested_by, signer_name, signer_title, snapshot, content_hash, status, decided_by, decided_at, reason, certificate_id, created_at, updated_at FROM certificate_approvals WHERE id=$1
 `

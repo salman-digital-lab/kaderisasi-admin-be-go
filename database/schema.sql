@@ -1295,8 +1295,7 @@ ALTER TABLE ONLY public.issued_certificates
 -- Name: issued_certificates issued_certificates_registration_id_unique; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.issued_certificates
-    ADD CONSTRAINT issued_certificates_registration_id_unique UNIQUE (registration_id);
+CREATE UNIQUE INDEX issued_certificates_active_registration_unique ON public.issued_certificates (registration_id) WHERE revoked_at IS NULL;
 
 
 --

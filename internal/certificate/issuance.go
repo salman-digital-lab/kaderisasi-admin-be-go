@@ -11,6 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"io"
+	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
@@ -130,6 +131,7 @@ func (s Issuance) Preview(ctx context.Context, id float64) (Response, error) {
 	if err != nil {
 		return Response{}, err
 	}
+	source.Data.DocumentSigner = documentSigner("oktofa-yudha-sudrajad")
 	return source.Data, tx.Commit(ctx)
 }
 func (s Issuance) IssuedResponse(row dbgen.IssuedCertificate) (Response, error) {
@@ -183,14 +185,18 @@ func (s Issuance) Issue(ctx context.Context, id float64, actor *int32, requestID
 		if err != nil {
 			return IssueResult{}, err
 		}
-		if RequiresApproval(source.Template.TemplateData) {
-			return IssueResult{}, domain.Fail(409, "CERTIFICATE_APPROVAL_REQUIRED")
+		if actor == nil {
+			return IssueResult{}, domain.Fail(403, "FORBIDDEN")
 		}
-		if _, err := q.PendingCertificateApproval(ctx, source.Registration.ID); err == nil {
-			return IssueResult{}, domain.Fail(409, "CERTIFICATE_APPROVAL_REQUIRED")
-		} else if !errors.Is(err, pgx.ErrNoRows) {
+		publisher, err := q.LockAdmin(ctx, *actor)
+		if err != nil {
 			return IssueResult{}, err
 		}
+		if !auth.ForUser(publisher).Allows("certificate.issue") {
+			return IssueResult{}, domain.Fail(403, "FORBIDDEN")
+		}
+		profile := documentSigner("oktofa-yudha-sudrajad")
+		source.Data.DocumentSigner = profile
 		now := time.Now().Truncate(time.Millisecond)
 		code, err := GenerateCode(source.Activity.ID, now, rand.Reader)
 		if err != nil {
@@ -199,10 +205,23 @@ func (s Issuance) Issue(ctx context.Context, id float64, actor *int32, requestID
 		templateJSON, _ := json.Marshal(source.Data.Template)
 		participantJSON, _ := json.Marshal(source.Data.Participant)
 		activityJSON, _ := json.Marshal(source.Data.Activity)
-		_, err = typed.InsertIssuedCertificate(ctx, dbgen.InsertIssuedCertificateParams{Code: code, RegistrationID: source.Registration.ID, ActivityID: source.Activity.ID, UserID: source.Data.Participant.UserID, TemplateID: source.Template.ID, TemplateSnapshot: templateJSON, ParticipantSnapshot: participantJSON, ActivitySnapshot: activityJSON, TemplateVersion: source.Template.Version, IssuedBy: actor, IssuedAt: pgtype.Timestamptz{Time: now, Valid: true}})
+		certificateID, err := typed.InsertIssuedCertificate(ctx, dbgen.InsertIssuedCertificateParams{Code: code, RegistrationID: source.Registration.ID, ActivityID: source.Activity.ID, UserID: source.Data.Participant.UserID, TemplateID: source.Template.ID, TemplateSnapshot: templateJSON, ParticipantSnapshot: participantJSON, ActivitySnapshot: activityJSON, TemplateVersion: source.Template.Version, IssuedBy: actor, IssuedAt: pgtype.Timestamptz{Time: now, Valid: true}})
 		created = err == nil
 		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 			return IssueResult{}, err
+		}
+		if created {
+			hash, hashErr := ApprovalHash(source.Data, *actor, profile.Name, profile.Title)
+			if hashErr != nil {
+				return IssueResult{}, hashErr
+			}
+			evidence, _ := json.Marshal(ApprovalEvidence{DocumentSigner: profile, ApprovedBy: actor, SignerID: *actor, SignerName: profile.Name, SignerTitle: profile.Title, ApprovedAt: ISO(now, s.Location), ContentHash: hash})
+			if err = q.SetCertificateApprovalSnapshot(ctx, dbgen.SetCertificateApprovalSnapshotParams{ID: certificateID, ApprovalSnapshot: evidence}); err != nil {
+				return IssueResult{}, err
+			}
+			if err = q.CancelPendingApprovalsForPublication(ctx, dbgen.CancelPendingApprovalsForPublicationParams{RegistrationID: source.Registration.ID, DecidedBy: actor, DecidedAt: pgtype.Timestamptz{Time: now, Valid: true}}); err != nil {
+				return IssueResult{}, err
+			}
 		}
 		issued, err = typed.IssuedCertificateByRegistrationIdentifier(ctx, database.JSNumber(id))
 		if err != nil {
