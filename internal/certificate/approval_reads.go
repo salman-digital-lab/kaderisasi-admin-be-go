@@ -2,6 +2,7 @@ package certificate
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"github.com/jackc/pgx/v5"
 	"kaderisasi/admin/internal/database"
@@ -28,13 +29,19 @@ func (s Issuance) Approvals(ctx context.Context, actor int32, activityID *int32,
 	out.Data, err = q.ListCertificateApprovals(ctx, dbgen.ListCertificateApprovalsParams{ActorID: actor, ActivityID: activityID, Status: status, PageSize: limit, PageOffset: offset})
 	return out, err
 }
-func (s Issuance) Approval(ctx context.Context, id, actor int32) (dbgen.CertificateApproval, error) {
+
+type ApprovalDetail struct {
+	dbgen.CertificateApproval
+	Snapshot json.RawMessage `json:"snapshot"`
+}
+
+func (s Issuance) Approval(ctx context.Context, id, actor int32) (ApprovalDetail, error) {
 	row, err := dbgen.New(s.Pool).CertificateApprovalByID(ctx, id)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return row, domain.Fail(404, "APPROVAL_NOT_FOUND")
+		return ApprovalDetail{}, domain.Fail(404, "APPROVAL_NOT_FOUND")
 	}
 	if err == nil && row.SignerID != actor && row.RequestedBy != actor {
-		return dbgen.CertificateApproval{}, domain.Fail(404, "APPROVAL_NOT_FOUND")
+		return ApprovalDetail{}, domain.Fail(404, "APPROVAL_NOT_FOUND")
 	}
-	return row, err
+	return ApprovalDetail{CertificateApproval: row, Snapshot: json.RawMessage(row.Snapshot)}, err
 }

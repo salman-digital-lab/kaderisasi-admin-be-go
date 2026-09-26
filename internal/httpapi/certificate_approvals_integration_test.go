@@ -71,6 +71,10 @@ func TestCertificateApprovalWorkflow(t *testing.T) {
 	details := []certificate.ApprovalDecisionItem{}
 	for _, row := range created {
 		detail := objectData(t, f.call("GET", fmt.Sprintf("/v2/certificates/approvals/%d", row.ID), nil, session.AccessToken, 200))
+		var snapshot certificate.Response
+		if err := json.Unmarshal(detail["snapshot"], &snapshot); err != nil || snapshot.Participant.Name == "" || snapshot.Activity.Name == "" || len(snapshot.Template.Data) == 0 {
+			t.Fatalf("approval snapshot must be a renderable JSON object: %v", err)
+		}
 		details = append(details, certificate.ApprovalDecisionItem{ID: row.ID, ContentHash: detail.String("content_hash")})
 	}
 	decision := certificate.ApprovalDecisionInput{Items: details[:2], Action: "approve", Consent: true}
