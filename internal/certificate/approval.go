@@ -20,22 +20,25 @@ import (
 )
 
 type ApprovalEvidence struct {
-	RequestID   int32  `json:"request_id"`
-	SignerID    int32  `json:"signer_id"`
-	SignerName  string `json:"signer_name"`
-	SignerTitle string `json:"signer_title"`
-	ApprovedAt  string `json:"approved_at"`
-	ContentHash string `json:"content_hash"`
+	DocumentSigner *DocumentSigner `json:"document_signer,omitempty"`
+	ApprovedBy     *int32          `json:"approved_by,omitempty"`
+	RequestID      int32           `json:"request_id"`
+	SignerID       int32           `json:"signer_id"`
+	SignerName     string          `json:"signer_name"`
+	SignerTitle    string          `json:"signer_title"`
+	ApprovedAt     string          `json:"approved_at"`
+	ContentHash    string          `json:"content_hash"`
 }
 type Signer struct {
 	ID   int32  `json:"id"`
 	Name string `json:"name"`
 }
 type ApprovalRequestInput struct {
-	RegistrationIDs []int32     `json:"registration_ids"`
-	SignerID        int32       `json:"signer_id"`
-	SignerTitle     string      `json:"signer_title"`
-	Expected        Expectation `json:"expected"`
+	DocumentSignerKey string      `json:"document_signer_key"`
+	RegistrationIDs   []int32     `json:"registration_ids"`
+	SignerID          int32       `json:"signer_id"`
+	SignerTitle       string      `json:"signer_title"`
+	Expected          Expectation `json:"expected"`
 }
 type ApprovalDecisionItem struct {
 	ID          int32  `json:"id"`
@@ -98,7 +101,11 @@ func approvalFailure(id, registrationID int32, err error) ApprovalOutcome {
 	return result
 }
 func (s Issuance) RequestApprovals(ctx context.Context, input ApprovalRequestInput, actor int32) ([]ApprovalOutcome, error) {
-	input.SignerTitle = strings.TrimSpace(input.SignerTitle)
+	profile := documentSigner(input.DocumentSignerKey)
+	if profile == nil {
+		return nil, domain.Fail(422, "INVALID_DOCUMENT_SIGNER")
+	}
+	input.SignerTitle = profile.Title
 	ids := UniqueIDs(input.RegistrationIDs)
 	if len(ids) == 0 || len(ids) > 50 || input.SignerID <= 0 || input.SignerTitle == "" || utf8.RuneCountInString(input.SignerTitle) > 120 || input.Expected.ActivityID <= 0 || input.Expected.TemplateID <= 0 || input.Expected.TemplateVersion <= 0 {
 		return nil, domain.Fail(422, "INVALID_APPROVAL_REQUEST")
@@ -152,7 +159,12 @@ func (s Issuance) requestApproval(ctx context.Context, id int32, input ApprovalR
 	if !auth.ForUser(signer).Allows("certificate.approve") || signer.DisplayName == nil || strings.TrimSpace(*signer.DisplayName) == "" {
 		return empty, domain.Fail(422, "INVALID_CERTIFICATE_SIGNER")
 	}
-	hash, err := ApprovalHash(source.Data, signer.ID, *signer.DisplayName, input.SignerTitle)
+	profile := documentSigner(input.DocumentSignerKey)
+	if profile == nil {
+		return empty, domain.Fail(422, "INVALID_DOCUMENT_SIGNER")
+	}
+	source.Data.DocumentSigner = profile
+	hash, err := ApprovalHash(source.Data, signer.ID, profile.Name, profile.Title)
 	if err != nil {
 		return empty, err
 	}
@@ -170,7 +182,7 @@ func (s Issuance) requestApproval(ctx context.Context, id int32, input ApprovalR
 	if err != nil {
 		return empty, err
 	}
-	row, err := q.InsertCertificateApproval(ctx, dbgen.InsertCertificateApprovalParams{RegistrationID: id, ActivityID: source.Activity.ID, SignerID: signer.ID, RequestedBy: actor, SignerName: *signer.DisplayName, SignerTitle: input.SignerTitle, Snapshot: snapshot, ContentHash: hash})
+	row, err := q.InsertCertificateApproval(ctx, dbgen.InsertCertificateApprovalParams{RegistrationID: id, ActivityID: source.Activity.ID, SignerID: signer.ID, RequestedBy: actor, SignerName: profile.Name, SignerTitle: profile.Title, Snapshot: snapshot, ContentHash: hash})
 	if err != nil {
 		return empty, err
 	}
@@ -262,15 +274,22 @@ func (s Issuance) decideApproval(ctx context.Context, item ApprovalDecisionItem,
 		if err != nil {
 			return empty, err
 		}
-		if !auth.ForUser(signer).Allows("certificate.approve") || signer.DisplayName == nil || *signer.DisplayName != row.SignerName {
+		var snapshot Response
+		if err = json.Unmarshal(row.Snapshot, &snapshot); err != nil {
+			return empty, err
+		}
+		if !auth.ForUser(signer).Allows("certificate.approve") || (snapshot.DocumentSigner == nil && (signer.DisplayName == nil || *signer.DisplayName != row.SignerName)) {
 			return empty, domain.Fail(403, "APPROVAL_SIGNER_REQUIRED")
+		}
+		if snapshot.DocumentSigner != nil {
+			profile := documentSigner(snapshot.DocumentSigner.Key)
+			if profile == nil || *profile != *snapshot.DocumentSigner || profile.Name != row.SignerName || profile.Title != row.SignerTitle {
+				return empty, domain.Fail(409, "CERTIFICATE_CONTEXT_CHANGED")
+			}
+			current.Data.DocumentSigner = profile
 		}
 		hash, err := ApprovalHash(current.Data, row.SignerID, row.SignerName, row.SignerTitle)
 		if err != nil {
-			return empty, err
-		}
-		var snapshot Response
-		if err = json.Unmarshal(row.Snapshot, &snapshot); err != nil {
 			return empty, err
 		}
 		snapshotHash, err := ApprovalHash(snapshot, row.SignerID, row.SignerName, row.SignerTitle)
@@ -295,7 +314,7 @@ func (s Issuance) decideApproval(ctx context.Context, item ApprovalDecisionItem,
 			return empty, err
 		}
 		certificateID = &id
-		evidence, _ := json.Marshal(ApprovalEvidence{RequestID: row.ID, SignerID: actor, SignerName: row.SignerName, SignerTitle: row.SignerTitle, ApprovedAt: ISO(now.Time, s.Location), ContentHash: hash})
+		evidence, _ := json.Marshal(ApprovalEvidence{DocumentSigner: snapshot.DocumentSigner, ApprovedBy: &actor, RequestID: row.ID, SignerID: actor, SignerName: row.SignerName, SignerTitle: row.SignerTitle, ApprovedAt: ISO(now.Time, s.Location), ContentHash: hash})
 		if err = q.SetCertificateApprovalSnapshot(ctx, dbgen.SetCertificateApprovalSnapshotParams{ID: id, ApprovalSnapshot: evidence}); err != nil {
 			return empty, err
 		}

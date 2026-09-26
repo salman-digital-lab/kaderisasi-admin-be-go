@@ -62,12 +62,13 @@ try {
       .getByRole("button", { name: "Kirim 2 permintaan persetujuan" })
       .click();
     await expect(
-      page.getByText("Pilih penandatangan.", { exact: true }),
+      page.getByText("Pilih admin pemberi persetujuan.", { exact: true }),
     ).toBeVisible();
-    await page.getByLabel("Penandatangan", { exact: true }).click();
-    await page.getByLabel("Penandatangan", { exact: true }).press("ArrowDown");
-    await page.getByLabel("Penandatangan", { exact: true }).press("Enter");
-    await page.getByLabel("Jabatan pada sertifikat").fill("Ketua kegiatan");
+    await page.getByLabel("Admin pemberi persetujuan", { exact: true }).click();
+    await page.getByLabel("Admin pemberi persetujuan", { exact: true }).press("ArrowDown");
+    await page.getByLabel("Admin pemberi persetujuan", { exact: true }).press("Enter");
+    await expect(page.getByLabel("Penandatangan pada sertifikat")).toHaveCount(1);
+    await expect(page.getByText("Ketua Bidang Mahasiswa, Kaderisasi, dan Alumni", { exact: true })).toBeVisible();
     await page
       .getByRole("button", { name: "Kirim 2 permintaan persetujuan" })
       .click();
@@ -161,7 +162,7 @@ try {
       .getByRole("button", { name: "Tinjau", exact: true })
       .first()
       .click();
-    await expect(dialog.getByText(/^Ditolak\nPenandatangan Uji/)).toBeVisible();
+    await expect(dialog.getByText(/^Ditolak\nOktofa Yudha Sudrajad/)).toBeVisible();
     await expect(
       dialog.getByRole("button", { name: /Setujui & terbitkan/ }),
     ).toHaveCount(0);
@@ -182,7 +183,7 @@ try {
     ).toBeVisible();
     await page.goto(`${fixtureUrl}?mode=empty`);
     await expect(
-      page.getByText("Belum ada penandatangan aktif", { exact: true }),
+      page.getByText("Belum ada admin pemberi persetujuan aktif", { exact: true }),
     ).toBeVisible();
     await expect(
       page.getByText("Tidak ada permintaan persetujuan pada status ini."),

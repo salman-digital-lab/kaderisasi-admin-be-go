@@ -22,7 +22,7 @@ func approvalOutcomes(t *testing.T, value database.Object) []certificate.Approva
 	return out
 }
 func TestCertificateApprovalWorkflow(t *testing.T) {
-	fixture := newCertificateFixture(t, 4)
+	fixture := newCertificateFixture(t, 5)
 	f := fixture.f
 	ctx := context.Background()
 	t.Cleanup(func() {
@@ -46,13 +46,21 @@ func TestCertificateApprovalWorkflow(t *testing.T) {
 		t.Fatal(err)
 	}
 	expected := certificate.Expectation{ActivityID: float64(fixture.activity.ID("id")), TemplateID: float64(fixture.template.ID("id")), TemplateVersion: float64(fixture.template.ID("version"))}
-	input := certificate.ApprovalRequestInput{RegistrationIDs: fixture.ids, SignerID: signer, SignerTitle: "Ketua kegiatan", Expected: expected}
+	input := certificate.ApprovalRequestInput{DocumentSignerKey: "oktofa-yudha-sudrajad", RegistrationIDs: fixture.ids, SignerID: signer, SignerTitle: "Ketua kegiatan", Expected: expected}
+
+	invalid := input
+	invalid.DocumentSignerKey = "unknown"
+	f.call("POST", "/v2/certificates/approvals", invalid, f.token, 422)
+	invalid.DocumentSignerKey = ""
+	f.call("POST", "/v2/certificates/approvals", invalid, f.token, 422)
+	f.call("GET", "/v2/certificates/document-signers", nil, "", 401)
+	f.call("GET", "/v2/certificates/document-signers", nil, f.token, 200)
 	setCertificateScore(t, fixture, fixture.ids[0], 77.5)
 	setCertificateScore(t, fixture, fixture.ids[3], 80)
 	f.call("POST", "/v2/certificates/issue-single", map[string]int32{"registration_id": fixture.ids[0]}, f.token, 409)
 	f.call("POST", "/v2/certificates/approvals", input, "", 401)
 	created := approvalOutcomes(t, f.call("POST", "/v2/certificates/approvals", input, f.token, 200))
-	if len(created) != 4 {
+	if len(created) != 5 {
 		t.Fatal(created)
 	}
 	for _, row := range created {
@@ -74,6 +82,10 @@ func TestCertificateApprovalWorkflow(t *testing.T) {
 		var snapshot certificate.Response
 		if err := json.Unmarshal(detail["snapshot"], &snapshot); err != nil || snapshot.Participant.Name == "" || snapshot.Activity.Name == "" || len(snapshot.Template.Data) == 0 {
 			t.Fatalf("approval snapshot must be a renderable JSON object: %v", err)
+		}
+
+		if snapshot.DocumentSigner == nil || snapshot.DocumentSigner.Name != certificate.DocumentSigners()[0].Name || detail.String("signer_name") != snapshot.DocumentSigner.Name || detail.String("signer_title") != snapshot.DocumentSigner.Title {
+			t.Fatal("certificate identity must use the configured profile, ignoring client title")
 		}
 		details = append(details, certificate.ApprovalDecisionItem{ID: row.ID, ContentHash: detail.String("content_hash")})
 	}
@@ -97,11 +109,19 @@ func TestCertificateApprovalWorkflow(t *testing.T) {
 	if payload.Certificate.Approval == nil || payload.Certificate.Approval.SignerID != signer || payload.Certificate.Approval.ContentHash != details[0].ContentHash {
 		t.Fatalf("missing approval evidence %+v", payload.Certificate)
 	}
+
+	if payload.Certificate.Approval.DocumentSigner == nil || payload.Certificate.Approval.SignerName != certificate.DocumentSigners()[0].Name || payload.Certificate.Approval.ApprovedBy == nil || *payload.Certificate.Approval.ApprovedBy != signer {
+		t.Fatal("document signer and approving admin must be recorded separately")
+	}
+	var decidedBy int32
+	if err := f.pool.QueryRow(ctx, "SELECT decided_by FROM certificate_approvals WHERE id=$1", created[0].ID).Scan(&decidedBy); err != nil || decidedBy != signer {
+		t.Fatal("missing admin audit", err)
+	}
 	if payload.Participant.ScoringResult == nil || *payload.Participant.ScoringResult.Result.Total != 77.5 {
 		t.Fatal("approved certificate lost the reviewed score sheet")
 	}
 	setCertificateScore(t, fixture, fixture.ids[3], 90)
-	scoreDecision := certificate.ApprovalDecisionInput{Items: details[3:], Action: "approve", Consent: true}
+	scoreDecision := certificate.ApprovalDecisionInput{Items: details[3:4], Action: "approve", Consent: true}
 	staleScore := approvalOutcomes(t, f.call("POST", "/v2/certificates/approvals/decide", scoreDecision, session.AccessToken, 200))
 	if staleScore[0].Reason != "CERTIFICATE_CONTEXT_CHANGED" {
 		t.Fatal("changed score sheet was approved without review", staleScore)
@@ -127,11 +147,36 @@ func TestCertificateApprovalWorkflow(t *testing.T) {
 	if rejected[0].Status != "rejected" {
 		t.Fatal(rejected)
 	}
+
+	// An approval created before document profiles were introduced keeps its original identity and hash.
+	var legacySnapshot certificate.Response
+	var raw []byte
+	if err := f.pool.QueryRow(ctx, "SELECT snapshot FROM certificate_approvals WHERE id=$1", created[4].ID).Scan(&raw); err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal(raw, &legacySnapshot); err != nil {
+		t.Fatal(err)
+	}
+	legacySnapshot.DocumentSigner = nil
+	legacyName := *mustUser(t, f.pool, signer).DisplayName
+	legacyHash, err := certificate.ApprovalHash(legacySnapshot, signer, legacyName, "Ketua kegiatan")
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, _ = json.Marshal(legacySnapshot)
+	if _, err := f.pool.Exec(ctx, "UPDATE certificate_approvals SET snapshot=$2, signer_name=$3, signer_title=$4, content_hash=$5 WHERE id=$1", created[4].ID, raw, legacyName, "Ketua kegiatan", legacyHash); err != nil {
+		t.Fatal(err)
+	}
+	legacyDecision := certificate.ApprovalDecisionInput{Items: []certificate.ApprovalDecisionItem{{ID: created[4].ID, ContentHash: legacyHash}}, Action: "approve", Consent: true}
+	legacyApproved := approvalOutcomes(t, f.call("POST", "/v2/certificates/approvals/decide", legacyDecision, session.AccessToken, 200))
+	if legacyApproved[0].Status != "approved" {
+		t.Fatal("legacy approval failed", legacyApproved)
+	}
 	// Deactivated signers cannot use an existing authenticated session.
 	if _, err = f.pool.Exec(ctx, "UPDATE admin_users SET is_active=false WHERE id=$1", signer); err != nil {
 		t.Fatal(err)
 	}
-	decision.Items = details[3:]
+	decision.Items = details[3:4]
 	f.call("POST", "/v2/certificates/approvals/decide", decision, session.AccessToken, 403)
 	f.call("POST", fmt.Sprintf("/v2/certificates/%d/revoke", *approved[0].CertificateID), map[string]string{"reason": "Fixture revocation"}, f.token, 200)
 }

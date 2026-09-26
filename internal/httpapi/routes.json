@@ -51,6 +51,15 @@
   },
   {
     "method": "GET",
+    "path": "/v2/certificates/document-signers",
+    "controller": "certificate_approvals_controller",
+    "action": "documentSigners",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.read"
+  },
+  {
+    "method": "GET",
     "path": "/v2/certificates/signers",
     "controller": "certificate_approvals_controller",
     "action": "signers",

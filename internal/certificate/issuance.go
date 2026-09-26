@@ -65,10 +65,11 @@ type IssuedData struct {
 	RevokedBy       *int32            `json:"revoked_by"`
 }
 type Response struct {
-	Activity    ActivityData     `json:"activity"`
-	Template    TemplateSnapshot `json:"template"`
-	Participant Participant      `json:"participant"`
-	Certificate *IssuedData      `json:"certificate,omitempty"`
+	DocumentSigner *DocumentSigner  `json:"document_signer,omitempty"`
+	Activity       ActivityData     `json:"activity"`
+	Template       TemplateSnapshot `json:"template"`
+	Participant    Participant      `json:"participant"`
+	Certificate    *IssuedData      `json:"certificate,omitempty"`
 }
 type Expectation struct {
 	ActivityID      float64 `json:"activity_id"`
