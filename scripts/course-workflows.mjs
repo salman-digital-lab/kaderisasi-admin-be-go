@@ -83,8 +83,10 @@ try {
   }
   await call('admin','query:invalid-pagination','GET','/courses?page=-1&per_page=invalid');
   await fixture.db.query("UPDATE admin_users SET role_code='course_manager' WHERE id=2");
-  await call('admin','Course Manager can read catalog','GET','/courses',undefined,{token:noRole});
-  await call('admin','Course Manager can manage course','PUT',`/courses/${course.id}`,{...courseInput,status:'published'},{token:noRole});
+  await call('admin','retired Course Manager grants no access','GET','/courses',undefined,{token:noRole,status:403});
+  await fixture.db.query("UPDATE admin_users SET role_code='club_manager' WHERE id=2");
+  await call('admin','Club Manager can read catalog','GET','/courses',undefined,{token:noRole});
+  await call('admin','Club Manager can manage course','PUT',`/courses/${course.id}`,{...courseInput,status:'published'},{token:noRole});
   const members=[];
   for(const level of [0,3,6,10]) {
     const email=`learner-${level}@example.test`;

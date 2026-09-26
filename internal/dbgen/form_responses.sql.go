@@ -185,6 +185,51 @@ func (q *Queries) ListFormResponses(ctx context.Context, arg ListFormResponsesPa
 	return items, nil
 }
 
+const lockCleanupFormSession = `-- name: LockCleanupFormSession :one
+SELECT id FROM custom_form_sessions WHERE id=$1 FOR UPDATE
+`
+
+func (q *Queries) LockCleanupFormSession(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error) {
+	row := q.db.QueryRow(ctx, lockCleanupFormSession, id)
+	var id_2 pgtype.UUID
+	err := row.Scan(&id_2)
+	return id_2, err
+}
+
+const lockExpiredFormAttachment = `-- name: LockExpiredFormAttachment :one
+SELECT a.id, a.session_id, a.field_key, a.storage_key, a.original_name, a.download_name, a.mime_type, a.size_bytes, a.source_size_bytes, a.width, a.height, a.claimed_at, a.created_at FROM custom_form_attachments a JOIN custom_form_sessions s ON s.id=a.session_id
+WHERE a.id=$1 AND a.session_id=$2 AND a.storage_key=$3 AND a.claimed_at IS NULL
+  AND s.expires_at < clock_timestamp()
+FOR UPDATE OF a
+`
+
+type LockExpiredFormAttachmentParams struct {
+	ID         pgtype.UUID `json:"id"`
+	SessionID  pgtype.UUID `json:"session_id"`
+	StorageKey string      `json:"storage_key"`
+}
+
+func (q *Queries) LockExpiredFormAttachment(ctx context.Context, arg LockExpiredFormAttachmentParams) (CustomFormAttachment, error) {
+	row := q.db.QueryRow(ctx, lockExpiredFormAttachment, arg.ID, arg.SessionID, arg.StorageKey)
+	var i CustomFormAttachment
+	err := row.Scan(
+		&i.ID,
+		&i.SessionID,
+		&i.FieldKey,
+		&i.StorageKey,
+		&i.OriginalName,
+		&i.DownloadName,
+		&i.MimeType,
+		&i.SizeBytes,
+		&i.SourceSizeBytes,
+		&i.Width,
+		&i.Height,
+		&i.ClaimedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const responseAttachments = `-- name: ResponseAttachments :many
 SELECT id, session_id, field_key, storage_key, original_name, download_name, mime_type, size_bytes, source_size_bytes, width, height, claimed_at, created_at FROM custom_form_attachments WHERE session_id=$1 AND claimed_at IS NOT NULL ORDER BY created_at,id
 `

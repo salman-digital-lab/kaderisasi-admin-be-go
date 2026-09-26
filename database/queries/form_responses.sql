@@ -26,3 +26,12 @@ WHERE a.claimed_at IS NULL AND s.expires_at < now() ORDER BY a.created_at LIMIT 
 
 -- name: DeleteExpiredFormAttachment :exec
 DELETE FROM custom_form_attachments WHERE id=$1 AND claimed_at IS NULL;
+
+-- name: LockCleanupFormSession :one
+SELECT id FROM custom_form_sessions WHERE id=$1 FOR UPDATE;
+
+-- name: LockExpiredFormAttachment :one
+SELECT a.* FROM custom_form_attachments a JOIN custom_form_sessions s ON s.id=a.session_id
+WHERE a.id=$1 AND a.session_id=$2 AND a.storage_key=$3 AND a.claimed_at IS NULL
+  AND s.expires_at < clock_timestamp()
+FOR UPDATE OF a;

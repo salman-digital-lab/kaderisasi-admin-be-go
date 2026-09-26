@@ -60,13 +60,13 @@ func (r Runner) Run(ctx context.Context, name string, now time.Time) (Result, er
 				return result, nil
 			}
 			for _, file := range files {
-				if err := r.Storage.Delete(ctx, file.StorageKey); err != nil {
+				removed, err := r.cleanFormUpload(ctx, file)
+				if err != nil {
 					return result, r.failure(name, err)
 				}
-				if err := q.DeleteExpiredFormAttachment(ctx, file.ID); err != nil {
-					return result, r.failure(name, err)
+				if removed {
+					result.Count++
 				}
-				result.Count++
 			}
 		}
 	case "close:registration":

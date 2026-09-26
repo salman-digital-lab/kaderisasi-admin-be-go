@@ -2095,3 +2095,6 @@ CREATE TABLE public.announcement_recipients (
 );
 CREATE INDEX ON public.announcement_recipients(admin_user_id, read_at, id);
 CREATE INDEX ON public.announcement_recipients(public_user_id, read_at, id);
+
+-- Case-insensitive public account lookup; built concurrently by Ace.
+CREATE INDEX idx_public_users_lower_email ON public.public_users USING btree (lower((email)::text));

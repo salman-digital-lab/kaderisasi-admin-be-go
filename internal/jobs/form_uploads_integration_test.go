@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/storage"
 	"testing"
 	"time"
@@ -75,5 +76,71 @@ func TestFormUploadCleanupRetainsClaimedAndLiveAttachments(t *testing.T) {
 	result, err = runner.Run(ctx, "forms:clean-uploads", time.Now())
 	if err != nil || result.Count != 0 {
 		t.Fatal(result, err)
+	}
+}
+
+func TestFormUploadCleanupRechecksAfterConcurrentClaim(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	pool := jobPool(t)
+	var formID int32
+	if err := pool.QueryRow(ctx, `INSERT INTO custom_forms(form_name,feature_type) VALUES('Cleanup race fixture','independent_form') RETURNING id`).Scan(&formID); err != nil {
+		t.Fatal(err)
+	}
+	defer pool.Exec(context.Background(), `DELETE FROM custom_forms WHERE id=$1`, formID)
+	const id = "00000000-0000-4000-8000-000000000004"
+	if _, err := pool.Exec(ctx, `INSERT INTO custom_form_sessions(id,form_id,token_hash,schema_hash,expires_at) VALUES($1,$2,$3,$3,now()-interval '1 hour')`, id, formID, fmt.Sprintf("%064d", 4)); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := pool.Exec(ctx, `INSERT INTO custom_form_attachments(id,session_id,field_key,storage_key,original_name,download_name,mime_type,size_bytes,source_size_bytes) VALUES($1,$1,'proof','cleanup-race/proof.pdf','proof.pdf','proof.pdf','application/pdf',100,100)`, id); err != nil {
+		t.Fatal(err)
+	}
+	candidates, err := dbgen.New(pool).ExpiredFormAttachments(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var candidate dbgen.CustomFormAttachment
+	for _, file := range candidates {
+		if file.StorageKey == "cleanup-race/proof.pdf" {
+			candidate = file
+		}
+	}
+	if candidate.StorageKey == "" {
+		t.Fatal("missing cleanup candidate")
+	}
+	claim, err := pool.Begin(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer claim.Rollback(context.Background())
+	if _, err = claim.Exec(ctx, `SELECT id FROM custom_form_sessions WHERE id=$1 FOR UPDATE`, id); err != nil {
+		t.Fatal(err)
+	}
+	store := &cleanupStore{}
+	runner := Runner{DB: pool, Storage: store}
+	done := make(chan error, 1)
+	go func() {
+		removed, err := runner.cleanFormUpload(ctx, candidate)
+		if removed {
+			err = errors.New("cleaner deleted a claimed attachment")
+		}
+		done <- err
+	}()
+	select {
+	case err := <-done:
+		t.Fatalf("cleanup passed the session lock: %v", err)
+	case <-time.After(100 * time.Millisecond):
+	}
+	if _, err = claim.Exec(ctx, `UPDATE custom_form_attachments SET claimed_at=now() WHERE id=$1`, id); err != nil {
+		t.Fatal(err)
+	}
+	if err = claim.Commit(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if err = <-done; err != nil {
+		t.Fatal(err)
+	}
+	if len(store.deleted) != 0 {
+		t.Fatal(store.deleted)
 	}
 }
