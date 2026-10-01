@@ -17,9 +17,16 @@ Each statement includes a short Indonesian description with everyday examples
 from team meetings, community activities, family, and friendships. Descriptions
 clarify the original statement without naming its talent or suggesting an answer.
 Participants are told the examples are illustrative and to answer from their own
-habits. This additive guidance retains `internal-170-v1`: statement text, IDs,
-scoring mappings, and stored answers are unchanged, so existing drafts resume.
+habits. This additive guidance retains `internal-170-v1`: IDs, scoring mappings,
+and stored answers are unchanged, so existing drafts resume.
 The frontend also accepts a definition without descriptions during API rollout.
+
+Statements are worded in plain, everyday Indonesian: idioms and jargon (for
+example "invisible hand", "indra keenam", "introspeksi", the SARA acronym) are
+replaced with direct phrasing, and long sentences are shortened. Each rewording
+keeps the original item's meaning, intensity words such as "selalu", and its
+talent, so it also retains `internal-170-v1`. A change that alters what an item
+measures needs a new version instead.
 
 ## Workflow and storage
 
