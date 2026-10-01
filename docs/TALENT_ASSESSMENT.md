@@ -51,6 +51,12 @@ Descending score, count of 6, count of 5, then stable manual scoring-sheet order
 Equal scores are indicated in the results. Ranks 1–7/8–27/28–34 follow the supplied
 three groups. Domain scores are averages of their talent scores, not percentiles.
 
+Theme names stay in English in the scoring definition, API, and stored results;
+they are the stable scoring keys. The dashboard's `theme-guide.json` adds an
+Indonesian `label` for each of the 34 themes, and the report shows that label
+(for example `Communication` → "Komunikasi"). Changing a label never affects
+stored results; changing a scoring key would.
+
 ## Results report
 
 The dashboard renders an original BMKA report with a participant header, top-seven
@@ -82,6 +88,7 @@ use existing `{ message, data }` envelopes.
 | POST | `/v2/talent-assessment/submit` | Submit `{draft_id, revision}` using stored answers |
 | GET | `/v2/talent-assessment/result` | Own completed result |
 | GET | `/v2/admin-users/:id/talent-assessment/result` | Super Admin-only read-only result with participant name |
+| GET | `/v2/admin-users` | Existing account list; Super Admin rows also carry `talent_assessment_completed` (boolean) so the dashboard shows **Lihat Hasil Bakat** only for accounts with a stored result |
 
 422 rejects malformed/out-of-range/incomplete input. 409 rejects stale draft IDs,
 revisions or definition versions. 404 indicates no completed result. Definition

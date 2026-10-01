@@ -151,3 +151,27 @@ func (q *Queries) SaveTalentDraft(ctx context.Context, arg SaveTalentDraftParams
 	)
 	return i, err
 }
+
+const talentResultAdminIDs = `-- name: TalentResultAdminIDs :many
+SELECT admin_user_id FROM talent_assessment_results WHERE admin_user_id = ANY($1::int[])
+`
+
+func (q *Queries) TalentResultAdminIDs(ctx context.Context, adminIds []int32) ([]int32, error) {
+	rows, err := q.db.Query(ctx, talentResultAdminIDs, adminIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []int32{}
+	for rows.Next() {
+		var admin_user_id int32
+		if err := rows.Scan(&admin_user_id); err != nil {
+			return nil, err
+		}
+		items = append(items, admin_user_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

@@ -12,6 +12,9 @@ WHERE admin_user_id=$1 RETURNING *;
 -- name: DeleteTalentDraft :exec
 DELETE FROM talent_assessment_drafts WHERE admin_user_id=$1;
 
+-- name: TalentResultAdminIDs :many
+SELECT admin_user_id FROM talent_assessment_results WHERE admin_user_id = ANY(@admin_ids::int[]);
+
 -- name: GetTalentResult :one
 SELECT * FROM talent_assessment_results WHERE admin_user_id=$1;
 

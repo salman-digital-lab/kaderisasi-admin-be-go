@@ -92,7 +92,11 @@ test('self assessment: keyboard, saved progress, review, submission, replacement
   await expect(page.getByText('Anda tidak memiliki akses ke hasil ini.',{exact:true})).toBeVisible();
   await page.context().clearCookies();await page.goto('/login');await login(page);
   await page.goto('/admin-users');
-  await expect(page.getByRole('button',{name:'Lihat Hasil Bakat'}).first()).toBeVisible();
+  // The result button appears only on accounts that finished the assessment.
+  const finished=(await fixture.db.query('SELECT count(*)::int AS n FROM talent_assessment_results')).rows[0].n;
+  await expect(page.getByRole('button',{name:'Ubah Akun'}).first()).toBeVisible();
+  expect(await page.getByRole('button',{name:'Ubah Akun'}).count()).toBeGreaterThan(finished);
+  await expect(page.getByRole('button',{name:'Lihat Hasil Bakat'})).toHaveCount(finished);
   await page.goto('/admin-users/2/talent-assessment/result');
   await expect(page.getByText('7 Bakat Menonjol',{exact:true})).toBeVisible();
   await expect(page.getByRole('button',{name:/Ulangi Asesmen/})).toHaveCount(0);
@@ -220,7 +224,7 @@ test('visual report uses PDF descriptions, interactive map and development guida
     await expect(card.getByRole('img')).toHaveAttribute('aria-label',`Rata-rata skor ${domain.name}: ${domain.score.toLocaleString('id-ID',{maximumFractionDigits:1})} dari 100`);
   }
   await reportEvidence(page,testInfo,'report-map');
-  await page.getByRole('button',{name:/Penjelasan Analytical,/}).focus();
+  await page.getByRole('button',{name:/Penjelasan Analitis,/}).focus();
   await page.keyboard.press('Enter');
   const dialog=page.getByRole('dialog');
   await expect(dialog).toBeVisible();
@@ -231,8 +235,8 @@ test('visual report uses PDF descriptions, interactive map and development guida
   await reportEvidence(page,testInfo,'report-detail');
   await page.keyboard.press('Escape');
   await expect(dialog).not.toBeVisible();
-  await page.getByRole('button',{name:/Penjelasan Learner,/}).click();
-  await expect(dialog.getByRole('heading',{name:'Learner dan Input',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:/Penjelasan Pembelajar,/}).click();
+  await expect(dialog.getByRole('heading',{name:'Pembelajar dan Pengumpul',exact:true})).toBeVisible();
   await page.keyboard.press('Escape');
   await page.getByRole('tab',{name:/Pengembangan$/}).click();
   await expect(page.getByRole('heading',{name:'Dari Bakat ke Aktivitas',exact:true})).toBeInViewport();

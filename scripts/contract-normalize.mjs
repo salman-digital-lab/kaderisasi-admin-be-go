@@ -23,6 +23,16 @@ export class ContractNormalizer {
         if(Array.isArray(row.course_progress)&&row.course_progress.length===0)delete row.course_progress;
       }
     }
+    // Native tests cover the Super Admin-only completion flag added to the
+    // account list; the historical Adonis list never returned it.
+    if(result.method==='GET'&&result.path.split('?')[0]==='/v2/admin-users'&&result.status===200){
+      for(const row of normalized.body?.data?.data??[]){
+        if(Object.hasOwn(row,'talent_assessment_completed')){
+          assert.equal(typeof row.talent_assessment_completed,'boolean','completion flag must be boolean');
+          delete row.talent_assessment_completed;
+        }
+      }
+    }
     if(result.status===500&&result.body?.frames){
       assert.equal(result.body.status,500);
       assert.equal(result.body.name,'error');

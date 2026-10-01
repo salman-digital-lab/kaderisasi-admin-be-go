@@ -35,22 +35,24 @@ type adminIdentityResponse struct {
 }
 
 type adminResponse struct {
-	RoleCodes             []string                `json:"role_codes"`
-	Roles                 []auth.AssignedRole     `json:"roles"`
-	ID                    int32                   `json:"id"`
-	Email                 string                  `json:"email"`
-	NormalizedEmail       string                  `json:"normalized_email"`
-	DisplayName           *string                 `json:"display_name"`
-	CreatedAt             *string                 `json:"created_at"`
-	UpdatedAt             *string                 `json:"updated_at"`
-	IsActive              bool                    `json:"is_active"`
-	RoleCode              *string                 `json:"role_code"`
-	Role                  *auth.AssignedRole      `json:"role"`
-	EffectivePermissions  []string                `json:"effective_permissions"`
-	IsSuperAdmin          bool                    `json:"is_super_admin"`
-	AuthenticationMethods []string                `json:"authentication_methods"`
-	GoogleLinked          bool                    `json:"google_linked"`
-	Identities            []adminIdentityResponse `json:"identities"`
+	RoleCodes             []string            `json:"role_codes"`
+	Roles                 []auth.AssignedRole `json:"roles"`
+	ID                    int32               `json:"id"`
+	Email                 string              `json:"email"`
+	NormalizedEmail       string              `json:"normalized_email"`
+	DisplayName           *string             `json:"display_name"`
+	CreatedAt             *string             `json:"created_at"`
+	UpdatedAt             *string             `json:"updated_at"`
+	IsActive              bool                `json:"is_active"`
+	RoleCode              *string             `json:"role_code"`
+	Role                  *auth.AssignedRole  `json:"role"`
+	EffectivePermissions  []string            `json:"effective_permissions"`
+	IsSuperAdmin          bool                `json:"is_super_admin"`
+	AuthenticationMethods []string            `json:"authentication_methods"`
+	GoogleLinked          bool                `json:"google_linked"`
+	// Set only on list rows read by a Super Admin; omitted elsewhere.
+	TalentAssessmentCompleted *bool                   `json:"talent_assessment_completed,omitempty"`
+	Identities                []adminIdentityResponse `json:"identities"`
 }
 
 type adminPage struct {

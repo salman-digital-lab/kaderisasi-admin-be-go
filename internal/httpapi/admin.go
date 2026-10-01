@@ -87,10 +87,28 @@ func (s *Server) registerAdmin() {
 			}
 		}
 		data := adminPage{Meta: database.Meta(total, page, size), Data: make([]adminResponse, len(users))}
+		completed := map[int32]bool{}
+		if auth.ForUser(actor(r)).IsSuperAdmin && len(users) > 0 {
+			ids := make([]int32, len(users))
+			for i, user := range users {
+				ids[i] = user.ID
+			}
+			done, doneErr := q.TalentResultAdminIDs(r.Context(), ids)
+			if doneErr != nil {
+				return doneErr
+			}
+			for _, id := range done {
+				completed[id] = true
+			}
+		}
 		for i, user := range users {
 			data.Data[i], err = s.adminView(r.Context(), user)
 			if err != nil {
 				return err
+			}
+			if auth.ForUser(actor(r)).IsSuperAdmin {
+				done := completed[user.ID]
+				data.Data[i].TalentAssessmentCompleted = &done
 			}
 		}
 		reply(w, 200, "GET_DATA_SUCCESS", data)

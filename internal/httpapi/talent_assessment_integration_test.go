@@ -143,6 +143,26 @@ func TestTalentAssessmentWorkflow(t *testing.T) {
 	if bytes.Contains(superResult["data"], []byte(`"answers"`)) {
 		t.Fatal("raw answers exposed")
 	}
+	// The account list flags completed assessments for Super Admins.
+	type listedAdmin struct {
+		ID        int32 `json:"id"`
+		Completed *bool `json:"talent_assessment_completed"`
+	}
+	type listedPage struct {
+		Data []listedAdmin `json:"data"`
+	}
+	listed := func(token string) map[int32]*bool {
+		page := decodeTalent[listedPage](t, f.httpFixture.call("GET", "/v2/admin-users?per_page=100", nil, token, 200))
+		flags := map[int32]*bool{}
+		for _, row := range page.Data {
+			flags[row.ID] = row.Completed
+		}
+		return flags
+	}
+	flags := listed(f.token)
+	if flags[participant] == nil || !*flags[participant] || flags[other] == nil || *flags[other] {
+		t.Fatal("super admin list must flag only the participant who finished", flags)
+	}
 	// Additional super-admin role uses the same authorization semantics.
 	if _, err := f.pool.Exec(context.Background(), "UPDATE admin_users SET additional_role_codes=ARRAY['super_admin'] WHERE id=$1", other); err != nil {
 		t.Fatal(err)
