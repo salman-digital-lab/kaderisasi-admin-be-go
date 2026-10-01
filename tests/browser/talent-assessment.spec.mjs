@@ -68,7 +68,9 @@ test('self assessment: keyboard, saved progress, review, submission, replacement
   await page.getByRole('button',{name:'Kirim Asesmen',exact:true}).click();
   await expect(page).toHaveURL(/\/profile\/talent-assessment\/result$/);
   await expect(page.getByText('7 Bakat Menonjol',{exact:true})).toBeVisible();
+  await page.getByRole('tab',{name:/Semua Skor$/}).click();
   await expect(page.locator('.talent-score-list li')).toHaveCount(34);
+  await page.getByRole('tab',{name:/Ringkasan$/}).click();
   await evidence(page,testInfo,'results');
   const original=(await participant('GET','/talent-assessment')).result;
   // Retaking preserves the submitted result until replacement, with no history.
@@ -84,6 +86,7 @@ test('self assessment: keyboard, saved progress, review, submission, replacement
   await expect(page).toHaveURL(/\/result$/);
   state=await participant('GET','/talent-assessment');expect(state.draft).toBeNull();expect(state.result.submission_id).toBe(saved.draft_id);
   expect(state.result.talents.every(theme=>theme.score===0)).toBe(true);
+  await expect(page.getByText(/Skor seluruh tema sama\. Urutan tampilan/)).toBeVisible();
   expect((await fixture.db.query('SELECT count(*)::int AS n FROM talent_assessment_results WHERE admin_user_id=2')).rows[0].n).toBe(1);
   await page.goto('/admin-users/1/talent-assessment/result');
   await expect(page.getByText('Anda tidak memiliki akses ke hasil ini.',{exact:true})).toBeVisible();
@@ -176,4 +179,77 @@ test('edits during a slow save are preserved and failed submission can be retrie
   await page.getByRole('button',{name:'Kirim Asesmen',exact:true}).click();
   await expect(page).toHaveURL(/\/result$/);
   expect((await participant('GET','/talent-assessment')).result.submitted_at).toBe(completed.submitted_at);
+});
+
+async function reportEvidence(page,testInfo,name){
+  const path=testInfo.outputPath(name+'.png');
+  if(name==='report-map'&&testInfo.project.name==='desktop') await page.locator('#talent-map').screenshot({path});
+  else await page.screenshot({path,fullPage:false});
+  await testInfo.attach(name,{path,contentType:'image/png'});
+}
+
+test('visual report uses PDF descriptions, interactive map and development guidance',async({page},testInfo)=>{
+  const canonical=JSON.parse((await import('node:fs')).readFileSync(new URL('../../internal/talent/definition.json',import.meta.url),'utf8'));
+  const reference=JSON.parse((await import('node:fs')).readFileSync(new URL('../../../kaderisasi-admin-fe/src/features/talent-assessment/theme-guide.json',import.meta.url),'utf8'));
+  const draft=await participant('POST','/talent-assessment/draft',{});
+  const answers=Array(170).fill(1);
+  const names=['Communication','Analytical','Arranger','Empathy','Strategic','Achiever','Relator'];
+  names.forEach((name,index)=>{
+    const theme=canonical.talents.find(theme=>theme.name===name);
+    const values=[6,6,6,6-Math.floor(index/2),6-Math.ceil(index/2)];
+    theme.questions.forEach((id,i)=>{answers[id-1]=values[i];});
+  });
+  const saved=await participant('PUT','/talent-assessment/draft',{...draft,answers,current_question:170});
+  const result=await participant('POST','/talent-assessment/submit',{draft_id:saved.draft_id,revision:saved.revision});
+  await login(page,'requester@example.test');
+  await page.goto('/profile/talent-assessment/result');
+  await expect(page.getByRole('heading',{name:'7 Bakat Menonjol',exact:true})).toBeVisible();
+  await expect(page.locator('.talent-top-list li')).toHaveCount(7);
+  await expect(page.locator('.talent-domain-map')).toHaveCount(0);
+  await reportEvidence(page,testInfo,'report-overview');
+  await page.getByRole('tab',{name:/Ringkasan$/}).focus();
+  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('tab',{name:/Peta Bakat$/})).toHaveAttribute('aria-selected','true');
+  await expect(page.locator('.talent-domain-map')).toHaveCount(4);
+  await expect(page.locator('.talent-map-theme')).toHaveCount(34);
+  await expect(page.locator('.talent-top-list')).toHaveCount(0);
+  await expect(page.getByRole('heading',{name:'Peta 34 Bakat'})).toBeInViewport();
+  for(const domain of result.domains){
+    const card=page.locator('.talent-domain-map').filter({has:page.getByRole('heading',{name:domain.name,exact:true})});
+    await expect(card.getByRole('img')).toHaveAttribute('aria-label',`Rata-rata skor ${domain.name}: ${domain.score.toLocaleString('id-ID',{maximumFractionDigits:1})} dari 100`);
+  }
+  await reportEvidence(page,testInfo,'report-map');
+  await page.getByRole('button',{name:/Penjelasan Analytical,/}).focus();
+  await page.keyboard.press('Enter');
+  const dialog=page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  const analytical=reference.themes.find(theme=>theme.name==='Analytical');
+  await expect(dialog.getByText(analytical.summary,{exact:true})).toBeVisible();
+  await expect(dialog.getByText(analytical.support,{exact:true})).toBeVisible();
+  await expect(dialog.locator('li')).toHaveCount(10);
+  await reportEvidence(page,testInfo,'report-detail');
+  await page.keyboard.press('Escape');
+  await expect(dialog).not.toBeVisible();
+  await page.getByRole('button',{name:/Penjelasan Learner,/}).click();
+  await expect(dialog.getByRole('heading',{name:'Learner dan Input',exact:true})).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.getByRole('tab',{name:/Pengembangan$/}).click();
+  await expect(page.getByRole('heading',{name:'Dari Bakat ke Aktivitas',exact:true})).toBeInViewport();
+  await expect(page.locator('.talent-activity-list article')).toHaveCount(7);
+  for(const theme of result.talents.slice(27)){
+    const guide=reference.themes.find(guide=>guide.name===theme.name);
+    await expect(page.locator('.talent-support-list').getByText(guide.support,{exact:true})).toBeVisible();
+  }
+  await page.getByRole('tab',{name:/Semua Skor$/}).click();
+  await expect(page.locator('.talent-score-list li')).toHaveCount(34);
+  await expect(page.locator('.talent-score-list li').first()).toBeVisible();
+  await page.getByText('Cara membaca skor dan urutan',{exact:true}).click();
+  await expect(page.getByText(/Lima jawaban pada setiap tema dijumlahkan/)).toBeVisible();
+  await page.evaluate(()=>{document.documentElement.style.fontSize='200%';});
+  for(const label of ['Ringkasan','Peta Bakat','Pengembangan','Semua Skor']){
+    await page.getByRole('tab',{name:new RegExp(label+'$')}).click();
+    expect(await page.locator('body').evaluate(body=>body.scrollWidth<=window.innerWidth)).toBe(true);
+  }
+  await reportEvidence(page,testInfo,'report-text-zoom');
 });

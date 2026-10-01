@@ -44,6 +44,22 @@ Descending score, count of 6, count of 5, then stable manual scoring-sheet order
 Equal scores are indicated in the results. Ranks 1–7/8–27/28–34 follow the supplied
 three groups. Domain scores are averages of their talent scores, not percentiles.
 
+## Results report
+
+The dashboard renders an original BMKA report with a participant header, top-seven
+summaries, an interactive four-domain map, activity examples, support for ranks
+28–34, and a dedicated full-ranking tab. Every theme opens a keyboard-accessible
+explanation drawer. Score ties remain explicit; uniform scores do not produce a
+claim about a dominant domain. Backend scoring and participant access are unchanged.
+
+The frontend's `theme-guide.json` records the supplied **Penjelasan 34 Tema Bakat
+Talents Mapping** PDF title and SHA-256. It contains all 34 theme descriptions,
+340 activity examples, lower-theme guidance, and eight distinctions between
+commonly confused themes. Domain descriptions use the PDF's Thinking, Influencing,
+Relating, and Striving categories, mapped to the existing Indonesian domain names.
+The report does not infer the eight-cluster PSP/PSS strength maps in the visual
+references because this assessment has no corresponding scoring definitions.
+
 ## API
 
 All routes require existing JWT authentication; mutations retain trusted-origin
@@ -83,3 +99,5 @@ The interface follows the dashboard's BMKA blue, Inter typography, square surfac
 and existing layout. Design review uses ENERGY 1 / RHYTHM 2 / MOTION 1: the statement
 is the focal point, answer rows serve touch/keyboard selection, and results use
 progressive detail without decorative motion or new visual dependencies.
+
+The report separates Ringkasan, Peta Bakat, Pengembangan, and Semua Skor into keyboard-accessible tabs. Only the active panel is rendered; participant identity remains above the tabs.
