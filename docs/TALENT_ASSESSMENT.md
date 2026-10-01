@@ -13,6 +13,14 @@ statements, not an official Talents Mapping report. The questionnaire API omits
 talent mappings and reconstructed-item metadata to avoid suggesting answers.
 Questions 11 and 12 deliberately use Positivity and Maximizer, respectively.
 
+Each statement includes a short Indonesian description with everyday examples
+from team meetings, community activities, family, and friendships. Descriptions
+clarify the original statement without naming its talent or suggesting an answer.
+Participants are told the examples are illustrative and to answer from their own
+habits. This additive guidance retains `internal-170-v1`: statement text, IDs,
+scoring mappings, and stored answers are unchanged, so existing drafts resume.
+The frontend also accepts a definition without descriptions during API rollout.
+
 ## Workflow and storage
 
 One question per screen, six fully labeled choices, explicit Next/Back, a question

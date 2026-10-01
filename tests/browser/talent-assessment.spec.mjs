@@ -21,11 +21,15 @@ test('self assessment: keyboard, saved progress, review, submission, replacement
   await expect(page.getByText('Jawab sesuai diri Anda sehari-hari')).toBeVisible();
   await page.getByRole('button',{name:'Mulai Asesmen',exact:true}).click();
   await expect(page.getByRole('button',{name:'Berikutnya',exact:true})).toBeDisabled();
+  const definition=await participant('GET','/talent-assessment/definition');
+  await expect(page.locator('#talent-description')).toHaveText(definition.questions[0].description);
+  await expect(page.getByRole('radiogroup')).toHaveAttribute('aria-describedby','talent-description');
   const agree=page.getByRole('radio',{name:'Setuju',exact:true});
   await agree.focus();await page.keyboard.press('Space');
   await expect(agree).toBeChecked();
   await page.getByRole('button',{name:'Berikutnya',exact:true}).click();
   await expect(page.getByText('Pernyataan 2 dari 170',{exact:true})).toBeVisible();
+  await expect(page.locator('#talent-description')).toHaveText(definition.questions[1].description);
   await page.getByRole('button',{name:'Sebelumnya',exact:true}).click();
   await expect(agree).toBeChecked();
   await page.getByRole('radio',{name:'Sangat Setuju',exact:true}).check();
@@ -52,6 +56,7 @@ test('self assessment: keyboard, saved progress, review, submission, replacement
   // Complete every statement through the actual radio and explicit Next controls.
   for(let number=1;number<=170;number++) {
     await expect(page.getByText(`Pernyataan ${number} dari 170`,{exact:true})).toBeVisible();
+    await expect(page.locator('#talent-description')).toHaveText(definition.questions[number-1].description);
     await page.getByRole('radio',{name:'Sangat Setuju',exact:true}).check();
     await page.getByRole('button',{name:number===170?'Periksa Jawaban':'Berikutnya',exact:true}).first().click();
   }

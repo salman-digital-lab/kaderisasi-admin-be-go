@@ -5,1021 +5,1191 @@
       "id": 1,
       "statement": "Saya mampu menyampaikan presentasi yang menarik.",
       "talent": "Communication",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Bayangkan saat menyampaikan laporan, menjelaskan kegiatan, atau berbicara dalam rapat. Perhatikan apakah cara Anda menyampaikan membuat orang tertarik dan mengikuti pembicaraan."
     },
     {
       "id": 2,
       "statement": "Saya memiliki kemampuan untuk \"mendengar\" pertanyaan atau perasaan yang tidak diungkapkan.",
       "talent": "Empathy",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Misalnya, teman mengatakan dirinya baik-baik saja, tetapi nada bicara atau sikapnya menunjukkan ada yang mengganggu. Anda menangkap perasaan yang belum ia ceritakan."
     },
     {
       "id": 3,
       "statement": "Saya berusaha mencari alasan mendasar yang dapat diterima oleh kedua belah pihak apabila terjadi perbedaan pendapat.",
       "talent": "Harmony",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat ada perbedaan pendapat dalam rapat panitia atau keluarga, Anda mencari alasan yang bisa dipahami kedua pihak agar pembicaraan menemukan titik temu."
     },
     {
       "id": 4,
       "statement": "Saya senang berada dalam kelompok yang tidak membedakan SARA (Suku, Agama, Ras, Antargolongan) dan kepribadian.",
       "talent": "Includer",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Pikirkan kenyamanan Anda bekerja atau berkegiatan bersama orang dari latar belakang suku, agama, dan kebiasaan yang berbeda, termasuk orang yang kepribadiannya berbeda dengan Anda."
     },
     {
       "id": 5,
       "statement": "Secara naluriah, saya mengetahui kelebihan dan kekurangan masing-masing orang.",
       "talent": "Individualization",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat membagi tugas kelompok, Anda biasanya bisa memperkirakan siapa yang cocok menangani bagian tertentu dan bagian mana yang mungkin menyulitkan orang tersebut."
     },
     {
       "id": 6,
       "statement": "Saya selalu ingin memperdalam hubungan dengan teman yang sudah dikenal.",
       "talent": "Relator",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda ingin mengenal teman yang sudah dekat dengan lebih mendalam, misalnya melalui percakapan pribadi atau meluangkan waktu bersama, bukan hanya saling menyapa."
     },
     {
       "id": 7,
       "statement": "Saya selalu berusaha memenuhi janji.",
       "talent": "Responsibility",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Pikirkan janji sehari-hari, seperti hadir dalam pertemuan, mengirim bahan rapat, atau membantu teman. Seberapa besar Anda berusaha menepatinya setelah mengatakan sanggup?"
     },
     {
       "id": 8,
       "statement": "Saya tidak ragu mengambil alih kendali saat situasi membutuhkan pemimpin.",
       "talent": "Command",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Saat kegiatan mulai tidak terarah atau ada masalah mendadak, Anda bersedia mengambil kendali dan memberi arahan meskipun sebelumnya tidak ditunjuk sebagai pemimpin."
     },
     {
       "id": 9,
       "statement": "Bagi saya, kemenangan adalah segalanya.",
       "talent": "Competition",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat mengikuti lomba, seleksi, atau kegiatan yang memiliki pemenang, menjadi juara terasa sangat penting bagi Anda, bukan sekadar ikut atau menyelesaikan kegiatan."
     },
     {
       "id": 10,
       "statement": "Saya merasa puas melihat kemajuan orang lain.",
       "talent": "Developer",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Kemajuan kecil orang lain membuat Anda merasa puas, misalnya ketika rekan yang Anda dampingi mulai berani berbicara atau dapat mengerjakan tugas sendiri."
     },
     {
       "id": 11,
       "statement": "Saya penuh antusias menjalani hidup ini.",
       "talent": "Positivity",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Pikirkan semangat Anda menjalani kegiatan sehari-hari. Anda merasa antusias menghadapi hari dan menemukan hal yang membuat Anda bersemangat dalam rutinitas."
     },
     {
       "id": 12,
       "statement": "Saya senang mengembangkan sesuatu yang sudah baik menjadi luar biasa.",
       "talent": "Maximizer",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Ketika suatu kegiatan sudah berjalan baik, Anda masih tertarik mencari cara untuk membuat hasilnya lebih baik lagi, bukan hanya mempertahankan hasil yang ada."
     },
     {
       "id": 13,
       "statement": "Saya senang memulai percakapan dengan semua orang di lingkungan yang baru.",
       "talent": "Woo",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat datang ke pertemuan atau kegiatan baru, Anda senang menyapa dan membuka percakapan dengan orang yang belum dikenal tanpa menunggu dikenalkan terlebih dahulu."
     },
     {
       "id": 14,
       "statement": "Saya merasa bahagia dalam lingkungan yang penuh kesibukan.",
       "talent": "Achiever",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda merasa senang ketika hari berisi banyak kegiatan atau pekerjaan. Pikirkan bagaimana perasaan Anda saat jadwal cukup padat dibandingkan saat banyak waktu kosong."
     },
     {
       "id": 15,
       "statement": "Saya termasuk orang yang tidak sabar untuk segera bertindak.",
       "talent": "Activator",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat sebuah ide dibahas, Anda ingin segera memulai langkah pertama. Menunggu terlalu lama sebelum bertindak cenderung membuat Anda tidak sabar."
     },
     {
       "id": 16,
       "statement": "Saya menikmati menjalani hari tanpa rencana yang kaku.",
       "talent": "Adaptability",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Anda menikmati hari yang bisa berubah mengikuti situasi, misalnya menentukan kegiatan sambil berjalan, tanpa merasa semua hal harus diatur secara rinci sejak awal."
     },
     {
       "id": 17,
       "statement": "Saya selalu bersedia berkorban demi kepentingan orang lain.",
       "talent": "Belief",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Pikirkan saat membantu orang lain mengharuskan Anda mengurangi waktu, tenaga, atau kenyamanan sendiri. Seberapa sering Anda bersedia melakukan pengorbanan itu?"
     },
     {
       "id": 18,
       "statement": "Saya selalu membuat jadwal dan menjadikan segala sesuatunya teratur.",
       "talent": "Discipline",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda terbiasa membuat jadwal, daftar tugas, atau pengingat untuk mengatur kegiatan sehari-hari, seperti pekerjaan, urusan rumah, dan kegiatan organisasi."
     },
     {
       "id": 19,
       "statement": "Saya mudah menyingkirkan hal-hal yang tidak berhubungan dengan tujuan saya.",
       "talent": "Focus",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Saat mengejar suatu tujuan, Anda bisa menyisihkan ajakan atau kegiatan yang tidak mendukung tujuan tersebut agar perhatian Anda tetap pada hal yang ingin dicapai."
     },
     {
       "id": 20,
       "statement": "Saya merasa tertantang ketika menghadapi sesuatu yang rusak atau tidak berjalan semestinya.",
       "talent": "Restorative",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Ketika menemukan alur kerja yang macet, perlengkapan rusak, atau kegiatan yang tidak berjalan lancar, Anda justru tertarik mencari cara untuk memperbaikinya."
     },
     {
       "id": 21,
       "statement": "Jika saya yakin akan sesuatu, tidak ada yang dapat mempengaruhi pendapat saya.",
       "talent": "Self-Assurance",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Setelah merasa yakin pada suatu pendapat atau keputusan, Anda sulit mengubahnya meskipun orang lain mencoba membujuk atau menyampaikan pandangan yang berbeda."
     },
     {
       "id": 22,
       "statement": "Saya ingin dikenal karena memiliki keistimewaan yang unik.",
       "talent": "Significance",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda ingin orang mengenal ciri atau kelebihan yang membedakan Anda, misalnya cara bekerja, karya, atau kontribusi tertentu yang menjadi identitas Anda."
     },
     {
       "id": 23,
       "statement": "Saya suka data karena sifatnya yang objektif dan bebas nilai.",
       "talent": "Analytical",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda senang memakai data, seperti catatan kehadiran atau hasil kegiatan, sebagai dasar pembahasan karena menganggapnya lebih objektif daripada kesan pribadi."
     },
     {
       "id": 24,
       "statement": "Saya senang mengatur ulang orang dan sumber daya agar hasilnya lebih efektif.",
       "talent": "Arranger",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Saat mengelola kegiatan, Anda senang menyesuaikan pembagian tugas, jadwal, atau penggunaan perlengkapan agar orang dan sumber daya yang tersedia bekerja lebih efektif."
     },
     {
       "id": 25,
       "statement": "Saya percaya pada adanya \"invisible hand\" atau \"bantuan yang tak terlihat\".",
       "talent": "Connectedness",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda percaya ada pertolongan atau keterkaitan yang tidak selalu terlihat atau bisa dijelaskan, misalnya ketika bantuan datang pada saat yang tidak diduga."
     },
     {
       "id": 26,
       "statement": "Saya memperlakukan semua orang dengan cara yang sama dan konsisten sesuai dengan aturan yang jelas.",
       "talent": "Consistency",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat menerapkan aturan kelompok, Anda cenderung menggunakan ketentuan yang sama untuk semua orang, termasuk teman dekat maupun orang yang baru dikenal."
     },
     {
       "id": 27,
       "statement": "Saya tertarik pada kajian peristiwa masa lalu.",
       "talent": "Context",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda tertarik menelusuri kejadian yang sudah berlangsung, misalnya bagaimana suatu organisasi terbentuk atau mengapa sebuah kegiatan dahulu berhasil atau mengalami masalah."
     },
     {
       "id": 28,
       "statement": "Saya tidak mudah memercayai orang yang baru saya kenal.",
       "talent": "Deliberative",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Saat baru mengenal seseorang, Anda membutuhkan waktu dan pengalaman bersama sebelum merasa cukup percaya untuk berbagi informasi pribadi atau memberikan tanggung jawab."
     },
     {
       "id": 29,
       "statement": "Saya senang bermimpi tentang masa depan.",
       "talent": "Futuristic",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda senang membayangkan seperti apa kehidupan, lingkungan, atau organisasi pada masa mendatang, termasuk hal yang belum ada saat ini."
     },
     {
       "id": 30,
       "statement": "Saya senang membuat konsep.",
       "talent": "Ideation",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda menikmati menyusun gagasan dasar suatu kegiatan atau program, seperti tujuan, tema, dan bentuk kegiatannya, sebelum membahas rincian pelaksanaan."
     },
     {
       "id": 31,
       "statement": "Saya senang menyimpan artikel, buku, atau catatan yang suatu saat mungkin berguna.",
       "talent": "Input",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Anda menyimpan bacaan, tautan, buku, atau catatan karena merasa isinya mungkin dibutuhkan lagi, misalnya untuk bahan diskusi atau merancang kegiatan berikutnya."
     },
     {
       "id": 32,
       "statement": "Saya senang merenung dan merefleksikan diri melalui introspeksi.",
       "talent": "Intellection",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda senang meluangkan waktu untuk memikirkan pengalaman sendiri, memahami alasan di balik tindakan Anda, dan mengenali apa yang Anda rasakan."
     },
     {
       "id": 33,
       "statement": "Saya tertarik pada bidang-bidang yang mengalami perubahan cepat.",
       "talent": "Learner",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Bidang yang terus berkembang membuat Anda tertarik untuk mengikuti dan mempelajarinya, misalnya perubahan teknologi, cara belajar, atau cara mengelola kegiatan."
     },
     {
       "id": 34,
       "statement": "Saya memiliki banyak pilihan jalan untuk mencapai tujuan.",
       "talent": "Strategic",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Ketika ingin mencapai tujuan, Anda bisa memikirkan beberapa cara yang berbeda, sehingga tidak hanya bergantung pada satu rencana atau jalan."
     },
     {
       "id": 35,
       "statement": "Saya senang menjelaskan sesuatu dengan cara yang sederhana agar orang dapat lebih mudah memahaminya.",
       "talent": "Communication",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat teman belum memahami suatu hal, Anda senang menjelaskannya dengan bahasa yang lebih sederhana, misalnya memakai contoh keseharian daripada istilah yang rumit."
     },
     {
       "id": 36,
       "statement": "Saya mudah terharu hingga menangis.",
       "talent": "Empathy",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Pikirkan reaksi Anda saat mendengar cerita menyentuh, melihat perjuangan seseorang, atau menyaksikan peristiwa emosional. Seberapa mudah Anda terharu sampai menangis?"
     },
     {
       "id": 37,
       "statement": "Saya selalu berusaha memahami sudut pandang orang lain.",
       "talent": "Harmony",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Ketika orang memiliki pendapat berbeda, Anda berusaha memahami pengalaman atau alasan di balik pendapatnya, termasuk saat Anda sendiri tidak sepakat."
     },
     {
       "id": 38,
       "statement": "Bagi saya, semua orang memiliki tingkat kepentingan yang sama.",
       "talent": "Includer",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Dalam kelompok, Anda merasa setiap orang sama pentingnya untuk diperhatikan, meskipun jabatan, kedekatan, pengalaman, atau kontribusi yang terlihat tidak sama."
     },
     {
       "id": 39,
       "statement": "Saya dapat melihat karakteristik khusus dan perbedaan dari setiap orang.",
       "talent": "Individualization",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda memperhatikan hal yang membedakan setiap orang, seperti cara berkomunikasi, minat, atau kebiasaan bekerja, meskipun mereka berada dalam kelompok yang sama."
     },
     {
       "id": 40,
       "statement": "Saya senang membangun hubungan yang tulus dengan teman-teman.",
       "talent": "Relator",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda menikmati hubungan yang memungkinkan saling percaya dan berbicara apa adanya, bukan hanya hubungan yang terbentuk karena ada urusan atau kepentingan bersama."
     },
     {
       "id": 41,
       "statement": "Saya memiliki tekad kuat untuk melakukan sesuatu dengan benar.",
       "talent": "Responsibility",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat mengerjakan sesuatu, Anda ingin melakukannya dengan benar dan merasa perlu memastikan tanggung jawab tersebut dijalankan sebagaimana mestinya."
     },
     {
       "id": 42,
       "statement": "Saya memiliki pendirian yang teguh, meskipun kadang-kadang keras kepala.",
       "talent": "Command",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda tetap memegang pendapat atau keputusan ketika mendapat tekanan dari orang lain. Kadang orang di sekitar menilai Anda sulit dibujuk atau keras kepala."
     },
     {
       "id": 43,
       "statement": "Bagi saya, persaingan memberikan rasa hidup yang lebih menarik.",
       "talent": "Competition",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Adanya orang lain yang mengejar hasil serupa membuat Anda lebih bersemangat, misalnya saat berlomba, mengejar target, atau membandingkan pencapaian."
     },
     {
       "id": 44,
       "statement": "Saya senang membantu orang lain mencapai kesuksesan.",
       "talent": "Developer",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda senang membantu orang mencapai tujuannya, misalnya memberi masukan, mengenalkan sumber belajar, atau mendampingi persiapan kegiatan yang penting baginya."
     },
     {
       "id": 45,
       "statement": "Saya lebih fokus pada kekuatan daripada kelemahan.",
       "talent": "Maximizer",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat melihat diri sendiri atau anggota tim, perhatian Anda lebih sering tertuju pada kemampuan yang sudah baik dan bisa dikembangkan daripada kekurangannya."
     },
     {
       "id": 46,
       "statement": "Saya selalu merasa ceria dan penuh semangat.",
       "talent": "Positivity",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Pikirkan suasana hati yang biasa Anda bawa ke kegiatan sehari-hari. Anda cenderung merasa ceria dan bersemangat dalam berbagai kesempatan."
     },
     {
       "id": 47,
       "statement": "Saya jarang kehabisan kata.",
       "talent": "Woo",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Dalam percakapan, Anda biasanya mudah menemukan topik atau tanggapan berikutnya, termasuk ketika obrolan mulai sepi atau lawan bicara belum banyak bercerita."
     },
     {
       "id": 48,
       "statement": "Semangat saya berkurang saat tidak ada kegiatan.",
       "talent": "Achiever",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat tidak ada pekerjaan atau kegiatan yang bisa dilakukan, Anda merasa semangat menurun dan ingin mencari sesuatu untuk dikerjakan."
     },
     {
       "id": 49,
       "statement": "Saya lebih suka langsung mencoba daripada terlalu lama berdiskusi.",
       "talent": "Activator",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Ketika muncul rencana baru, Anda lebih suka mencoba langkah kecil untuk melihat hasilnya daripada terus membicarakan kemungkinan tanpa mulai bertindak."
     },
     {
       "id": 50,
       "statement": "Saya memiliki kemampuan untuk beradaptasi.",
       "talent": "Adaptability",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Pikirkan saat bergabung dengan tim baru atau menghadapi cara kerja yang berbeda. Anda merasa mampu menyesuaikan diri dengan kebutuhan lingkungan tersebut."
     },
     {
       "id": 51,
       "statement": "Saya senang membantu orang lain tanpa mengharap imbalan.",
       "talent": "Belief",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda senang membantu tanpa berharap balasan, pengakuan, atau keuntungan tertentu, misalnya ikut kerja bakti atau membantu tetangga yang sedang mengalami kesulitan."
     },
     {
       "id": 52,
       "statement": "Saya senang menciptakan keteraturan.",
       "talent": "Discipline",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda menikmati merapikan susunan yang belum teratur, seperti jadwal, dokumen, pembagian tugas, atau perlengkapan, agar lebih mudah digunakan dan diikuti."
     },
     {
       "id": 53,
       "statement": "Saya selalu menetapkan tujuan untuk mengatur prioritas.",
       "talent": "Focus",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Sebelum memilih pekerjaan yang didahulukan, Anda menetapkan hasil yang ingin dicapai. Tujuan itu membantu Anda menentukan mana yang penting dan mana yang bisa menunggu."
     },
     {
       "id": 54,
       "statement": "Saya senang memperbaiki dan memecahkan masalah.",
       "talent": "Restorative",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat muncul masalah dalam pekerjaan atau kegiatan, Anda senang menelusuri penyebabnya dan mengerjakan langkah yang membuat keadaan kembali berjalan."
     },
     {
       "id": 55,
       "statement": "Saya memiliki indra keenam.",
       "talent": "Self-Assurance",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Pikirkan pengalaman ketika Anda memiliki firasat atau keyakinan tentang suatu situasi sebelum dapat menjelaskan alasannya. Pernyataan ini memakai ungkapan sehari-hari tentang intuisi."
     },
     {
       "id": 56,
       "statement": "Bagi saya, reputasi memiliki nilai penting.",
       "talent": "Significance",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda memikirkan bagaimana orang menilai nama baik dan rekam jejak Anda, misalnya sebagai orang yang bisa dipercaya dalam pekerjaan atau kegiatan masyarakat."
     },
     {
       "id": 57,
       "statement": "Saya sering bertanya untuk memastikan kebenaran data yang diperlukan.",
       "talent": "Analytical",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat menerima informasi, Anda ingin memastikan sumber, kelengkapan, atau ketepatannya dengan bertanya, terutama sebelum informasi itu dipakai untuk mengambil keputusan."
     },
     {
       "id": 58,
       "statement": "Saya mampu melihat bagaimana orang dengan berbagai kekuatan dapat bekerja sama.",
       "talent": "Arranger",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat membentuk tim, Anda bisa membayangkan bagaimana kemampuan yang berbeda saling melengkapi, misalnya siapa yang menyiapkan konsep, berkomunikasi, dan mengurus pelaksanaan."
     },
     {
       "id": 59,
       "statement": "Pikiran, perasaan, dan tindakan saya berorientasi pada sisi spiritual.",
       "talent": "Connectedness",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Keyakinan atau nilai spiritual ikut memengaruhi cara Anda memandang kejadian, merasakan sesuatu, dan memilih tindakan dalam kehidupan sehari-hari."
     },
     {
       "id": 60,
       "statement": "Saya berusaha untuk tidak memihak.",
       "talent": "Consistency",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat ada perselisihan atau pembagian kesempatan, Anda berusaha menilai keadaan tanpa otomatis membela orang yang paling dekat dengan Anda."
     },
     {
       "id": 61,
       "statement": "Saya tertarik dengan studi kasus.",
       "talent": "Context",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda tertarik belajar dari contoh kejadian nyata, misalnya membaca cerita suatu program lalu membahas masalah, keputusan, dan hasil yang dialami pelaksananya."
     },
     {
       "id": 62,
       "statement": "Saya sangat hati-hati dalam memberikan pujian karena takut salah menilai.",
       "talent": "Deliberative",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Sebelum memuji seseorang, Anda ingin cukup yakin pada hal yang dipuji agar penilaian Anda tidak terburu-buru atau keliru."
     },
     {
       "id": 63,
       "statement": "Saya suka membayangkan / mengisahkan hal-hal yang mungkin terjadi di masa depan.",
       "talent": "Futuristic",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda menikmati membayangkan dan menceritakan kemungkinan masa depan, misalnya bagaimana sebuah kegiatan, komunitas, atau tempat tinggal dapat berkembang beberapa tahun lagi."
     },
     {
       "id": 64,
       "statement": "Saya memiliki banyak ide dan gagasan.",
       "talent": "Ideation",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Dalam pembicaraan atau saat menghadapi persoalan, berbagai gagasan sering muncul di pikiran Anda, meskipun belum semuanya menjadi rencana yang rinci."
     },
     {
       "id": 65,
       "statement": "Saya selalu ingin mengumpulkan segala hal yang menarik.",
       "talent": "Input",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Hal yang menarik perhatian membuat Anda ingin mengumpulkan atau menyimpannya, misalnya informasi, foto, bahan bacaan, atau benda yang memiliki cerita tertentu."
     },
     {
       "id": 66,
       "statement": "Saya senang dengan kegiatan mengasah otak.",
       "talent": "Intellection",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda menikmati kegiatan yang menantang pikiran, seperti teka-teki, membahas pertanyaan sulit, atau mencari penjelasan atas sesuatu yang belum dipahami."
     },
     {
       "id": 67,
       "statement": "Saya menikmati proses belajar, bukan hanya hasil akhirnya.",
       "talent": "Learner",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Proses memahami sesuatu yang baru sudah terasa menyenangkan bagi Anda, meskipun belum menghasilkan sertifikat, pencapaian, atau manfaat langsung."
     },
     {
       "id": 68,
       "statement": "Saya merasa senang dengan tugas perencanaan jangka menengah dan panjang.",
       "talent": "Strategic",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda menikmati memikirkan langkah beberapa bulan atau tahun ke depan, misalnya arah program, kebutuhan tim, atau tahapan mencapai tujuan organisasi."
     },
     {
       "id": 69,
       "statement": "Saya mampu membuat ide yang kurang menarik menjadi menarik.",
       "talent": "Communication",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat sebuah ide terdengar biasa saja, Anda bisa menemukan cara bercerita, contoh, atau sudut penyampaian yang membuat orang lebih tertarik menyimaknya."
     },
     {
       "id": 70,
       "statement": "Saya memiliki kemampuan untuk mengungkapkan perasaan dengan kata dan nada yang tepat.",
       "talent": "Empathy",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat ingin menyampaikan perasaan, Anda dapat memilih kata dan nada bicara yang sesuai, misalnya ketika menghibur teman atau membicarakan hal yang sensitif."
     },
     {
       "id": 71,
       "statement": "Saya cenderung mencari kesepakatan dan dukungan daripada memaksakan pendapat.",
       "talent": "Harmony",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Dalam musyawarah, Anda lebih sering mencari pendapat yang bisa disepakati bersama daripada meminta orang lain mengikuti pendapat Anda begitu saja."
     },
     {
       "id": 72,
       "statement": "Saya selalu berusaha untuk memperluas kelompok dan menyambut semua orang.",
       "talent": "Includer",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat ada orang baru, Anda senang menyambut dan mengajaknya bergabung dalam percakapan atau kegiatan, termasuk ketika kelompok sudah memiliki anggota yang akrab."
     },
     {
       "id": 73,
       "statement": "Secara naluriah, saya mengamati cara berpikir setiap orang.",
       "talent": "Individualization",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Ketika berinteraksi, Anda memperhatikan bagaimana seseorang mempertimbangkan masalah, mengambil keputusan, atau memahami penjelasan, tanpa selalu harus diminta mengamatinya."
     },
     {
       "id": 74,
       "statement": "Saya senang menjalin persahabatan.",
       "talent": "Relator",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda menikmati membangun persahabatan dan menjaga hubungan sebagai teman, misalnya melalui percakapan, kegiatan bersama, atau saling hadir ketika dibutuhkan."
     },
     {
       "id": 75,
       "statement": "Apabila saya membuat kesalahan, saya akan memperbaikinya tanpa memedulikan waktu dan biaya.",
       "talent": "Responsibility",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Ketika kesalahan terjadi karena tindakan Anda, Anda merasa perlu memperbaikinya meskipun membutuhkan waktu, tenaga, atau biaya tambahan."
     },
     {
       "id": 76,
       "statement": "Saya suka memimpin dan membuat keputusan.",
       "talent": "Command",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda menikmati peran yang memberi arah dan menentukan pilihan, misalnya menjadi koordinator kegiatan atau memutuskan langkah saat tim membutuhkan keputusan."
     },
     {
       "id": 77,
       "statement": "Saya tidak ingin mengalah.",
       "talent": "Competition",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Dalam persaingan atau situasi saling berhadapan, Anda tidak nyaman mengalah dan ingin tetap memperjuangkan kemenangan atau posisi Anda."
     },
     {
       "id": 78,
       "statement": "Saya senang membantu orang tumbuh dan mempersiapkan masa depan mereka.",
       "talent": "Developer",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda senang membantu orang mengembangkan kemampuan untuk langkah berikutnya, misalnya mendampingi anggota baru agar siap menerima tanggung jawab yang lebih besar."
     },
     {
       "id": 79,
       "statement": "Saya enggan membuang-buang waktu untuk sesuatu yang hasilnya tidak istimewa.",
       "talent": "Maximizer",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Ketika memperkirakan hasil suatu pekerjaan akan biasa saja, Anda merasa enggan menghabiskan banyak waktu untuknya dan lebih tertarik pada hasil yang istimewa."
     },
     {
       "id": 80,
       "statement": "Saya mampu membawa semangat dan keceriaan ke dalam suasana.",
       "talent": "Positivity",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Kehadiran atau cara Anda berinteraksi sering membuat suasana lebih bersemangat, misalnya menghidupkan rapat yang lesu atau menyemangati teman saat persiapan kegiatan."
     },
     {
       "id": 81,
       "statement": "Saya mudah mendapatkan kepercayaan orang lain pada kesan pertama.",
       "talent": "Woo",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat baru bertemu seseorang, cara Anda berbicara atau membawa diri biasanya membuatnya cepat merasa nyaman dan percaya untuk melanjutkan interaksi."
     },
     {
       "id": 82,
       "statement": "Kerja keras adalah motivasi saya.",
       "talent": "Achiever",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Usaha yang sungguh-sungguh memberi Anda dorongan untuk terus bergerak. Pikirkan apakah bekerja keras itu sendiri terasa memotivasi dalam keseharian Anda."
     },
     {
       "id": 83,
       "statement": "Saya senang mengambil tindakan meskipun ada hambatan.",
       "talent": "Activator",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Ketika pelaksanaan terhambat, Anda masih ingin melakukan langkah yang memungkinkan kegiatan berjalan, alih-alih menunggu sampai seluruh hambatan hilang."
     },
     {
       "id": 84,
       "statement": "Perubahan rencana secara mendadak tidak membuat saya kecewa.",
       "talent": "Adaptability",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat jadwal rapat, lokasi kegiatan, atau pembagian tugas berubah mendadak, Anda tidak mudah merasa kecewa hanya karena rencana awal berubah."
     },
     {
       "id": 85,
       "statement": "Saya lebih mengutamakan kepentingan orang lain.",
       "talent": "Belief",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat kebutuhan Anda bertabrakan dengan kebutuhan orang lain, Anda cenderung mendahulukan mereka, misalnya dalam penggunaan waktu, tenaga, atau sumber daya."
     },
     {
       "id": 86,
       "statement": "Hidup saya teratur dan tertata.",
       "talent": "Discipline",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Pikirkan keseharian Anda, seperti mengatur waktu, barang, dan tanggung jawab. Apakah semuanya biasanya tersusun dengan pola yang teratur dan bisa diikuti?"
     },
     {
       "id": 87,
       "statement": "Saya selalu mengikuti arah yang telah saya tentukan dan tetap berada di jalannya.",
       "talent": "Focus",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Setelah menentukan arah, Anda berusaha tetap menjalankannya meskipun muncul tawaran atau kegiatan lain yang bisa mengalihkan perhatian."
     },
     {
       "id": 88,
       "statement": "Saya suka menganalisis apa yang salah lalu mencari cara untuk memperbaikinya.",
       "talent": "Restorative",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Anda tertarik mencari bagian yang tidak berjalan, memahami penyebabnya, lalu memikirkan perbaikan, misalnya ketika alur pendaftaran kegiatan sering menimbulkan masalah."
     },
     {
       "id": 89,
       "statement": "Saya yakin pada kemampuan unik dan berbeda yang saya miliki.",
       "talent": "Self-Assurance",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda percaya pada kemampuan yang menjadi ciri diri Anda, termasuk saat kemampuan tersebut berbeda dengan orang lain atau belum banyak mendapat pengakuan."
     },
     {
       "id": 90,
       "statement": "Saya ingin diakui sebagai seorang profesional, sukses, dan dapat dipercaya.",
       "talent": "Significance",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda ingin dikenal sebagai orang yang bekerja dengan baik, mencapai hasil, dan bisa dipercaya, misalnya dalam tanggung jawab organisasi atau pekerjaan."
     },
     {
       "id": 91,
       "statement": "Saya senang menemukan pola dan keterkaitan dalam data.",
       "talent": "Analytical",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat membaca catatan atau angka, Anda senang mencari pola dan hubungan, misalnya antara waktu kegiatan, jumlah peserta, dan tingkat kehadiran."
     },
     {
       "id": 92,
       "statement": "Saya merasa nyaman menjalankan beberapa tugas sekaligus dalam satu waktu.",
       "talent": "Arranger",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda merasa nyaman menangani beberapa urusan dalam waktu yang sama, seperti memantau persiapan acara, menjawab koordinasi, dan memastikan kebutuhan perlengkapan."
     },
     {
       "id": 93,
       "statement": "Menurut saya, setiap kesulitan pasti memiliki hikmahnya.",
       "talent": "Connectedness",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat mengalami kesulitan, Anda percaya ada pelajaran atau makna di baliknya, meskipun belum langsung terlihat ketika kejadian itu berlangsung."
     },
     {
       "id": 94,
       "statement": "Saya percaya aturan harus berlaku sama bagi semua orang tanpa pengecualian.",
       "talent": "Consistency",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Anda merasa aturan yang telah disepakati seharusnya diterapkan sama kepada setiap orang, tanpa pengecualian karena jabatan, kedekatan, atau alasan pribadi."
     },
     {
       "id": 95,
       "statement": "Saya senang membuat ringkasan catatan kegiatan atau pertemuan untuk referensi.",
       "talent": "Context",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda tertarik mencatat inti rapat atau kegiatan agar pengalaman dan keputusan sebelumnya dapat dilihat kembali ketika dibutuhkan."
     },
     {
       "id": 96,
       "statement": "Saya biasanya membuat rencana yang rinci karena sikap hati-hati.",
       "talent": "Deliberative",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Sebelum kegiatan berlangsung, Anda membuat rencana terperinci untuk mengurangi kemungkinan masalah, misalnya memeriksa jadwal, kebutuhan, dan langkah cadangan."
     },
     {
       "id": 97,
       "statement": "Saya mampu dengan jelas melihat kemungkinan-kemungkinan di masa depan.",
       "talent": "Futuristic",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda dapat membayangkan kemungkinan masa depan secara cukup jelas, misalnya seperti apa bentuk kegiatan atau kondisi organisasi setelah suatu perubahan dilakukan."
     },
     {
       "id": 98,
       "statement": "Saya senang mencari hubungan antara berbagai ide.",
       "talent": "Ideation",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat menemukan beberapa gagasan yang berbeda, Anda senang mencari hubungan di antaranya, misalnya menggabungkan cara belajar dengan bentuk kegiatan masyarakat."
     },
     {
       "id": 99,
       "statement": "Saya senang mencari informasi beragam karena ingin tahu.",
       "talent": "Input",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Rasa ingin tahu mendorong Anda mencari informasi dari berbagai topik atau sumber, meskipun informasi itu belum diperlukan untuk tugas tertentu."
     },
     {
       "id": 100,
       "statement": "Saya menikmati proses berpikir dan memahami.",
       "talent": "Intellection",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda menikmati waktu untuk memikirkan suatu hal sampai memahami cara kerja atau alasannya, bukan hanya mendapatkan jawaban singkat."
     },
     {
       "id": 101,
       "statement": "Saya tertarik mempelajari hal-hal baru.",
       "talent": "Learner",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda tertarik mempelajari hal yang belum dikenal, misalnya keterampilan, topik diskusi, atau cara kerja baru, meskipun bukan bidang utama Anda."
     },
     {
       "id": 102,
       "statement": "Kerumitan yang dirasakan orang lain ketika membuat rencana, justru terlihat sederhana bagi saya karena polanya terlihat jelas.",
       "talent": "Strategic",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat orang lain merasa suatu rencana rumit, Anda bisa melihat pola atau urutan langkah yang membuat rencana itu terasa lebih mudah dipahami."
     },
     {
       "id": 103,
       "statement": "Saya senang dan mampu berbicara di depan umum atau di depan kelas.",
       "talent": "Communication",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Pikirkan saat berbicara di depan kelas, forum, atau peserta kegiatan. Pernyataan ini menanyakan apakah Anda menikmati kegiatan itu sekaligus merasa mampu melakukannya."
     },
     {
       "id": 104,
       "statement": "Saya bisa merasakan perasaan orang lain seolah-olah perasaan saya sendiri.",
       "talent": "Empathy",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat seseorang menceritakan pengalaman emosional, Anda ikut merasakan kesedihan, kegembiraan, atau kecemasannya, seolah pengalaman itu dekat dengan diri Anda sendiri."
     },
     {
       "id": 105,
       "statement": "Saya tidak suka berdebat dan lebih memilih mencari titik temu.",
       "talent": "Harmony",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Ketika pembicaraan mulai menjadi perdebatan, Anda lebih ingin menemukan kesamaan dan kesepakatan daripada terus mempertahankan perbedaan pendapat."
     },
     {
       "id": 106,
       "statement": "Saya peka terhadap orang yang merasa tersisih dan berusaha mengajaknya bergabung.",
       "talent": "Includer",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Anda memperhatikan orang yang belum diajak bicara atau belum mendapat tempat dalam kelompok, lalu berusaha mengikutsertakannya dalam percakapan atau kegiatan."
     },
     {
       "id": 107,
       "statement": "Saya memiliki naluri untuk mengetahui tindakan yang paling sesuai untuk setiap orang.",
       "talent": "Individualization",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat berhadapan dengan orang yang berbeda, Anda biasanya tahu pendekatan yang terasa cocok bagi masing-masing, misalnya kapan perlu menjelaskan rinci atau memberi ruang."
     },
     {
       "id": 108,
       "statement": "Saya lebih nyaman bersama sedikit teman dekat daripada banyak kenalan.",
       "talent": "Relator",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Dalam pergaulan, Anda lebih nyaman bersama beberapa teman yang benar-benar dekat daripada berada di antara banyak orang yang hanya dikenal sekilas."
     },
     {
       "id": 109,
       "statement": "Saya merasa bersalah jika tidak dapat menyelesaikan tugas yang sudah saya sanggupi.",
       "talent": "Responsibility",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Ketika tidak dapat menyelesaikan tanggung jawab yang sudah Anda terima, Anda merasa bersalah, meskipun orang lain mungkin dapat memaklumi keadaan tersebut."
     },
     {
       "id": 110,
       "statement": "Saya berani berhadapan secara langsung.",
       "talent": "Command",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat ada persoalan dengan seseorang, Anda berani membicarakannya secara langsung dengan orang tersebut daripada selalu menyampaikan lewat perantara."
     },
     {
       "id": 111,
       "statement": "Saya selalu berusaha menjadi nomor satu.",
       "talent": "Competition",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Dalam kegiatan yang bisa dibandingkan hasilnya, Anda terdorong untuk menjadi yang paling unggul, misalnya memperoleh peringkat atau pencapaian tertinggi."
     },
     {
       "id": 112,
       "statement": "Saya sabar mendampingi orang lain yang sedang belajar.",
       "talent": "Developer",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Ketika orang masih belajar dan melakukan kesalahan, Anda bersedia menjelaskan kembali atau mendampinginya sampai ia mulai memahami."
     },
     {
       "id": 113,
       "statement": "Bagi saya, rata-rata tidak cukup; yang diperlukan adalah yang terbaik.",
       "talent": "Maximizer",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Hasil yang sekadar memenuhi standar belum terasa cukup bagi Anda. Anda ingin pekerjaan, karya, atau kegiatan menghasilkan mutu yang terbaik."
     },
     {
       "id": 114,
       "statement": "Saya selalu dapat melihat sisi baik dari setiap keadaan.",
       "talent": "Positivity",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Dalam berbagai keadaan, Anda cenderung menemukan sisi yang bisa disyukuri atau dilihat secara positif, termasuk ketika situasinya tidak sesuai harapan."
     },
     {
       "id": 115,
       "statement": "Saya senang bertemu dan berkenalan dengan orang-orang baru.",
       "talent": "Woo",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Kesempatan bertemu orang baru membuat Anda tertarik, misalnya saat hadir di kegiatan lintas komunitas, pelatihan, atau pertemuan warga."
     },
     {
       "id": 116,
       "statement": "Saya tidak merasa puas jika tidak ada hasil yang nyata setiap harinya.",
       "talent": "Achiever",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Di akhir hari, Anda ingin melihat sesuatu yang sudah selesai atau bergerak maju. Hari tanpa hasil yang terasa nyata cenderung membuat Anda kurang puas."
     },
     {
       "id": 117,
       "statement": "Saya dapat menggerakkan orang lain untuk segera memulai.",
       "talent": "Activator",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Saat tim masih menunggu atau ragu memulai, Anda bisa mendorong mereka mengambil langkah pertama, misalnya mengajak mencoba atau membagi pekerjaan awal."
     },
     {
       "id": 118,
       "statement": "Saya mudah menyesuaikan diri dengan situasi.",
       "talent": "Adaptability",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat aturan, lingkungan, atau kebutuhan berubah, Anda bisa menyesuaikan cara bertindak tanpa memerlukan waktu yang terlalu lama untuk merasa nyaman."
     },
     {
       "id": 119,
       "statement": "Saya merasa perlu menjaga etika dan sopan santun.",
       "talent": "Belief",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Pikirkan bagaimana Anda menjaga cara berbicara dan bertindak, termasuk terhadap orang yang berbeda usia atau kedudukan, sesuai etika dan sopan santun yang Anda yakini."
     },
     {
       "id": 120,
       "statement": "Segala sesuatu harus dapat diprediksi dan direncanakan.",
       "talent": "Discipline",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda merasa kegiatan seharusnya memiliki rencana dan kepastian yang jelas, seperti urutan kerja, jadwal, atau perkiraan hasil, agar bisa dijalankan dengan teratur."
     },
     {
       "id": 121,
       "statement": "Saya tidak suka membuang waktu untuk kegiatan yang tidak jelas tujuannya.",
       "talent": "Focus",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Anda kurang nyaman menghabiskan waktu untuk kegiatan yang tujuannya tidak jelas, misalnya rapat yang terus berlangsung tanpa arah pembahasan."
     },
     {
       "id": 122,
       "statement": "Semangat saya bahkan muncul ketika saya menemukan masalah baru.",
       "talent": "Restorative",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Munculnya masalah baru justru bisa menambah semangat Anda karena ada sesuatu yang perlu dipahami dan diperbaiki, bukan hanya membuat Anda ingin menjauh."
     },
     {
       "id": 123,
       "statement": "Saya berani mengambil keputusan penting meskipun tidak ada yang mendukung.",
       "talent": "Self-Assurance",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Saat harus membuat keputusan penting, Anda bersedia menetapkan pilihan berdasarkan pertimbangan sendiri meskipun tidak mendapat dukungan dari orang sekitar."
     },
     {
       "id": 124,
       "statement": "Saya merasa senang jika orang lain mengakui kelebihan saya.",
       "talent": "Significance",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Pengakuan orang lain terhadap kemampuan atau hasil kerja Anda membuat Anda senang, misalnya ketika kontribusi Anda disebut dalam rapat atau mendapat apresiasi."
     },
     {
       "id": 125,
       "statement": "Saya selalu memerlukan bukti atau fakta.",
       "talent": "Analytical",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Sebelum mempercayai suatu penjelasan atau membuat keputusan, Anda merasa perlu melihat bukti atau fakta, bukan hanya menerima dugaan atau pendapat."
     },
     {
       "id": 126,
       "statement": "Prinsip saya adalah \"pasti ada cara lain.\"",
       "talent": "Arranger",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Ketika cara yang sedang digunakan kurang berhasil, Anda percaya masih ada pendekatan lain dan bersedia mencari susunan atau langkah yang berbeda."
     },
     {
       "id": 127,
       "statement": "Saya tidak ingin memanfaatkan orang.",
       "talent": "Connectedness",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Dalam hubungan atau kerja sama, Anda tidak ingin menjadikan orang lain sebagai sarana untuk keuntungan pribadi tanpa memedulikan kepentingan mereka."
     },
     {
       "id": 128,
       "statement": "Saya merasa nyaman dengan lingkungan yang konsisten dengan aturan yang berlaku.",
       "talent": "Consistency",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda merasa nyaman ketika kelompok memiliki aturan yang jelas dan menerapkannya secara konsisten, sehingga orang dapat mengetahui apa yang berlaku."
     },
     {
       "id": 129,
       "statement": "Saya tertarik pada sejarah.",
       "talent": "Context",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda menikmati mempelajari sejarah, misalnya cerita suatu tempat, perkembangan masyarakat, atau peristiwa yang membentuk keadaan saat ini."
     },
     {
       "id": 130,
       "statement": "Saya selalu waspada dan berhati-hati.",
       "talent": "Deliberative",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Dalam keseharian, Anda cenderung memperhatikan kemungkinan masalah dan berhati-hati sebelum bertindak, termasuk pada hal yang dianggap biasa oleh orang lain."
     },
     {
       "id": 131,
       "statement": "Saya memiliki banyak impian tentang masa depan.",
       "talent": "Futuristic",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda memiliki banyak bayangan tentang hal yang ingin terjadi kelak, baik untuk kehidupan pribadi, keluarga, komunitas, maupun pekerjaan."
     },
     {
       "id": 132,
       "statement": "Saya suka melihat sesuatu dari sudut pandang yang berbeda.",
       "talent": "Ideation",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda senang mencoba melihat persoalan dari sudut yang berbeda, misalnya mempertimbangkan pengalaman peserta, panitia, dan warga ketika membahas kegiatan yang sama."
     },
     {
       "id": 133,
       "statement": "Saya merasa tidak pernah cukup tahu.",
       "talent": "Input",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Setelah mendapat informasi, Anda masih merasa ada hal lain yang perlu dipelajari. Pengetahuan yang sudah dimiliki jarang terasa benar-benar cukup."
     },
     {
       "id": 134,
       "statement": "Saya tertarik dengan diskusi tentang pandangan hidup, terutama filosofi.",
       "talent": "Intellection",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda tertarik membahas pertanyaan tentang makna hidup, nilai, atau alasan manusia bertindak, termasuk percakapan yang tidak langsung menghasilkan keputusan praktis."
     },
     {
       "id": 135,
       "statement": "Saya semakin termotivasi ketika melakukan pekerjaan yang meningkatkan pengetahuan dan keterampilan.",
       "talent": "Learner",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Pekerjaan terasa lebih menarik ketika memberi kesempatan belajar, misalnya menangani tugas yang membuat Anda memahami hal baru atau menguasai keterampilan tambahan."
     },
     {
       "id": 136,
       "statement": "Saya dapat memilah-milah situasi yang rumit untuk menentukan pilihan terbaik.",
       "talent": "Strategic",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Ketika situasi memiliki banyak pertimbangan, Anda bisa memisahkan hal penting, membandingkan pilihan, dan menentukan jalan yang menurut Anda paling tepat."
     },
     {
       "id": 137,
       "statement": "Saya senang bercerita dan menggunakan contoh agar orang mudah memahami.",
       "talent": "Communication",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Saat menjelaskan sesuatu, Anda senang memakai cerita atau contoh dekat dengan keseharian agar orang lebih mudah menangkap maksud Anda."
     },
     {
       "id": 138,
       "statement": "Orang lain sering datang kepada saya untuk berbagi perasaan.",
       "talent": "Empathy",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Teman atau rekan sering memilih bercerita kepada Anda tentang perasaannya, misalnya ketika sedang khawatir, kecewa, senang, atau menghadapi masalah pribadi."
     },
     {
       "id": 139,
       "statement": "Saya senang meredakan konflik antara pihak-pihak yang berbeda pandangan.",
       "talent": "Harmony",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat dua pihak sedang berselisih, Anda tertarik membantu meredakan ketegangan dan membuka percakapan agar mereka dapat saling memahami."
     },
     {
       "id": 140,
       "statement": "Bagi saya, tidak ada seorang pun yang boleh diabaikan.",
       "talent": "Includer",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Dalam kegiatan bersama, Anda merasa semua orang perlu diperhatikan, termasuk yang pendiam, datang sendiri, atau belum memiliki peran yang terlihat."
     },
     {
       "id": 141,
       "statement": "Saya memiliki kemampuan untuk memperlakukan orang dengan cara berbeda-beda.",
       "talent": "Individualization",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda menyesuaikan cara memperlakukan orang berdasarkan kebutuhan atau cirinya, misalnya cara memberi arahan kepada anggota baru berbeda dengan rekan yang sudah berpengalaman."
     },
     {
       "id": 142,
       "statement": "Saya mendapatkan kegembiraan dan kekuatan jika berada di dekat teman-teman saya.",
       "talent": "Relator",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Bersama teman membuat Anda merasa lebih gembira dan memiliki tenaga untuk menghadapi keseharian, misalnya setelah berbincang atau melakukan kegiatan bersama."
     },
     {
       "id": 143,
       "statement": "Saya bertanggung jawab penuh atas apa yang sudah saya kerjakan.",
       "talent": "Responsibility",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Setelah mengerjakan sesuatu, Anda mengakui bagian yang menjadi tanggung jawab Anda, termasuk hasilnya dan kesalahan yang mungkin terjadi."
     },
     {
       "id": 144,
       "statement": "Saya berani menyampaikan pendapat meskipun berbeda dengan mayoritas.",
       "talent": "Command",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Dalam rapat atau diskusi, Anda berani menyampaikan pendapat sendiri meskipun kebanyakan orang memiliki pandangan berbeda."
     },
     {
       "id": 145,
       "statement": "Saya selalu ingin menjadi yang lebih baik dari yang lain.",
       "talent": "Competition",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat melihat pencapaian orang lain, Anda terdorong untuk melampauinya. Perbandingan dengan orang lain menjadi bagian penting dari semangat Anda berusaha."
     },
     {
       "id": 146,
       "statement": "Menurut saya, membantu orang juga akan membantu diri sendiri.",
       "talent": "Developer",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda melihat bantuan kepada orang lain juga membawa manfaat bagi diri sendiri, misalnya pengalaman, pemahaman, atau hubungan yang tumbuh dari proses membantu."
     },
     {
       "id": 147,
       "statement": "Saya selalu tertarik pada hal-hal yang hebat.",
       "talent": "Maximizer",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Hal dengan mutu atau pencapaian yang luar biasa menarik perhatian Anda, misalnya karya, layanan, atau cara kerja yang jauh melampaui hasil biasa."
     },
     {
       "id": 148,
       "statement": "Saya sangat suka memberikan pujian.",
       "talent": "Positivity",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda senang menyampaikan pujian ketika melihat hal yang Anda hargai pada seseorang, misalnya usahanya, hasil kerja, atau cara ia membantu orang lain."
     },
     {
       "id": 149,
       "statement": "Bagi saya, tidak ada orang asing; semua hanyalah teman yang belum pernah bertemu.",
       "talent": "Woo",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat bertemu orang yang belum dikenal, Anda cenderung melihatnya sebagai calon teman sehingga merasa terbuka untuk menyapa dan membangun percakapan."
     },
     {
       "id": 150,
       "statement": "Saya merasa nyaman bekerja berjam-jam.",
       "talent": "Achiever",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Pikirkan kenyamanan Anda bekerja dalam durasi yang panjang, misalnya saat menyiapkan kegiatan atau menyelesaikan tugas. Jawab berdasarkan pengalaman Anda sendiri."
     },
     {
       "id": 151,
       "statement": "Saya cenderung mengambil tindakan segera meskipun data belum cukup.",
       "talent": "Activator",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Ketika perlu bergerak, Anda cenderung memulai tindakan dengan informasi yang sudah ada meskipun belum lengkap, daripada menunggu semua data terkumpul."
     },
     {
       "id": 152,
       "statement": "Saya siap merespons apa pun yang diterima kapan pun.",
       "talent": "Adaptability",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda merasa siap menanggapi kebutuhan yang datang sewaktu-waktu, misalnya perubahan tugas atau permintaan mendadak, meskipun sebelumnya tidak ada dalam rencana."
     },
     {
       "id": 153,
       "statement": "Saya memegang teguh nilai-nilai yang saya yakini dalam setiap tindakan.",
       "talent": "Belief",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Saat mengambil keputusan, nilai yang Anda yakini tetap menjadi pegangan, termasuk ketika pilihan lain terasa lebih mudah atau mendapat lebih banyak dukungan."
     },
     {
       "id": 154,
       "statement": "Saya kurang menyukai perubahan yang tidak sesuai dengan rencana.",
       "talent": "Discipline",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Ketika rencana sudah dibuat, perubahan yang menyimpang darinya cenderung membuat Anda kurang nyaman, meskipun perubahan itu dianggap wajar oleh orang lain."
     },
     {
       "id": 155,
       "statement": "Secara naluriah, saya memilih tindakan yang sejalan dengan arah yang telah ditentukan.",
       "talent": "Focus",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Dalam memilih langkah, Anda secara alami mempertimbangkan apakah tindakan itu mendekatkan Anda pada arah atau tujuan yang sudah ditentukan."
     },
     {
       "id": 156,
       "statement": "Saya cepat mengidentifikasi penyebab masalah yang mungkin tidak dapat ditemukan oleh orang lain.",
       "talent": "Restorative",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat muncul masalah, Anda biasanya cepat menangkap penyebabnya, termasuk bagian yang belum disadari oleh rekan lain yang melihat situasi sama."
     },
     {
       "id": 157,
       "statement": "Saya tahu apa yang harus dilakukan dalam berbagai situasi yang mungkin terjadi.",
       "talent": "Self-Assurance",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Dalam situasi yang berbeda-beda, Anda merasa yakin dapat menentukan apa yang perlu dilakukan tanpa harus selalu menunggu arahan dari orang lain."
     },
     {
       "id": 158,
       "statement": "Saya merasa bersemangat saat berada di depan kerumunan orang.",
       "talent": "Significance",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Berada di depan banyak orang memberi Anda semangat, misalnya saat menjadi pembicara, memimpin pertemuan, atau mendapat perhatian dalam sebuah kegiatan."
     },
     {
       "id": 159,
       "statement": "Saya berpikir logis sebelum menarik kesimpulan.",
       "talent": "Analytical",
-      "reconstructed": true
+      "reconstructed": true,
+      "description": "Sebelum menyimpulkan sesuatu, Anda menimbang alasan dan hubungan antar-informasi, misalnya memeriksa apakah kesimpulan rapat memang didukung oleh fakta yang tersedia."
     },
     {
       "id": 160,
       "statement": "Saya senang mengatur hal-hal yang kompleks dan beragam.",
       "talent": "Arranger",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda menikmati menata banyak bagian yang saling berkaitan, seperti orang, jadwal, tempat, dan perlengkapan dalam kegiatan yang cukup kompleks."
     },
     {
       "id": 161,
       "statement": "Saya tidak ingin mengganggu atau menyakiti orang lain.",
       "talent": "Connectedness",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda tidak ingin tindakan Anda mengganggu atau menyakiti orang lain, misalnya saat memakai fasilitas bersama, berbicara, atau mengambil keputusan yang berdampak pada mereka."
     },
     {
       "id": 162,
       "statement": "Saya enggan memberi prioritas berdasarkan hubungan persaudaraan atau kekeluargaan.",
       "talent": "Consistency",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat membagi kesempatan atau tanggung jawab, Anda enggan mendahulukan seseorang hanya karena ia saudara, kerabat, atau memiliki hubungan keluarga dengan Anda."
     },
     {
       "id": 163,
       "statement": "Saya merasa perlu mengetahui asal-usul atau latar belakang dalam menghadapi situasi atau orang yang baru.",
       "talent": "Context",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Sebelum memahami situasi atau orang baru, Anda ingin mengetahui latar belakangnya, seperti pengalaman sebelumnya, asal-usul persoalan, atau alasan keadaan tersebut terbentuk."
     },
     {
       "id": 164,
       "statement": "Saya selalu mengantisipasi dampak negatif sebelum mengambil keputusan.",
       "talent": "Deliberative",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Sebelum membuat keputusan, Anda memikirkan hal yang bisa merugikan atau tidak berjalan sesuai harapan agar dampaknya dapat dipertimbangkan sejak awal."
     },
     {
       "id": 165,
       "statement": "Saya tertarik untuk membuat dan membahas visi masa depan.",
       "talent": "Futuristic",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda tertarik merumuskan dan membicarakan gambaran masa depan, misalnya seperti apa komunitas atau organisasi ingin berkembang dalam beberapa tahun mendatang."
     },
     {
       "id": 166,
       "statement": "Saya senang berbagi ide dan inspirasi.",
       "talent": "Ideation",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda senang menceritakan gagasan kepada orang lain, misalnya lewat obrolan, rapat, atau grup WhatsApp, agar ide tersebut bisa dibahas dan dikembangkan bersama."
     },
     {
       "id": 167,
       "statement": "Saya gemar mengumpulkan berbagai barang dan informasi.",
       "talent": "Input",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda senang mengumpulkan benda maupun informasi yang menarik, misalnya buku, catatan, foto, atau barang tertentu, meskipun belum semuanya langsung digunakan."
     },
     {
       "id": 168,
       "statement": "Saya senang merenung dan mencari inspirasi dengan berpikir mendalam.",
       "talent": "Intellection",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Anda menikmati waktu untuk berpikir secara mendalam sampai muncul pemahaman atau inspirasi, misalnya setelah merenungkan pengalaman atau pertanyaan yang mengusik pikiran."
     },
     {
       "id": 169,
       "statement": "Saya dapat memanfaatkan pekerjaan baru sebagai sarana untuk menambah pengetahuan dan kemampuan saya.",
       "talent": "Learner",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat mendapat pekerjaan yang belum pernah dilakukan, Anda bisa menjadikannya kesempatan untuk belajar dan menambah kemampuan sambil mengerjakannya."
     },
     {
       "id": 170,
       "statement": "Saya mampu mengantisipasi masalah yang muncul dan mencari solusinya.",
       "talent": "Strategic",
-      "reconstructed": false
+      "reconstructed": false,
+      "description": "Saat merancang langkah, Anda bisa memperkirakan masalah yang mungkin muncul dan memikirkan jalan keluar sebelum masalah tersebut benar-benar terjadi."
     }
   ],
   "talents": [

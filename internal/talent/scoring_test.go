@@ -30,6 +30,12 @@ func TestDefinitionAndParticipantPrivacy(t *testing.T) {
 	if definition.Questions[10].Talent != "Positivity" || definition.Questions[11].Talent != "Maximizer" {
 		t.Fatal("exceptional mapping lost")
 	}
+	participantDefinition := PublicDefinition()
+	for i, question := range participantDefinition.Questions {
+		if strings.TrimSpace(question.Description) == "" || question.Description != definition.Questions[i].Description {
+			t.Fatalf("question %d missing participant guidance", question.ID)
+		}
+	}
 	body, err := json.Marshal(PublicDefinition())
 	if err != nil {
 		t.Fatal(err)
@@ -38,6 +44,14 @@ func TestDefinitionAndParticipantPrivacy(t *testing.T) {
 		if strings.Contains(string(body), `"`+key+`"`) {
 			t.Fatal("scoring key exposed")
 		}
+	}
+}
+func TestDefinitionRequiresQuestionGuidance(t *testing.T) {
+	invalid := definition
+	invalid.Questions = append([]Question(nil), definition.Questions...)
+	invalid.Questions[54].Description = ""
+	if err := ValidateDefinition(invalid); err == nil {
+		t.Fatal("missing question guidance accepted")
 	}
 }
 func TestScoresAndDomainSummaries(t *testing.T) {

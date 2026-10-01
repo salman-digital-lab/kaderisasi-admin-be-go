@@ -15,6 +15,7 @@ const QuestionCount = 170
 type Question struct {
 	ID            int    `json:"id"`
 	Statement     string `json:"statement"`
+	Description   string `json:"description"`
 	Talent        string `json:"talent"`
 	Reconstructed bool   `json:"reconstructed"`
 }
@@ -29,8 +30,9 @@ type Definition struct {
 	Talents   []Theme    `json:"talents"`
 }
 type ParticipantQuestion struct {
-	ID        int    `json:"id"`
-	Statement string `json:"statement"`
+	ID          int    `json:"id"`
+	Statement   string `json:"statement"`
+	Description string `json:"description"`
 }
 type ParticipantDefinition struct {
 	Version   string                `json:"version"`
@@ -62,7 +64,7 @@ func ValidateDefinition(d Definition) error {
 	names := map[string]bool{}
 	domains := []string{"Eksekusi", "Pengaruh", "Hubungan", "Pemikiran"}
 	for i, q := range d.Questions {
-		if q.ID != i+1 || q.Statement == "" {
+		if q.ID != i+1 || q.Statement == "" || q.Description == "" {
 			return fmt.Errorf("invalid question %d", i+1)
 		}
 	}
@@ -84,7 +86,7 @@ func ValidateDefinition(d Definition) error {
 func PublicDefinition() ParticipantDefinition {
 	questions := make([]ParticipantQuestion, len(definition.Questions))
 	for i, q := range definition.Questions {
-		questions[i] = ParticipantQuestion{q.ID, q.Statement}
+		questions[i] = ParticipantQuestion{ID: q.ID, Statement: q.Statement, Description: q.Description}
 	}
 	return ParticipantDefinition{definition.Version, questions}
 }

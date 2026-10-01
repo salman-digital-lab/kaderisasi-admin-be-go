@@ -62,6 +62,11 @@ func TestTalentAssessmentWorkflow(t *testing.T) {
 	if len(definition.Questions) != 170 {
 		t.Fatal("missing questions")
 	}
+	for _, question := range definition.Questions {
+		if question.Description == "" {
+			t.Fatalf("missing guidance for question %d", question.ID)
+		}
+	}
 	f.call("GET", base+"/result", nil, token, 404, "missing result")
 	f.call("GET", adminPath, nil, otherToken, 403, "permission denied")
 	f.call("GET", "/v2/admin-users/bad/talent-assessment/result", nil, f.token, 404, "invalid identifier")
