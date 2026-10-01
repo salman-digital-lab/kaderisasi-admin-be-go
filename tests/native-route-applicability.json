@@ -24,7 +24,8 @@
       "controller": "short_links_controller",
       "report": ".artifacts/short-links/verification.json",
       "command": "make test-short-links"
-    }
+    },
+    {"name":"talent-assessment","controller":"talent_assessment","report":".artifacts/talent-assessment.json","command":"make test-talent-assessment"}
   ],
   "routes": [
     {"route": "GET /v2/calendar-events", "source": "calendar_events_controller.public", "evidence": "native", "suite": "calendar", "invalid_input": {"applicable": true, "reason": "Invalid or absent date ranges, event data, or malformed resource identifiers are rejected."}, "missing_resource": {"applicable": false, "reason": "No event resource identifier; invalid linked activities are input errors."}},
@@ -303,6 +304,13 @@
     {"route":"GET /v2/clubs/:id/course-progress/export","source":"club_course_progress_controller.export","evidence":"native","suite":"activity-courses","invalid_input":{"applicable":false,"reason":"No request body; pagination is bounded."},"missing_resource":{"applicable":true,"reason":"Missing owners return 404."}},
     {"route":"GET /v2/clubs/course-options","source":"club_courses_controller.options","evidence":"native","suite":"activity-courses","invalid_input":{"applicable":false,"reason":"No request body; pagination is bounded."},"missing_resource":{"applicable":false,"reason":"Catalogue lookup does not address an owner."}},
     {"route":"GET /v2/clubs/:id/courses","source":"club_courses_controller.show","evidence":"native","suite":"activity-courses","invalid_input":{"applicable":false,"reason":"No request body; pagination is bounded."},"missing_resource":{"applicable":true,"reason":"Missing owners return 404."}},
-    {"route":"PUT /v2/clubs/:id/courses","source":"club_courses_controller.update","evidence":"native","suite":"activity-courses","invalid_input":{"applicable":true,"reason":"Duplicate/invalid links and invalid progress filters return 422."},"missing_resource":{"applicable":true,"reason":"Missing owners return 404."}}
+    {"route":"PUT /v2/clubs/:id/courses","source":"club_courses_controller.update","evidence":"native","suite":"activity-courses","invalid_input":{"applicable":true,"reason":"Duplicate/invalid links and invalid progress filters return 422."},"missing_resource":{"applicable":true,"reason":"Missing owners return 404."}},
+    {"route":"GET /v2/talent-assessment/definition","source":"talent_assessment.definition","evidence":"native","suite":"talent-assessment","invalid_input":{"applicable":false,"reason":"No caller-supplied resource identifiers or validated inputs."},"missing_resource":{"applicable":false,"reason":"Self-owned definition/state/draft creation do not require an existing assessment."}},
+    {"route":"GET /v2/talent-assessment","source":"talent_assessment.state","evidence":"native","suite":"talent-assessment","invalid_input":{"applicable":false,"reason":"No caller-supplied resource identifiers or validated inputs."},"missing_resource":{"applicable":false,"reason":"Self-owned definition/state/draft creation do not require an existing assessment."}},
+    {"route":"POST /v2/talent-assessment/draft","source":"talent_assessment.start","evidence":"native","suite":"talent-assessment","invalid_input":{"applicable":false,"reason":"No caller-supplied resource identifiers or validated inputs."},"missing_resource":{"applicable":false,"reason":"Self-owned definition/state/draft creation do not require an existing assessment."}},
+    {"route":"PUT /v2/talent-assessment/draft","source":"talent_assessment.save","evidence":"native","suite":"talent-assessment","invalid_input":{"applicable":true,"reason":"Malformed requests, invalid answers/revisions, or identifiers are rejected."},"missing_resource":{"applicable":true,"reason":"Absent drafts/results are rejected with 409/404."}},
+    {"route":"POST /v2/talent-assessment/submit","source":"talent_assessment.submit","evidence":"native","suite":"talent-assessment","invalid_input":{"applicable":true,"reason":"Malformed requests, invalid answers/revisions, or identifiers are rejected."},"missing_resource":{"applicable":true,"reason":"Absent drafts/results are rejected with 409/404."}},
+    {"route":"GET /v2/talent-assessment/result","source":"talent_assessment.result","evidence":"native","suite":"talent-assessment","invalid_input":{"applicable":false,"reason":"No caller-supplied resource identifiers or validated inputs."},"missing_resource":{"applicable":true,"reason":"Absent drafts/results are rejected with 409/404."}},
+    {"route":"GET /v2/admin-users/:id/talent-assessment/result","source":"talent_assessment.adminResult","evidence":"native","suite":"talent-assessment","invalid_input":{"applicable":true,"reason":"Malformed requests, invalid answers/revisions, or identifiers are rejected."},"missing_resource":{"applicable":true,"reason":"Absent drafts/results are rejected with 409/404."}}
   ]
 }

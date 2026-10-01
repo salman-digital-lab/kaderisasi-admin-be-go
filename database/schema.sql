@@ -2098,3 +2098,22 @@ CREATE INDEX ON public.announcement_recipients(public_user_id, read_at, id);
 
 -- Case-insensitive public account lookup; built concurrently by Ace.
 CREATE INDEX idx_public_users_lower_email ON public.public_users USING btree (lower((email)::text));
+
+CREATE TABLE public.talent_assessment_drafts (
+ admin_user_id integer PRIMARY KEY REFERENCES public.admin_users(id) ON DELETE CASCADE,
+ draft_id text NOT NULL UNIQUE,
+ definition_version text NOT NULL,
+ answers jsonb NOT NULL CHECK (jsonb_typeof(answers) = 'array' AND jsonb_array_length(answers) = 170),
+ current_question integer NOT NULL DEFAULT 1 CHECK (current_question BETWEEN 1 AND 170),
+ revision integer NOT NULL DEFAULT 1 CHECK (revision > 0),
+ created_at timestamptz NOT NULL DEFAULT now(),
+ updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE public.talent_assessment_results (
+ admin_user_id integer PRIMARY KEY REFERENCES public.admin_users(id) ON DELETE CASCADE,
+ submission_id text NOT NULL UNIQUE,
+ definition_version text NOT NULL,
+ answers jsonb NOT NULL CHECK (jsonb_typeof(answers) = 'array' AND jsonb_array_length(answers) = 170),
+ result jsonb NOT NULL,
+ submitted_at timestamptz NOT NULL DEFAULT now()
+);

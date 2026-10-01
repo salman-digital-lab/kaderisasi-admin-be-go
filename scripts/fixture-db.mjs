@@ -52,6 +52,6 @@ export async function resetFixture(db, schema, passwordHash) {
 }
 
 export async function snapshotFixture(db,tables) {
-  const query = tables.map(table=>`SELECT '${table}' AS name, coalesce(jsonb_agg(to_jsonb(t) ORDER BY t.id),'[]'::jsonb) AS rows FROM "${table}" t`).join(' UNION ALL ');
+  const query = tables.map(table=>`SELECT '${table}' AS name, coalesce(jsonb_agg(to_jsonb(t) ORDER BY t.${['talent_assessment_drafts','talent_assessment_results'].includes(table)?'admin_user_id':'id'}),'[]'::jsonb) AS rows FROM "${table}" t`).join(' UNION ALL ');
   return Object.fromEntries((await db.query(query)).rows.map(row=>[row.name,row.rows]));
 }

@@ -13,6 +13,9 @@ and [progress ledger](PROGRESS.md). Production now runs Go through
 [Coolify](docs/COOLIFY.md). Go is also the local workspace launcher's default. The former Adonis API
 repository now contains only database maintenance code.
 
+Internal staff talent reflection adds self-assessment, resumable drafts, current
+results, and Super Admin result review. See [assessment workflow and rollout](docs/TALENT_ASSESSMENT.md).
+
 Kelas adds course management, learner progress, and private PDF storage. See
 [course configuration, rollout, and native verification](docs/COURSES.md).
 Activities can also track linked courses in their registrant list and Excel

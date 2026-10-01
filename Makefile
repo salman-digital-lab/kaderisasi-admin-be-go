@@ -85,3 +85,8 @@ test-short-links:
 test-scoring: fixtures
 	node scripts/scoring-workflows.mjs --browser $(BORROW_WORKSPACE)
 	node scripts/coverage.mjs --native=scoring --check
+
+.PHONY: test-talent-assessment
+test-talent-assessment: fixtures
+	node scripts/talent-assessment.mjs --browser $(BORROW_WORKSPACE)
+	node scripts/coverage.mjs --native=talent-assessment --check

@@ -495,6 +495,26 @@ type RuangCurhat struct {
 	UpdatedAt          pgtype.Timestamptz `json:"updated_at"`
 }
 
+type TalentAssessmentDraft struct {
+	AdminUserID       int32              `json:"admin_user_id"`
+	DraftID           string             `json:"draft_id"`
+	DefinitionVersion string             `json:"definition_version"`
+	Answers           []byte             `json:"answers"`
+	CurrentQuestion   int32              `json:"current_question"`
+	Revision          int32              `json:"revision"`
+	CreatedAt         pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt         pgtype.Timestamptz `json:"updated_at"`
+}
+
+type TalentAssessmentResult struct {
+	AdminUserID       int32              `json:"admin_user_id"`
+	SubmissionID      string             `json:"submission_id"`
+	DefinitionVersion string             `json:"definition_version"`
+	Answers           []byte             `json:"answers"`
+	Result            []byte             `json:"result"`
+	SubmittedAt       pgtype.Timestamptz `json:"submitted_at"`
+}
+
 type Ticket struct {
 	ID                    int32              `json:"id"`
 	Number                string             `json:"number"`

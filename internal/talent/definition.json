@@ -1,0 +1,1401 @@
+{
+  "version": "internal-170-v1",
+  "questions": [
+    {
+      "id": 1,
+      "statement": "Saya mampu menyampaikan presentasi yang menarik.",
+      "talent": "Communication",
+      "reconstructed": false
+    },
+    {
+      "id": 2,
+      "statement": "Saya memiliki kemampuan untuk \"mendengar\" pertanyaan atau perasaan yang tidak diungkapkan.",
+      "talent": "Empathy",
+      "reconstructed": false
+    },
+    {
+      "id": 3,
+      "statement": "Saya berusaha mencari alasan mendasar yang dapat diterima oleh kedua belah pihak apabila terjadi perbedaan pendapat.",
+      "talent": "Harmony",
+      "reconstructed": false
+    },
+    {
+      "id": 4,
+      "statement": "Saya senang berada dalam kelompok yang tidak membedakan SARA (Suku, Agama, Ras, Antargolongan) dan kepribadian.",
+      "talent": "Includer",
+      "reconstructed": false
+    },
+    {
+      "id": 5,
+      "statement": "Secara naluriah, saya mengetahui kelebihan dan kekurangan masing-masing orang.",
+      "talent": "Individualization",
+      "reconstructed": false
+    },
+    {
+      "id": 6,
+      "statement": "Saya selalu ingin memperdalam hubungan dengan teman yang sudah dikenal.",
+      "talent": "Relator",
+      "reconstructed": false
+    },
+    {
+      "id": 7,
+      "statement": "Saya selalu berusaha memenuhi janji.",
+      "talent": "Responsibility",
+      "reconstructed": false
+    },
+    {
+      "id": 8,
+      "statement": "Saya tidak ragu mengambil alih kendali saat situasi membutuhkan pemimpin.",
+      "talent": "Command",
+      "reconstructed": true
+    },
+    {
+      "id": 9,
+      "statement": "Bagi saya, kemenangan adalah segalanya.",
+      "talent": "Competition",
+      "reconstructed": false
+    },
+    {
+      "id": 10,
+      "statement": "Saya merasa puas melihat kemajuan orang lain.",
+      "talent": "Developer",
+      "reconstructed": false
+    },
+    {
+      "id": 11,
+      "statement": "Saya penuh antusias menjalani hidup ini.",
+      "talent": "Positivity",
+      "reconstructed": false
+    },
+    {
+      "id": 12,
+      "statement": "Saya senang mengembangkan sesuatu yang sudah baik menjadi luar biasa.",
+      "talent": "Maximizer",
+      "reconstructed": true
+    },
+    {
+      "id": 13,
+      "statement": "Saya senang memulai percakapan dengan semua orang di lingkungan yang baru.",
+      "talent": "Woo",
+      "reconstructed": false
+    },
+    {
+      "id": 14,
+      "statement": "Saya merasa bahagia dalam lingkungan yang penuh kesibukan.",
+      "talent": "Achiever",
+      "reconstructed": false
+    },
+    {
+      "id": 15,
+      "statement": "Saya termasuk orang yang tidak sabar untuk segera bertindak.",
+      "talent": "Activator",
+      "reconstructed": false
+    },
+    {
+      "id": 16,
+      "statement": "Saya menikmati menjalani hari tanpa rencana yang kaku.",
+      "talent": "Adaptability",
+      "reconstructed": true
+    },
+    {
+      "id": 17,
+      "statement": "Saya selalu bersedia berkorban demi kepentingan orang lain.",
+      "talent": "Belief",
+      "reconstructed": false
+    },
+    {
+      "id": 18,
+      "statement": "Saya selalu membuat jadwal dan menjadikan segala sesuatunya teratur.",
+      "talent": "Discipline",
+      "reconstructed": false
+    },
+    {
+      "id": 19,
+      "statement": "Saya mudah menyingkirkan hal-hal yang tidak berhubungan dengan tujuan saya.",
+      "talent": "Focus",
+      "reconstructed": true
+    },
+    {
+      "id": 20,
+      "statement": "Saya merasa tertantang ketika menghadapi sesuatu yang rusak atau tidak berjalan semestinya.",
+      "talent": "Restorative",
+      "reconstructed": true
+    },
+    {
+      "id": 21,
+      "statement": "Jika saya yakin akan sesuatu, tidak ada yang dapat mempengaruhi pendapat saya.",
+      "talent": "Self-Assurance",
+      "reconstructed": false
+    },
+    {
+      "id": 22,
+      "statement": "Saya ingin dikenal karena memiliki keistimewaan yang unik.",
+      "talent": "Significance",
+      "reconstructed": false
+    },
+    {
+      "id": 23,
+      "statement": "Saya suka data karena sifatnya yang objektif dan bebas nilai.",
+      "talent": "Analytical",
+      "reconstructed": false
+    },
+    {
+      "id": 24,
+      "statement": "Saya senang mengatur ulang orang dan sumber daya agar hasilnya lebih efektif.",
+      "talent": "Arranger",
+      "reconstructed": true
+    },
+    {
+      "id": 25,
+      "statement": "Saya percaya pada adanya \"invisible hand\" atau \"bantuan yang tak terlihat\".",
+      "talent": "Connectedness",
+      "reconstructed": false
+    },
+    {
+      "id": 26,
+      "statement": "Saya memperlakukan semua orang dengan cara yang sama dan konsisten sesuai dengan aturan yang jelas.",
+      "talent": "Consistency",
+      "reconstructed": false
+    },
+    {
+      "id": 27,
+      "statement": "Saya tertarik pada kajian peristiwa masa lalu.",
+      "talent": "Context",
+      "reconstructed": false
+    },
+    {
+      "id": 28,
+      "statement": "Saya tidak mudah memercayai orang yang baru saya kenal.",
+      "talent": "Deliberative",
+      "reconstructed": true
+    },
+    {
+      "id": 29,
+      "statement": "Saya senang bermimpi tentang masa depan.",
+      "talent": "Futuristic",
+      "reconstructed": false
+    },
+    {
+      "id": 30,
+      "statement": "Saya senang membuat konsep.",
+      "talent": "Ideation",
+      "reconstructed": false
+    },
+    {
+      "id": 31,
+      "statement": "Saya senang menyimpan artikel, buku, atau catatan yang suatu saat mungkin berguna.",
+      "talent": "Input",
+      "reconstructed": true
+    },
+    {
+      "id": 32,
+      "statement": "Saya senang merenung dan merefleksikan diri melalui introspeksi.",
+      "talent": "Intellection",
+      "reconstructed": false
+    },
+    {
+      "id": 33,
+      "statement": "Saya tertarik pada bidang-bidang yang mengalami perubahan cepat.",
+      "talent": "Learner",
+      "reconstructed": false
+    },
+    {
+      "id": 34,
+      "statement": "Saya memiliki banyak pilihan jalan untuk mencapai tujuan.",
+      "talent": "Strategic",
+      "reconstructed": false
+    },
+    {
+      "id": 35,
+      "statement": "Saya senang menjelaskan sesuatu dengan cara yang sederhana agar orang dapat lebih mudah memahaminya.",
+      "talent": "Communication",
+      "reconstructed": false
+    },
+    {
+      "id": 36,
+      "statement": "Saya mudah terharu hingga menangis.",
+      "talent": "Empathy",
+      "reconstructed": false
+    },
+    {
+      "id": 37,
+      "statement": "Saya selalu berusaha memahami sudut pandang orang lain.",
+      "talent": "Harmony",
+      "reconstructed": false
+    },
+    {
+      "id": 38,
+      "statement": "Bagi saya, semua orang memiliki tingkat kepentingan yang sama.",
+      "talent": "Includer",
+      "reconstructed": false
+    },
+    {
+      "id": 39,
+      "statement": "Saya dapat melihat karakteristik khusus dan perbedaan dari setiap orang.",
+      "talent": "Individualization",
+      "reconstructed": false
+    },
+    {
+      "id": 40,
+      "statement": "Saya senang membangun hubungan yang tulus dengan teman-teman.",
+      "talent": "Relator",
+      "reconstructed": false
+    },
+    {
+      "id": 41,
+      "statement": "Saya memiliki tekad kuat untuk melakukan sesuatu dengan benar.",
+      "talent": "Responsibility",
+      "reconstructed": false
+    },
+    {
+      "id": 42,
+      "statement": "Saya memiliki pendirian yang teguh, meskipun kadang-kadang keras kepala.",
+      "talent": "Command",
+      "reconstructed": false
+    },
+    {
+      "id": 43,
+      "statement": "Bagi saya, persaingan memberikan rasa hidup yang lebih menarik.",
+      "talent": "Competition",
+      "reconstructed": false
+    },
+    {
+      "id": 44,
+      "statement": "Saya senang membantu orang lain mencapai kesuksesan.",
+      "talent": "Developer",
+      "reconstructed": false
+    },
+    {
+      "id": 45,
+      "statement": "Saya lebih fokus pada kekuatan daripada kelemahan.",
+      "talent": "Maximizer",
+      "reconstructed": false
+    },
+    {
+      "id": 46,
+      "statement": "Saya selalu merasa ceria dan penuh semangat.",
+      "talent": "Positivity",
+      "reconstructed": false
+    },
+    {
+      "id": 47,
+      "statement": "Saya jarang kehabisan kata.",
+      "talent": "Woo",
+      "reconstructed": false
+    },
+    {
+      "id": 48,
+      "statement": "Semangat saya berkurang saat tidak ada kegiatan.",
+      "talent": "Achiever",
+      "reconstructed": false
+    },
+    {
+      "id": 49,
+      "statement": "Saya lebih suka langsung mencoba daripada terlalu lama berdiskusi.",
+      "talent": "Activator",
+      "reconstructed": true
+    },
+    {
+      "id": 50,
+      "statement": "Saya memiliki kemampuan untuk beradaptasi.",
+      "talent": "Adaptability",
+      "reconstructed": false
+    },
+    {
+      "id": 51,
+      "statement": "Saya senang membantu orang lain tanpa mengharap imbalan.",
+      "talent": "Belief",
+      "reconstructed": false
+    },
+    {
+      "id": 52,
+      "statement": "Saya senang menciptakan keteraturan.",
+      "talent": "Discipline",
+      "reconstructed": false
+    },
+    {
+      "id": 53,
+      "statement": "Saya selalu menetapkan tujuan untuk mengatur prioritas.",
+      "talent": "Focus",
+      "reconstructed": false
+    },
+    {
+      "id": 54,
+      "statement": "Saya senang memperbaiki dan memecahkan masalah.",
+      "talent": "Restorative",
+      "reconstructed": false
+    },
+    {
+      "id": 55,
+      "statement": "Saya memiliki indra keenam.",
+      "talent": "Self-Assurance",
+      "reconstructed": false
+    },
+    {
+      "id": 56,
+      "statement": "Bagi saya, reputasi memiliki nilai penting.",
+      "talent": "Significance",
+      "reconstructed": false
+    },
+    {
+      "id": 57,
+      "statement": "Saya sering bertanya untuk memastikan kebenaran data yang diperlukan.",
+      "talent": "Analytical",
+      "reconstructed": false
+    },
+    {
+      "id": 58,
+      "statement": "Saya mampu melihat bagaimana orang dengan berbagai kekuatan dapat bekerja sama.",
+      "talent": "Arranger",
+      "reconstructed": false
+    },
+    {
+      "id": 59,
+      "statement": "Pikiran, perasaan, dan tindakan saya berorientasi pada sisi spiritual.",
+      "talent": "Connectedness",
+      "reconstructed": false
+    },
+    {
+      "id": 60,
+      "statement": "Saya berusaha untuk tidak memihak.",
+      "talent": "Consistency",
+      "reconstructed": false
+    },
+    {
+      "id": 61,
+      "statement": "Saya tertarik dengan studi kasus.",
+      "talent": "Context",
+      "reconstructed": false
+    },
+    {
+      "id": 62,
+      "statement": "Saya sangat hati-hati dalam memberikan pujian karena takut salah menilai.",
+      "talent": "Deliberative",
+      "reconstructed": false
+    },
+    {
+      "id": 63,
+      "statement": "Saya suka membayangkan / mengisahkan hal-hal yang mungkin terjadi di masa depan.",
+      "talent": "Futuristic",
+      "reconstructed": false
+    },
+    {
+      "id": 64,
+      "statement": "Saya memiliki banyak ide dan gagasan.",
+      "talent": "Ideation",
+      "reconstructed": false
+    },
+    {
+      "id": 65,
+      "statement": "Saya selalu ingin mengumpulkan segala hal yang menarik.",
+      "talent": "Input",
+      "reconstructed": false
+    },
+    {
+      "id": 66,
+      "statement": "Saya senang dengan kegiatan mengasah otak.",
+      "talent": "Intellection",
+      "reconstructed": false
+    },
+    {
+      "id": 67,
+      "statement": "Saya menikmati proses belajar, bukan hanya hasil akhirnya.",
+      "talent": "Learner",
+      "reconstructed": true
+    },
+    {
+      "id": 68,
+      "statement": "Saya merasa senang dengan tugas perencanaan jangka menengah dan panjang.",
+      "talent": "Strategic",
+      "reconstructed": false
+    },
+    {
+      "id": 69,
+      "statement": "Saya mampu membuat ide yang kurang menarik menjadi menarik.",
+      "talent": "Communication",
+      "reconstructed": false
+    },
+    {
+      "id": 70,
+      "statement": "Saya memiliki kemampuan untuk mengungkapkan perasaan dengan kata dan nada yang tepat.",
+      "talent": "Empathy",
+      "reconstructed": false
+    },
+    {
+      "id": 71,
+      "statement": "Saya cenderung mencari kesepakatan dan dukungan daripada memaksakan pendapat.",
+      "talent": "Harmony",
+      "reconstructed": false
+    },
+    {
+      "id": 72,
+      "statement": "Saya selalu berusaha untuk memperluas kelompok dan menyambut semua orang.",
+      "talent": "Includer",
+      "reconstructed": false
+    },
+    {
+      "id": 73,
+      "statement": "Secara naluriah, saya mengamati cara berpikir setiap orang.",
+      "talent": "Individualization",
+      "reconstructed": false
+    },
+    {
+      "id": 74,
+      "statement": "Saya senang menjalin persahabatan.",
+      "talent": "Relator",
+      "reconstructed": false
+    },
+    {
+      "id": 75,
+      "statement": "Apabila saya membuat kesalahan, saya akan memperbaikinya tanpa memedulikan waktu dan biaya.",
+      "talent": "Responsibility",
+      "reconstructed": false
+    },
+    {
+      "id": 76,
+      "statement": "Saya suka memimpin dan membuat keputusan.",
+      "talent": "Command",
+      "reconstructed": false
+    },
+    {
+      "id": 77,
+      "statement": "Saya tidak ingin mengalah.",
+      "talent": "Competition",
+      "reconstructed": false
+    },
+    {
+      "id": 78,
+      "statement": "Saya senang membantu orang tumbuh dan mempersiapkan masa depan mereka.",
+      "talent": "Developer",
+      "reconstructed": false
+    },
+    {
+      "id": 79,
+      "statement": "Saya enggan membuang-buang waktu untuk sesuatu yang hasilnya tidak istimewa.",
+      "talent": "Maximizer",
+      "reconstructed": false
+    },
+    {
+      "id": 80,
+      "statement": "Saya mampu membawa semangat dan keceriaan ke dalam suasana.",
+      "talent": "Positivity",
+      "reconstructed": false
+    },
+    {
+      "id": 81,
+      "statement": "Saya mudah mendapatkan kepercayaan orang lain pada kesan pertama.",
+      "talent": "Woo",
+      "reconstructed": false
+    },
+    {
+      "id": 82,
+      "statement": "Kerja keras adalah motivasi saya.",
+      "talent": "Achiever",
+      "reconstructed": false
+    },
+    {
+      "id": 83,
+      "statement": "Saya senang mengambil tindakan meskipun ada hambatan.",
+      "talent": "Activator",
+      "reconstructed": false
+    },
+    {
+      "id": 84,
+      "statement": "Perubahan rencana secara mendadak tidak membuat saya kecewa.",
+      "talent": "Adaptability",
+      "reconstructed": false
+    },
+    {
+      "id": 85,
+      "statement": "Saya lebih mengutamakan kepentingan orang lain.",
+      "talent": "Belief",
+      "reconstructed": false
+    },
+    {
+      "id": 86,
+      "statement": "Hidup saya teratur dan tertata.",
+      "talent": "Discipline",
+      "reconstructed": false
+    },
+    {
+      "id": 87,
+      "statement": "Saya selalu mengikuti arah yang telah saya tentukan dan tetap berada di jalannya.",
+      "talent": "Focus",
+      "reconstructed": false
+    },
+    {
+      "id": 88,
+      "statement": "Saya suka menganalisis apa yang salah lalu mencari cara untuk memperbaikinya.",
+      "talent": "Restorative",
+      "reconstructed": true
+    },
+    {
+      "id": 89,
+      "statement": "Saya yakin pada kemampuan unik dan berbeda yang saya miliki.",
+      "talent": "Self-Assurance",
+      "reconstructed": false
+    },
+    {
+      "id": 90,
+      "statement": "Saya ingin diakui sebagai seorang profesional, sukses, dan dapat dipercaya.",
+      "talent": "Significance",
+      "reconstructed": false
+    },
+    {
+      "id": 91,
+      "statement": "Saya senang menemukan pola dan keterkaitan dalam data.",
+      "talent": "Analytical",
+      "reconstructed": false
+    },
+    {
+      "id": 92,
+      "statement": "Saya merasa nyaman menjalankan beberapa tugas sekaligus dalam satu waktu.",
+      "talent": "Arranger",
+      "reconstructed": false
+    },
+    {
+      "id": 93,
+      "statement": "Menurut saya, setiap kesulitan pasti memiliki hikmahnya.",
+      "talent": "Connectedness",
+      "reconstructed": false
+    },
+    {
+      "id": 94,
+      "statement": "Saya percaya aturan harus berlaku sama bagi semua orang tanpa pengecualian.",
+      "talent": "Consistency",
+      "reconstructed": true
+    },
+    {
+      "id": 95,
+      "statement": "Saya senang membuat ringkasan catatan kegiatan atau pertemuan untuk referensi.",
+      "talent": "Context",
+      "reconstructed": false
+    },
+    {
+      "id": 96,
+      "statement": "Saya biasanya membuat rencana yang rinci karena sikap hati-hati.",
+      "talent": "Deliberative",
+      "reconstructed": false
+    },
+    {
+      "id": 97,
+      "statement": "Saya mampu dengan jelas melihat kemungkinan-kemungkinan di masa depan.",
+      "talent": "Futuristic",
+      "reconstructed": false
+    },
+    {
+      "id": 98,
+      "statement": "Saya senang mencari hubungan antara berbagai ide.",
+      "talent": "Ideation",
+      "reconstructed": false
+    },
+    {
+      "id": 99,
+      "statement": "Saya senang mencari informasi beragam karena ingin tahu.",
+      "talent": "Input",
+      "reconstructed": false
+    },
+    {
+      "id": 100,
+      "statement": "Saya menikmati proses berpikir dan memahami.",
+      "talent": "Intellection",
+      "reconstructed": false
+    },
+    {
+      "id": 101,
+      "statement": "Saya tertarik mempelajari hal-hal baru.",
+      "talent": "Learner",
+      "reconstructed": false
+    },
+    {
+      "id": 102,
+      "statement": "Kerumitan yang dirasakan orang lain ketika membuat rencana, justru terlihat sederhana bagi saya karena polanya terlihat jelas.",
+      "talent": "Strategic",
+      "reconstructed": false
+    },
+    {
+      "id": 103,
+      "statement": "Saya senang dan mampu berbicara di depan umum atau di depan kelas.",
+      "talent": "Communication",
+      "reconstructed": false
+    },
+    {
+      "id": 104,
+      "statement": "Saya bisa merasakan perasaan orang lain seolah-olah perasaan saya sendiri.",
+      "talent": "Empathy",
+      "reconstructed": false
+    },
+    {
+      "id": 105,
+      "statement": "Saya tidak suka berdebat dan lebih memilih mencari titik temu.",
+      "talent": "Harmony",
+      "reconstructed": true
+    },
+    {
+      "id": 106,
+      "statement": "Saya peka terhadap orang yang merasa tersisih dan berusaha mengajaknya bergabung.",
+      "talent": "Includer",
+      "reconstructed": true
+    },
+    {
+      "id": 107,
+      "statement": "Saya memiliki naluri untuk mengetahui tindakan yang paling sesuai untuk setiap orang.",
+      "talent": "Individualization",
+      "reconstructed": false
+    },
+    {
+      "id": 108,
+      "statement": "Saya lebih nyaman bersama sedikit teman dekat daripada banyak kenalan.",
+      "talent": "Relator",
+      "reconstructed": true
+    },
+    {
+      "id": 109,
+      "statement": "Saya merasa bersalah jika tidak dapat menyelesaikan tugas yang sudah saya sanggupi.",
+      "talent": "Responsibility",
+      "reconstructed": true
+    },
+    {
+      "id": 110,
+      "statement": "Saya berani berhadapan secara langsung.",
+      "talent": "Command",
+      "reconstructed": false
+    },
+    {
+      "id": 111,
+      "statement": "Saya selalu berusaha menjadi nomor satu.",
+      "talent": "Competition",
+      "reconstructed": false
+    },
+    {
+      "id": 112,
+      "statement": "Saya sabar mendampingi orang lain yang sedang belajar.",
+      "talent": "Developer",
+      "reconstructed": true
+    },
+    {
+      "id": 113,
+      "statement": "Bagi saya, rata-rata tidak cukup; yang diperlukan adalah yang terbaik.",
+      "talent": "Maximizer",
+      "reconstructed": false
+    },
+    {
+      "id": 114,
+      "statement": "Saya selalu dapat melihat sisi baik dari setiap keadaan.",
+      "talent": "Positivity",
+      "reconstructed": true
+    },
+    {
+      "id": 115,
+      "statement": "Saya senang bertemu dan berkenalan dengan orang-orang baru.",
+      "talent": "Woo",
+      "reconstructed": true
+    },
+    {
+      "id": 116,
+      "statement": "Saya tidak merasa puas jika tidak ada hasil yang nyata setiap harinya.",
+      "talent": "Achiever",
+      "reconstructed": false
+    },
+    {
+      "id": 117,
+      "statement": "Saya dapat menggerakkan orang lain untuk segera memulai.",
+      "talent": "Activator",
+      "reconstructed": true
+    },
+    {
+      "id": 118,
+      "statement": "Saya mudah menyesuaikan diri dengan situasi.",
+      "talent": "Adaptability",
+      "reconstructed": false
+    },
+    {
+      "id": 119,
+      "statement": "Saya merasa perlu menjaga etika dan sopan santun.",
+      "talent": "Belief",
+      "reconstructed": false
+    },
+    {
+      "id": 120,
+      "statement": "Segala sesuatu harus dapat diprediksi dan direncanakan.",
+      "talent": "Discipline",
+      "reconstructed": false
+    },
+    {
+      "id": 121,
+      "statement": "Saya tidak suka membuang waktu untuk kegiatan yang tidak jelas tujuannya.",
+      "talent": "Focus",
+      "reconstructed": true
+    },
+    {
+      "id": 122,
+      "statement": "Semangat saya bahkan muncul ketika saya menemukan masalah baru.",
+      "talent": "Restorative",
+      "reconstructed": false
+    },
+    {
+      "id": 123,
+      "statement": "Saya berani mengambil keputusan penting meskipun tidak ada yang mendukung.",
+      "talent": "Self-Assurance",
+      "reconstructed": true
+    },
+    {
+      "id": 124,
+      "statement": "Saya merasa senang jika orang lain mengakui kelebihan saya.",
+      "talent": "Significance",
+      "reconstructed": false
+    },
+    {
+      "id": 125,
+      "statement": "Saya selalu memerlukan bukti atau fakta.",
+      "talent": "Analytical",
+      "reconstructed": false
+    },
+    {
+      "id": 126,
+      "statement": "Prinsip saya adalah \"pasti ada cara lain.\"",
+      "talent": "Arranger",
+      "reconstructed": false
+    },
+    {
+      "id": 127,
+      "statement": "Saya tidak ingin memanfaatkan orang.",
+      "talent": "Connectedness",
+      "reconstructed": false
+    },
+    {
+      "id": 128,
+      "statement": "Saya merasa nyaman dengan lingkungan yang konsisten dengan aturan yang berlaku.",
+      "talent": "Consistency",
+      "reconstructed": false
+    },
+    {
+      "id": 129,
+      "statement": "Saya tertarik pada sejarah.",
+      "talent": "Context",
+      "reconstructed": false
+    },
+    {
+      "id": 130,
+      "statement": "Saya selalu waspada dan berhati-hati.",
+      "talent": "Deliberative",
+      "reconstructed": false
+    },
+    {
+      "id": 131,
+      "statement": "Saya memiliki banyak impian tentang masa depan.",
+      "talent": "Futuristic",
+      "reconstructed": false
+    },
+    {
+      "id": 132,
+      "statement": "Saya suka melihat sesuatu dari sudut pandang yang berbeda.",
+      "talent": "Ideation",
+      "reconstructed": false
+    },
+    {
+      "id": 133,
+      "statement": "Saya merasa tidak pernah cukup tahu.",
+      "talent": "Input",
+      "reconstructed": false
+    },
+    {
+      "id": 134,
+      "statement": "Saya tertarik dengan diskusi tentang pandangan hidup, terutama filosofi.",
+      "talent": "Intellection",
+      "reconstructed": false
+    },
+    {
+      "id": 135,
+      "statement": "Saya semakin termotivasi ketika melakukan pekerjaan yang meningkatkan pengetahuan dan keterampilan.",
+      "talent": "Learner",
+      "reconstructed": false
+    },
+    {
+      "id": 136,
+      "statement": "Saya dapat memilah-milah situasi yang rumit untuk menentukan pilihan terbaik.",
+      "talent": "Strategic",
+      "reconstructed": false
+    },
+    {
+      "id": 137,
+      "statement": "Saya senang bercerita dan menggunakan contoh agar orang mudah memahami.",
+      "talent": "Communication",
+      "reconstructed": true
+    },
+    {
+      "id": 138,
+      "statement": "Orang lain sering datang kepada saya untuk berbagi perasaan.",
+      "talent": "Empathy",
+      "reconstructed": true
+    },
+    {
+      "id": 139,
+      "statement": "Saya senang meredakan konflik antara pihak-pihak yang berbeda pandangan.",
+      "talent": "Harmony",
+      "reconstructed": false
+    },
+    {
+      "id": 140,
+      "statement": "Bagi saya, tidak ada seorang pun yang boleh diabaikan.",
+      "talent": "Includer",
+      "reconstructed": false
+    },
+    {
+      "id": 141,
+      "statement": "Saya memiliki kemampuan untuk memperlakukan orang dengan cara berbeda-beda.",
+      "talent": "Individualization",
+      "reconstructed": false
+    },
+    {
+      "id": 142,
+      "statement": "Saya mendapatkan kegembiraan dan kekuatan jika berada di dekat teman-teman saya.",
+      "talent": "Relator",
+      "reconstructed": false
+    },
+    {
+      "id": 143,
+      "statement": "Saya bertanggung jawab penuh atas apa yang sudah saya kerjakan.",
+      "talent": "Responsibility",
+      "reconstructed": true
+    },
+    {
+      "id": 144,
+      "statement": "Saya berani menyampaikan pendapat meskipun berbeda dengan mayoritas.",
+      "talent": "Command",
+      "reconstructed": true
+    },
+    {
+      "id": 145,
+      "statement": "Saya selalu ingin menjadi yang lebih baik dari yang lain.",
+      "talent": "Competition",
+      "reconstructed": false
+    },
+    {
+      "id": 146,
+      "statement": "Menurut saya, membantu orang juga akan membantu diri sendiri.",
+      "talent": "Developer",
+      "reconstructed": false
+    },
+    {
+      "id": 147,
+      "statement": "Saya selalu tertarik pada hal-hal yang hebat.",
+      "talent": "Maximizer",
+      "reconstructed": false
+    },
+    {
+      "id": 148,
+      "statement": "Saya sangat suka memberikan pujian.",
+      "talent": "Positivity",
+      "reconstructed": false
+    },
+    {
+      "id": 149,
+      "statement": "Bagi saya, tidak ada orang asing; semua hanyalah teman yang belum pernah bertemu.",
+      "talent": "Woo",
+      "reconstructed": false
+    },
+    {
+      "id": 150,
+      "statement": "Saya merasa nyaman bekerja berjam-jam.",
+      "talent": "Achiever",
+      "reconstructed": false
+    },
+    {
+      "id": 151,
+      "statement": "Saya cenderung mengambil tindakan segera meskipun data belum cukup.",
+      "talent": "Activator",
+      "reconstructed": false
+    },
+    {
+      "id": 152,
+      "statement": "Saya siap merespons apa pun yang diterima kapan pun.",
+      "talent": "Adaptability",
+      "reconstructed": false
+    },
+    {
+      "id": 153,
+      "statement": "Saya memegang teguh nilai-nilai yang saya yakini dalam setiap tindakan.",
+      "talent": "Belief",
+      "reconstructed": true
+    },
+    {
+      "id": 154,
+      "statement": "Saya kurang menyukai perubahan yang tidak sesuai dengan rencana.",
+      "talent": "Discipline",
+      "reconstructed": false
+    },
+    {
+      "id": 155,
+      "statement": "Secara naluriah, saya memilih tindakan yang sejalan dengan arah yang telah ditentukan.",
+      "talent": "Focus",
+      "reconstructed": false
+    },
+    {
+      "id": 156,
+      "statement": "Saya cepat mengidentifikasi penyebab masalah yang mungkin tidak dapat ditemukan oleh orang lain.",
+      "talent": "Restorative",
+      "reconstructed": false
+    },
+    {
+      "id": 157,
+      "statement": "Saya tahu apa yang harus dilakukan dalam berbagai situasi yang mungkin terjadi.",
+      "talent": "Self-Assurance",
+      "reconstructed": false
+    },
+    {
+      "id": 158,
+      "statement": "Saya merasa bersemangat saat berada di depan kerumunan orang.",
+      "talent": "Significance",
+      "reconstructed": false
+    },
+    {
+      "id": 159,
+      "statement": "Saya berpikir logis sebelum menarik kesimpulan.",
+      "talent": "Analytical",
+      "reconstructed": true
+    },
+    {
+      "id": 160,
+      "statement": "Saya senang mengatur hal-hal yang kompleks dan beragam.",
+      "talent": "Arranger",
+      "reconstructed": false
+    },
+    {
+      "id": 161,
+      "statement": "Saya tidak ingin mengganggu atau menyakiti orang lain.",
+      "talent": "Connectedness",
+      "reconstructed": false
+    },
+    {
+      "id": 162,
+      "statement": "Saya enggan memberi prioritas berdasarkan hubungan persaudaraan atau kekeluargaan.",
+      "talent": "Consistency",
+      "reconstructed": false
+    },
+    {
+      "id": 163,
+      "statement": "Saya merasa perlu mengetahui asal-usul atau latar belakang dalam menghadapi situasi atau orang yang baru.",
+      "talent": "Context",
+      "reconstructed": false
+    },
+    {
+      "id": 164,
+      "statement": "Saya selalu mengantisipasi dampak negatif sebelum mengambil keputusan.",
+      "talent": "Deliberative",
+      "reconstructed": false
+    },
+    {
+      "id": 165,
+      "statement": "Saya tertarik untuk membuat dan membahas visi masa depan.",
+      "talent": "Futuristic",
+      "reconstructed": false
+    },
+    {
+      "id": 166,
+      "statement": "Saya senang berbagi ide dan inspirasi.",
+      "talent": "Ideation",
+      "reconstructed": false
+    },
+    {
+      "id": 167,
+      "statement": "Saya gemar mengumpulkan berbagai barang dan informasi.",
+      "talent": "Input",
+      "reconstructed": false
+    },
+    {
+      "id": 168,
+      "statement": "Saya senang merenung dan mencari inspirasi dengan berpikir mendalam.",
+      "talent": "Intellection",
+      "reconstructed": false
+    },
+    {
+      "id": 169,
+      "statement": "Saya dapat memanfaatkan pekerjaan baru sebagai sarana untuk menambah pengetahuan dan kemampuan saya.",
+      "talent": "Learner",
+      "reconstructed": false
+    },
+    {
+      "id": 170,
+      "statement": "Saya mampu mengantisipasi masalah yang muncul dan mencari solusinya.",
+      "talent": "Strategic",
+      "reconstructed": false
+    }
+  ],
+  "talents": [
+    {
+      "name": "Communication",
+      "domain": "Pengaruh",
+      "questions": [
+        1,
+        35,
+        69,
+        103,
+        137
+      ]
+    },
+    {
+      "name": "Empathy",
+      "domain": "Hubungan",
+      "questions": [
+        2,
+        36,
+        70,
+        104,
+        138
+      ]
+    },
+    {
+      "name": "Harmony",
+      "domain": "Hubungan",
+      "questions": [
+        3,
+        37,
+        71,
+        105,
+        139
+      ]
+    },
+    {
+      "name": "Includer",
+      "domain": "Hubungan",
+      "questions": [
+        4,
+        38,
+        72,
+        106,
+        140
+      ]
+    },
+    {
+      "name": "Individualization",
+      "domain": "Hubungan",
+      "questions": [
+        5,
+        39,
+        73,
+        107,
+        141
+      ]
+    },
+    {
+      "name": "Relator",
+      "domain": "Hubungan",
+      "questions": [
+        6,
+        40,
+        74,
+        108,
+        142
+      ]
+    },
+    {
+      "name": "Responsibility",
+      "domain": "Eksekusi",
+      "questions": [
+        7,
+        41,
+        75,
+        109,
+        143
+      ]
+    },
+    {
+      "name": "Command",
+      "domain": "Pengaruh",
+      "questions": [
+        8,
+        42,
+        76,
+        110,
+        144
+      ]
+    },
+    {
+      "name": "Competition",
+      "domain": "Pengaruh",
+      "questions": [
+        9,
+        43,
+        77,
+        111,
+        145
+      ]
+    },
+    {
+      "name": "Developer",
+      "domain": "Hubungan",
+      "questions": [
+        10,
+        44,
+        78,
+        112,
+        146
+      ]
+    },
+    {
+      "name": "Maximizer",
+      "domain": "Pengaruh",
+      "questions": [
+        12,
+        45,
+        79,
+        113,
+        147
+      ]
+    },
+    {
+      "name": "Positivity",
+      "domain": "Hubungan",
+      "questions": [
+        11,
+        46,
+        80,
+        114,
+        148
+      ]
+    },
+    {
+      "name": "Woo",
+      "domain": "Pengaruh",
+      "questions": [
+        13,
+        47,
+        81,
+        115,
+        149
+      ]
+    },
+    {
+      "name": "Achiever",
+      "domain": "Eksekusi",
+      "questions": [
+        14,
+        48,
+        82,
+        116,
+        150
+      ]
+    },
+    {
+      "name": "Activator",
+      "domain": "Pengaruh",
+      "questions": [
+        15,
+        49,
+        83,
+        117,
+        151
+      ]
+    },
+    {
+      "name": "Adaptability",
+      "domain": "Hubungan",
+      "questions": [
+        16,
+        50,
+        84,
+        118,
+        152
+      ]
+    },
+    {
+      "name": "Belief",
+      "domain": "Eksekusi",
+      "questions": [
+        17,
+        51,
+        85,
+        119,
+        153
+      ]
+    },
+    {
+      "name": "Discipline",
+      "domain": "Eksekusi",
+      "questions": [
+        18,
+        52,
+        86,
+        120,
+        154
+      ]
+    },
+    {
+      "name": "Focus",
+      "domain": "Eksekusi",
+      "questions": [
+        19,
+        53,
+        87,
+        121,
+        155
+      ]
+    },
+    {
+      "name": "Restorative",
+      "domain": "Eksekusi",
+      "questions": [
+        20,
+        54,
+        88,
+        122,
+        156
+      ]
+    },
+    {
+      "name": "Self-Assurance",
+      "domain": "Pengaruh",
+      "questions": [
+        21,
+        55,
+        89,
+        123,
+        157
+      ]
+    },
+    {
+      "name": "Significance",
+      "domain": "Pengaruh",
+      "questions": [
+        22,
+        56,
+        90,
+        124,
+        158
+      ]
+    },
+    {
+      "name": "Analytical",
+      "domain": "Pemikiran",
+      "questions": [
+        23,
+        57,
+        91,
+        125,
+        159
+      ]
+    },
+    {
+      "name": "Arranger",
+      "domain": "Eksekusi",
+      "questions": [
+        24,
+        58,
+        92,
+        126,
+        160
+      ]
+    },
+    {
+      "name": "Connectedness",
+      "domain": "Hubungan",
+      "questions": [
+        25,
+        59,
+        93,
+        127,
+        161
+      ]
+    },
+    {
+      "name": "Consistency",
+      "domain": "Eksekusi",
+      "questions": [
+        26,
+        60,
+        94,
+        128,
+        162
+      ]
+    },
+    {
+      "name": "Context",
+      "domain": "Pemikiran",
+      "questions": [
+        27,
+        61,
+        95,
+        129,
+        163
+      ]
+    },
+    {
+      "name": "Deliberative",
+      "domain": "Eksekusi",
+      "questions": [
+        28,
+        62,
+        96,
+        130,
+        164
+      ]
+    },
+    {
+      "name": "Futuristic",
+      "domain": "Pemikiran",
+      "questions": [
+        29,
+        63,
+        97,
+        131,
+        165
+      ]
+    },
+    {
+      "name": "Ideation",
+      "domain": "Pemikiran",
+      "questions": [
+        30,
+        64,
+        98,
+        132,
+        166
+      ]
+    },
+    {
+      "name": "Input",
+      "domain": "Pemikiran",
+      "questions": [
+        31,
+        65,
+        99,
+        133,
+        167
+      ]
+    },
+    {
+      "name": "Intellection",
+      "domain": "Pemikiran",
+      "questions": [
+        32,
+        66,
+        100,
+        134,
+        168
+      ]
+    },
+    {
+      "name": "Learner",
+      "domain": "Pemikiran",
+      "questions": [
+        33,
+        67,
+        101,
+        135,
+        169
+      ]
+    },
+    {
+      "name": "Strategic",
+      "domain": "Pemikiran",
+      "questions": [
+        34,
+        68,
+        102,
+        136,
+        170
+      ]
+    }
+  ]
+}

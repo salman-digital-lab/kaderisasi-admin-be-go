@@ -1628,5 +1628,12 @@
   {"method":"GET","path":"/v2/notifications/unread-count","controller":"notifications_controller","action":"count","auth":true,"trusted_origin":false,"permission":""},
   {"method":"GET","path":"/v2/notifications/:id","controller":"notifications_controller","action":"show","auth":true,"trusted_origin":false,"permission":""},
   {"method":"PUT","path":"/v2/notifications/:id/read","controller":"notifications_controller","action":"read","auth":true,"trusted_origin":true,"permission":""},
-  {"method":"PUT","path":"/v2/notifications/read-all","controller":"notifications_controller","action":"readAll","auth":true,"trusted_origin":true,"permission":""}
+  {"method":"PUT","path":"/v2/notifications/read-all","controller":"notifications_controller","action":"readAll","auth":true,"trusted_origin":true,"permission":""},
+  {"method":"GET","path":"/v2/talent-assessment/definition","controller":"talent_assessment","action":"definition","auth":true,"trusted_origin":false,"permission":""},
+  {"method":"GET","path":"/v2/talent-assessment","controller":"talent_assessment","action":"state","auth":true,"trusted_origin":false,"permission":""},
+  {"method":"POST","path":"/v2/talent-assessment/draft","controller":"talent_assessment","action":"start","auth":true,"trusted_origin":true,"permission":""},
+  {"method":"PUT","path":"/v2/talent-assessment/draft","controller":"talent_assessment","action":"save","auth":true,"trusted_origin":true,"permission":""},
+  {"method":"POST","path":"/v2/talent-assessment/submit","controller":"talent_assessment","action":"submit","auth":true,"trusted_origin":true,"permission":""},
+  {"method":"GET","path":"/v2/talent-assessment/result","controller":"talent_assessment","action":"result","auth":true,"trusted_origin":false,"permission":""},
+  {"method":"GET","path":"/v2/admin-users/:id/talent-assessment/result","controller":"talent_assessment","action":"adminResult","auth":true,"trusted_origin":false,"permission":""}
 ]
