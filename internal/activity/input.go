@@ -21,6 +21,14 @@ type AdditionalConfig struct {
 	StatusVisibility        *StatusVisibility            `json:"status_visibility,omitempty"`
 	CertificateTemplateID   domain.Optional[json.Number] `json:"certificate_template_id,omitzero"`
 	AllowGuestRegistration  *bool                        `json:"allow_guest_registration,omitempty"`
+	OptionalFeatures        *OptionalFeatures            `json:"optional_features,omitempty"`
+}
+
+// OptionalFeatures records which optional admin workspaces an activity uses.
+// A missing flag means the admin client derives it from existing data.
+type OptionalFeatures struct {
+	Scoring *bool `json:"scoring,omitempty"`
+	Courses *bool `json:"courses,omitempty"`
 }
 type Input struct {
 	Name                  *string                      `json:"name,omitempty"`

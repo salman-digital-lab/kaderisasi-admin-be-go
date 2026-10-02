@@ -53,4 +53,16 @@ func TestActivityLifecycle(t *testing.T) {
 	if !c.Bool("allow_guest_registration") || string(c["images"]) != "[]" {
 		t.Fatalf("config merge %s", updated["additional_config"])
 	}
+	features := map[string]interface{}{"custom_selection_status": []string{"LULUS"}, "mandatory_profile_data": []interface{}{}, "additional_questionnaire": []interface{}{}, "allow_guest_registration": true, "optional_features": map[string]bool{"scoring": true, "courses": false}}
+	toggled := objectData(t, f.call("PUT", path, map[string]interface{}{"additional_config": features}, f.token, 200))
+	var tc database.Object
+	json.Unmarshal(toggled["additional_config"], &tc)
+	var flags struct {
+		Scoring *bool `json:"scoring"`
+		Courses *bool `json:"courses"`
+	}
+	json.Unmarshal(tc["optional_features"], &flags)
+	if flags.Scoring == nil || !*flags.Scoring || flags.Courses == nil || *flags.Courses || !tc.Bool("allow_guest_registration") || string(tc["images"]) != "[]" {
+		t.Fatalf("optional features merge %s", toggled["additional_config"])
+	}
 }

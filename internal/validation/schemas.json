@@ -361,6 +361,39 @@
                     "args": []
                   }
                 ]
+              },
+              "optional_features": {
+                "kind": "object",
+                "args": [
+                  {
+                    "scoring": {
+                      "kind": "boolean",
+                      "args": [],
+                      "chain": [
+                        {
+                          "method": "optional",
+                          "args": []
+                        }
+                      ]
+                    },
+                    "courses": {
+                      "kind": "boolean",
+                      "args": [],
+                      "chain": [
+                        {
+                          "method": "optional",
+                          "args": []
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "chain": [
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
               }
             }
           ],
@@ -690,6 +723,39 @@
               "allow_guest_registration": {
                 "kind": "boolean",
                 "args": [],
+                "chain": [
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
+              },
+              "optional_features": {
+                "kind": "object",
+                "args": [
+                  {
+                    "scoring": {
+                      "kind": "boolean",
+                      "args": [],
+                      "chain": [
+                        {
+                          "method": "optional",
+                          "args": []
+                        }
+                      ]
+                    },
+                    "courses": {
+                      "kind": "boolean",
+                      "args": [],
+                      "chain": [
+                        {
+                          "method": "optional",
+                          "args": []
+                        }
+                      ]
+                    }
+                  }
+                ],
                 "chain": [
                   {
                     "method": "optional",
