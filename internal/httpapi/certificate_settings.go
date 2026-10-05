@@ -48,7 +48,7 @@ func (s *Server) registerCertificateSettings() {
 		if err != nil {
 			return err
 		}
-		reply(w, 200, "UPDATE_DATA_SUCCESS", settings)
+		reply(w, 200, "UPDATE_DATA_SUCCESS", certificate.SettingsState{Settings: settings, Saved: true})
 		return nil
 	})
 	s.register(controller, "updateGroup", func(w http.ResponseWriter, r *http.Request) error {

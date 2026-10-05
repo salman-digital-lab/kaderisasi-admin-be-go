@@ -5,6 +5,27 @@ import (
 	"testing"
 )
 
+func TestConfiguredDocumentSigners(t *testing.T) {
+	t.Cleanup(func() { ConfigureDocumentSigners(nil) })
+	for _, raw := range []string{"", "[]", "{}", `[{"key":"a","name":"A"}]`, `[{"key":"a","name":"A","title":"T"},{"key":"a","name":"B","title":"T"}]`} {
+		if _, err := ParseDocumentSigners(raw); err == nil {
+			t.Fatalf("accepted invalid catalog %q", raw)
+		}
+	}
+	signers, err := ParseDocumentSigners(`[{"key":" b ","name":"Signer B","title":"Ketua"},{"key":"c","name":"Signer C","title":"Wakil"}]`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ConfigureDocumentSigners(signers)
+	if DefaultDocumentSigner().Key != "b" || documentSigner("c") == nil || documentSigner("oktofa-yudha-sudrajad") != nil {
+		t.Fatal("configured catalog not applied", DocumentSigners())
+	}
+	ConfigureDocumentSigners(nil)
+	if DefaultDocumentSigner().Key != "oktofa-yudha-sudrajad" {
+		t.Fatal("default catalog not restored")
+	}
+}
+
 func TestDocumentSignerSnapshotHash(t *testing.T) {
 	profile := documentSigner("oktofa-yudha-sudrajad")
 	if profile == nil || documentSigner("unknown") != nil {

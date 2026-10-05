@@ -1,9 +1,13 @@
 # Certificate publishing and correction
 
-The fixed document signer is Oktofa Yudha Sudrajad, S.T., M.S.M., Ph.D.,
-Ketua Bidang Mahasiswa, Kaderisasi, dan Alumni. The catalog lives in
-`internal/certificate/document_signers.go`; it is independent of administrator
-accounts. Publishing currently always resolves the `oktofa-yudha-sudrajad` key.
+The default document signer is Oktofa Yudha Sudrajad, S.T., M.S.M., Ph.D.,
+Ketua Bidang Mahasiswa, Kaderisasi, dan Alumni (`oktofa-yudha-sudrajad`). The
+catalog is independent of administrator accounts. To change it without a code
+change, set `CERTIFICATE_DOCUMENT_SIGNERS` for the API to a JSON array of
+`{"key","name","title"}` objects (unique keys; title at most 120 characters).
+The first entry signs direct publications; the API refuses to start on an invalid
+value. Changing a signer's name or title invalidates pending approval requests
+that captured the old identity. Issued certificates keep their snapshot.
 
 An active administrator with `certificate.issue` (including Asisten Manager
 Program) publishes from the activity certificate workflow after confirming the
@@ -24,8 +28,13 @@ permission. It marks that specific certificate invalid, blocks participant
 downloads, and preserves its code, snapshots, actor, time, and reason. Corrected
 publication creates a new record and a new code. The old code stays invalid.
 The partial unique index allows only one non-revoked certificate per registration.
-Recipient preparation and group editing consider only active certificates;
-registration-based owner reads and admin lookups select the latest version.
+Group editing considers only active certificates. A passed registration whose
+latest certificate was withdrawn has recipient state `issued_revoked`: "all
+recipients" preparation excludes it (counted as `excluded.revoked`), and an
+explicit selection includes it for republication. The dashboard preselects the
+participant after withdrawal and asks for the public withdrawal reason. The
+public owner page links a withdrawn certificate to its replacement.
+Registration-based owner reads and admin lookups select the latest version.
 Activity-wide certificate listings retain all versions for audit.
 
 ## Rollout

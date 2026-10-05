@@ -131,7 +131,7 @@ func (s Issuance) Preview(ctx context.Context, id float64) (Response, error) {
 	if err != nil {
 		return Response{}, err
 	}
-	source.Data.DocumentSigner = documentSigner("oktofa-yudha-sudrajad")
+	source.Data.DocumentSigner = DefaultDocumentSigner()
 	return source.Data, tx.Commit(ctx)
 }
 func (s Issuance) IssuedResponse(row dbgen.IssuedCertificate) (Response, error) {
@@ -195,7 +195,7 @@ func (s Issuance) Issue(ctx context.Context, id float64, actor *int32, requestID
 		if !auth.ForUser(publisher).Allows("certificate.issue") {
 			return IssueResult{}, domain.Fail(403, "FORBIDDEN")
 		}
-		profile := documentSigner("oktofa-yudha-sudrajad")
+		profile := DefaultDocumentSigner()
 		source.Data.DocumentSigner = profile
 		now := time.Now().Truncate(time.Millisecond)
 		code, err := GenerateCode(source.Activity.ID, now, rand.Reader)

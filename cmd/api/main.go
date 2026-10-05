@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"kaderisasi/admin/internal/auth"
+	"kaderisasi/admin/internal/certificate"
 	"kaderisasi/admin/internal/config"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/httpapi"
@@ -41,6 +42,13 @@ func run() error {
 		return err
 	}
 	slog.SetDefault(logger)
+	if raw := os.Getenv("CERTIFICATE_DOCUMENT_SIGNERS"); raw != "" {
+		signers, err := certificate.ParseDocumentSigners(raw)
+		if err != nil {
+			return err
+		}
+		certificate.ConfigureDocumentSigners(signers)
+	}
 	objects := storage.New(c)
 	if path := os.Getenv("GO_REWRITE_STORAGE_LEDGER"); path != "" {
 		if !storageFixtureAllowed(c) {

@@ -143,6 +143,14 @@ func TestCertificateThousandRecipientBatches(t *testing.T) {
 	if err != nil || len(final.RegistrationIDs) != 0 || final.Excluded.Revoked != 1 || final.Excluded.AlreadyIssued != 999 {
 		t.Fatal("final exclusions", final.Excluded, err)
 	}
+	republish, err := service.Prepare(ctx, expected.ActivityID, []float64{float64(fixture.ids[0]), float64(fixture.ids[2])})
+	if err != nil || !reflect.DeepEqual(republish.RegistrationIDs, []int32{fixture.ids[0]}) || republish.Excluded.AlreadyIssued != 1 {
+		t.Fatal("explicit republication", republish, err)
+	}
+	withdrawn, err := service.Recipients(ctx, expected.ActivityID, certificate.RecipientOptions{Page: 1, PerPage: 50, State: "issued_revoked"})
+	if err != nil || withdrawn.Counts.Revoked != 1 || len(withdrawn.Data) != 1 || withdrawn.Data[0].RegistrationID != fixture.ids[0] {
+		t.Fatal("withdrawn recipient state", withdrawn.Counts, err)
+	}
 	count, err := (database.JSONQueries{DB: f.pool}).Count(ctx, "SELECT id FROM issued_certificates WHERE activity_id=$1", int32(expected.ActivityID))
 	if err != nil || count != 1000 {
 		t.Fatal("exactly one certificate per recipient", count, err)

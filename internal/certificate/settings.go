@@ -77,24 +77,31 @@ func ValidSettings(value Settings) bool {
 	return true
 }
 
-func (s Issuance) Settings(ctx context.Context, id int32) (Settings, error) {
+// SettingsState reports whether the settings were saved; unsaved settings are suggested defaults.
+type SettingsState struct {
+	Settings
+	Saved bool `json:"saved"`
+}
+
+func (s Issuance) Settings(ctx context.Context, id int32) (SettingsState, error) {
 	q := dbgen.New(s.Pool)
 	activity, err := q.CertificateActivityByIdentifier(ctx, strconv.FormatInt(int64(id), 10))
 	if errors.Is(err, pgx.ErrNoRows) {
-		return Settings{}, Error("ACTIVITY_NOT_FOUND")
+		return SettingsState{}, Error("ACTIVITY_NOT_FOUND")
 	}
 	if err != nil {
-		return Settings{}, err
+		return SettingsState{}, err
 	}
 	hasRubric, err := q.CertificateActivityHasScoringRubric(ctx, id)
 	if err != nil {
-		return Settings{}, err
+		return SettingsState{}, err
 	}
 	now := time.Now()
 	if s.Location != nil {
 		now = now.In(s.Location)
 	}
-	return ParseSettings(activity, hasRubric, now)
+	settings, err := ParseSettings(activity, hasRubric, now)
+	return SettingsState{Settings: settings, Saved: HasSavedSettings(activity)}, err
 }
 
 func (s Issuance) SaveSettings(ctx context.Context, id int32, settings Settings) (Settings, error) {

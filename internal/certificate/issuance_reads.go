@@ -8,6 +8,7 @@ import (
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
+	"sync"
 	"time"
 )
 
@@ -173,7 +174,12 @@ func (s Issuance) Prepare(ctx context.Context, id float64, ids []float64) (Prepa
 		case "issued_active":
 			out.Excluded.AlreadyIssued++
 		case "issued_revoked":
-			out.Excluded.Revoked++
+			// Withdrawn certificates are republished only when chosen explicitly.
+			if ids != nil {
+				out.RegistrationIDs = append(out.RegistrationIDs, row.RegistrationID)
+			} else {
+				out.Excluded.Revoked++
+			}
 		case "not_eligible":
 			out.Excluded.NotEligible++
 		}
@@ -182,9 +188,9 @@ func (s Issuance) Prepare(ctx context.Context, id float64, ids []float64) (Prepa
 		out.Excluded.Missing = len(UniqueIDs(ids)) - len(rows)
 	}
 	if IsSalman(template.TemplateData) {
-		for _, registrationID := range out.RegistrationIDs {
-			preview, err := s.Preview(ctx, float64(registrationID))
-			if err != nil {
+		previews, errs := s.previewAll(ctx, out.RegistrationIDs)
+		for index, registrationID := range out.RegistrationIDs {
+			if err := errs[index]; err != nil {
 				var domainError *domain.Error
 				if errors.As(err, &domainError) && domainError.Message == "CERTIFICATE_SCORE_NOT_PUBLISHED" {
 					out.Blocked = append(out.Blocked, BlockedRecipient{RegistrationID: registrationID, Reason: domainError.Message})
@@ -193,7 +199,7 @@ func (s Issuance) Prepare(ctx context.Context, id float64, ids []float64) (Prepa
 				return Prepared{}, err
 			}
 			if out.Preview == nil {
-				out.Preview = &preview
+				out.Preview = &previews[index]
 			}
 		}
 	} else if len(out.RegistrationIDs) > 0 {
@@ -224,6 +230,28 @@ func (s Issuance) Prepare(ctx context.Context, id float64, ids []float64) (Prepa
 	}
 	return out, nil
 }
+
+// previewConcurrency bounds parallel score checks so large reviews stay within the pool.
+const previewConcurrency = 4
+
+func (s Issuance) previewAll(ctx context.Context, ids []int32) ([]Response, []error) {
+	previews := make([]Response, len(ids))
+	errs := make([]error, len(ids))
+	slots := make(chan struct{}, previewConcurrency)
+	var wg sync.WaitGroup
+	for index, id := range ids {
+		wg.Add(1)
+		slots <- struct{}{}
+		go func() {
+			defer wg.Done()
+			defer func() { <-slots }()
+			previews[index], errs[index] = s.Preview(ctx, float64(id))
+		}()
+	}
+	wg.Wait()
+	return previews, errs
+}
+
 func (s Issuance) RecipientNames(ctx context.Context, ids []float64) (map[int32]string, error) {
 	names := map[int32]string{}
 	if len(ids) == 0 {
