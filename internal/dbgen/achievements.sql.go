@@ -156,23 +156,6 @@ func (q *Queries) CountAchievements(ctx context.Context, arg CountAchievementsPa
 	return count, err
 }
 
-const countLifetimeLeaderboard = `-- name: CountLifetimeLeaderboard :one
-SELECT count(*) FROM lifetime_leaderboards b LEFT JOIN public_users u ON u.id=b.user_id LEFT JOIN profiles p ON p.user_id=u.id LEFT JOIN universities university ON university.id=p.university_id
-WHERE ($1::text IS NULL OR u.email ILIKE '%'||$1::text||'%') AND ($2::text IS NULL OR p.name ILIKE '%'||$2::text||'%')
-`
-
-type CountLifetimeLeaderboardParams struct {
-	Email *string `json:"email"`
-	Name  *string `json:"name"`
-}
-
-func (q *Queries) CountLifetimeLeaderboard(ctx context.Context, arg CountLifetimeLeaderboardParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countLifetimeLeaderboard, arg.Email, arg.Name)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
 const countMonthlyLeaderboard = `-- name: CountMonthlyLeaderboard :one
 SELECT count(*) FROM monthly_leaderboards b LEFT JOIN public_users u ON u.id=b.user_id LEFT JOIN profiles p ON p.user_id=u.id LEFT JOIN universities university ON university.id=p.university_id
 WHERE ($1::text IS NULL OR u.email ILIKE '%'||$1::text||'%') AND ($2::text IS NULL OR p.name ILIKE '%'||$2::text||'%')
@@ -205,40 +188,6 @@ func (q *Queries) CountMonthlyLeaderboard(ctx context.Context, arg CountMonthlyL
 	return count, err
 }
 
-const createLifetimeLeaderboard = `-- name: CreateLifetimeLeaderboard :one
-INSERT INTO lifetime_leaderboards(user_id,score,score_academic,score_competition,score_organizational,created_at,updated_at) VALUES ($1::integer,CAST(CAST($2 AS text) AS integer),CAST(CAST($3 AS text) AS integer),CAST(CAST($4 AS text) AS integer),CAST(CAST($5 AS text) AS integer),now(),now()) RETURNING id, user_id, score_academic, score_competition, score_organizational, score, created_at, updated_at
-`
-
-type CreateLifetimeLeaderboardParams struct {
-	UserID              *int32  `json:"user_id"`
-	Score               *string `json:"score"`
-	ScoreAcademic       *string `json:"score_academic"`
-	ScoreCompetition    *string `json:"score_competition"`
-	ScoreOrganizational *string `json:"score_organizational"`
-}
-
-func (q *Queries) CreateLifetimeLeaderboard(ctx context.Context, arg CreateLifetimeLeaderboardParams) (LifetimeLeaderboard, error) {
-	row := q.db.QueryRow(ctx, createLifetimeLeaderboard,
-		arg.UserID,
-		arg.Score,
-		arg.ScoreAcademic,
-		arg.ScoreCompetition,
-		arg.ScoreOrganizational,
-	)
-	var i LifetimeLeaderboard
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.ScoreAcademic,
-		&i.ScoreCompetition,
-		&i.ScoreOrganizational,
-		&i.Score,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
 const createMonthlyLeaderboard = `-- name: CreateMonthlyLeaderboard :one
 INSERT INTO monthly_leaderboards(user_id,month,score,score_academic,score_competition,score_organizational,created_at,updated_at) VALUES ($1::integer,$2::date,CAST(CAST($3 AS text) AS integer),CAST(CAST($4 AS text) AS integer),CAST(CAST($5 AS text) AS integer),CAST(CAST($6 AS text) AS integer),now(),now()) RETURNING id, user_id, month, score_academic, score_competition, score_organizational, score, created_at, updated_at
 `
@@ -266,26 +215,6 @@ func (q *Queries) CreateMonthlyLeaderboard(ctx context.Context, arg CreateMonthl
 		&i.ID,
 		&i.UserID,
 		&i.Month,
-		&i.ScoreAcademic,
-		&i.ScoreCompetition,
-		&i.ScoreOrganizational,
-		&i.Score,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const findLifetimeLeaderboard = `-- name: FindLifetimeLeaderboard :one
-SELECT id, user_id, score_academic, score_competition, score_organizational, score, created_at, updated_at FROM lifetime_leaderboards WHERE user_id IS NOT DISTINCT FROM $1::integer LIMIT 1
-`
-
-func (q *Queries) FindLifetimeLeaderboard(ctx context.Context, userID *int32) (LifetimeLeaderboard, error) {
-	row := q.db.QueryRow(ctx, findLifetimeLeaderboard, userID)
-	var i LifetimeLeaderboard
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
 		&i.ScoreAcademic,
 		&i.ScoreCompetition,
 		&i.ScoreOrganizational,
@@ -391,64 +320,6 @@ func (q *Queries) ListAchievements(ctx context.Context, arg ListAchievementsPara
 			&i.PublicUser,
 			&i.Profile,
 			&i.Approver,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listLifetimeLeaderboard = `-- name: ListLifetimeLeaderboard :many
-SELECT b.id, b.user_id, b.score_academic, b.score_competition, b.score_organizational, b.score, b.created_at, b.updated_at,(to_jsonb(u)-'password')::jsonb AS public_user,row_to_json(p) AS profile,row_to_json(university) AS university
-FROM lifetime_leaderboards b LEFT JOIN public_users u ON u.id=b.user_id LEFT JOIN profiles p ON p.user_id=u.id LEFT JOIN universities university ON university.id=p.university_id
-WHERE ($1::text IS NULL OR u.email ILIKE '%'||$1::text||'%') AND ($2::text IS NULL OR p.name ILIKE '%'||$2::text||'%')
-ORDER BY b.score DESC LIMIT CAST($4::text AS bigint) OFFSET CAST($3::text AS bigint)
-`
-
-type ListLifetimeLeaderboardParams struct {
-	Email      *string `json:"email"`
-	Name       *string `json:"name"`
-	PageOffset string  `json:"page_offset"`
-	PageSize   *string `json:"page_size"`
-}
-
-type ListLifetimeLeaderboardRow struct {
-	LifetimeLeaderboard LifetimeLeaderboard `json:"lifetime_leaderboard"`
-	PublicUser          []byte              `json:"public_user"`
-	Profile             []byte              `json:"profile"`
-	University          []byte              `json:"university"`
-}
-
-func (q *Queries) ListLifetimeLeaderboard(ctx context.Context, arg ListLifetimeLeaderboardParams) ([]ListLifetimeLeaderboardRow, error) {
-	rows, err := q.db.Query(ctx, listLifetimeLeaderboard,
-		arg.Email,
-		arg.Name,
-		arg.PageOffset,
-		arg.PageSize,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []ListLifetimeLeaderboardRow{}
-	for rows.Next() {
-		var i ListLifetimeLeaderboardRow
-		if err := rows.Scan(
-			&i.LifetimeLeaderboard.ID,
-			&i.LifetimeLeaderboard.UserID,
-			&i.LifetimeLeaderboard.ScoreAcademic,
-			&i.LifetimeLeaderboard.ScoreCompetition,
-			&i.LifetimeLeaderboard.ScoreOrganizational,
-			&i.LifetimeLeaderboard.Score,
-			&i.LifetimeLeaderboard.CreatedAt,
-			&i.LifetimeLeaderboard.UpdatedAt,
-			&i.PublicUser,
-			&i.Profile,
-			&i.University,
 		); err != nil {
 			return nil, err
 		}
@@ -579,40 +450,6 @@ func (q *Queries) UpdateAchievement(ctx context.Context, arg UpdateAchievementPa
 		&i.Remark,
 		&i.ApproverID,
 		&i.ApprovedAt,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const updateLifetimeLeaderboard = `-- name: UpdateLifetimeLeaderboard :one
-UPDATE lifetime_leaderboards SET score=CAST(CAST($1 AS text) AS integer),score_academic=CAST(CAST($2 AS text) AS integer),score_competition=CAST(CAST($3 AS text) AS integer),score_organizational=CAST(CAST($4 AS text) AS integer),updated_at=CASE WHEN ROW(score,score_academic,score_competition,score_organizational) IS DISTINCT FROM ROW(CAST(CAST($1 AS text) AS integer),CAST(CAST($2 AS text) AS integer),CAST(CAST($3 AS text) AS integer),CAST(CAST($4 AS text) AS integer)) THEN now() ELSE updated_at END WHERE id = $5::integer RETURNING id, user_id, score_academic, score_competition, score_organizational, score, created_at, updated_at
-`
-
-type UpdateLifetimeLeaderboardParams struct {
-	Score               *string `json:"score"`
-	ScoreAcademic       *string `json:"score_academic"`
-	ScoreCompetition    *string `json:"score_competition"`
-	ScoreOrganizational *string `json:"score_organizational"`
-	ID                  int32   `json:"id"`
-}
-
-func (q *Queries) UpdateLifetimeLeaderboard(ctx context.Context, arg UpdateLifetimeLeaderboardParams) (LifetimeLeaderboard, error) {
-	row := q.db.QueryRow(ctx, updateLifetimeLeaderboard,
-		arg.Score,
-		arg.ScoreAcademic,
-		arg.ScoreCompetition,
-		arg.ScoreOrganizational,
-		arg.ID,
-	)
-	var i LifetimeLeaderboard
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.ScoreAcademic,
-		&i.ScoreCompetition,
-		&i.ScoreOrganizational,
-		&i.Score,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

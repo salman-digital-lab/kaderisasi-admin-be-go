@@ -107,9 +107,6 @@ func (s Service) Review(ctx context.Context, row dbgen.Achievement, input Input,
 		if err = updateMonthly(ctx, q, updated, month); err != nil {
 			return Response{}, err
 		}
-		if err = updateLifetime(ctx, q, updated); err != nil {
-			return Response{}, err
-		}
 	}
 	if err = tx.Commit(ctx); err != nil {
 		return Response{}, err
@@ -185,20 +182,6 @@ func updateMonthly(ctx context.Context, q *dbgen.Queries, achievement dbgen.Achi
 		_, err = q.UpdateMonthlyLeaderboard(ctx, dbgen.UpdateMonthlyLeaderboardParams{ID: board.ID, Score: value.Total, ScoreAcademic: value.Academic, ScoreCompetition: value.Competition, ScoreOrganizational: value.Organizational})
 	}
 	return database.LegacyQueryError(err, boardStatement("monthly_leaderboards", create, board.ScoreAcademic, board.ScoreCompetition, board.ScoreOrganizational, board.Score, value))
-}
-func updateLifetime(ctx context.Context, q *dbgen.Queries, achievement dbgen.Achievement) error {
-	board, err := q.FindLifetimeLeaderboard(ctx, achievement.UserID)
-	create := errors.Is(err, pgx.ErrNoRows)
-	if err != nil && !create {
-		return err
-	}
-	value := accumulated(board.ScoreAcademic, board.ScoreCompetition, board.ScoreOrganizational, board.Score, achievement, create)
-	if create {
-		_, err = q.CreateLifetimeLeaderboard(ctx, dbgen.CreateLifetimeLeaderboardParams{UserID: achievement.UserID, Score: value.Total, ScoreAcademic: value.Academic, ScoreCompetition: value.Competition, ScoreOrganizational: value.Organizational})
-	} else {
-		_, err = q.UpdateLifetimeLeaderboard(ctx, dbgen.UpdateLifetimeLeaderboardParams{ID: board.ID, Score: value.Total, ScoreAcademic: value.Academic, ScoreCompetition: value.Competition, ScoreOrganizational: value.Organizational})
-	}
-	return database.LegacyQueryError(err, boardStatement("lifetime_leaderboards", create, board.ScoreAcademic, board.ScoreCompetition, board.ScoreOrganizational, board.Score, value))
 }
 func boardStatement(table string, create bool, academic, competition, organizational, total *int32, value scores) string {
 	if create {

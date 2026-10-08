@@ -950,18 +950,6 @@
       }
     },
     {
-      "route": "GET /v2/leaderboards/lifetime",
-      "source": "leaderboards_controller.lifetimeLeaderboard",
-      "invalid_input": {
-        "applicable": true,
-        "reason": "Exercise malformed body, identifier, query, file, or authentication material accepted by this action."
-      },
-      "missing_resource": {
-        "applicable": false,
-        "reason": "This collection, catalog, or authenticated identity action addresses no supplied resource ID; empty filters and missing authentication are covered in their own contracts."
-      }
-    },
-    {
       "route": "GET /v2/clubs",
       "source": "clubs_controller.index",
       "invalid_input": {

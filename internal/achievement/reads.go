@@ -77,31 +77,3 @@ func (s Service) Monthly(ctx context.Context, filters LeaderboardFilters) (Page[
 	}
 	return result, nil
 }
-func (s Service) Lifetime(ctx context.Context, filters LeaderboardFilters) (Page[LifetimeResponse], error) {
-	result := Page[LifetimeResponse]{Data: []LifetimeResponse{}}
-	q := dbgen.New(s.Pool)
-	total, err := q.CountLifetimeLeaderboard(ctx, dbgen.CountLifetimeLeaderboardParams{Email: filters.Email, Name: filters.Name})
-	result.Meta = database.Meta(total, filters.Page, filters.Size)
-	if err != nil {
-		return result, database.LegacyQueryError(err, leaderboardQuery(filters, nil, true))
-	}
-	if total == 0 {
-		return result, nil
-	}
-	size, offset, err := database.SQLPage(filters.Page, filters.Size)
-	if err != nil {
-		return result, err
-	}
-	rows, err := q.ListLifetimeLeaderboard(ctx, dbgen.ListLifetimeLeaderboardParams{Email: filters.Email, Name: filters.Name, PageSize: size, PageOffset: offset})
-	if err != nil {
-		return result, database.LegacyQueryError(err, leaderboardQuery(filters, nil, false))
-	}
-	for _, row := range rows {
-		user, err := leaderboardUser(row.PublicUser, row.Profile, row.University)
-		if err != nil {
-			return result, err
-		}
-		result.Data = append(result.Data, LifetimeResponse{LifetimeLeaderboard: row.LifetimeLeaderboard, CreatedAt: domain.ModelTimestamp(row.LifetimeLeaderboard.CreatedAt, s.Location), UpdatedAt: domain.ModelTimestamp(row.LifetimeLeaderboard.UpdatedAt, s.Location), User: user})
-	}
-	return result, nil
-}

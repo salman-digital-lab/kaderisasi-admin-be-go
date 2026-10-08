@@ -202,16 +202,6 @@
     "lmd",
     "spectra"
   ],
-  "lifetime_leaderboards": [
-    "id",
-    "user_id",
-    "score_academic",
-    "score_competition",
-    "score_organizational",
-    "score",
-    "created_at",
-    "updated_at"
-  ],
   "monthly_leaderboards": [
     "id",
     "user_id",

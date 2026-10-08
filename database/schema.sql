@@ -638,42 +638,6 @@ ALTER SEQUENCE public.issued_certificates_id_seq OWNED BY public.issued_certific
 
 
 --
--- Name: lifetime_leaderboards; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.lifetime_leaderboards (
-    id integer NOT NULL,
-    user_id integer,
-    score_academic integer,
-    score_competition integer,
-    score_organizational integer,
-    score integer,
-    created_at timestamp with time zone,
-    updated_at timestamp with time zone
-);
-
-
---
--- Name: lifetime_leaderboards_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.lifetime_leaderboards_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: lifetime_leaderboards_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.lifetime_leaderboards_id_seq OWNED BY public.lifetime_leaderboards.id;
-
-
---
 -- Name: monthly_leaderboards; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1052,13 +1016,6 @@ ALTER TABLE ONLY public.issued_certificates ALTER COLUMN id SET DEFAULT nextval(
 
 
 --
--- Name: lifetime_leaderboards id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.lifetime_leaderboards ALTER COLUMN id SET DEFAULT nextval('public.lifetime_leaderboards_id_seq'::regclass);
-
-
---
 -- Name: monthly_leaderboards id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1299,14 +1256,6 @@ CREATE UNIQUE INDEX issued_certificates_active_registration_unique ON public.iss
 
 
 --
--- Name: lifetime_leaderboards lifetime_leaderboards_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.lifetime_leaderboards
-    ADD CONSTRAINT lifetime_leaderboards_pkey PRIMARY KEY (id);
-
-
---
 -- Name: monthly_leaderboards monthly_leaderboards_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1531,20 +1480,6 @@ CREATE INDEX idx_issued_certificates_activity_issued_at ON public.issued_certifi
 --
 
 CREATE INDEX idx_issued_certificates_user_issued_at ON public.issued_certificates USING btree (user_id, issued_at);
-
-
---
--- Name: idx_lifetime_lb_score; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_lifetime_lb_score ON public.lifetime_leaderboards USING btree (score);
-
-
---
--- Name: idx_lifetime_lb_user_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_lifetime_lb_user_id ON public.lifetime_leaderboards USING btree (user_id);
 
 
 --
@@ -1796,14 +1731,6 @@ ALTER TABLE ONLY public.issued_certificates
 
 ALTER TABLE ONLY public.issued_certificates
     ADD CONSTRAINT issued_certificates_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.public_users(id);
-
-
---
--- Name: lifetime_leaderboards lifetime_leaderboards_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.lifetime_leaderboards
-    ADD CONSTRAINT lifetime_leaderboards_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.public_users(id) ON DELETE CASCADE;
 
 
 --

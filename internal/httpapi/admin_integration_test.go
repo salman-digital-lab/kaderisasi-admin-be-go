@@ -39,7 +39,7 @@ func TestAchievementManagerRequestAndCurrentSessionPermissions(t *testing.T) {
 	if !found {
 		t.Fatal("Pengelola Prestasi missing from requestable targets")
 	}
-	f.call("GET", "/v2/leaderboards/lifetime", nil, token, 403)
+	f.call("GET", "/v2/leaderboards/monthly", nil, token, 403)
 	request := objectData(t, f.call("POST", "/v2/access-requests",
 		map[string]string{"role_code": "achievement_manager", "reason": "Mengelola kegiatan dan memeriksa prestasi"}, token, 201))
 	f.call("POST", fmt.Sprintf("/v2/tickets/review/%d/approve", request.ID("id")), nil, f.token, 200)
@@ -47,7 +47,7 @@ func TestAchievementManagerRequestAndCurrentSessionPermissions(t *testing.T) {
 		t.Fatal("approved Pengelola Prestasi role not applied")
 	}
 	// The same JWT must use the current role, including after access is removed.
-	f.call("GET", "/v2/leaderboards/lifetime", nil, token, 200)
+	f.call("GET", "/v2/leaderboards/monthly", nil, token, 200)
 	f.call("GET", "/v2/activities", nil, token, 200)
 	userPath := fmt.Sprintf("/v2/admin-users/%d", id)
 	f.call("PUT", userPath, map[string]string{"role_code": "konselor"}, f.token, 200)
@@ -56,7 +56,7 @@ func TestAchievementManagerRequestAndCurrentSessionPermissions(t *testing.T) {
 	f.call("GET", "/v2/ruang-curhat", nil, token, 403)
 	f.call("GET", "/v2/activities", nil, token, 200)
 	f.call("PUT", userPath, map[string]string{"role_code": "achievement_manager"}, f.token, 200)
-	f.call("GET", "/v2/leaderboards/lifetime", nil, token, 200)
+	f.call("GET", "/v2/leaderboards/monthly", nil, token, 200)
 }
 func TestAdministratorAndTicketWorkflows(t *testing.T) {
 	f := newHTTPFixture(t)

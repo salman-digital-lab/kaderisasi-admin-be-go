@@ -96,7 +96,7 @@ func (s *Server) registerLeaderboards() {
 			return nil
 		})
 	}
-	for _, action := range []string{"monthlyLeaderboard", "lifetimeLeaderboard"} {
+	for _, action := range []string{"monthlyLeaderboard"} {
 		s.register(controller, action, func(w http.ResponseWriter, r *http.Request) error {
 			params := r.URL.Query()
 			optional := func(key string) *string {
@@ -108,21 +108,12 @@ func (s *Server) registerLeaderboards() {
 			}
 			page, size := pageParams(r, 10, 0)
 			filters := achievement.LeaderboardFilters{Month: params.Get("month"), Year: params.Get("year"), Email: optional("email"), Name: optional("name"), Page: page, Size: size}
-			if action == "monthlyLeaderboard" {
-				result, err := service.Monthly(r.Context(), filters)
-				if err != nil {
-					legacyFailure(w, err)
-					return nil
-				}
-				reply(w, 200, "GET_DATA_SUCCESS", result)
-			} else {
-				result, err := service.Lifetime(r.Context(), filters)
-				if err != nil {
-					legacyFailure(w, err)
-					return nil
-				}
-				reply(w, 200, "GET_DATA_SUCCESS", result)
+			result, err := service.Monthly(r.Context(), filters)
+			if err != nil {
+				legacyFailure(w, err)
+				return nil
 			}
+			reply(w, 200, "GET_DATA_SUCCESS", result)
 			return nil
 		})
 	}

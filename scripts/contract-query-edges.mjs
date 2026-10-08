@@ -6,7 +6,7 @@ export async function queryEdgeCases(h){
   await h.call('query:club','POST','/v2/clubs',{name:'Query club'});
   await h.call('query:form','POST','/v2/custom-forms',{formName:'Query form'});
   await h.call('query:template','POST','/v2/certificate-templates',{name:'Query template'});
-  const paths=['admin-users','access-requests','tickets/review','universities','profiles','activities','activities/1/registrations','ruang-curhat','achievements','leaderboards/monthly','leaderboards/lifetime','clubs','clubs/1/members','clubs/1/registrations','custom-forms','custom-forms/unattached','certificate-templates','certificates','certificates/activities/1/recipients'];
+  const paths=['admin-users','access-requests','tickets/review','universities','profiles','activities','activities/1/registrations','ruang-curhat','achievements','leaderboards/monthly','clubs','clubs/1/members','clubs/1/registrations','custom-forms','custom-forms/unattached','certificate-templates','certificates','certificates/activities/1/recipients'];
   for(const path of paths)for(const value of ['invalid','0','-1','1.5','9007199254740991','0x2','%202%20','%EF%BB%BF2','10000000000000000000']){
     await h.call(`query:invalid-pagination:${path}:${value}`,'GET',`/v2/${path}?page=${value}&per_page=${value}&limit=${value}`);
   }

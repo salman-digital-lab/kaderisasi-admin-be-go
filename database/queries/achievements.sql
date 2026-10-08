@@ -57,23 +57,3 @@ INSERT INTO monthly_leaderboards(user_id,month,score,score_academic,score_compet
 
 -- name: UpdateMonthlyLeaderboard :one
 UPDATE monthly_leaderboards SET score=CAST(CAST(sqlc.narg('score') AS text) AS integer),score_academic=CAST(CAST(sqlc.narg('score_academic') AS text) AS integer),score_competition=CAST(CAST(sqlc.narg('score_competition') AS text) AS integer),score_organizational=CAST(CAST(sqlc.narg('score_organizational') AS text) AS integer),updated_at=CASE WHEN ROW(score,score_academic,score_competition,score_organizational) IS DISTINCT FROM ROW(CAST(CAST(sqlc.narg('score') AS text) AS integer),CAST(CAST(sqlc.narg('score_academic') AS text) AS integer),CAST(CAST(sqlc.narg('score_competition') AS text) AS integer),CAST(CAST(sqlc.narg('score_organizational') AS text) AS integer)) THEN now() ELSE updated_at END WHERE id = @id::integer RETURNING *;
-
--- name: CountLifetimeLeaderboard :one
-SELECT count(*) FROM lifetime_leaderboards b LEFT JOIN public_users u ON u.id=b.user_id LEFT JOIN profiles p ON p.user_id=u.id LEFT JOIN universities university ON university.id=p.university_id
-WHERE (sqlc.narg('email')::text IS NULL OR u.email ILIKE '%'||sqlc.narg('email')::text||'%') AND (sqlc.narg('name')::text IS NULL OR p.name ILIKE '%'||sqlc.narg('name')::text||'%');
-
--- name: ListLifetimeLeaderboard :many
-SELECT sqlc.embed(b),(to_jsonb(u)-'password')::jsonb AS public_user,row_to_json(p) AS profile,row_to_json(university) AS university
-FROM lifetime_leaderboards b LEFT JOIN public_users u ON u.id=b.user_id LEFT JOIN profiles p ON p.user_id=u.id LEFT JOIN universities university ON university.id=p.university_id
-WHERE (sqlc.narg('email')::text IS NULL OR u.email ILIKE '%'||sqlc.narg('email')::text||'%') AND (sqlc.narg('name')::text IS NULL OR p.name ILIKE '%'||sqlc.narg('name')::text||'%')
-ORDER BY b.score DESC LIMIT CAST(sqlc.narg('page_size')::text AS bigint) OFFSET CAST(@page_offset::text AS bigint);
-
--- name: FindLifetimeLeaderboard :one
-SELECT * FROM lifetime_leaderboards WHERE user_id IS NOT DISTINCT FROM sqlc.narg('user_id')::integer LIMIT 1;
-
--- name: CreateLifetimeLeaderboard :one
-INSERT INTO lifetime_leaderboards(user_id,score,score_academic,score_competition,score_organizational,created_at,updated_at) VALUES (sqlc.narg('user_id')::integer,CAST(CAST(sqlc.narg('score') AS text) AS integer),CAST(CAST(sqlc.narg('score_academic') AS text) AS integer),CAST(CAST(sqlc.narg('score_competition') AS text) AS integer),CAST(CAST(sqlc.narg('score_organizational') AS text) AS integer),now(),now()) RETURNING *;
-
--- name: UpdateLifetimeLeaderboard :one
-UPDATE lifetime_leaderboards SET score=CAST(CAST(sqlc.narg('score') AS text) AS integer),score_academic=CAST(CAST(sqlc.narg('score_academic') AS text) AS integer),score_competition=CAST(CAST(sqlc.narg('score_competition') AS text) AS integer),score_organizational=CAST(CAST(sqlc.narg('score_organizational') AS text) AS integer),updated_at=CASE WHEN ROW(score,score_academic,score_competition,score_organizational) IS DISTINCT FROM ROW(CAST(CAST(sqlc.narg('score') AS text) AS integer),CAST(CAST(sqlc.narg('score_academic') AS text) AS integer),CAST(CAST(sqlc.narg('score_competition') AS text) AS integer),CAST(CAST(sqlc.narg('score_organizational') AS text) AS integer)) THEN now() ELSE updated_at END WHERE id = @id::integer RETURNING *;
-

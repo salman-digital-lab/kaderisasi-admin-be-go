@@ -410,17 +410,6 @@ type IssuedCertificate struct {
 	RevokedBy           *int32             `json:"revoked_by"`
 }
 
-type LifetimeLeaderboard struct {
-	ID                  int32              `json:"id"`
-	UserID              *int32             `json:"user_id"`
-	ScoreAcademic       *int32             `json:"score_academic"`
-	ScoreCompetition    *int32             `json:"score_competition"`
-	ScoreOrganizational *int32             `json:"score_organizational"`
-	Score               *int32             `json:"score"`
-	CreatedAt           pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt           pgtype.Timestamptz `json:"updated_at"`
-}
-
 type MonthlyLeaderboard struct {
 	ID                  int32              `json:"id"`
 	UserID              *int32             `json:"user_id"`

@@ -57,12 +57,6 @@ type MonthlyResponse struct {
 	UpdatedAt *string          `json:"updated_at"`
 	User      *LeaderboardUser `json:"user"`
 }
-type LifetimeResponse struct {
-	dbgen.LifetimeLeaderboard
-	CreatedAt *string          `json:"created_at"`
-	UpdatedAt *string          `json:"updated_at"`
-	User      *LeaderboardUser `json:"user"`
-}
 
 func (s Service) view(row dbgen.Achievement) Response {
 	return Response{Achievement: row, CreatedAt: domain.ModelTimestamp(row.CreatedAt, s.Location), UpdatedAt: domain.ModelTimestamp(row.UpdatedAt, s.Location)}

@@ -852,15 +852,6 @@
   },
   {
     "method": "GET",
-    "path": "/v2/leaderboards/lifetime",
-    "controller": "leaderboards_controller",
-    "action": "lifetimeLeaderboard",
-    "auth": true,
-    "trusted_origin": false,
-    "permission": "leaderboards.read"
-  },
-  {
-    "method": "GET",
     "path": "/v2/clubs",
     "controller": "clubs_controller",
     "action": "index",

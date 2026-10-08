@@ -87,7 +87,7 @@ func TestCounselingAchievementAndLeaderboard(t *testing.T) {
 	panitiaToken := f.tokenFor(f.admin("activity_manager"))
 	f.call("GET", ap, nil, panitiaToken, 403)
 	f.call("PUT", ap+"/approve-reject", map[string]interface{}{"status": 1, "score": 20}, panitiaToken, 403)
-	f.call("GET", "/v2/leaderboards/lifetime", nil, panitiaToken, 403)
+	f.call("GET", "/v2/leaderboards/monthly", nil, panitiaToken, 403)
 	f.call("GET", "/v2/ruang-curhat", nil, managerToken, 403)
 	f.call("GET", "/v2/admin-users", nil, managerToken, 403)
 	f.call("GET", ap, nil, managerToken, 200)
@@ -103,20 +103,16 @@ func TestCounselingAchievementAndLeaderboard(t *testing.T) {
 	if err = f.pool.QueryRow(ctx, "SELECT score,month::text FROM monthly_leaderboards WHERE user_id=$1", u.ID("id")).Scan(&monthly, &month); err != nil {
 		t.Fatal(err)
 	}
-	if err = f.pool.QueryRow(ctx, "SELECT score FROM lifetime_leaderboards WHERE user_id=$1", u.ID("id")).Scan(&total); err != nil {
-		t.Fatal(err)
-	}
-	if monthly != 20 || total != 20 || month != "2026-02-01" {
-		t.Fatal("leaderboard effects", monthly, total, month)
+	if monthly != 20 || month != "2026-02-01" {
+		t.Fatal("leaderboard effects", monthly, month)
 	}
 	f.call("GET", "/v2/leaderboards/monthly?month=2&year=2026&name=Achievement", nil, managerToken, 200)
 	f.call("GET", "/v2/leaderboards/monthly?year=2026", nil, f.token, 200)
-	f.call("GET", "/v2/leaderboards/lifetime?name=Achievement", nil, managerToken, 200)
 	// Legacy review adds the approved score on every approval, and rejection
 	// leaves accumulated scores unchanged. Differential tests must preserve it.
 	f.call("PUT", ap+"/approve-reject", map[string]interface{}{"status": 1, "score": 20}, f.token, 200)
 	f.call("PUT", ap+"/approve-reject", map[string]interface{}{"status": 2, "remark": "Synthetic rejection"}, managerToken, 200)
-	if err = f.pool.QueryRow(ctx, "SELECT score FROM lifetime_leaderboards WHERE user_id=$1", u.ID("id")).Scan(&total); err != nil || total != 40 {
+	if err = f.pool.QueryRow(ctx, "SELECT score FROM monthly_leaderboards WHERE user_id=$1", u.ID("id")).Scan(&total); err != nil || total != 40 {
 		t.Fatal("legacy repeated-review effects", total, err)
 	}
 	r := httptest.NewRequest("GET", "/v2/achievements/export", nil)

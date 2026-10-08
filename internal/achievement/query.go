@@ -121,7 +121,7 @@ func achievementQuery(filters Filters, count bool) string {
 	return queryStatement("achievements", conditions, n, count, filters.Page, sort, direction)
 }
 func leaderboardQuery(filters LeaderboardFilters, month *dbgen.CountMonthlyLeaderboardParams, count bool) string {
-	table := "lifetime_leaderboards"
+	table := "monthly_leaderboards"
 	conditions := []string{}
 	n := 0
 	arg := func() string { n++; return "$" + strconv.Itoa(n) }
