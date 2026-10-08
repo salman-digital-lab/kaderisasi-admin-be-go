@@ -91,12 +91,12 @@ export async function runCertificateScoresBrowser({certificate,activity,registra
   try {
     const reusePublic=process.argv.includes('--reuse-public-frontend');
     for(const port of reusePublic?[3005]:[3005,3000])restorations.push(await borrowWorkspacePort(port,process.argv.includes('--borrow-workspace')));
-    adminFE=await startAdminFrontend({...process.env,...parseEnv(readFileSync(resolve(workspace,'docs/.env.test.admin-fe'),'utf8'))});
+    adminFE=await startAdminFrontend({...process.env,...parseEnv(readFileSync(resolve(workspace,'env/test/admin-fe-test-env'),'utf8'))});
     if(reusePublic) {
       const env=parseEnv(readFileSync(resolve(workspace,'kaderisasi-web-fe/.env.local'),'utf8'));
       assert.match(env.SERVER_BE_API||env.NEXT_PUBLIC_BE_API,/^http:\/\/(localhost|127\.0\.0\.1):3333\/v2$/,'Reused frontend must read the local fixture API');
       assert.equal((await fetch('http://localhost:3000')).status,200);
-    } else publicFE=await startPublicFrontend({...process.env,...parseEnv(readFileSync(resolve(workspace,'docs/.env.test.web-fe'),'utf8'))});
+    } else publicFE=await startPublicFrontend({...process.env,...parseEnv(readFileSync(resolve(workspace,'env/test/web-fe-test-env'),'utf8'))});
     browser=await chromium.launch();
     const adminContext=await browser.newContext({viewport:{width:1440,height:1000}});
     const admin=await adminContext.newPage();

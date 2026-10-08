@@ -95,7 +95,7 @@ Evidence is written to `.artifacts/scoring.json` and
 `.artifacts/scoring-browser/`. Fixture records are cleaned in the harness's
 finally block; `make clean-fixtures` removes the recorded owned schemas.
 Run the maintenance repository's lint/typecheck/build and
-`MIGRATION_TEST_ENV=../docs/.env.test.be npm test` for migration validation.
+`MIGRATION_TEST_ENV=../env/test/admin-be-test-env npm test` for migration validation.
 
 Deploy the additive Ace migration in the selected environment first, then both
 APIs, then both frontends. The Go schema file is only a sqlc snapshot and must

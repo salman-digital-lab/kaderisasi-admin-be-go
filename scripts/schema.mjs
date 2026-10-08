@@ -12,7 +12,7 @@ acquireFixtureLease();
 const require = createRequire(resolve(legacy, 'package.json'));
 const { Client } = require('pg');
 const env = testEnvironment();
-const prod = parseEnv(readFileSync(resolve(workspace, 'docs/.env.prod.be'), 'utf8'));
+const prod = parseEnv(readFileSync(resolve(workspace, 'env/prod/admin-be-prod-env'), 'utf8'));
 if (['DB_HOST', 'DB_PORT', 'DB_DATABASE'].every(key => env[key] === prod[key])) throw new Error('Test and production database targets must differ');
 const client = new Client({ host: env.DB_HOST, port: Number(env.DB_PORT), user: env.DB_USER, password: env.DB_PASSWORD, database: env.DB_DATABASE,connectionTimeoutMillis:10000,statement_timeout:30000 });
 const artifacts = resolve(root, '.artifacts');

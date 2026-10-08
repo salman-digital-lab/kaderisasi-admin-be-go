@@ -17,8 +17,8 @@ export async function runCourseBrowser({members,pdf,call,record,restorations}) {
   };
   try {
     for(const port of [3005,3000])restorations.push(await borrowWorkspacePort(port,process.argv.includes('--borrow-workspace')));
-    adminFE=await startAdminFrontend({...process.env,...parseEnv(readFileSync(resolve(workspace,'docs/.env.test.admin-fe'),'utf8'))});
-    publicFE=await startPublicFrontend({...process.env,...parseEnv(readFileSync(resolve(workspace,'docs/.env.test.web-fe'),'utf8'))});
+    adminFE=await startAdminFrontend({...process.env,...parseEnv(readFileSync(resolve(workspace,'env/test/admin-fe-test-env'),'utf8'))});
+    publicFE=await startPublicFrontend({...process.env,...parseEnv(readFileSync(resolve(workspace,'env/test/web-fe-test-env'),'utf8'))});
     browser=await chromium.launch();
     const adminContext=await browser.newContext({viewport:{width:1280,height:900},locale:'id-ID',timezoneId:'Asia/Jakarta'});
     const admin=await adminContext.newPage();admin.on('pageerror',error=>errors.push(error.message));

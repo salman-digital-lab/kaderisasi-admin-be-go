@@ -55,7 +55,7 @@ make check
 make test-unit
 ```
 
-The runner injects `../docs/.env.test.be` into child processes; it does not replace
+The runner injects `../env/test/admin-be-test-env` into child processes; it does not replace
 working env files. Use the configured test environment for fixtures. Production
 credentials and resources are not test fixtures.
 

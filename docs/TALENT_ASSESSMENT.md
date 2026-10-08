@@ -106,7 +106,7 @@ existing unsupported drafts are blocked rather than rescored against new keys.
 `make test-talent-assessment` runs isolated PostgreSQL workflow/authorization
 checks, desktop/mobile browser scenarios, and native route coverage. It is included
 in `make verify`. Finish standalone verification with `make clean-fixtures`.
-Migration checks run with `MIGRATION_TEST_ENV=../docs/.env.test.be npm test` in
+Migration checks run with `MIGRATION_TEST_ENV=../env/test/admin-be-test-env npm test` in
 the migration repository. Fixtures use owned schemas and explicit search paths.
 
 The interface follows the dashboard's BMKA blue, Inter typography, square surfaces

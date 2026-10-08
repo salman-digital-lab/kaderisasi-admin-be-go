@@ -32,7 +32,7 @@ try{
   writeFileSync(journalPath,'[]',{flag:'wx',mode:0o600});
   journal=journalPath;
   api=await startServer('go',fixture.schema,'browser-go',{journal,origins:publicBrowser?'http://localhost:3005,http://localhost:3000':undefined});
-  const frontendEnv=parseEnv(readFileSync(resolve(workspace,publicBrowser?'docs/.env.test.web-fe':'docs/.env.test.admin-fe'),'utf8'));
+  const frontendEnv=parseEnv(readFileSync(resolve(workspace,publicBrowser?'env/test/web-fe-test-env':'env/test/admin-fe-test-env'),'utf8'));
   if(publicBrowser){
     const seed=await fixtureDatabase('candidate');
     try{await resetFixture(seed.db,seed.schema,await new (legacyRequire('@adonisjs/hash/drivers/scrypt').Scrypt)({}).make(fixturePassword));}finally{await seed.db.end();}

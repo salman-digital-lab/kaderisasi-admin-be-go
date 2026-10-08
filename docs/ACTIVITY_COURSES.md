@@ -56,7 +56,7 @@ on successful registration-list responses; nonempty or invalid values remain
 visible to comparisons. Native tests independently require the empty array.
 
 Run migration repository lint, typecheck, build, and
-`MIGRATION_TEST_ENV=../docs/.env.test.be npm test`. Run admin frontend lint, build,
+`MIGRATION_TEST_ENV=../env/test/admin-be-test-env npm test`. Run admin frontend lint, build,
 and tests. Finish fixture-based verification with `make clean-fixtures`.
 
 ### Implementation verification (2026-09-13)

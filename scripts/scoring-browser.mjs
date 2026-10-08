@@ -21,8 +21,8 @@ export async function runScoringBrowser({member,participantToken,call,record,res
     if(reuseAdmin) {
       const source=await (await fetch('http://localhost:3005/src/api/axios.ts')).text();
       assert.match(source,/"VITE_PUBLIC_BE_ADMIN_API"\s*:\s*"http:\/\/localhost:3334\/v2"/,'Existing frontend must use the local fixture API');
-    } else adminFE=await startAdminFrontend({...process.env,...parseEnv(readFileSync(resolve(workspace,'docs/.env.test.admin-fe'),'utf8'))});
-    publicFE=await startPublicFrontend({...process.env,...parseEnv(readFileSync(resolve(workspace,'docs/.env.test.web-fe'),'utf8'))});
+    } else adminFE=await startAdminFrontend({...process.env,...parseEnv(readFileSync(resolve(workspace,'env/test/admin-fe-test-env'),'utf8'))});
+    publicFE=await startPublicFrontend({...process.env,...parseEnv(readFileSync(resolve(workspace,'env/test/web-fe-test-env'),'utf8'))});
     const activity=await call('admin','browser activity','POST','/activities',{name:'Latihan Penilaian Peserta',activity_type:1});
     await call('admin','browser registration','POST',`/activities/${activity.id}/registrations`,{user_id:member.profile.id,questionnaire_answer:{}});
     await fixture.db.query("UPDATE activities SET is_published=true,description='Kegiatan pengembangan karakter',activity_start='2026-09-13' WHERE id=$1",[activity.id]);

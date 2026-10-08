@@ -11,7 +11,7 @@ export const legacy = legacyPath;
 export const migrations = resolve(workspace, 'kaderisasi-admin-be');
 
 export function testEnvironment(overrides = {}) {
-  const configured = parseEnv(readFileSync(resolve(workspace, 'docs/.env.test.be'), 'utf8'));
+  const configured = parseEnv(readFileSync(resolve(workspace, 'env/test/admin-be-test-env'), 'utf8'));
   const env = { ...process.env, ...configured, ...overrides };
   if (env.GO_REWRITE_DIRECT_DNS === '1') {
     storageDNS.installStorageDNS(new URL(env.DRIVE_ENDPOINT).hostname);

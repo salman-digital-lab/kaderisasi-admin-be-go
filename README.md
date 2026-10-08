@@ -73,7 +73,7 @@ node scripts/run.mjs --environment=test clubs:close-registration
 node scripts/run.mjs --environment=test clubs:update-visibility
 ```
 
-The runner reads `../docs/.env.test.be` and injects values into its child process.
+The runner reads `../env/test/admin-be-test-env` and injects values into its child process.
 It does not replace an application env file. `--environment=prod` selects the
 production document. The deployed service receives its configuration from Coolify.
 For a prebuilt binary, inject the existing environment variables and start

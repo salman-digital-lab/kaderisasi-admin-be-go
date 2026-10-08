@@ -9,7 +9,7 @@ const environment=process.argv.find(arg=>arg.startsWith('--environment='))?.spli
 if(!['test','prod'].includes(environment))throw new Error('Environment must be test or prod');
 const action=process.argv.slice(2).find(arg=>!arg.startsWith('--'))??'api';
 if(!['api','close:registration','clubs:close-registration','clubs:update-visibility','forms:clean-uploads'].includes(action))throw new Error('Unknown API/job entrypoint');
-const configured=parseEnv(readFileSync(resolve(workspace,`docs/.env.${environment}.be`),'utf8'));
+const configured=parseEnv(readFileSync(resolve(workspace,`env/${environment}/admin-be-${environment}-env`),'utf8'));
 const binary=resolve(root,'bin',action==='api'?'admin-api':'admin-jobs');
 mkdirSync(resolve(root,'bin'),{recursive:true});
 if(spawnSync('go',['build','-o',binary,action==='api'?'./cmd/api':'./cmd/jobs'],{cwd:root,stdio:'inherit'}).status!==0)process.exit(1);
