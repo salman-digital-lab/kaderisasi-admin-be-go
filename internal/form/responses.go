@@ -139,6 +139,9 @@ func (s Service) ExportResponses(ctx context.Context, formID int32, downloadBase
 					if json.Unmarshal(raw, &scalar) == nil {
 						text = scalar
 					}
+					if choice, ok := field.ChoiceAnswerText(raw); ok {
+						text = choice
+					}
 					if field.Type == "file" {
 						var ids []string
 						_ = json.Unmarshal(raw, &ids)
