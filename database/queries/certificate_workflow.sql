@@ -63,3 +63,13 @@ SELECT * FROM issued_certificates WHERE id=CAST(CAST(@identifier AS text) AS int
 
 -- name: LockIssuedCertificateByIdentifier :one
 SELECT * FROM issued_certificates WHERE id=CAST(CAST(@identifier AS text) AS integer) FOR UPDATE;
+
+-- name: LockActivityCertificateTemplate :exec
+UPDATE activities SET additional_config=jsonb_set(COALESCE(additional_config,'{}'::jsonb),'{certificate_template_lock}',jsonb_build_object('locked_at',now()),true)
+WHERE id=$1 AND NOT COALESCE(additional_config ? 'certificate_template_lock',false);
+
+-- name: UnlockActivityCertificateTemplate :exec
+UPDATE activities SET additional_config=additional_config-'certificate_template_lock' WHERE id=$1;
+
+-- name: CountActiveIssuedCertificates :one
+SELECT count(*) FROM issued_certificates WHERE activity_id=$1 AND revoked_at IS NULL;

@@ -124,6 +124,13 @@ func (s Service) Update(ctx context.Context, identifier string, data Input, perm
 		assignment = data.AdditionalConfig.CertificateTemplateID
 	}
 	if assignment.Present && !sameTemplate(assignment.Value, old.CertificateTemplateID) {
+		locked, err := certificate.IsTemplateLocked(ctx, q, old)
+		if err != nil {
+			return Updated{}, err
+		}
+		if locked {
+			return Updated{}, domain.Fail(409, "CERTIFICATE_TEMPLATE_LOCKED")
+		}
 		if err := s.checkTemplate(ctx, assignment.Value, canManage); err != nil {
 			return Updated{}, err
 		}

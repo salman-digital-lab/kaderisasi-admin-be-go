@@ -62,7 +62,10 @@ func TestCertificateBulkPausesOnConcurrentTemplateChange(t *testing.T) {
 	if err != nil || frozen.Template.Version != 2 {
 		t.Fatal("prior snapshot changed", err)
 	}
-	f.call("PUT", fmt.Sprintf("/v2/activities/%d", int32(expected.ActivityID)), map[string]interface{}{"certificate_template_id": nil}, f.token, 200)
+	f.call("PUT", fmt.Sprintf("/v2/activities/%d", int32(expected.ActivityID)), map[string]interface{}{"certificate_template_id": nil}, f.token, 409)
+	if _, err = f.pool.Exec(ctx, "UPDATE activities SET certificate_template_id=NULL WHERE id=$1", int32(expected.ActivityID)); err != nil {
+		t.Fatal(err)
+	}
 	changed, err := service.Bulk(ctx, wideIDs(fixture.ids), &f.adminID, "assignment-change", &expected)
 	if err != nil || !changed.Paused || !reflect.DeepEqual(changed.RemainingIDs, wideIDs(fixture.ids)) {
 		t.Fatal("assignment change", changed, err)

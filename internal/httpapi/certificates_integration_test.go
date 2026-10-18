@@ -50,6 +50,7 @@ func newCertificateFixture(t *testing.T, count int) *certificateFixture {
 	fixture.template = objectData(t, f.call("POST", "/v2/certificate-templates", map[string]interface{}{"name": "Issuance fixture", "templateData": design}, f.token, 201))
 	fixture.template = objectData(t, f.call("POST", fmt.Sprintf("/v2/certificate-templates/%d/publish", fixture.template.ID("id")), map[string]int{"expectedVersion": 1}, f.token, 200))
 	fixture.activity = objectData(t, f.call("POST", "/v2/activities", map[string]interface{}{"name": "Snapshot activity", "activity_start": "2026-02-28", "certificate_template_id": fixture.template.ID("id")}, f.token, 200))
+	f.call("PUT", fmt.Sprintf("/v2/certificates/activities/%d/template-lock", fixture.activity.ID("id")), nil, f.token, 200)
 	rows, err := f.pool.Query(context.Background(), "INSERT INTO activity_registrations(activity_id,status,guest_data,created_at,updated_at) SELECT $1,'LULUS KEGIATAN',jsonb_build_object('name','Peserta '||n,'email','guest-'||n||'@example.test','gender','F'),now()+n*interval '1 millisecond',now() FROM generate_series(1,$2::int) n RETURNING id", fixture.activity.ID("id"), count)
 	if err != nil {
 		t.Fatal(err)
@@ -296,4 +297,51 @@ func TestCertificateIssuanceSnapshotsAndRevocation(t *testing.T) {
 	f.call("POST", "/v2/certificates/lookup", map[string]interface{}{"registration_ids": tooMany}, f.token, 422)
 	f.call("GET", "/v2/certificates/verify/MISSING", nil, f.token, 404)
 	f.call("GET", "/v2/certificates/0", nil, f.token, 400)
+}
+
+func TestCertificateTemplateLock(t *testing.T) {
+	fixture := newCertificateFixture(t, 1)
+	f := fixture.f
+	activityID := fixture.activity.ID("id")
+	lockPath := fmt.Sprintf("/v2/certificates/activities/%d/template-lock", activityID)
+	activityPath := fmt.Sprintf("/v2/activities/%d", activityID)
+	state := objectData(t, f.call("GET", lockPath, nil, f.token, 200))
+	if !state.Bool("locked") || state.ID("published_count") != 0 {
+		t.Fatal("locked fixture", state)
+	}
+	// Saving other activity settings keeps the lock.
+	f.call("PUT", activityPath, map[string]interface{}{"additional_config": map[string]interface{}{"custom_selection_status": []string{}, "mandatory_profile_data": []interface{}{}, "additional_questionnaire": []interface{}{}}}, f.token, 200)
+	if !objectData(t, f.call("GET", lockPath, nil, f.token, 200)).Bool("locked") {
+		t.Fatal("activity save dropped the lock")
+	}
+	// A locked choice cannot change, but resending the same template is allowed.
+	f.call("PUT", activityPath, map[string]interface{}{"certificate_template_id": nil}, f.token, 409)
+	f.call("PUT", activityPath, map[string]interface{}{"certificate_template_id": fixture.template.ID("id")}, f.token, 200)
+	// Without published certificates the choice can be unlocked and issuance waits for a new lock.
+	state = objectData(t, f.call("DELETE", lockPath, nil, f.token, 200))
+	if state.Bool("locked") {
+		t.Fatal("unlock", state)
+	}
+	prepare := map[string]interface{}{"activity_id": activityID}
+	if f.call("POST", "/v2/certificates/prepare-issuance", prepare, f.token, 422).String("message") != "CERTIFICATE_TEMPLATE_NOT_LOCKED" {
+		t.Fatal("prepare without lock")
+	}
+	body := map[string]int32{"registration_id": fixture.ids[0]}
+	f.call("POST", "/v2/certificates/issue-single", body, f.token, 422)
+	f.call("PUT", activityPath, map[string]interface{}{"certificate_template_id": nil}, f.token, 200)
+	if f.call("PUT", lockPath, nil, f.token, 422).String("message") != "NO_CERTIFICATE_TEMPLATE" {
+		t.Fatal("lock without template")
+	}
+	f.call("PUT", activityPath, map[string]interface{}{"certificate_template_id": fixture.template.ID("id")}, f.token, 200)
+	f.call("PUT", lockPath, nil, f.token, 200)
+	f.call("PUT", lockPath, nil, f.token, 200)
+	f.call("POST", "/v2/certificates/issue-single", body, f.token, 201)
+	// A published certificate keeps the choice locked.
+	if f.call("DELETE", lockPath, nil, f.token, 409).String("message") != "CERTIFICATE_TEMPLATE_LOCK_IN_USE" {
+		t.Fatal("unlock with published certificate")
+	}
+	state = objectData(t, f.call("GET", lockPath, nil, f.token, 200))
+	if !state.Bool("locked") || state.ID("published_count") != 1 || state.Null("template") {
+		t.Fatal("published lock state", state)
+	}
 }

@@ -126,6 +126,7 @@ try {
   const certificateTemplate=await call('admin','create score certificate template','POST','/certificate-templates',{name:'Certificate score sheet fixture',templateData:{backgroundUrl:null,canvasWidth:800,canvasHeight:566,elements:[{id:'title',type:'static-text',content:'SERTIFIKAT',x:100,y:90,width:600,height:60,fontSize:36,textAlign:'center'},{id:'name',type:'variable-text',variable:'{{name}}',x:70,y:240,width:660,height:80,fontSize:28,textAlign:'center'}]}},{status:201});
   await call('admin','publish score certificate template','POST',`/certificate-templates/${certificateTemplate.id}/publish`,{expectedVersion:certificateTemplate.version});
   await call('admin','assign score certificate template','PUT',`/activities/${activity.id}`,{certificate_template_id:certificateTemplate.id,activity_start:'2026-09-22'});
+  await call('admin','lock score certificate template','PUT',`/certificates/activities/${activity.id}/template-lock`);
   await call('admin','mark scored participant eligible','PUT','/activity-registrations',{registrations_id:[registration.id],status:'LULUS KEGIATAN'});
   const certificate=await call('admin','issue certificate with published scores','POST','/certificates/issue-single',{registration_id:registration.id},{status:201});
   assert.ok(certificate.participant.scoring_result);

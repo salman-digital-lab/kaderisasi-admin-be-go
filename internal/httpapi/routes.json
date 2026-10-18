@@ -1310,6 +1310,33 @@
     "permission": "certificate.template.manage"
   },
   {
+    "method": "GET",
+    "path": "/v2/certificates/activities/:activityId/template-lock",
+    "controller": "certificate_settings_controller",
+    "action": "showTemplateLock",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.read"
+  },
+  {
+    "method": "PUT",
+    "path": "/v2/certificates/activities/:activityId/template-lock",
+    "controller": "certificate_settings_controller",
+    "action": "lockTemplate",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.template.manage"
+  },
+  {
+    "method": "DELETE",
+    "path": "/v2/certificates/activities/:activityId/template-lock",
+    "controller": "certificate_settings_controller",
+    "action": "unlockTemplate",
+    "auth": true,
+    "trusted_origin": false,
+    "permission": "certificate.template.manage"
+  },
+  {
     "method": "PUT",
     "path": "/v2/certificates/activities/:activityId/recipients/:registrationId/group",
     "controller": "certificate_settings_controller",

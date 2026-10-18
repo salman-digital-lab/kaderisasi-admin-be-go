@@ -245,6 +245,17 @@ func (q *Queries) CertificateRegistrationByIdentifier(ctx context.Context, ident
 	return i, err
 }
 
+const countActiveIssuedCertificates = `-- name: CountActiveIssuedCertificates :one
+SELECT count(*) FROM issued_certificates WHERE activity_id=$1 AND revoked_at IS NULL
+`
+
+func (q *Queries) CountActiveIssuedCertificates(ctx context.Context, activityID int32) (int64, error) {
+	row := q.db.QueryRow(ctx, countActiveIssuedCertificates, activityID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countCertificateRecipients = `-- name: CountCertificateRecipients :one
 SELECT count(*) FROM activity_registrations r LEFT JOIN issued_certificates c ON c.registration_id=r.id AND c.revoked_at IS NULL WHERE r.activity_id=CAST(CAST($1 AS text) AS integer) AND ($2::text IS NULL OR (COALESCE((SELECT NULLIF(p.name,'') FROM profiles p WHERE p.user_id=r.user_id ORDER BY p.id LIMIT 1),NULLIF(r.guest_data->>'name',''),'Peserta')) ILIKE '%'||$2::text||'%') AND ($3::text IS NULL OR (CASE WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status<>'LULUS KEGIATAN' OR r.status IS NULL THEN 'not_eligible' WHEN EXISTS (SELECT 1 FROM issued_certificates w WHERE w.registration_id=r.id AND w.revoked_at IS NOT NULL) THEN 'issued_revoked' ELSE 'eligible_not_issued' END)=$3::text) AND (NOT $4::boolean OR r.id=ANY(CAST(CAST($5 AS text[]) AS integer[])))
 `
@@ -485,6 +496,16 @@ func (q *Queries) ListIssuedCertificates(ctx context.Context, arg ListIssuedCert
 	return items, nil
 }
 
+const lockActivityCertificateTemplate = `-- name: LockActivityCertificateTemplate :exec
+UPDATE activities SET additional_config=jsonb_set(COALESCE(additional_config,'{}'::jsonb),'{certificate_template_lock}',jsonb_build_object('locked_at',now()),true)
+WHERE id=$1 AND NOT COALESCE(additional_config ? 'certificate_template_lock',false)
+`
+
+func (q *Queries) LockActivityCertificateTemplate(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, lockActivityCertificateTemplate, id)
+	return err
+}
+
 const lockCertificateActivityByIdentifier = `-- name: LockCertificateActivityByIdentifier :one
 SELECT id, name, slug, description, badge, activity_start, activity_end, registration_start, registration_end, selection_start, selection_end, activity_type, activity_category, additional_config, minimum_level, is_published, created_at, updated_at, is_registration_open, club_id, certificate_template_id FROM activities WHERE id=CAST(CAST($1 AS text) AS integer) FOR UPDATE
 `
@@ -608,6 +629,15 @@ func (q *Queries) SetActivityCertificateSettings(ctx context.Context, arg SetAct
 		&i.CertificateTemplateID,
 	)
 	return i, err
+}
+
+const unlockActivityCertificateTemplate = `-- name: UnlockActivityCertificateTemplate :exec
+UPDATE activities SET additional_config=additional_config-'certificate_template_lock' WHERE id=$1
+`
+
+func (q *Queries) UnlockActivityCertificateTemplate(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, unlockActivityCertificateTemplate, id)
+	return err
 }
 
 const updateCertificateGroup = `-- name: UpdateCertificateGroup :execrows

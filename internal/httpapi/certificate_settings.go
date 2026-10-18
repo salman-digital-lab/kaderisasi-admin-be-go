@@ -51,6 +51,32 @@ func (s *Server) registerCertificateSettings() {
 		reply(w, 200, "UPDATE_DATA_SUCCESS", certificate.SettingsState{Settings: settings, Saved: true})
 		return nil
 	})
+	s.register(controller, "showTemplateLock", func(w http.ResponseWriter, r *http.Request) error {
+		id, err := certificatePathInt(r.PathValue("activityId"))
+		if err != nil {
+			return err
+		}
+		state, err := service.TemplateLock(r.Context(), id)
+		if err != nil {
+			return err
+		}
+		reply(w, 200, "GET_DATA_SUCCESS", state)
+		return nil
+	})
+	for action, locked := range map[string]bool{"lockTemplate": true, "unlockTemplate": false} {
+		s.register(controller, action, func(w http.ResponseWriter, r *http.Request) error {
+			id, err := certificatePathInt(r.PathValue("activityId"))
+			if err != nil {
+				return err
+			}
+			state, err := service.SetTemplateLock(r.Context(), id, locked)
+			if err != nil {
+				return err
+			}
+			reply(w, 200, "UPDATE_DATA_SUCCESS", state)
+			return nil
+		})
+	}
 	s.register(controller, "updateGroup", func(w http.ResponseWriter, r *http.Request) error {
 		activityID, err := certificatePathInt(r.PathValue("activityId"))
 		if err != nil {

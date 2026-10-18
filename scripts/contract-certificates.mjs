@@ -5,6 +5,7 @@ export async function certificateCases(h){
   await h.call('certificate:template','POST','/v2/certificate-templates',{name:'Issuance fixture',templateData});
   await h.call('certificate:publish','POST','/v2/certificate-templates/1/publish',{expectedVersion:1});
   await h.call('certificate:activity','POST','/v2/activities',{name:'Snapshot activity',activity_start:'2026-02-28',certificate_template_id:1});
+  await h.seed(`UPDATE activities SET additional_config=jsonb_set(additional_config,'{certificate_template_lock}','{"locked_at":"2026-01-01T00:00:00.000Z"}') WHERE id=1`);
   await h.call('certificate:member','POST','/v2/members',{name:'Member recipient',email:'recipient@example.test',gender:'F'});
   await h.seed("INSERT INTO activity_registrations(activity_id,user_id,status,created_at,updated_at) VALUES(1,1,'LULUS KEGIATAN','2024-01-01','2024-01-01')");
   await h.seed("INSERT INTO activity_registrations(activity_id,status,guest_data,created_at,updated_at) SELECT 1,CASE WHEN n=4 THEN 'TERDAFTAR' ELSE 'LULUS KEGIATAN' END,jsonb_build_object('name','Guest '||n,'email','guest-'||n||'@example.test','gender','M'),'2024-01-01'::timestamptz+n*interval '1 day','2024-01-01'::timestamptz FROM generate_series(2,4) n");

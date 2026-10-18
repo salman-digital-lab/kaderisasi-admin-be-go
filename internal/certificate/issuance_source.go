@@ -175,6 +175,15 @@ func (s Issuance) load(ctx context.Context, q *dbgen.Queries, id float64, lock b
 	if !readiness.Ready {
 		return source{}, Error("CERTIFICATE_TEMPLATE_NOT_READY", readiness.Errors)
 	}
+	if lock {
+		locked, err := IsTemplateLocked(ctx, q, activity)
+		if err != nil {
+			return source{}, err
+		}
+		if !locked {
+			return source{}, Error("CERTIFICATE_TEMPLATE_NOT_LOCKED")
+		}
+	}
 	participant, err := s.participant(ctx, q, registration, activity)
 	if err != nil {
 		return source{}, err

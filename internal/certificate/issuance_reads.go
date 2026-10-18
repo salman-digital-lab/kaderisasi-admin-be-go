@@ -162,6 +162,13 @@ func (s Issuance) Prepare(ctx context.Context, id float64, ids []float64) (Prepa
 	if err != nil || template.LifecycleStatus != "published" || !CheckReadinessValues(template.ID, template.Name, template.TemplateData).Ready {
 		return Prepared{}, Error("CERTIFICATE_TEMPLATE_NOT_READY")
 	}
+	locked, err := IsTemplateLocked(ctx, q, activity)
+	if err != nil {
+		return Prepared{}, err
+	}
+	if !locked {
+		return Prepared{}, Error("CERTIFICATE_TEMPLATE_NOT_LOCKED")
+	}
 	rows, err := q.CertificatePreparationRecipients(ctx, dbgen.CertificatePreparationRecipientsParams{ActivityID: database.JSNumber(id), FilterSelected: ids != nil, RegistrationIds: identifierStrings(ids)})
 	if err != nil {
 		return Prepared{}, err

@@ -53,6 +53,7 @@ try{
   const template=await call('go','Create shared certificate template','POST','/certificate-templates',{name:'Shared template',templateData:{backgroundUrl:null,canvasWidth:800,canvasHeight:566,elements:[{id:'name',type:'variable-text',variable:'{{name}}',x:0,y:100,width:800,height:80}]}},{status:201});
   await call('go','Publish shared template','POST',`/certificate-templates/${template.id}/publish`,{expectedVersion:1});
   await call('go','Assign shared template','PUT',`/activities/${activity.id}`,{certificate_template_id:template.id});
+  await call('go','Lock shared template','PUT',`/certificates/activities/${activity.id}/template-lock`);
   const issued=await call('go','Persist certificate snapshots in Go','POST','/certificates/issue-single',{registration_id:registrations[0].id},{status:201});
   const code=issued.certificate.certificate_code;
   const downloaded=await call('web','Consume Go certificate snapshot','GET',`/certificates/code/${code}/download`,undefined,{token});
