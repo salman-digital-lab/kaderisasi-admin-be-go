@@ -1337,15 +1337,6 @@
     "permission": "certificate.template.manage"
   },
   {
-    "method": "PUT",
-    "path": "/v2/certificates/activities/:activityId/recipients/:registrationId/group",
-    "controller": "certificate_settings_controller",
-    "action": "updateGroup",
-    "auth": true,
-    "trusted_origin": false,
-    "permission": "certificate.issue"
-  },
-  {
     "method": "POST",
     "path": "/v2/certificates/prepare-issuance",
     "controller": "certificates_controller",

@@ -130,25 +130,3 @@ func (s Issuance) SaveSettings(ctx context.Context, id int32, settings Settings)
 	}
 	return ParseSettings(row, false, time.Now())
 }
-
-func (s Issuance) SaveGroup(ctx context.Context, activityID, registrationID int32, group *string) error {
-	if group != nil {
-		value := strings.TrimSpace(*group)
-		if utf8.RuneCountInString(value) > 100 {
-			return domain.Fail(422, "INVALID_CERTIFICATE_GROUP")
-		}
-		if value == "" {
-			group = nil
-		} else {
-			group = &value
-		}
-	}
-	count, err := dbgen.New(s.Pool).UpdateCertificateGroup(ctx, dbgen.UpdateCertificateGroupParams{ActivityID: activityID, RegistrationID: registrationID, GroupLabel: group})
-	if err != nil {
-		return err
-	}
-	if count == 0 {
-		return domain.Fail(409, "CERTIFICATE_GROUP_NOT_EDITABLE")
-	}
-	return nil
-}

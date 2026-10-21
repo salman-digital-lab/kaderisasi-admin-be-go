@@ -27,16 +27,15 @@ const EligibleStatus = "LULUS KEGIATAN"
 var positiveIDPattern = regexp.MustCompile(`^[0-9]+$`)
 
 type Participant struct {
-	ScoringResult    *scoring.PublishedResult `json:"scoring_result,omitempty"`
-	CertificateGroup *string                  `json:"certificate_group,omitempty"`
-	RegistrationID   int32                    `json:"registration_id"`
-	UserID           *int32                   `json:"user_id"`
-	Name             string                   `json:"name"`
-	Email            string                   `json:"email"`
-	University       string                   `json:"university"`
-	Gender           string                   `json:"gender"`
-	ActivityName     string                   `json:"activity_name"`
-	ActivityDate     string                   `json:"activity_date"`
+	ScoringResult  *scoring.PublishedResult `json:"scoring_result,omitempty"`
+	RegistrationID int32                    `json:"registration_id"`
+	UserID         *int32                   `json:"user_id"`
+	Name           string                   `json:"name"`
+	Email          string                   `json:"email"`
+	University     string                   `json:"university"`
+	Gender         string                   `json:"gender"`
+	ActivityName   string                   `json:"activity_name"`
+	ActivityDate   string                   `json:"activity_date"`
 }
 type ActivityData struct {
 	ID                  int32     `json:"id"`

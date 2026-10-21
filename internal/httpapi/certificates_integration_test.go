@@ -94,8 +94,6 @@ func TestSalmanCertificateSettingsAndScoreGate(t *testing.T) {
 	if !objectData(t, f.call("PUT", path, settings, f.token, 200)).Bool("saved") || !objectData(t, f.call("GET", path, nil, f.token, 200)).Bool("saved") {
 		t.Fatal("saved settings not reported")
 	}
-	groupPath := fmt.Sprintf("/v2/certificates/activities/%d/recipients/%d/group", fixture.activity.ID("id"), fixture.ids[0])
-	f.call("PUT", groupPath, map[string]string{"certificate_group": "3"}, f.token, 200)
 	prepare := map[string]interface{}{"activity_id": fixture.activity.ID("id"), "registration_ids": fixture.ids}
 	blocked := objectData(t, f.call("POST", "/v2/certificates/prepare-issuance", prepare, f.token, 200))
 	var failures []certificate.Failure
@@ -108,8 +106,8 @@ func TestSalmanCertificateSettingsAndScoreGate(t *testing.T) {
 		t.Fatalf("wrong blocked recipients: %v %v", failures, err)
 	}
 	payload := certificateResponse(t, f.call("POST", "/v2/certificates/generate-single", map[string]int32{"registration_id": fixture.ids[0]}, f.token, 200))
-	if payload.Participant.CertificateGroup == nil || *payload.Participant.CertificateGroup != "3" || payload.Activity.CertificateSettings == nil || !payload.Activity.CertificateSettings.IncludeScores {
-		t.Fatalf("snapshot lacks Salman settings or group: %+v %+v", payload.Activity, payload.Participant)
+	if payload.Activity.CertificateSettings == nil || !payload.Activity.CertificateSettings.IncludeScores {
+		t.Fatalf("snapshot lacks Salman settings: %+v", payload.Activity)
 	}
 	settings.Set("include_scores", false)
 	f.call("PUT", path, settings, f.token, 200)

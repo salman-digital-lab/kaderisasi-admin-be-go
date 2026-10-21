@@ -68,7 +68,7 @@ func guestText(raw json.RawMessage) string {
 	return strings.TrimSpace(value)
 }
 func (s Issuance) participant(ctx context.Context, q *dbgen.Queries, registration dbgen.ActivityRegistration, activity dbgen.Activity) (Participant, error) {
-	data := Participant{RegistrationID: registration.ID, UserID: registration.UserID, ActivityName: activity.Name, CertificateGroup: registration.CertificateGroup}
+	data := Participant{RegistrationID: registration.ID, UserID: registration.UserID, ActivityName: activity.Name}
 	score, err := scoring.PublishedForRegistration(registration.ScoringData, registration.ID, activity.ID)
 	if err != nil {
 		return data, err

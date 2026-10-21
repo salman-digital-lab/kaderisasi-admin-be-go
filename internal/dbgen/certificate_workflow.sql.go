@@ -56,7 +56,7 @@ func (q *Queries) CertificateActivityHasScoringRubric(ctx context.Context, activ
 }
 
 const certificateBulkRegistrations = `-- name: CertificateBulkRegistrations :many
-SELECT id, user_id, activity_id, status, questionnaire_answer, scoring_data, created_at, updated_at, guest_data, certificate_group FROM activity_registrations WHERE activity_id=CAST(CAST($1 AS text) AS integer) AND status= $2::text
+SELECT id, user_id, activity_id, status, questionnaire_answer, scoring_data, created_at, updated_at, guest_data FROM activity_registrations WHERE activity_id=CAST(CAST($1 AS text) AS integer) AND status= $2::text
 `
 
 type CertificateBulkRegistrationsParams struct {
@@ -83,7 +83,6 @@ func (q *Queries) CertificateBulkRegistrations(ctx context.Context, arg Certific
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.GuestData,
-			&i.CertificateGroup,
 		); err != nil {
 			return nil, err
 		}
@@ -224,7 +223,7 @@ func (q *Queries) CertificateRecipientNames(ctx context.Context, registrationIds
 }
 
 const certificateRegistrationByIdentifier = `-- name: CertificateRegistrationByIdentifier :one
-SELECT id, user_id, activity_id, status, questionnaire_answer, scoring_data, created_at, updated_at, guest_data, certificate_group FROM activity_registrations WHERE id=CAST(CAST($1 AS text) AS integer)
+SELECT id, user_id, activity_id, status, questionnaire_answer, scoring_data, created_at, updated_at, guest_data FROM activity_registrations WHERE id=CAST(CAST($1 AS text) AS integer)
 `
 
 func (q *Queries) CertificateRegistrationByIdentifier(ctx context.Context, identifier string) (ActivityRegistration, error) {
@@ -240,7 +239,6 @@ func (q *Queries) CertificateRegistrationByIdentifier(ctx context.Context, ident
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.GuestData,
-		&i.CertificateGroup,
 	)
 	return i, err
 }
@@ -361,7 +359,7 @@ func (q *Queries) IssuedCertificateByRegistrationIdentifier(ctx context.Context,
 }
 
 const listCertificateRecipients = `-- name: ListCertificateRecipients :many
-SELECT r.id AS registration_id,r.created_at,r.status,r.certificate_group,c.id AS certificate_id,c.certificate_code,(COALESCE((SELECT NULLIF(p.name,'') FROM profiles p WHERE p.user_id=r.user_id ORDER BY p.id LIMIT 1),NULLIF(r.guest_data->>'name',''),'Peserta'))::text AS name,(CASE WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status<>'LULUS KEGIATAN' OR r.status IS NULL THEN 'not_eligible' WHEN EXISTS (SELECT 1 FROM issued_certificates w WHERE w.registration_id=r.id AND w.revoked_at IS NOT NULL) THEN 'issued_revoked' ELSE 'eligible_not_issued' END)::text AS state FROM activity_registrations r LEFT JOIN issued_certificates c ON c.registration_id=r.id AND c.revoked_at IS NULL WHERE r.activity_id=CAST(CAST($1 AS text) AS integer) AND ($2::text IS NULL OR (COALESCE((SELECT NULLIF(p.name,'') FROM profiles p WHERE p.user_id=r.user_id ORDER BY p.id LIMIT 1),NULLIF(r.guest_data->>'name',''),'Peserta')) ILIKE '%'||$2::text||'%') AND ($3::text IS NULL OR (CASE WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status<>'LULUS KEGIATAN' OR r.status IS NULL THEN 'not_eligible' WHEN EXISTS (SELECT 1 FROM issued_certificates w WHERE w.registration_id=r.id AND w.revoked_at IS NOT NULL) THEN 'issued_revoked' ELSE 'eligible_not_issued' END)=$3::text) AND (NOT $4::boolean OR r.id=ANY(CAST(CAST($5 AS text[]) AS integer[])))
+SELECT r.id AS registration_id,r.created_at,r.status,c.id AS certificate_id,c.certificate_code,(COALESCE((SELECT NULLIF(p.name,'') FROM profiles p WHERE p.user_id=r.user_id ORDER BY p.id LIMIT 1),NULLIF(r.guest_data->>'name',''),'Peserta'))::text AS name,(CASE WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status<>'LULUS KEGIATAN' OR r.status IS NULL THEN 'not_eligible' WHEN EXISTS (SELECT 1 FROM issued_certificates w WHERE w.registration_id=r.id AND w.revoked_at IS NOT NULL) THEN 'issued_revoked' ELSE 'eligible_not_issued' END)::text AS state FROM activity_registrations r LEFT JOIN issued_certificates c ON c.registration_id=r.id AND c.revoked_at IS NULL WHERE r.activity_id=CAST(CAST($1 AS text) AS integer) AND ($2::text IS NULL OR (COALESCE((SELECT NULLIF(p.name,'') FROM profiles p WHERE p.user_id=r.user_id ORDER BY p.id LIMIT 1),NULLIF(r.guest_data->>'name',''),'Peserta')) ILIKE '%'||$2::text||'%') AND ($3::text IS NULL OR (CASE WHEN c.id IS NOT NULL THEN 'issued_active' WHEN r.status<>'LULUS KEGIATAN' OR r.status IS NULL THEN 'not_eligible' WHEN EXISTS (SELECT 1 FROM issued_certificates w WHERE w.registration_id=r.id AND w.revoked_at IS NOT NULL) THEN 'issued_revoked' ELSE 'eligible_not_issued' END)=$3::text) AND (NOT $4::boolean OR r.id=ANY(CAST(CAST($5 AS text[]) AS integer[])))
 ORDER BY CASE WHEN $6::boolean THEN r.created_at END ASC NULLS LAST,CASE WHEN NOT $6::boolean THEN r.created_at END DESC NULLS LAST,CASE WHEN $6::boolean THEN r.id END ASC,CASE WHEN NOT $6::boolean THEN r.id END DESC LIMIT CAST($8::text AS bigint) OFFSET CAST($7::text AS bigint)
 `
 
@@ -377,14 +375,13 @@ type ListCertificateRecipientsParams struct {
 }
 
 type ListCertificateRecipientsRow struct {
-	RegistrationID   int32              `json:"registration_id"`
-	CreatedAt        pgtype.Timestamptz `json:"created_at"`
-	Status           *string            `json:"status"`
-	CertificateGroup *string            `json:"certificate_group"`
-	CertificateID    *int32             `json:"certificate_id"`
-	CertificateCode  *string            `json:"certificate_code"`
-	Name             string             `json:"name"`
-	State            string             `json:"state"`
+	RegistrationID  int32              `json:"registration_id"`
+	CreatedAt       pgtype.Timestamptz `json:"created_at"`
+	Status          *string            `json:"status"`
+	CertificateID   *int32             `json:"certificate_id"`
+	CertificateCode *string            `json:"certificate_code"`
+	Name            string             `json:"name"`
+	State           string             `json:"state"`
 }
 
 func (q *Queries) ListCertificateRecipients(ctx context.Context, arg ListCertificateRecipientsParams) ([]ListCertificateRecipientsRow, error) {
@@ -409,7 +406,6 @@ func (q *Queries) ListCertificateRecipients(ctx context.Context, arg ListCertifi
 			&i.RegistrationID,
 			&i.CreatedAt,
 			&i.Status,
-			&i.CertificateGroup,
 			&i.CertificateID,
 			&i.CertificateCode,
 			&i.Name,
@@ -540,7 +536,7 @@ func (q *Queries) LockCertificateActivityByIdentifier(ctx context.Context, ident
 }
 
 const lockCertificateRegistrationByIdentifier = `-- name: LockCertificateRegistrationByIdentifier :one
-SELECT id, user_id, activity_id, status, questionnaire_answer, scoring_data, created_at, updated_at, guest_data, certificate_group FROM activity_registrations WHERE id=CAST(CAST($1 AS text) AS integer) FOR UPDATE
+SELECT id, user_id, activity_id, status, questionnaire_answer, scoring_data, created_at, updated_at, guest_data FROM activity_registrations WHERE id=CAST(CAST($1 AS text) AS integer) FOR UPDATE
 `
 
 func (q *Queries) LockCertificateRegistrationByIdentifier(ctx context.Context, identifier string) (ActivityRegistration, error) {
@@ -556,7 +552,6 @@ func (q *Queries) LockCertificateRegistrationByIdentifier(ctx context.Context, i
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.GuestData,
-		&i.CertificateGroup,
 	)
 	return i, err
 }
@@ -638,24 +633,4 @@ UPDATE activities SET additional_config=additional_config-'certificate_template_
 func (q *Queries) UnlockActivityCertificateTemplate(ctx context.Context, id int32) error {
 	_, err := q.db.Exec(ctx, unlockActivityCertificateTemplate, id)
 	return err
-}
-
-const updateCertificateGroup = `-- name: UpdateCertificateGroup :execrows
-UPDATE activity_registrations SET certificate_group = $1::text, updated_at=now()
-WHERE id=$2::integer AND activity_id=$3::integer
-AND NOT EXISTS (SELECT 1 FROM issued_certificates WHERE registration_id=activity_registrations.id AND revoked_at IS NULL)
-`
-
-type UpdateCertificateGroupParams struct {
-	GroupLabel     *string `json:"group_label"`
-	RegistrationID int32   `json:"registration_id"`
-	ActivityID     int32   `json:"activity_id"`
-}
-
-func (q *Queries) UpdateCertificateGroup(ctx context.Context, arg UpdateCertificateGroupParams) (int64, error) {
-	result, err := q.db.Exec(ctx, updateCertificateGroup, arg.GroupLabel, arg.RegistrationID, arg.ActivityID)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
 }

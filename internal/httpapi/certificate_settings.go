@@ -77,29 +77,4 @@ func (s *Server) registerCertificateSettings() {
 			return nil
 		})
 	}
-	s.register(controller, "updateGroup", func(w http.ResponseWriter, r *http.Request) error {
-		activityID, err := certificatePathInt(r.PathValue("activityId"))
-		if err != nil {
-			return err
-		}
-		registrationID, err := certificatePathInt(r.PathValue("registrationId"))
-		if err != nil {
-			return err
-		}
-		raw, err := json.Marshal(requestData(r))
-		if err != nil {
-			return err
-		}
-		var input struct {
-			Group *string `json:"certificate_group"`
-		}
-		if json.Unmarshal(raw, &input) != nil {
-			return domain.Fail(422, "INVALID_CERTIFICATE_GROUP")
-		}
-		if err := service.SaveGroup(r.Context(), activityID, registrationID, input.Group); err != nil {
-			return err
-		}
-		reply(w, 200, "UPDATE_DATA_SUCCESS", input)
-		return nil
-	})
 }
