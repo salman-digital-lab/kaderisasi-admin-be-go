@@ -59,6 +59,7 @@ func (r Runner) Run(ctx context.Context, name string, now time.Time) (Result, er
 			if len(files) == 0 {
 				return result, nil
 			}
+			batchRemoved := 0
 			for _, file := range files {
 				removed, err := r.cleanFormUpload(ctx, file)
 				if err != nil {
@@ -66,7 +67,12 @@ func (r Runner) Run(ctx context.Context, name string, now time.Time) (Result, er
 				}
 				if removed {
 					result.Count++
+					batchRemoved++
 				}
+			}
+			// A batch that removed nothing would be selected again forever.
+			if batchRemoved == 0 {
+				return result, nil
 			}
 		}
 	case "close:registration":

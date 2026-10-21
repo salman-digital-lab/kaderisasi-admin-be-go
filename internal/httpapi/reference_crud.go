@@ -78,7 +78,7 @@ func (s *Server) registerReferenceCRUD() {
 	}))
 	s.register("universities_controller", "index", referenceHandler("GET_DATA_SUCCESS", true, func(r *http.Request) (universityPage, error) {
 		page, size := pageParams(r, 10, 0)
-		search := "%" + r.URL.Query().Get("search") + "%"
+		search := "%" + likeEscaper.Replace(r.URL.Query().Get("search")) + "%"
 		total, err := q.CountUniversities(r.Context(), search)
 		if err != nil {
 			return universityPage{}, err
@@ -151,3 +151,6 @@ func referencePathError(r *http.Request, err error) error {
 	}
 	return err
 }
+
+// likeEscaper keeps user search text from acting as ILIKE wildcards.
+var likeEscaper = strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`)

@@ -14,25 +14,27 @@ import (
 type Config struct {
 	ShortURLBaseURL string
 	Environment     string
-	Host            string
-	Port            int
-	AppKey          string
-	LogLevel        string
-	DBHost          string
-	DBPort          uint16
-	DBUser          string
-	DBPassword      string
-	DBName          string
-	DBSchema        string
-	GoogleClientID  string
-	Origins         []string
-	DriveDisk       string
-	DriveKey        string
-	DriveSecret     string
-	DriveEndpoint   string
-	DriveBucket     string
-	DriveRegion     string
-	Location        *time.Location
+	// ExposeErrorDetails adds stack frames to 500 responses. Never enable in production.
+	ExposeErrorDetails bool
+	Host               string
+	Port               int
+	AppKey             string
+	LogLevel           string
+	DBHost             string
+	DBPort             uint16
+	DBUser             string
+	DBPassword         string
+	DBName             string
+	DBSchema           string
+	GoogleClientID     string
+	Origins            []string
+	DriveDisk          string
+	DriveKey           string
+	DriveSecret        string
+	DriveEndpoint      string
+	DriveBucket        string
+	DriveRegion        string
+	Location           *time.Location
 }
 
 func Load() (Config, error) {
@@ -55,7 +57,7 @@ func Load() (Config, error) {
 			return Config{}, errors.New("invalid TZ")
 		}
 	}
-	c := Config{Environment: value("NODE_ENV", "development"), Host: value("HOST", "127.0.0.1"), Port: port,
+	c := Config{Environment: value("NODE_ENV", "development"), ExposeErrorDetails: os.Getenv("EXPOSE_ERROR_DETAILS") == "true", Host: value("HOST", "127.0.0.1"), Port: port,
 		AppKey: os.Getenv("APP_KEY"), LogLevel: value("LOG_LEVEL", "info"), DBHost: os.Getenv("DB_HOST"),
 		DBPort: uint16(dbPort), DBUser: os.Getenv("DB_USER"), DBPassword: os.Getenv("DB_PASSWORD"), DBName: os.Getenv("DB_DATABASE"), DBSchema: schema,
 		GoogleClientID: os.Getenv("GOOGLE_CLIENT_ID"), DriveDisk: os.Getenv("DRIVE_DISK"), DriveKey: os.Getenv("DRIVE_ACCESS_KEY_ID"),

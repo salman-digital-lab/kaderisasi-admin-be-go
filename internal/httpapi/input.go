@@ -69,12 +69,16 @@ func queryNumber(r *http.Request, key string, fallback float64) float64 {
 	return number
 }
 
+// defaultMaxPerPage bounds list endpoints that declare no limit of their own.
+const defaultMaxPerPage = 1000
+
 func pageParams(r *http.Request, defaultPerPage, maxPerPage int) (float64, float64) {
 	page := queryNumber(r, "page", 1)
 	perPage := queryNumber(r, "per_page", float64(defaultPerPage))
-	if maxPerPage > 0 {
-		perPage = math.Min(perPage, float64(maxPerPage))
+	if maxPerPage <= 0 {
+		maxPerPage = defaultMaxPerPage
 	}
+	perPage = math.Min(perPage, float64(maxPerPage))
 	return page, perPage
 }
 

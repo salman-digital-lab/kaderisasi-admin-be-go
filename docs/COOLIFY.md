@@ -69,22 +69,11 @@ environment remains `TZ=Asia/Jakarta` for business date calculations. Disable
 old Node job commands during the switch, then enable the Go commands after the
 API passes its checks. Do not run both implementations' schedules concurrently.
 
-## Returning to Adonis
+## Rolling back
 
-Disable the Go tasks. Restore repository `salman-digital-lab/kaderisasi-admin-be`,
-build pack `railpack`, start command `node build/bin/server.js`, and the saved
-build settings. Retain all database, storage, signing-key, domain, and port
-values. The last validated Adonis image is
-`dd8d0ff409c34eaaebb8c2e3ec8a046efbf11356`.
-
-```sh
-coolify app rollback images x8sssk488ssgg44000og04oo
-coolify app rollback run x8sssk488ssgg44000og04oo --commit dd8d0ff409c34eaaebb8c2e3ec8a046efbf11356
-```
-
-After Adonis is healthy, restore the original activity task command
-`node build/ace close:registration` and its previous enabled state. Remove or
-disable the added Go club tasks. Do not roll back migrations or reset tables.
+Redeploy the previous Go image from Coolify (`coolify app rollback images <app>` then
+`coolify app rollback run <app> --commit <sha>`). Retain all database, storage, signing-key,
+domain, and port values. Do not roll back migrations or reset tables.
 
 ## Deployment evidence
 
@@ -134,7 +123,4 @@ The existing automatic-deployment setting is retained; webhook delivery from
 the new repository is not established by these manual deployment checks.
 
 Configuration rollback data, sanitized smoke results, and operational logs are
-retained in the ignored, restricted `.artifacts/deployment/` directory. The earlier
-[rewrite verification report](VERIFICATION.md) records full contract, real test
-storage, shared-database, concurrency, and browser testing; production smoke
-checks here were read-only and did not repeat fixture workflows on live data.
+retained in the ignored, restricted `.artifacts/deployment/` directory. Production smoke checks here were read-only and did not repeat fixture workflows on live data.

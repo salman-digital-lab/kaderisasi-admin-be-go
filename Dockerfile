@@ -35,7 +35,7 @@ COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 COPY cmd ./cmd
 COPY internal ./internal
-COPY tests ./tests
+COPY tests/fixtures ./tests/fixtures
 COPY scripts/crypto-fixture.cjs ./scripts/crypto-fixture.cjs
 COPY --from=interop /usr/local/bin/node /usr/local/bin/node
 COPY --from=interop /kaderisasi-admin-be ./tests/interop

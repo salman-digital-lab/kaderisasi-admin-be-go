@@ -3,14 +3,10 @@
 Agent contribution rules: [AGENTS.md](AGENTS.md). `CLAUDE.md` imports the same rules.
 
 The Kaderisasi admin API on port **3334**. It serves
-`/v2` and `/health`; it never starts scheduled jobs. Adonis remains the only owner
-of database migrations, seeders, and RBAC preflight.
+`/v2` and `/health`; it never starts scheduled jobs. The sibling `kaderisasi-admin-be` repository owns
+database migrations, seeders, and RBAC preflight.
 
-The initial Go migration verified 139 routes, three
-jobs, and 17 verification stages on September 10, 2026. See the
-[verification report](docs/VERIFICATION.md), [route matrix](docs/COMPATIBILITY.md),
-and [progress ledger](PROGRESS.md). Production now runs Go through
-[Coolify](docs/COOLIFY.md). Go is also the local workspace launcher's default. The former Adonis API
+Production runs Go through [Coolify](docs/COOLIFY.md). The former Adonis API
 repository now contains only database maintenance code.
 
 Internal staff talent reflection adds self-assessment, resumable drafts, current
@@ -53,14 +49,13 @@ executables reach startup validation. Install the runtime described in its
 `RUNTIME.txt` on the destination. Build on Linux for a Linux destination; the
 verified macOS archive is not a cross-platform distribution.
 
-The differential harness uses a detached historical Adonis checkout at the revision
-in `docs/BASELINE.json`. Run `make prepare-reference` to create it under
-`.artifacts/legacy-admin-be` and install its locked dependencies plus the standalone
-crypto fixture dependencies in `tests/interop`. Set `ADONIS_REFERENCE_DIR` to use
-another checkout at that same revision. The original `kaderisasi-admin-be` Git
-history must be available; do not use a shallow clone that omits the baseline.
-Ace migrations always run from the current migration-only `kaderisasi-admin-be`
-repository. Run `npm ci` there and in the existing frontends/web backend as needed.
+The fixture harness and the session-transfer checks load Node dependencies (`pg`,
+`jsonwebtoken`, Adonis password hashing) from a detached checkout of the former Adonis
+repository at the revision in `docs/BASELINE.json`. Run `make prepare-reference` to create it
+under `.artifacts/legacy-admin-be` and install the crypto fixture dependencies in
+`tests/interop`. Set `ADONIS_REFERENCE_DIR` to use another checkout at that revision. It is
+a test dependency only; no HTTP contract comparison against Adonis remains. Ace migrations
+run from the migration-only `kaderisasi-admin-be` repository.
 
 ## Running
 
@@ -85,17 +80,10 @@ The club registration closing job always uses Asia/Jakarta. Set `TZ=Asia/Jakarta
 for the other two jobs to preserve their existing calendar behavior. `ADMIN_CORS_ORIGINS` is a comma
 separated allowlist; local public frontend requests require
 `http://localhost:3000` alongside `http://localhost:3005`. `APP_KEY` must be identical
-to Adonis for session transfer. Never print or commit env files.
+to the migration repository and web-be for session transfer. Never print or commit env files.
 
-The workspace launcher starts Go on port 3334 by default:
-
-```sh
-../start-all.sh test
-```
-
-`--admin-go` remains accepted for compatibility. All four ports are preserved.
-The launcher copies environment files for the frontends and web backend; Go
-receives injected configuration. It does not start the migration repository.
+Run the API directly with `node scripts/run.mjs --environment=test api`, or start
+`bin/admin-api` with injected configuration. The migration repository is not started.
 
 ## Database ownership
 
@@ -126,9 +114,7 @@ browser checks; the full verification runner includes this suite.
 make check
 make test-unit
 make test-integration
-make test-contract
 make test-shared
-make test-jobs
 make test-browser
 make benchmark
 make verify
@@ -138,25 +124,17 @@ Integration targets create or reuse three recorded schemas in the configured
 shared **test** database. They run Ace migrations and deterministic synthetic
 fixtures. Ownership comments and explicit search paths protect shared tables.
 Only recorded UUID storage objects may be deleted. A process lease prevents
-concurrent fixture resets. Never run these suites concurrently. Contract reports record
-the compiled source fingerprint and adopted Adonis revision; stale reports cannot
-pass the coverage gate. For an affected subset, run
-`node scripts/contracts-all.mjs --groups=members,activities --borrow-workspace`.
+concurrent fixture resets. Never run these suites concurrently.
 The Go integration runner allows 30 minutes per package for the 1,000-recipient
 workflow on remote PostgreSQL. Request cancellation and workflow assertions remain
 active; a slow database does not turn a failed assertion into a passing test.
 
 By default, API/browser targets temporarily suspend recognized workspace tmux
 services and restore them afterward. Set `BORROW_WORKSPACE=` to require free ports.
-No unrelated process is stopped. Adonis and Go contract runs use port 3334
-sequentially; shared-data and public-browser checks use web-be on 3333.
+No unrelated process is stopped. Shared-data and public-browser checks use web-be on 3333.
 
-`make verify` retains logs and results under `.artifacts/verify/`, runs all required
-suites, then cleans recorded objects and schemas, including on failure. It exits
-unsuccessfully while required completion reviews remain pending. After all checks pass
-and the final report is reviewed, `node scripts/finalize-verification.mjs` completes
-that review without rerunning tests. It refuses failed checks, unresolved reviews,
-or a changed source fingerprint. Individual suites
+`make verify` retains logs and results under `.artifacts/verify/`, runs the required
+suites, then cleans recorded objects and schemas, including on failure. Individual suites
 keep schemas for debugging; finish with `make clean-fixtures`.
 
 Playwright uses the real admin frontend, a production build of the public frontend,
@@ -181,19 +159,13 @@ another actor's later change, and uses real storage without bypassing browser CO
 Certificate image requests on both frontends use the same anonymous CORS mode as the exporter,
 preventing immutable cached responses without CORS headers from breaking PDF output.
 
-## Cutover and return to Adonis
+## Deployment and rollback
 
-Do not switch production traffic until the aggregate report passes and all review
-criteria are resolved. Before a future cutover, retain the Adonis revision, apply
-its migrations and RBAC preflight, install native runtime libraries on the target,
-and inject the same database, storage, `APP_KEY`, Google client, timezone, and CORS
-configuration. Stop the old API before starting Go on 3334. Schedule each Go job
-separately and remove its Adonis schedule to avoid running both copies.
-
-Check `/health`, login/refresh, permissions, a member read, and a certificate read.
-To return to Adonis, stop Go and its job schedule, start the pinned historical Adonis checkout or retained rollback image on 3334, and restore
-its job schedule. The shared schema is unchanged; do not roll back migrations or
-reset tables. Session/password transfer is tested in both directions.
+Production runs Go through [Coolify](docs/COOLIFY.md). Inject the same database,
+storage, `APP_KEY`, Google client, timezone, and CORS configuration; schedule each
+Go job separately. Check `/health`, login/refresh, permissions, a member read, and a
+certificate read after a deploy. To roll back, redeploy the previous Go image in
+Coolify. The shared schema is unchanged; do not roll back migrations or reset tables.
 
 ### macOS storage DNS recovery
 

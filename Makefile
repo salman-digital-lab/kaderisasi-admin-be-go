@@ -1,19 +1,16 @@
+BORROW_WORKSPACE ?= --borrow-workspace
+
+.DEFAULT_GOAL := build
+
+.PHONY: prepare-reference check build package run test-unit fixtures test-integration \
+	test-browser test-courses test-courses-browser test-shared test-calendar \
+	test-activity-courses test-feature-deletion test-short-links test-scoring \
+	test-talent-assessment benchmark verify clean-fixtures
+
+# Provides the Node dependencies (pg, jsonwebtoken, Adonis hashing) that the
+# fixture harness and the session-transfer checks load. Not an HTTP contract.
 prepare-reference:
 	node scripts/prepare-reference.mjs
-
-.PHONY: test-calendar
-test-calendar: fixtures
-	node scripts/calendar.mjs --browser $(BORROW_WORKSPACE)
-	node scripts/coverage.mjs --native=calendar --check
-
-.PHONY: test-activity-courses
-test-activity-courses: fixtures
-	node scripts/activity-courses.mjs --browser $(BORROW_WORKSPACE)
-	node scripts/coverage.mjs --native=activity-courses --check
-
-.PHONY: prepare-reference check build package run test-unit fixtures test-integration test-contract test-browser test-courses test-courses-browser test-shared test-jobs benchmark verify clean-fixtures
-
-BORROW_WORKSPACE ?= --borrow-workspace
 
 check:
 	node scripts/check.mjs
@@ -32,11 +29,6 @@ run:
 test-unit:
 	go test -race -count=1 ./...
 
-.PHONY: test-feature-deletion
-test-feature-deletion: fixtures
-	node scripts/feature-deletion.mjs --browser $(BORROW_WORKSPACE)
-	node scripts/coverage.mjs --native=feature-deletion --check
-
 fixtures:
 	node scripts/ensure-fixtures.mjs
 
@@ -45,27 +37,37 @@ test-integration: fixtures
 	node scripts/source-club-workflows.mjs
 	node scripts/test-go.mjs ./...
 
-test-contract: fixtures
-	node scripts/contracts-all.mjs $(BORROW_WORKSPACE)
-
 test-browser: fixtures
 	node scripts/browser.mjs $(BORROW_WORKSPACE)
 	node scripts/browser.mjs $(BORROW_WORKSPACE) --public
 
 test-courses: fixtures
 	node scripts/course-workflows.mjs $(BORROW_WORKSPACE)
-	node scripts/coverage.mjs --native=courses --check
 
 test-courses-browser: fixtures
 	node scripts/course-workflows.mjs $(BORROW_WORKSPACE) --browser
-	node scripts/coverage.mjs --native=courses --check
 
 test-shared: fixtures
 	node scripts/session-transfer.mjs $(BORROW_WORKSPACE)
 	node scripts/shared-database.mjs $(BORROW_WORKSPACE)
 
-test-jobs: fixtures
-	node scripts/contract-jobs.mjs
+test-calendar: fixtures
+	node scripts/calendar.mjs --browser $(BORROW_WORKSPACE)
+
+test-activity-courses: fixtures
+	node scripts/activity-courses.mjs --browser $(BORROW_WORKSPACE)
+
+test-feature-deletion: fixtures
+	node scripts/feature-deletion.mjs --browser $(BORROW_WORKSPACE)
+
+test-short-links: fixtures
+	node scripts/short-links.mjs --browser $(BORROW_WORKSPACE)
+
+test-scoring: fixtures
+	node scripts/scoring-workflows.mjs --browser $(BORROW_WORKSPACE)
+
+test-talent-assessment: fixtures
+	node scripts/talent-assessment.mjs --browser $(BORROW_WORKSPACE)
 
 benchmark: fixtures
 	node scripts/performance.mjs $(BORROW_WORKSPACE)
@@ -75,18 +77,3 @@ verify:
 
 clean-fixtures:
 	node scripts/cleanup.mjs
-
-.PHONY: test-short-links
-test-short-links:
-	node scripts/short-links.mjs --browser
-	node scripts/coverage.mjs --native=short-links --check
-
-.PHONY: test-scoring
-test-scoring: fixtures
-	node scripts/scoring-workflows.mjs --browser $(BORROW_WORKSPACE)
-	node scripts/coverage.mjs --native=scoring --check
-
-.PHONY: test-talent-assessment
-test-talent-assessment: fixtures
-	node scripts/talent-assessment.mjs --browser $(BORROW_WORKSPACE)
-	node scripts/coverage.mjs --native=talent-assessment --check

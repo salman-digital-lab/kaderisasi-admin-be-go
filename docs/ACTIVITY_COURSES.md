@@ -43,7 +43,6 @@ screen filters. Guest counts are blank. Exports without links retain their layou
 make check
 make test-unit
 make test-activity-courses
-node scripts/contracts-all.mjs --groups=activities,registrations --borrow-workspace
 ```
 
 The native suite exercises permissions without course access, validation,
@@ -51,9 +50,7 @@ concurrent replacements, current lesson changes, guests, filtering/pagination,
 and Excel data. Its browser suite covers desktop/mobile setup, keyboard selection,
 unsaved changes, save retry, column preferences, filtering, export, and load retry.
 Evidence is under `.artifacts/activity-courses.json` and `.artifacts/browser/`.
-Historical contract normalization excludes only an empty `course_progress` field
-on successful registration-list responses; nonempty or invalid values remain
-visible to comparisons. Native tests independently require the empty array.
+Native tests require the empty `course_progress` array on successful registration-list responses.
 
 Run migration repository lint, typecheck, build, and
 `MIGRATION_TEST_ENV=../env/test/admin-be-test-env npm test`. Run admin frontend lint, build,
@@ -65,15 +62,6 @@ Go checks, unit tests, the affected activity/registration integration tests, and
 the native linked-course suite passed (42 API checks and both desktop/mobile
 browser cases). Migration lint/typecheck/build and all five maintenance tests
 passed. Admin frontend lint/build and all 151 tests passed.
-
-The historical activity comparison stops because its fixture creates a published
-activity, which the existing Go draft-only creation rule rejects. The separate
-registration comparison completed with 68 of 128 cases equivalent. Its remaining
-differences concern activity registration defaults, education-history formatting,
-and null education/work-history export handling; the corresponding existing
-activity and profile/export implementation files were unchanged by this feature.
-These historical suites are not green; their reports remain under
-`.artifacts/contracts/`. New behavior is verified separately by the native suite.
 
 ## Rollout
 

@@ -30,15 +30,3 @@ func Timestamps(row Object, location *time.Location, columns ...string) Object {
 	}
 	return row
 }
-
-func UTCTimestamps(row Object, columns ...string) Object {
-	for _, column := range columns {
-		if !row.Has(column) || row.Null(column) {
-			continue
-		}
-		if value, err := time.Parse(time.RFC3339Nano, row.String(column)); err == nil {
-			row.Set(column, value.UTC().Format("2006-01-02T15:04:05.000Z"))
-		}
-	}
-	return row
-}

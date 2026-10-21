@@ -4,13 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/domain"
 	"kaderisasi/admin/internal/scoring"
 	"net/http"
 	"strconv"
-	"strings"
-	"time"
 )
 
 func scoringID(r *http.Request, key string) (int32, error) {
@@ -38,14 +35,6 @@ func (s *Server) registerScoring() {
 	register := func(action string, h func(http.ResponseWriter, *http.Request, int32) error) {
 		s.register("scoring_controller", action, func(w http.ResponseWriter, r *http.Request) error {
 			w.Header().Set("Cache-Control", "private, no-store")
-			token := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
-			if cookie, err := r.Cookie("admin_access_jwt"); err == nil && cookie.Value != "" {
-				token = cookie.Value
-			}
-			claims, err := auth.VerifyAccess(s.Auth.Key, token, time.Now())
-			if err != nil || len(claims.Audience) != 1 || claims.Audience[0] != auth.AdminAudience {
-				return domain.Fail(401, "UNAUTHORIZED")
-			}
 			id, err := scoringID(r, "id")
 			if err != nil {
 				return err

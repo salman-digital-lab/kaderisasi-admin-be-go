@@ -24,17 +24,6 @@ type FormSchema struct {
 	} `json:"fields"`
 }
 
-func FormQuestions(raw []byte) []Question {
-	var form FormSchema
-	_ = json.Unmarshal(raw, &form)
-	questions := []Question{}
-	for _, section := range form.Fields {
-		if section.SectionName != "profile_data" {
-			questions = append(questions, section.Fields...)
-		}
-	}
-	return questions
-}
 func Text(value json.RawMessage) string {
 	if len(value) == 0 || bytes.Equal(value, []byte("null")) {
 		return ""

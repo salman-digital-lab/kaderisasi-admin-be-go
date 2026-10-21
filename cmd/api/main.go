@@ -74,7 +74,7 @@ func run() error {
 			return err
 		}
 	}
-	server := &http.Server{Addr: c.Address(), Handler: app.Handler(), ReadHeaderTimeout: 10 * time.Second, IdleTimeout: 90 * time.Second}
+	server := &http.Server{Addr: c.Address(), Handler: app.Handler(), ReadHeaderTimeout: 10 * time.Second, ReadTimeout: 2 * time.Minute, IdleTimeout: 90 * time.Second}
 	failure := make(chan error, 1)
 	go func() { logger.Info("admin API listening", "address", c.Address()); failure <- server.ListenAndServe() }()
 	select {

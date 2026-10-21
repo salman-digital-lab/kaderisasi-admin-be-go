@@ -164,11 +164,20 @@ func (s *Server) registerAdmin() {
 		if err != nil {
 			return err
 		}
-		if err = dbgen.New(s.Pool).SetAdminPassword(r.Context(), dbgen.SetAdminPasswordParams{ID: user.ID, Password: &hash}); err != nil {
+		// The new password and the session revocation must land together.
+		tx, err := s.Pool.Begin(r.Context())
+		if err != nil {
+			return err
+		}
+		defer tx.Rollback(r.Context())
+		if err = dbgen.New(tx).SetAdminPassword(r.Context(), dbgen.SetAdminPasswordParams{ID: user.ID, Password: &hash}); err != nil {
 			return err
 		}
 		reason := "password_reset"
-		if err = dbgen.New(s.Pool).RevokeAdminSessions(r.Context(), dbgen.RevokeAdminSessionsParams{AdminUserID: user.ID, RevocationReason: &reason}); err != nil {
+		if err = dbgen.New(tx).RevokeAdminSessions(r.Context(), dbgen.RevokeAdminSessionsParams{AdminUserID: user.ID, RevocationReason: &reason}); err != nil {
+			return err
+		}
+		if err = tx.Commit(r.Context()); err != nil {
 			return err
 		}
 		message(w, 200, "RESET_PASSWORD_SUCCESS")

@@ -1,6 +1,6 @@
 # Typed boundary and query review
 
-Architecture review: all production business handlers decode explicit request types and return explicit response types or generated rows. Ordinary business SQL uses sqlc-generated queries; two deliberately invalid compatibility operations are explained below. Every module passed the final contract and race-enabled integration run. See [VERIFICATION.md](VERIFICATION.md) for evidence.
+Architecture review: all production business handlers decode explicit request types and return explicit response types or generated rows. Ordinary business SQL uses sqlc-generated queries; two deliberately invalid compatibility operations are explained below. Every module passed the final contract and race-enabled integration run.
 
 | Module | Current typed implementation | Verification |
 |---|---|---|

@@ -22,8 +22,8 @@ type errorFrame struct {
 	IsNative    bool     `json:"isNative"`
 }
 
-// Uncaught Adonis errors expose their message in production and add debugging
-// frames in development. Report actual Go frames, never source-language frames.
+// Uncaught errors expose their message; debugging frames are added only when
+// EXPOSE_ERROR_DETAILS=true (never keyed off NODE_ENV, which production left at development). Report actual Go frames, never source-language frames.
 func (s *Server) frameworkError(err error, statement string) error {
 	if err == nil {
 		return nil
@@ -35,7 +35,7 @@ func (s *Server) frameworkError(err error, statement string) error {
 	if statement != "" {
 		err = database.LegacyQueryError(err, statement)
 	}
-	if s.Config.Environment == "production" {
+	if !s.Config.ExposeErrorDetails {
 		return domain.Fail(500, err.Error())
 	}
 	pcs := make([]uintptr, 16)

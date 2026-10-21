@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/config"
@@ -15,6 +16,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"runtime/debug"
 	"slices"
 	"sort"
 	"strings"
@@ -226,7 +228,7 @@ func (s *Server) Handler() http.Handler {
 		defer func() {
 			if recovered := recover(); recovered != nil {
 				observation.panicRecovered = true
-				logger.Error("request panic", "path", r.URL.Path)
+				logger.Error("request panic", "path", r.URL.Path, "panic", fmt.Sprint(recovered), "stack", string(debug.Stack()))
 				returnError(w, domain.Fail(500, "GENERAL_ERROR"))
 			}
 			logRequest(logger, r, *observation, started)

@@ -14,8 +14,9 @@ rules apply when this repository is opened independently.
   jobs automatically. Keep scheduling external to the API.
 - `../kaderisasi-admin-be` is database maintenance only: Ace migrations, seeders,
   and RBAC preflight. Do not restore its old API or proxy business endpoints to it.
-- `../kaderisasi-web-be` remains an AdonisJS public API on port **3333** and shares
-  the PostgreSQL schema. Keep its credentials and shared records compatible.
+- The public API is `../kaderisasi-web-be-go` on port **3333** (the AdonisJS
+  `../kaderisasi-web-be` is retired). It shares the PostgreSQL schema. Keep its
+  credentials and shared records compatible.
 
 ## Implementation
 
@@ -60,14 +61,12 @@ working env files. Use the configured test environment for fixtures. Production
 credentials and resources are not test fixtures.
 
 For integration and differential tests, follow `README.md`, install the sibling
-applications' required dependencies, and prepare the historical API reference:
+applications' required dependencies, and prepare the Node dependencies the fixture harness loads:
 
 ```sh
 make prepare-reference
 make test-integration
-make test-contract
 make test-shared
-make test-jobs
 make test-browser
 make verify
 make clean-fixtures
@@ -75,16 +74,17 @@ make clean-fixtures
 
 - Select affected suites for code changes; full-system verification uses `make verify`.
   Documentation-only changes need path/command checks rather than runtime suites.
-- The pinned Adonis checkout in `.artifacts/legacy-admin-be` is a historical test
-  reference, never the target for new features. Its revision is recorded in
-  `docs/BASELINE.json`; do not silently change the baseline or regenerate its
-  inventory to hide differences. Current migrations still run from the sibling
-  maintenance repository.
+- The Adonis checkout in `.artifacts/legacy-admin-be` (revision in `docs/BASELINE.json`)
+  only supplies Node dependencies (`pg`, `jsonwebtoken`, Adonis hashing) to the fixture
+  and session-transfer scripts. There is no HTTP contract suite against Adonis anymore;
+  `internal/validation/testdata` and `internal/formschema/routing.fixtures.json` are
+  frozen goldens. Do not regenerate `routes.json`, `roles.json`, `permissions.json`, or
+  `schemas.json` from Adonis; they are maintained here. Current migrations run from
+  the sibling maintenance repository.
 - Use the existing fixture harness, ownership-marked schemas, explicit search
   paths without `public` fallback, and recorded storage keys. Always clean up
   owned resources, including after failures. Never reset shared tables.
 - Keep changes compatible with both frontends and `web-be`. Extend meaningful
   HTTP, authorization, validation, database-effect, and browser tests as appropriate.
   Do not claim a suite passed if skipped or blocked; record the exact limitation.
-- Use `docs/COOLIFY.md` for deployment and rollback. Historical rollback images
-  are recovery options, not the default implementation for development.
+- Use `docs/COOLIFY.md` for deployment and rollback (redeploy the previous Go image).
