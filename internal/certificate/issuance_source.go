@@ -189,7 +189,8 @@ func (s Issuance) load(ctx context.Context, q *dbgen.Queries, id float64, lock b
 		return source{}, err
 	}
 	activityData := s.activityData(activity)
-	if IsSalman(template.TemplateData) {
+	salman := IsSalman(template.TemplateData)
+	if salman || UsesActivitySettings(template.TemplateData) {
 		if !HasSavedSettings(activity) {
 			return source{}, Error("CERTIFICATE_SETTINGS_REQUIRED")
 		}
@@ -201,7 +202,7 @@ func (s Issuance) load(ctx context.Context, q *dbgen.Queries, id float64, lock b
 		if err != nil {
 			return source{}, err
 		}
-		if settings.IncludeScores && participant.ScoringResult == nil {
+		if salman && settings.IncludeScores && participant.ScoringResult == nil {
 			return source{}, Error("CERTIFICATE_SCORE_NOT_PUBLISHED")
 		}
 		activityData.CertificateSettings = &settings

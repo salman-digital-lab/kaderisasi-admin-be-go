@@ -39,6 +39,28 @@ func IsSalman(raw []byte) bool {
 
 var variables = map[string]bool{"name": true, "activity_name": true, "activity_date": true, "date": true, "certificate_code": true, "certificate_id": true, "university": true, "gender": true, "approval": true, "institution": true, "role": true, "event_details": true, "organizer": true, "document_place_date": true, "certificate_activity_number": true}
 
+// activityVariables print values from the activity's certificate settings.
+var activityVariables = map[string]bool{"institution": true, "role": true, "event_details": true, "organizer": true, "document_place_date": true, "certificate_activity_number": true}
+
+// UsesActivitySettings reports whether a template prints any activity-wide setting,
+// including the Salman number line ("salman-code") that shows the activity number.
+func UsesActivitySettings(raw []byte) bool {
+	var data TemplateData
+	if json.Unmarshal(raw, &data) != nil {
+		return false
+	}
+	for _, e := range data.Elements {
+		if e.Type != "variable-text" || (e.Visible != nil && !*e.Visible) {
+			continue
+		}
+		name := strings.TrimSpace(strings.Trim(e.Variable, "{}"))
+		if activityVariables[name] || (e.ID == "salman-code" && (name == "certificate_code" || name == "certificate_id")) {
+			return true
+		}
+	}
+	return false
+}
+
 func RequiresApproval(raw []byte) bool {
 	var data TemplateData
 	if json.Unmarshal(raw, &data) != nil {

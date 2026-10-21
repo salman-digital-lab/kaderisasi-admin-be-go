@@ -49,3 +49,19 @@ func TestCertificateActivityNumberFormat(t *testing.T) {
 		}
 	}
 }
+
+func TestUsesActivitySettings(t *testing.T) {
+	for raw, want := range map[string]bool{
+		`{"elements":[{"id":"a","type":"variable-text","variable":"{{name}}"}]}`:                          false,
+		`{"elements":[{"id":"a","type":"variable-text","variable":"{{organizer}}"}]}`:                     true,
+		`{"elements":[{"id":"a","type":"variable-text","variable":"{{organizer}}","visible":false}]}`:     false,
+		`{"elements":[{"id":"a","type":"static-text","variable":"{{organizer}}"}]}`:                       false,
+		`{"elements":[{"id":"salman-code","type":"variable-text","variable":"{{certificate_code}}"}]}`:    true,
+		`{"elements":[{"id":"starter-code","type":"variable-text","variable":"{{certificate_code}}"}]}`:   false,
+		`{"elements":[{"id":"n","type":"variable-text","variable":"{{ certificate_activity_number }}"}]}`: true,
+	} {
+		if got := UsesActivitySettings([]byte(raw)); got != want {
+			t.Errorf("UsesActivitySettings(%s) = %v, want %v", raw, got, want)
+		}
+	}
+}
