@@ -37,7 +37,7 @@ func IsSalman(raw []byte) bool {
 	return json.Unmarshal(raw, &data) == nil && data.ScoreSheetLayout == "salman-v1"
 }
 
-var variables = map[string]bool{"name": true, "activity_name": true, "activity_date": true, "date": true, "certificate_code": true, "certificate_id": true, "university": true, "gender": true, "approval": true, "institution": true, "role": true, "event_details": true, "organizer": true, "document_place_date": true}
+var variables = map[string]bool{"name": true, "activity_name": true, "activity_date": true, "date": true, "certificate_code": true, "certificate_id": true, "university": true, "gender": true, "approval": true, "institution": true, "role": true, "event_details": true, "organizer": true, "document_place_date": true, "certificate_activity_number": true}
 
 func RequiresApproval(raw []byte) bool {
 	var data TemplateData

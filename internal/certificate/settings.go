@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -26,8 +27,13 @@ type Settings struct {
 	Organizer     string `json:"organizer"`
 	DocumentPlace string `json:"document_place"`
 	DocumentDate  string `json:"document_date"`
-	IncludeScores bool   `json:"include_scores"`
+	// ActivityNumber is the activity's letter number shown under the logo, e.g. 1719/S.4/YPM-5000/IV-1448
+	// (sequence/static/static/Hijri month in Roman numerals-Hijri year). Empty keeps the unique code there.
+	ActivityNumber string `json:"certificate_activity_number"`
+	IncludeScores  bool   `json:"include_scores"`
 }
+
+var activityNumberPattern = regexp.MustCompile(`^[0-9]{1,10}/S\.4/YPM-5000/(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)-[0-9]{4}$`)
 
 func DefaultSettings(activity dbgen.Activity, hasRubric bool, now time.Time) Settings {
 	settings := Settings{Version: 1, Institution: "YAYASAN PEMBINA MASJID (YPM) SALMAN ITB", Role: "PESERTA", Organizer: "Bidang Mahasiswa, Kaderisasi, dan Alumni Salman ITB", DocumentPlace: "Bandung", DocumentDate: fmt.Sprintf("%d %s %d", now.Day(), indonesianMonths[int(now.Month())-1], now.Year()), IncludeScores: hasRubric}
@@ -67,6 +73,9 @@ func HasSavedSettings(activity dbgen.Activity) bool {
 
 func ValidSettings(value Settings) bool {
 	if value.Version != 1 || strings.TrimSpace(value.Institution) == "" || strings.TrimSpace(value.Role) == "" || strings.TrimSpace(value.Organizer) == "" || strings.TrimSpace(value.DocumentPlace) == "" || strings.TrimSpace(value.DocumentDate) == "" {
+		return false
+	}
+	if value.ActivityNumber != "" && !activityNumberPattern.MatchString(value.ActivityNumber) {
 		return false
 	}
 	for _, field := range []string{value.Institution, value.Role, value.EventDate, value.HijriDate, value.DeliveryMode, value.Venue, value.Organizer, value.DocumentPlace, value.DocumentDate} {

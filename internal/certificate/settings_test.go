@@ -38,3 +38,14 @@ func TestSalmanAlwaysRequiresApprovalAndQR(t *testing.T) {
 		t.Fatal("Salman template published without approval and verification")
 	}
 }
+
+func TestCertificateActivityNumberFormat(t *testing.T) {
+	base := DefaultSettings(dbgen.Activity{}, false, time.Date(2026, 7, 30, 0, 0, 0, 0, time.UTC))
+	for value, want := range map[string]bool{"": true, "1719/S.4/YPM-5000/IV-1448": true, "7/S.4/YPM-5000/XII-1448": true, "1719/S.4/YP-5000/IV-1448": false, "1719/S.4/YPM-5000/XIII-1448": false, "abc/S.4/YPM-5000/IV-1448": false, "1719/S.4/YPM-5000/IV-48": false} {
+		settings := base
+		settings.ActivityNumber = value
+		if got := ValidSettings(settings); got != want {
+			t.Errorf("ValidSettings(%q) = %v, want %v", value, got, want)
+		}
+	}
+}
