@@ -29,7 +29,10 @@ func courseInput[T any](r *http.Request) (T, error) {
 	}
 	return result, nil
 }
-func coursePagination(r *http.Request) (int32, int32) {
+
+// clampedPagination parses page and per_page as integers (default 12, at most 100),
+// unlike pageParams, which keeps the legacy float behavior.
+func clampedPagination(r *http.Request) (int32, int32) {
 	number, err := strconv.Atoi(r.URL.Query().Get("page"))
 	if err != nil || number < 1 {
 		number = 1
@@ -51,7 +54,7 @@ func (s *Server) registerCourses() {
 		})
 	}
 	register("index", func(w http.ResponseWriter, r *http.Request) error {
-		page, size := coursePagination(r)
+		page, size := clampedPagination(r)
 		result, err := service.List(r.Context(), strings.TrimSpace(r.URL.Query().Get("search")), r.URL.Query().Get("status"), page, size)
 		if err != nil {
 			return err
@@ -159,7 +162,7 @@ func (s *Server) registerCourses() {
 		if err != nil {
 			return err
 		}
-		page, size := coursePagination(r)
+		page, size := clampedPagination(r)
 		result, err := service.Learners(r.Context(), id, strings.TrimSpace(r.URL.Query().Get("search")), page, size)
 		if err != nil {
 			return err

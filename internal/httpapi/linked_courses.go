@@ -13,7 +13,7 @@ import (
 func (s *Server) registerLinkedCourses() {
 	service := linkedcourse.Service{Pool: s.Pool}
 	s.register("club_courses_controller", "options", func(w http.ResponseWriter, r *http.Request) error {
-		page, size := coursePagination(r)
+		page, size := clampedPagination(r)
 		result, err := (activity.Service{Pool: s.Pool}).CourseOptions(r.Context(), strings.TrimSpace(r.URL.Query().Get("search")), page, size)
 		if err != nil {
 			return err
@@ -61,7 +61,7 @@ func (s *Server) registerLinkedCourses() {
 			if err != nil {
 				return err
 			}
-			page, size := coursePagination(r)
+			page, size := clampedPagination(r)
 			params := r.URL.Query()
 			f := linkedcourse.Filters{Page: page, Size: size, Search: strings.TrimSpace(params.Get("search")), Status: params.Get("status"), Completion: params.Get("course_completion")}
 			if raw := params.Get("course_id"); raw != "" {

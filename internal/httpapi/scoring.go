@@ -63,7 +63,7 @@ func (s *Server) registerScoring() {
 		return nil
 	})
 	register("index", func(w http.ResponseWriter, r *http.Request, id int32) error {
-		page, size := coursePagination(r)
+		page, size := clampedPagination(r)
 		result, err := service.List(r.Context(), id, r.URL.Query().Get("search"), r.URL.Query().Get("state"), page, size)
 		if err != nil {
 			return err

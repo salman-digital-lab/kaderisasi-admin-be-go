@@ -99,6 +99,7 @@ func (s *Server) Handler() http.Handler {
 	// its static-segment precedence in a small net/http compatibility dispatcher.
 	type entry struct {
 		route   Route
+		pattern []string
 		handler http.HandlerFunc
 	}
 	entries := []entry{}
@@ -114,7 +115,7 @@ func (s *Server) Handler() http.Handler {
 		return len(a) > len(b)
 	})
 	for _, route := range routes {
-		entries = append(entries, entry{route: route, handler: func(w http.ResponseWriter, r *http.Request) {
+		entries = append(entries, entry{route: route, pattern: strings.Split(route.Path, "/"), handler: func(w http.ResponseWriter, r *http.Request) {
 			if route.Controller == "health" {
 				write(w, 200, struct {
 					Status string `json:"status"`
@@ -185,7 +186,7 @@ func (s *Server) Handler() http.Handler {
 			if entry.route.Method != r.Method {
 				continue
 			}
-			pattern := strings.Split(entry.route.Path, "/")
+			pattern := entry.pattern
 			if len(pattern) != len(parts) {
 				continue
 			}

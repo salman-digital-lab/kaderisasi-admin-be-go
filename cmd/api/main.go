@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/certificate"
 	"kaderisasi/admin/internal/config"
@@ -90,6 +91,13 @@ func run() error {
 	return nil
 }
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "healthcheck" {
+		if err := healthcheck(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		return
+	}
 	if err := run(); err != nil {
 		slog.Error("API stopped", "error", err.Error())
 		os.Exit(1)

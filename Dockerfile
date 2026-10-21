@@ -45,7 +45,7 @@ RUN go vet ./... && go test -race -count=1 -timeout=10m ./... \
 
 FROM debian:trixie-slim AS runtime
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates curl tzdata libglib2.0-0t64 libexpat1 libjpeg62-turbo \
+    ca-certificates tzdata libglib2.0-0t64 libexpat1 libjpeg62-turbo \
     libpng16-16t64 libwebp7 libwebpdemux2 libwebpmux3 libexif12 liblcms2-2 \
     liborc-0.4-0 zlib1g \
     && rm -rf /var/lib/apt/lists/* \
@@ -61,5 +61,5 @@ WORKDIR /app
 USER app
 EXPOSE 3334
 HEALTHCHECK --interval=10s --timeout=5s --start-period=20s --retries=3 \
-    CMD curl --fail --silent http://127.0.0.1:3334/health || exit 1
+    CMD ["/app/admin-api", "healthcheck"]
 CMD ["/app/admin-api"]

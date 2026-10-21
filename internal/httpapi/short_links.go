@@ -42,7 +42,7 @@ func (s *Server) registerShortLinks() {
 		})
 	}
 	register("index", func(w http.ResponseWriter, r *http.Request) error {
-		page, size := coursePagination(r)
+		page, size := clampedPagination(r)
 		result, err := service.List(r.Context(), strings.TrimSpace(r.URL.Query().Get("search")), page, size)
 		if err != nil {
 			return err

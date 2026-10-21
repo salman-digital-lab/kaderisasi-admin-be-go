@@ -12,7 +12,7 @@ import (
 func (s *Server) registerActivityCourses() {
 	service := activity.Service{Pool: s.Pool}
 	s.register("activity_courses_controller", "options", func(w http.ResponseWriter, r *http.Request) error {
-		page, size := coursePagination(r)
+		page, size := clampedPagination(r)
 		result, err := service.CourseOptions(r.Context(), strings.TrimSpace(r.URL.Query().Get("search")), page, size)
 		if err != nil {
 			return err

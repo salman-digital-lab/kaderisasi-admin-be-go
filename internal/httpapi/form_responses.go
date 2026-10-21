@@ -33,7 +33,7 @@ func (s *Server) registerFormResponses() {
 			}
 			switch action {
 			case "responses":
-				page, size := coursePagination(r)
+				page, size := clampedPagination(r)
 				result, err := service.Responses(r.Context(), id, page, size)
 				if err != nil {
 					return err
