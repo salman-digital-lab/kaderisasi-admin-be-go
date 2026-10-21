@@ -154,7 +154,7 @@ func (q *Queries) ResolveTicket(ctx context.Context, arg ResolveTicketParams) er
 const reviewTickets = `-- name: ReviewTickets :many
 SELECT t.id, t.number, t.status, t.resolution, t.requester_admin_user_id, t.requested_role_code, t.reason, t.rejection_reason, t.resolved_by_admin_user_id, t.resolved_at, t.cancelled_at, t.created_at, t.updated_at, requester.display_name AS requester_name,requester.email AS requester_email,requester.id AS requester_id
 FROM tickets t JOIN admin_users requester ON requester.id=t.requester_admin_user_id
-WHERE ($1::text = '' OR t.status = $1::text) ORDER BY t.created_at DESC
+WHERE ($1::text = '' OR t.status = $1::text) ORDER BY t.created_at DESC LIMIT 500
 `
 
 type ReviewTicketsRow struct {

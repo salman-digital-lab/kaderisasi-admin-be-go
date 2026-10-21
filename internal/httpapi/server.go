@@ -59,6 +59,7 @@ type Server struct {
 	CourseStorage storage.Store
 	Logger        *slog.Logger
 	handlers      map[string]Handler
+	logins        loginLimiter
 }
 
 func Routes() []Route {
@@ -120,6 +121,11 @@ func (s *Server) Handler() http.Handler {
 				}{"ok"})
 				return
 			}
+			// Anonymous callers get no body parsing or upload temp files.
+			if route.Auth && accessToken(r) == "" {
+				unauthorized(w)
+				return
+			}
 			var parseErr error
 			r, parseErr = prepareRequest(w, r, route)
 			if r.MultipartForm != nil {
@@ -129,25 +135,16 @@ func (s *Server) Handler() http.Handler {
 				returnError(w, parseErr)
 				return
 			}
-			if route.TrustedOrigin && r.Header.Get("Origin") != "" && !slices.Contains(s.Config.Origins, r.Header.Get("Origin")) {
+			if (route.TrustedOrigin || mutatesState(r.Method)) && r.Header.Get("Origin") != "" && !slices.Contains(s.Config.Origins, r.Header.Get("Origin")) {
 				returnError(w, domain.Fail(403, "UNTRUSTED_ORIGIN"))
 				return
 			}
 			if route.Auth {
-				token := ""
-				if cookie, err := r.Cookie("admin_access_jwt"); err == nil {
-					token = cookie.Value
-				}
-				if token == "" {
-					token = strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
-				}
-				user, err := s.Auth.Authenticate(r.Context(), token)
+				user, err := s.Auth.Authenticate(r.Context(), accessToken(r))
 				if err != nil {
 					var failure *domain.Error
 					if errors.As(err, &failure) && failure.Status == 401 {
-						w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-						w.WriteHeader(401)
-						_, _ = w.Write([]byte("Unauthorized access"))
+						unauthorized(w)
 						return
 					}
 					returnError(w, err)
@@ -309,4 +306,23 @@ func returnError(w http.ResponseWriter, err error) {
 		return
 	}
 	message(w, 500, "GENERAL_ERROR")
+}
+
+// accessToken returns the admin access JWT from its cookie, else the bearer header.
+func accessToken(r *http.Request) string {
+	if cookie, err := r.Cookie("admin_access_jwt"); err == nil && cookie.Value != "" {
+		return cookie.Value
+	}
+	return strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+}
+
+func unauthorized(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(401)
+	_, _ = w.Write([]byte("Unauthorized access"))
+}
+
+// mutatesState is true for methods a cross-site page could use to change data.
+func mutatesState(method string) bool {
+	return method == http.MethodPost || method == http.MethodPut || method == http.MethodPatch || method == http.MethodDelete
 }

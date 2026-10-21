@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"errors"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
@@ -94,10 +95,19 @@ func (s *Server) registerAuth() {
 		if !ok {
 			return nil
 		}
+		email, client := limiterEmail(body.Email), limiterClient(r)
+		if s.logins.blocked(email, client) {
+			return domain.Fail(429, "TOO_MANY_LOGIN_ATTEMPTS")
+		}
 		session, refresh, err := s.Auth.Login(r.Context(), body.Email, body.Password, clientInfo(r))
 		if err != nil {
+			var failure *domain.Error
+			if errors.As(err, &failure) && failure.Status >= 400 && failure.Status < 500 {
+				s.logins.fail(email, client)
+			}
 			return err
 		}
+		s.logins.reset(email)
 		s.setRefresh(w, refresh)
 		reply(w, 200, "LOGIN_SUCCESS", session)
 		return nil
@@ -111,8 +121,16 @@ func (s *Server) registerAuth() {
 		if !ok {
 			return nil
 		}
+		client := limiterClient(r)
+		if s.logins.blocked("", client) {
+			return domain.Fail(429, "TOO_MANY_LOGIN_ATTEMPTS")
+		}
 		session, refresh, err := s.Auth.GoogleLogin(r.Context(), body.Credential, clientInfo(r))
 		if err != nil {
+			var failure *domain.Error
+			if errors.As(err, &failure) && failure.Status >= 400 && failure.Status < 500 {
+				s.logins.fail("", client)
+			}
 			return err
 		}
 		s.setRefresh(w, refresh)

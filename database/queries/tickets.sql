@@ -15,7 +15,7 @@ SELECT * FROM tickets WHERE requester_admin_user_id=$1 ORDER BY created_at DESC;
 -- name: ReviewTickets :many
 SELECT sqlc.embed(t), requester.display_name AS requester_name,requester.email AS requester_email,requester.id AS requester_id
 FROM tickets t JOIN admin_users requester ON requester.id=t.requester_admin_user_id
-WHERE (@status_filter::text = '' OR t.status = @status_filter::text) ORDER BY t.created_at DESC;
+WHERE (@status_filter::text = '' OR t.status = @status_filter::text) ORDER BY t.created_at DESC LIMIT 500;
 
 -- name: AcquireRequestLock :exec
 SELECT pg_advisory_xact_lock(7412,$1);
