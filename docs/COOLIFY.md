@@ -8,9 +8,9 @@ Container port: `3334`. Health check: `GET /health`.
 ## Image
 
 The repository Dockerfile builds the API and separate job executable on Linux.
-It pins Go 1.26.8 and verifies the SHA-256 of the libvips 8.18.6 source archive.
+It pins Go 1.26.10 and verifies the SHA-256 of the libvips 8.18.6 source archive.
 The build runs dependency verification, `go vet`, and the full race-enabled unit
-suite, including bidirectional Adonis cryptography fixtures. Node 24.14.1 and
+suite, including bidirectional Adonis cryptography fixtures. Node 24.22.1 and
 the locked Adonis crypto libraries are used only in the build stage.
 
 The runtime uses Debian trixie, libvips, CA certificates, and timezone data. It

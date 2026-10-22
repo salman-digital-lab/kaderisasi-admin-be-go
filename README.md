@@ -19,7 +19,7 @@ exports. See [linked activity courses](docs/ACTIVITY_COURSES.md).
 
 ## Local setup
 
-Required: Go **1.26.8**, Node **24**, PostgreSQL client tools, sqlc **1.31.1**, and
+Required: Go **1.26.10**, Node **24**, PostgreSQL client tools, sqlc **1.31.1**, and
 libvips with JPEG, PNG, and WebP support. The verified macOS setup uses libvips
 **8.18.6** and pkgconf **3.0.0**. govips requires libvips 8.14 or later.
 
@@ -39,7 +39,7 @@ make package
 ```
 
 `go.mod`, `go.sum`, and `package-lock.json` pin dependencies. Go's toolchain directive
-selects 1.26.8. `CGO_ENABLED=1` and libvips development headers are required to build;
+selects 1.26.10. `CGO_ENABLED=1` and libvips development headers are required to build;
 the runtime must also contain libvips and its shared-library dependencies. Docker
 is not required. The Go binary is not a standalone static executable.
 
