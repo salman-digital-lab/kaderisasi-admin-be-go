@@ -65,3 +65,24 @@ go test -tags='integration perintis' -count=1 ./internal/perintis/
 
 The integration test creates and drops its own `perintis_admin_<run>` schema
 with an explicit search path; it never touches `public` tables.
+
+## Production deployment (28 October 2026)
+
+- Ace migration `1793168600200_create_perintis_tables` applied to production;
+  no other migration was pending. No data was copied or seeded.
+- Coolify: `ADMIN_CORS_ORIGINS` gained `https://perintis.salmanitb.com`
+  (admin API); `GOOGLE_EXTRA_REDIRECT_URIS=https://perintis.salmanitb.com/masuk/google`
+  added to `kaderisasi-web-be-prod`. `env/prod` mirrors both.
+- Deployed `kaderisasi-admin-be-prod` at `ca0ae63` and `kaderisasi-web-be-prod`
+  at `c6fff35` (manual deploys: pushes do not trigger Coolify yet).
+- New application `kaderisasi-perintis-fe-prod` (`jvtumqbksug1yqs8qluoih46`):
+  nixpacks static build of `kaderisasi-perintis-fe` `main`, `/dist` on nginx with
+  SPA fallback, domain `https://perintis.salmanitb.com` (Cloudflare proxied). Build
+  variables: `VITE_USE_MOCK_API=false`, `VITE_WEB_API`, `VITE_ADMIN_API`,
+  `VITE_GOOGLE_CLIENT_ID` (the shared Kaderisasi client).
+- Smoke checks: both `/health` 200; Perintis routes answer 401 without a session;
+  CORS preflight from the new origin passes; the app loads in real-API mode and
+  email sign-in reaches the web API; an unlisted Google callback is refused.
+- Google sign-in on the new domain needs the OAuth client to list
+  `https://perintis.salmanitb.com/masuk/google` (redirect URI) and
+  `https://perintis.salmanitb.com` (JavaScript origin).
