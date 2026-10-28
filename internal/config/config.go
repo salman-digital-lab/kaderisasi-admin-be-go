@@ -35,6 +35,9 @@ type Config struct {
 	DriveBucket        string
 	DriveRegion        string
 	Location           *time.Location
+	// PerintisClock (PERINTIS_CLOCK, RFC 3339) shifts the Perintis programme
+	// clock for local demos and tests. Never set it in production.
+	PerintisClock string
 }
 
 func Load() (Config, error) {
@@ -74,6 +77,7 @@ func Load() (Config, error) {
 	if c.Environment == "production" {
 		shortBase = "https://s.salmanitb.com"
 	}
+	c.PerintisClock = os.Getenv("PERINTIS_CLOCK")
 	c.ShortURLBaseURL = strings.TrimRight(value("SHORT_URL_BASE_URL", shortBase), "/")
 	u, err := url.Parse(c.ShortURLBaseURL)
 	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Hostname() == "" || u.User != nil || u.Path != "" || u.RawQuery != "" || u.Fragment != "" {

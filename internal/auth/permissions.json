@@ -40,5 +40,11 @@
   "short_links.read",
   "calendar.read",
   "calendar.manage",
-  "announcements.manage"
+  "announcements.manage",
+  "perintis.participants.read",
+  "perintis.participants.manage",
+  "perintis.content.read",
+  "perintis.followups.manage",
+  "perintis.recap.read",
+  "perintis.recap.export"
 ]

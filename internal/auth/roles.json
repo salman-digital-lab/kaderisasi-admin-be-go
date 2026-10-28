@@ -52,7 +52,13 @@
       "short_links.read",
       "calendar.read",
       "calendar.manage",
-      "announcements.manage"
+      "announcements.manage",
+      "perintis.participants.read",
+      "perintis.participants.manage",
+      "perintis.content.read",
+      "perintis.followups.manage",
+      "perintis.recap.read",
+      "perintis.recap.export"
     ]
   },
   {
@@ -205,6 +211,30 @@
     "permissions": [
       "counseling.manage",
       "counseling.read",
+      "dashboard.read",
+      "short_links.manage",
+      "short_links.read",
+      "calendar.read"
+    ]
+  },
+  {
+    "code": "perintis_manager",
+    "name": "Pengelola Perintis",
+    "description": "Mengelola pembinaan Beasiswa Perintis.",
+    "capabilities": [
+      "Mengelola peserta, kelompok, mentor, dan koordinator",
+      "Membaca lapbul dan laporan mentoring",
+      "Menindaklanjuti bendera dan kasus, rekap, dan ekspor"
+    ],
+    "limitation": "Peran ini ditetapkan oleh Super Admin.",
+    "is_requestable": false,
+    "permissions": [
+      "perintis.participants.read",
+      "perintis.participants.manage",
+      "perintis.content.read",
+      "perintis.followups.manage",
+      "perintis.recap.read",
+      "perintis.recap.export",
       "dashboard.read",
       "short_links.manage",
       "short_links.read",

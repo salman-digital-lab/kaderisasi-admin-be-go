@@ -1644,5 +1644,19 @@
   {"method":"PUT","path":"/v2/talent-assessment/draft","controller":"talent_assessment","action":"save","auth":true,"trusted_origin":true,"permission":""},
   {"method":"POST","path":"/v2/talent-assessment/submit","controller":"talent_assessment","action":"submit","auth":true,"trusted_origin":true,"permission":""},
   {"method":"GET","path":"/v2/talent-assessment/result","controller":"talent_assessment","action":"result","auth":true,"trusted_origin":false,"permission":""},
-  {"method":"GET","path":"/v2/admin-users/:id/talent-assessment/result","controller":"talent_assessment","action":"adminResult","auth":true,"trusted_origin":false,"permission":""}
+  {"method":"GET","path":"/v2/admin-users/:id/talent-assessment/result","controller":"talent_assessment","action":"adminResult","auth":true,"trusted_origin":false,"permission":""},
+  {"method":"GET","path":"/v2/perintis/dashboard","controller":"perintis_controller","action":"dashboard","auth":true,"trusted_origin":true,"permission":"perintis.recap.read"},
+  {"method":"GET","path":"/v2/perintis/followups","controller":"perintis_controller","action":"followups","auth":true,"trusted_origin":true,"permission":"perintis.followups.manage"},
+  {"method":"PUT","path":"/v2/perintis/followups/:source/:id","controller":"perintis_controller","action":"resolveFollowup","auth":true,"trusted_origin":true,"permission":"perintis.followups.manage"},
+  {"method":"GET","path":"/v2/perintis/participants","controller":"perintis_controller","action":"participants","auth":true,"trusted_origin":true,"permission":"perintis.participants.read"},
+  {"method":"GET","path":"/v2/perintis/participants/:id","controller":"perintis_controller","action":"participant","auth":true,"trusted_origin":true,"permission":"perintis.participants.read"},
+  {"method":"PUT","path":"/v2/perintis/participants/:id","controller":"perintis_controller","action":"updateParticipant","auth":true,"trusted_origin":true,"permission":"perintis.participants.manage"},
+  {"method":"PUT","path":"/v2/perintis/participants/:id/mentor","controller":"perintis_controller","action":"moveMentee","auth":true,"trusted_origin":true,"permission":"perintis.participants.manage"},
+  {"method":"PUT","path":"/v2/perintis/participants/:id/status","controller":"perintis_controller","action":"setStatus","auth":true,"trusted_origin":true,"permission":"perintis.participants.manage"},
+  {"method":"GET","path":"/v2/perintis/journals/:id","controller":"perintis_controller","action":"journal","auth":true,"trusted_origin":true,"permission":"perintis.content.read"},
+  {"method":"POST","path":"/v2/perintis/journals/reopen","controller":"perintis_controller","action":"reopenJournal","auth":true,"trusted_origin":true,"permission":"perintis.participants.manage"},
+  {"method":"POST","path":"/v2/perintis/imports/preview","controller":"perintis_controller","action":"importPreview","auth":true,"trusted_origin":true,"permission":"perintis.participants.manage"},
+  {"method":"POST","path":"/v2/perintis/imports/apply","controller":"perintis_controller","action":"importApply","auth":true,"trusted_origin":true,"permission":"perintis.participants.manage"},
+  {"method":"GET","path":"/v2/perintis/exports/:kind","controller":"perintis_controller","action":"export","auth":true,"trusted_origin":true,"permission":"perintis.recap.export"},
+  {"method":"GET","path":"/v2/perintis/files","controller":"perintis_controller","action":"file","auth":true,"trusted_origin":true,"permission":"perintis.content.read"}
 ]

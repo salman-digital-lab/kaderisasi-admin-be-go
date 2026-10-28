@@ -1063,7 +1063,8 @@
               "activity_manager",
               "achievement_manager",
               "club_manager",
-              "konselor"
+              "konselor",
+              "perintis_manager"
             ]
           ],
           "chain": [
@@ -1089,7 +1090,8 @@
                   "activity_manager",
                   "achievement_manager",
                   "club_manager",
-                  "konselor"
+                  "konselor",
+                  "perintis_manager"
                 ]
               ],
               "chain": []
@@ -1237,7 +1239,8 @@
               "activity_manager",
               "achievement_manager",
               "club_manager",
-              "konselor"
+              "konselor",
+              "perintis_manager"
             ]
           ],
           "chain": [
@@ -1273,7 +1276,8 @@
                   "activity_manager",
                   "achievement_manager",
                   "club_manager",
-                  "konselor"
+                  "konselor",
+                  "perintis_manager"
                 ]
               ],
               "chain": []
@@ -4947,7 +4951,8 @@
               "activity_manager",
               "achievement_manager",
               "club_manager",
-              "konselor"
+              "konselor",
+              "perintis_manager"
             ]
           ],
           "chain": []

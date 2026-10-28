@@ -43,9 +43,9 @@ func TestCalendarAuthority(t *testing.T) {
 	}
 }
 
-func TestSixRolesAndPublicationAuthority(t *testing.T) {
-	if len(Roles()) != 6 {
-		t.Fatal("exactly six active roles required")
+func TestSevenRolesAndPublicationAuthority(t *testing.T) {
+	if len(Roles()) != 7 {
+		t.Fatal("exactly seven active roles required")
 	}
 	for _, role := range Roles() {
 		permission := ForRole(&role.Code, true)
@@ -111,5 +111,21 @@ func TestShortLinksAvailableToEveryActiveRole(t *testing.T) {
 				t.Fatalf("unassigned role grants %s", permission)
 			}
 		}
+	}
+}
+
+func TestPerintisManagerIsAssignedOnly(t *testing.T) {
+	role := RoleByCode("perintis_manager")
+	if role == nil || role.IsRequestable {
+		t.Fatal("Pengelola Perintis must exist and be assigned by Super Admin only")
+	}
+	access := ForRoles([]string{"perintis_manager"}, true)
+	for _, permission := range []string{"perintis.participants.read", "perintis.participants.manage", "perintis.content.read", "perintis.followups.manage", "perintis.recap.read", "perintis.recap.export"} {
+		if !access.Allows(permission) || !ForRoles([]string{"super_admin"}, true).Allows(permission) {
+			t.Fatalf("missing %s", permission)
+		}
+	}
+	if access.Allows("members.manage") || ForRoles([]string{"admin"}, true).Allows("perintis.content.read") {
+		t.Fatal("perintis access leaks across roles")
 	}
 }

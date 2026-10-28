@@ -28,11 +28,14 @@ func requestData(r *http.Request) validation.Object {
 // Adonis runs its body parser after route matching, before named authentication
 // and origin middleware. Query fields override body fields in request.all().
 func prepareRequest(w http.ResponseWriter, r *http.Request, route Route) (*http.Request, error) {
-	if route.Controller == "short_links_controller" || route.Controller == "calendar_events_controller" || route.Controller == "announcements_controller" || route.Controller == "notifications_controller" {
+	if route.Controller == "short_links_controller" || route.Controller == "calendar_events_controller" || route.Controller == "announcements_controller" || route.Controller == "notifications_controller" || route.Controller == "perintis_controller" {
 		if r.Body != nil {
 			limit := int64(65536)
 			if route.Controller == "announcements_controller" {
 				limit = 256 << 10
+			}
+			if route.Controller == "perintis_controller" {
+				limit = 2 << 20 // participant CSV imports
 			}
 			r.Body = http.MaxBytesReader(w, r.Body, limit)
 		}
