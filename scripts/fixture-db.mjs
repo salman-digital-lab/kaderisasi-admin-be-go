@@ -37,7 +37,7 @@ export async function emptyFixture(db, schema) {
   if(owner.rows[0]?.comment!==`admin Go rewrite fixture ${manifest.run}`)throw new Error('Refusing to clear an unowned schema');
   // This is limited to an already ownership-checked, dedicated test schema.
   const tables = (await db.query("SELECT tablename FROM pg_tables WHERE schemaname=$1 AND tablename NOT LIKE 'adonis_%' ORDER BY tablename", [schema])).rows.map(row=>row.tablename);
-  if (tables.some(table=>!/^[a-z_]+$/.test(table))) throw new Error('Unexpected table name');
+  if (tables.some(table=>!/^[a-z][a-z0-9_]*$/.test(table))) throw new Error('Unexpected table name');
   await db.query(`TRUNCATE ${tables.map(table=>`"${schema}"."${table}"`).join(',')} RESTART IDENTITY CASCADE`);
   return tables;
 }

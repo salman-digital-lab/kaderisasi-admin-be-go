@@ -47,5 +47,8 @@
   "perintis.content.read",
   "perintis.followups.manage",
   "perintis.recap.read",
-  "perintis.recap.export"
+  "perintis.recap.export",
+  "p3ri.registrations.read",
+  "p3ri.registrations.manage",
+  "p3ri.registrations.export"
 ]

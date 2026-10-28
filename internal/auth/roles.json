@@ -59,7 +59,10 @@
       "perintis.content.read",
       "perintis.followups.manage",
       "perintis.recap.read",
-      "perintis.recap.export"
+      "perintis.recap.export",
+      "p3ri.registrations.read",
+      "p3ri.registrations.manage",
+      "p3ri.registrations.export"
     ]
   },
   {
@@ -240,6 +243,23 @@
       "short_links.manage",
       "short_links.read",
       "calendar.read"
+    ]
+  },
+  {
+    "code": "p3ri",
+    "name": "Panitia P3RI",
+    "description": "Meninjau pendaftaran panitia P3RI.",
+    "capabilities": [
+      "Melihat pendaftar panitia P3RI dan jawabannya",
+      "Memperbarui status seleksi pendaftar",
+      "Mengekspor data pendaftar"
+    ],
+    "limitation": "Peran ini ditetapkan oleh Super Admin dan hanya membuka halaman P3RI.",
+    "is_requestable": false,
+    "permissions": [
+      "p3ri.registrations.read",
+      "p3ri.registrations.manage",
+      "p3ri.registrations.export"
     ]
   }
 ]

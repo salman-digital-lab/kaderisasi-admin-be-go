@@ -25,8 +25,15 @@ func TestMergedRoles(t *testing.T) {
 	}
 }
 
+// The p3ri role only opens the P3RI pages, so it is left out of the checks
+// that every other role shares (calendar and short links).
+const p3riOnly = "p3ri"
+
 func TestCalendarAuthority(t *testing.T) {
 	for _, role := range Roles() {
+		if role.Code == p3riOnly {
+			continue
+		}
 		access := ForRoles([]string{role.Code}, true)
 		if !access.Allows("calendar.read") || access.Allows("calendar.manage") != (role.Code == "admin" || role.Code == "super_admin") {
 			t.Fatalf("incorrect calendar authority: %s", role.Code)
@@ -43,9 +50,9 @@ func TestCalendarAuthority(t *testing.T) {
 	}
 }
 
-func TestSevenRolesAndPublicationAuthority(t *testing.T) {
-	if len(Roles()) != 7 {
-		t.Fatal("exactly seven active roles required")
+func TestEightRolesAndPublicationAuthority(t *testing.T) {
+	if len(Roles()) != 8 {
+		t.Fatal("exactly eight active roles required")
 	}
 	for _, role := range Roles() {
 		permission := ForRole(&role.Code, true)
@@ -100,6 +107,9 @@ func TestCounselingRestrictedToSuperAdminAndKonselor(t *testing.T) {
 
 func TestShortLinksAvailableToEveryActiveRole(t *testing.T) {
 	for _, role := range Roles() {
+		if role.Code == p3riOnly {
+			continue
+		}
 		for _, permission := range []string{"short_links.read", "short_links.manage"} {
 			if !ForRole(&role.Code, true).Allows(permission) {
 				t.Fatalf("%s missing %s", role.Code, permission)
@@ -131,5 +141,34 @@ func TestPerintisManagerIsAssignedOnly(t *testing.T) {
 	// Searching every kaderisasi member to add participants is Super Admin only.
 	if access.Allows("perintis.participants.add") || !ForRoles([]string{"super_admin"}, true).Allows("perintis.participants.add") {
 		t.Fatal("perintis.participants.add must belong to Super Admin only")
+	}
+}
+
+func TestP3riIsAssignedOnlyAndP3riOnly(t *testing.T) {
+	role := RoleByCode("p3ri")
+	if role == nil || role.IsRequestable {
+		t.Fatal("Panitia P3RI must exist and be assigned by Super Admin only")
+	}
+	p3ri := []string{"p3ri.registrations.read", "p3ri.registrations.manage", "p3ri.registrations.export"}
+	access := ForRoles([]string{"p3ri"}, true)
+	actual := slices.Clone(access.Permissions)
+	slices.Sort(actual)
+	expected := slices.Clone(p3ri)
+	slices.Sort(expected)
+	if !slices.Equal(actual, expected) {
+		t.Fatalf("Panitia P3RI access = %v, want only %v", actual, expected)
+	}
+	for _, permission := range p3ri {
+		if !ForRoles([]string{"super_admin"}, true).Allows(permission) {
+			t.Fatalf("Super Admin missing %s", permission)
+		}
+		for _, other := range Roles() {
+			if other.Code != "p3ri" && other.Code != "super_admin" && ForRoles([]string{other.Code}, true).Allows(permission) {
+				t.Fatalf("%s leaks %s", other.Code, permission)
+			}
+		}
+	}
+	if ForRoles([]string{"p3ri"}, false).Allows("p3ri.registrations.read") {
+		t.Fatal("inactive Panitia P3RI allowed")
 	}
 }

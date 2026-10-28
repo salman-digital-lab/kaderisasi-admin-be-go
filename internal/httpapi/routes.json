@@ -1660,5 +1660,11 @@
   {"method":"POST","path":"/v2/perintis/imports/preview","controller":"perintis_controller","action":"importPreview","auth":true,"trusted_origin":true,"permission":"perintis.participants.manage"},
   {"method":"POST","path":"/v2/perintis/imports/apply","controller":"perintis_controller","action":"importApply","auth":true,"trusted_origin":true,"permission":"perintis.participants.manage"},
   {"method":"GET","path":"/v2/perintis/exports/:kind","controller":"perintis_controller","action":"export","auth":true,"trusted_origin":true,"permission":"perintis.recap.export"},
-  {"method":"GET","path":"/v2/perintis/files","controller":"perintis_controller","action":"file","auth":true,"trusted_origin":true,"permission":"perintis.content.read"}
+  {"method":"GET","path":"/v2/perintis/files","controller":"perintis_controller","action":"file","auth":true,"trusted_origin":true,"permission":"perintis.content.read"},
+  {"method":"GET","path":"/v2/p3ri/form","controller":"p3ri_controller","action":"form","auth":true,"trusted_origin":true,"permission":"p3ri.registrations.read"},
+  {"method":"GET","path":"/v2/p3ri/registrations","controller":"p3ri_controller","action":"index","auth":true,"trusted_origin":true,"permission":"p3ri.registrations.read"},
+  {"method":"GET","path":"/v2/p3ri/registrations/export","controller":"p3ri_controller","action":"export","auth":true,"trusted_origin":true,"permission":"p3ri.registrations.export"},
+  {"method":"GET","path":"/v2/p3ri/registrations/:id","controller":"p3ri_controller","action":"show","auth":true,"trusted_origin":true,"permission":"p3ri.registrations.read"},
+  {"method":"PUT","path":"/v2/p3ri/registrations/:id/status","controller":"p3ri_controller","action":"updateStatus","auth":true,"trusted_origin":true,"permission":"p3ri.registrations.manage"},
+  {"method":"GET","path":"/v2/p3ri/files","controller":"p3ri_controller","action":"file","auth":true,"trusted_origin":true,"permission":"p3ri.registrations.read"}
 ]
