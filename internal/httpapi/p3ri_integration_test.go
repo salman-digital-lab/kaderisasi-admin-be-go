@@ -87,13 +87,14 @@ func TestP3riRegistrationReview(t *testing.T) {
 	f.call("PUT", path+"/status", map[string]any{"status": "diterima"}, panitia, 422)
 	f.call("PUT", path+"/status", map[string]any{"status": "diterima", "accepted_division": "sahur"}, panitia, 422)
 	f.call("PUT", path+"/status", map[string]any{"status": "selesai"}, panitia, 422)
-	f.call("PUT", path+"/status", map[string]any{"status": "seleksi_berkas", "accepted_division": "website"}, admin, 403)
+	f.call("PUT", path+"/status", map[string]any{"status": "seleksi_berkas"}, panitia, 422)
+	f.call("PUT", path+"/status", map[string]any{"status": "terdaftar"}, admin, 403)
 	updated := objectData(t, f.call("PUT", path+"/status", map[string]any{"status": "diterima", "accepted_division": "website", "admin_note": "Lolos wawancara"}, panitia, 200))
 	if string(updated["status"]) != `"diterima"` || string(updated["accepted_division"]) != `"website"` || string(updated["status_updated_by_name"]) != `"Contract fixture"` {
 		t.Fatalf("updated %v", updated)
 	}
 	// Moving back clears the accepted division.
-	updated = objectData(t, f.call("PUT", path+"/status", map[string]any{"status": "wawancara", "accepted_division": "website"}, panitia, 200))
+	updated = objectData(t, f.call("PUT", path+"/status", map[string]any{"status": "terdaftar", "accepted_division": "website"}, panitia, 200))
 	if string(updated["accepted_division"]) != "null" {
 		t.Fatalf("accepted division kept: %s", updated["accepted_division"])
 	}

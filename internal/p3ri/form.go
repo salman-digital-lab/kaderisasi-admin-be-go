@@ -69,12 +69,9 @@ func (f Form) Division(code string) (Division, bool) {
 }
 
 // Statuses in pipeline order.
-var Statuses = []string{"terdaftar", "seleksi_berkas", "wawancara", "diterima", "tidak_diterima"}
+var Statuses = []string{"terdaftar", "diterima"}
 
 var StatusLabels = map[string]string{
-	"terdaftar":      "Terdaftar",
-	"seleksi_berkas": "Seleksi Berkas",
-	"wawancara":      "Wawancara",
-	"diterima":       "Diterima",
-	"tidak_diterima": "Tidak Diterima",
+	"terdaftar": "Terdaftar",
+	"diterima":  "Diterima",
 }

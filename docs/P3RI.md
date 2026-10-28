@@ -9,12 +9,13 @@ This is a fast, temporary feature: one table and a hardcoded form.
 
 ## Data
 
-`p3ri_registrations` (Ace migration
-`1793195171058_create_p3ri_registrations_table`), one row per member:
+`p3ri_registrations` (Ace migrations
+`1793195171058_create_p3ri_registrations_table` and
+`1793205707665_narrow_p3ri_registration_statuses`), one row per member:
 
-- `status`: `terdaftar` → `seleksi_berkas` → `wawancara` → `diterima` /
-  `tidak_diterima`. Applicants can edit only while `terdaftar` and before the
-  deadline.
+- `status`: `terdaftar` or `diterima`. Applicants can edit only while
+  `terdaftar` and before the deadline; moving back to `terdaftar` clears the
+  accepted division and reopens editing.
 - `choices`: 1–3 ordered division codes. `accepted_division` is set exactly when
   `diterima` and must be one of the choices (table CHECKs).
 - `answers`: `{"common": {<question id>: …}, "divisions": {<code>: {<question id>: …}}}`.
