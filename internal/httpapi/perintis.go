@@ -75,6 +75,16 @@ func (s *Server) registerPerintis() {
 		}
 		return service.Participant(r.Context(), target)
 	})
+	register("searchMembers", func(_ http.ResponseWriter, r *http.Request) (any, error) {
+		return service.SearchMembers(r.Context(), query(r, "q"))
+	})
+	register("addParticipant", func(_ http.ResponseWriter, r *http.Request) (any, error) {
+		var in perintis.AddParticipantInput
+		if err := perintisInput(r, &in); err != nil {
+			return nil, err
+		}
+		return service.AddParticipant(r.Context(), actor(r).ID, in)
+	})
 	register("updateParticipant", func(_ http.ResponseWriter, r *http.Request) (any, error) {
 		target, err := id(r, "id")
 		if err != nil {

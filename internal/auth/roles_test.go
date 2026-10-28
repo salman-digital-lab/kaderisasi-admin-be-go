@@ -128,4 +128,8 @@ func TestPerintisManagerIsAssignedOnly(t *testing.T) {
 	if access.Allows("members.manage") || ForRoles([]string{"admin"}, true).Allows("perintis.content.read") {
 		t.Fatal("perintis access leaks across roles")
 	}
+	// Searching every kaderisasi member to add participants is Super Admin only.
+	if access.Allows("perintis.participants.add") || !ForRoles([]string{"super_admin"}, true).Allows("perintis.participants.add") {
+		t.Fatal("perintis.participants.add must belong to Super Admin only")
+	}
 }

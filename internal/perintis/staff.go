@@ -1019,6 +1019,138 @@ func (s *StaffService) ImportApply(ctx context.Context, staff int32, kind, text 
 	return applied, err
 }
 
+// ---- add from kaderisasi members (Super Admin) ---------------------------------
+
+// MemberCandidate is one kaderisasi member found by the member search. Roles
+// lists the Perintis roles they already hold; empty means not yet a participant.
+type MemberCandidate struct {
+	UserID      int32    `json:"userId"`
+	Name        string   `json:"name"`
+	Email       *string  `json:"email"`
+	MemberID    *string  `json:"memberId"`
+	University  *string  `json:"university"`
+	Major       *string  `json:"major"`
+	IntakeYear  *int32   `json:"intakeYear"`
+	HasAccount  bool     `json:"hasAccount"`
+	Participant bool     `json:"participant"`
+	Roles       []string `json:"roles"`
+}
+
+var likeEscaper = strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`)
+
+// SearchMembers finds up to 20 kaderisasi members by name, email or member ID.
+func (s *StaffService) SearchMembers(ctx context.Context, q string) ([]MemberCandidate, error) {
+	q = strings.TrimSpace(q)
+	if len([]rune(q)) < 3 {
+		return nil, fail(422, "Ketik minimal 3 huruf untuk mencari anggota.")
+	}
+	if len([]rune(q)) > 100 {
+		return nil, fail(422, "Kata kunci terlalu panjang.")
+	}
+	w, err := s.read(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rows, err := w.Q.PerintisMemberSearch(ctx, dbgen.PerintisMemberSearchParams{Pattern: likeEscaper.Replace(q), Exact: q})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]MemberCandidate, 0, len(rows))
+	for _, r := range rows {
+		c := MemberCandidate{UserID: r.UserID, Name: r.Name, Email: r.Email, MemberID: r.MemberID,
+			University: r.University, Major: r.Major, IntakeYear: r.IntakeYear,
+			HasAccount: r.AccountStatus != "no_account", Roles: []string{}}
+		if p, ok := w.Participants[r.UserID]; ok {
+			c.Participant = true
+			c.Roles = Roles(p)
+		}
+		out = append(out, c)
+	}
+	return out, nil
+}
+
+// AddParticipantInput makes an existing kaderisasi member a participant.
+type AddParticipantInput struct {
+	UserID int32 `json:"userId"`
+	UpdateParticipantInput
+	MentorUserID *int32 `json:"mentorUserId"`
+}
+
+// AddParticipant enrols a member found by SearchMembers with the chosen roles.
+// The checks match UpdateParticipant. Status follows the import: a mentee
+// without a mentor and a mentor without mentees start as pending/reserve.
+func (s *StaffService) AddParticipant(ctx context.Context, staff int32, in AddParticipantInput) (ParticipantDetail, error) {
+	var out ParticipantDetail
+	err := s.write(ctx, func(w *World) error {
+		if in.UserID <= 0 {
+			return fail(422, "Pilih anggota yang akan ditambahkan.")
+		}
+		if _, exists := w.Participants[in.UserID]; exists {
+			return fail(409, "Anggota ini sudah menjadi peserta. Ubah perannya dari halaman peserta.")
+		}
+		if err := w.loadPeople(ctx, []int32{in.UserID}); err != nil {
+			return err
+		}
+		if _, ok := w.People[in.UserID]; !ok {
+			return fail(404, "Anggota tidak ditemukan.")
+		}
+		if !in.IsMentee && !in.IsMentor && !in.IsCoordinator {
+			return fail(422, "Pilih minimal satu peran.")
+		}
+		p := dbgen.PerintisParticipant{UserID: in.UserID, IsMentee: in.IsMentee, IsMentor: in.IsMentor,
+			IsCoordinator: in.IsCoordinator, Status: "active", UpdatedBy: &staff}
+		if in.IsMentee {
+			nim := nilIfEmpty(strings.TrimSpace(deref(in.Nim)))
+			if nim == nil {
+				return fail(422, "NIM wajib untuk mentee.")
+			}
+			if in.Category == nil || CategoryLabel[*in.Category] == "" {
+				return fail(422, "Kategori wajib untuk mentee.")
+			}
+			if in.KipK == nil {
+				return fail(422, "Status KIP-K wajib untuk mentee.")
+			}
+			if w.participantByNIM(*nim) != nil {
+				return fail(409, "NIM sudah dipakai peserta lain.")
+			}
+			p.Nim, p.Category, p.KipK, p.UniversityID = nim, in.Category, in.KipK, w.People[in.UserID].UniversityID
+			p.Status = "pending"
+			if in.MentorUserID != nil {
+				m, ok := w.Participants[*in.MentorUserID]
+				if !ok || !m.IsMentor || m.Status == "inactive" || m.UserID == in.UserID {
+					return fail(422, "Mentor tidak valid.")
+				}
+				p.MentorUserID, p.Status = in.MentorUserID, "active"
+				if m.Status == "reserve" {
+					m.Status, m.UpdatedBy = "active", &staff
+					if err := w.upsert(ctx, m, true); err != nil {
+						return err
+					}
+				}
+			}
+		}
+		if in.IsMentor {
+			if in.CoordinatorUserID != nil {
+				c, ok := w.Participants[*in.CoordinatorUserID]
+				if !ok || !c.IsCoordinator || c.Status == "inactive" {
+					return fail(422, "Koordinator tidak valid.")
+				}
+				p.CoordinatorUserID = in.CoordinatorUserID
+			}
+			if !in.IsMentee && !in.IsCoordinator {
+				p.Status = "reserve"
+			}
+		}
+		if err := w.upsert(ctx, p, false); err != nil {
+			return err
+		}
+		var err error
+		out, err = w.detail(ctx, in.UserID)
+		return err
+	})
+	return out, err
+}
+
 // ---- export ------------------------------------------------------------------------
 
 // csvCell neutralises spreadsheet formulas and renders booleans as ya/tidak.

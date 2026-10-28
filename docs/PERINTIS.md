@@ -32,7 +32,11 @@ only here; `participant.go` only in the web API.
 ## Access
 
 Role **Pengelola Perintis** (`perintis_manager`) is assigned by a Super Admin
-and cannot be requested. Super Admin also holds every `perintis.*` permission.
+and cannot be requested. Super Admin also holds every `perintis.*` permission,
+and is the only role with `perintis.participants.add`: searching all kaderisasi
+members (name, email, member ID; at least 3 characters, 20 results) and enrolling
+one with roles. To let Pengelola Perintis do it too, add that permission to the
+role in `internal/auth/roles.json`.
 
 | Permission | Routes |
 | --- | --- |
@@ -40,6 +44,7 @@ and cannot be requested. Super Admin also holds every `perintis.*` permission.
 | `perintis.followups.manage` | `GET /v2/perintis/followups?source=&status=`, `PUT /v2/perintis/followups/{source}/{id}` |
 | `perintis.participants.read` | `GET /v2/perintis/participants?role=&status=&q=`, `GET /v2/perintis/participants/{id}` |
 | `perintis.participants.manage` | `PUT /v2/perintis/participants/{id}`, `PUT …/{id}/mentor`, `PUT …/{id}/status`, `POST /v2/perintis/journals/reopen`, `POST /v2/perintis/imports/preview`, `POST /v2/perintis/imports/apply` |
+| `perintis.participants.add` | `GET /v2/perintis/members?q=`, `POST /v2/perintis/participants` |
 | `perintis.content.read` | `GET /v2/perintis/journals/{id}`, `GET /v2/perintis/files?key=` |
 | `perintis.recap.export` | `GET /v2/perintis/exports/{kind}?month=` |
 

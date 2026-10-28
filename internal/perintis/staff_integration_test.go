@@ -257,6 +257,57 @@ func TestStaffWorkflows(t *testing.T) {
 		t.Fatalf("imported mentee: %+v", dimas)
 	}
 
+	// Super Admin: search kaderisasi members, then add them with roles
+	exec(`INSERT INTO public_users (id, email, account_status) VALUES (20, 'nadia@example.test', 'active'), (21, 'umar@example.test', 'no_account'), (22, 'nadia.k@example.test', 'active')`)
+	exec(`INSERT INTO profiles (user_id, name, university_id) VALUES (20, 'Nadia Kusuma', 1), (21, 'Umar Faruq', 1)`)
+	_, err = svc.SearchMembers(ctx, "ab")
+	wantStatus(t, err, 422)
+	if none := must[[]MemberCandidate](t)(svc.SearchMembers(ctx, "%%%")); len(none) != 0 {
+		t.Fatalf("LIKE wildcards must be literal: %+v", none)
+	}
+	nadia := must[[]MemberCandidate](t)(svc.SearchMembers(ctx, "nadia"))
+	if len(nadia) != 2 || nadia[0].UserID != 22 && nadia[1].UserID != 22 {
+		t.Fatalf("search by name and email: %+v", nadia)
+	}
+	if exact := must[[]MemberCandidate](t)(svc.SearchMembers(ctx, "NADIA.K@example.test")); len(exact) == 0 || exact[0].UserID != 22 || exact[0].Name != "nadia.k" {
+		t.Fatalf("exact email first: %+v", exact)
+	}
+	if known := must[[]MemberCandidate](t)(svc.SearchMembers(ctx, "aisyah@")); len(known) != 1 || !known[0].Participant || len(known[0].Roles) != 1 || known[0].Roles[0] != "mentee" {
+		t.Fatalf("existing participant: %+v", known)
+	}
+	if umar := must[[]MemberCandidate](t)(svc.SearchMembers(ctx, "Faruq")); len(umar) != 1 || umar[0].HasAccount || umar[0].Participant {
+		t.Fatalf("new member: %+v", umar)
+	}
+	_, err = svc.AddParticipant(ctx, 9, AddParticipantInput{UserID: 1, UpdateParticipantInput: UpdateParticipantInput{IsMentor: true}})
+	wantStatus(t, err, 409)
+	_, err = svc.AddParticipant(ctx, 9, AddParticipantInput{UserID: 999, UpdateParticipantInput: UpdateParticipantInput{IsCoordinator: true}})
+	wantStatus(t, err, 404)
+	_, err = svc.AddParticipant(ctx, 9, AddParticipantInput{UserID: 21})
+	wantStatus(t, err, 422)
+	_, err = svc.AddParticipant(ctx, 9, AddParticipantInput{UserID: 22, UpdateParticipantInput: UpdateParticipantInput{IsMentee: true, Category: &cat, KipK: &yes}})
+	wantStatus(t, err, 422)
+	_, err = svc.AddParticipant(ctx, 9, AddParticipantInput{UserID: 22, UpdateParticipantInput: UpdateParticipantInput{IsMentee: true, Nim: strPtr("10525107"), Category: &cat, KipK: &yes}})
+	wantStatus(t, err, 409)
+	_, err = svc.AddParticipant(ctx, 9, AddParticipantInput{UserID: 20, UpdateParticipantInput: UpdateParticipantInput{IsMentor: true, CoordinatorUserID: ptr32(2)}})
+	wantStatus(t, err, 422)
+	umar := must[ParticipantDetail](t)(svc.AddParticipant(ctx, 9, AddParticipantInput{UserID: 21, UpdateParticipantInput: UpdateParticipantInput{IsCoordinator: true}}))
+	if umar.Participant.Status != "active" || !umar.Participant.IsCoordinator || umar.Row.HasAccount {
+		t.Fatalf("added coordinator: %+v", umar.Participant)
+	}
+	added := must[ParticipantDetail](t)(svc.AddParticipant(ctx, 9, AddParticipantInput{UserID: 20, UpdateParticipantInput: UpdateParticipantInput{IsMentor: true, CoordinatorUserID: ptr32(21)}}))
+	if added.Participant.Status != "reserve" || deref32(added.Participant.CoordinatorUserID) != 21 {
+		t.Fatalf("added mentor: %+v", added.Participant)
+	}
+	_, err = svc.AddParticipant(ctx, 9, AddParticipantInput{UserID: 22, MentorUserID: ptr32(21), UpdateParticipantInput: UpdateParticipantInput{IsMentee: true, Nim: strPtr("13525777"), Category: &cat, KipK: &yes}})
+	wantStatus(t, err, 422)
+	mentee := must[ParticipantDetail](t)(svc.AddParticipant(ctx, 9, AddParticipantInput{UserID: 22, MentorUserID: ptr32(20), UpdateParticipantInput: UpdateParticipantInput{IsMentee: true, Nim: strPtr(" 13525777 "), Category: &cat, KipK: &yes}}))
+	if mentee.Participant.Status != "active" || deref(mentee.Participant.Nim) != "13525777" || deref32(mentee.Participant.MentorUserID) != 20 || deref(mentee.Row.CoordinatorName) != "Umar Faruq" {
+		t.Fatalf("added mentee: %+v %+v", mentee.Participant, mentee.Row)
+	}
+	if nadiaNow := must[ParticipantDetail](t)(svc.Participant(ctx, 20)); nadiaNow.Participant.Status != "active" || len(nadiaNow.Mentees) != 1 {
+		t.Fatalf("reserve mentor becomes active when a mentee is added: %+v", nadiaNow.Participant)
+	}
+
 	// exports
 	for _, kind := range []string{"rekap-mentee", "tugas-mentor", "status-lapbul", "laporan-mentoring", "data-peserta"} {
 		name, csv, err := svc.Export(ctx, kind, "2026-12-01")

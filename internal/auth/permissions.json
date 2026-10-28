@@ -43,6 +43,7 @@
   "announcements.manage",
   "perintis.participants.read",
   "perintis.participants.manage",
+  "perintis.participants.add",
   "perintis.content.read",
   "perintis.followups.manage",
   "perintis.recap.read",

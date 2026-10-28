@@ -1649,6 +1649,8 @@
   {"method":"GET","path":"/v2/perintis/followups","controller":"perintis_controller","action":"followups","auth":true,"trusted_origin":true,"permission":"perintis.followups.manage"},
   {"method":"PUT","path":"/v2/perintis/followups/:source/:id","controller":"perintis_controller","action":"resolveFollowup","auth":true,"trusted_origin":true,"permission":"perintis.followups.manage"},
   {"method":"GET","path":"/v2/perintis/participants","controller":"perintis_controller","action":"participants","auth":true,"trusted_origin":true,"permission":"perintis.participants.read"},
+  {"method":"GET","path":"/v2/perintis/members","controller":"perintis_controller","action":"searchMembers","auth":true,"trusted_origin":true,"permission":"perintis.participants.add"},
+  {"method":"POST","path":"/v2/perintis/participants","controller":"perintis_controller","action":"addParticipant","auth":true,"trusted_origin":true,"permission":"perintis.participants.add"},
   {"method":"GET","path":"/v2/perintis/participants/:id","controller":"perintis_controller","action":"participant","auth":true,"trusted_origin":true,"permission":"perintis.participants.read"},
   {"method":"PUT","path":"/v2/perintis/participants/:id","controller":"perintis_controller","action":"updateParticipant","auth":true,"trusted_origin":true,"permission":"perintis.participants.manage"},
   {"method":"PUT","path":"/v2/perintis/participants/:id/mentor","controller":"perintis_controller","action":"moveMentee","auth":true,"trusted_origin":true,"permission":"perintis.participants.manage"},

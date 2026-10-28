@@ -26,7 +26,7 @@ func TestPerintisRoutesAreImplementedAndGuarded(t *testing.T) {
 			t.Errorf("%s %s: %+v", route.Method, route.Path, route)
 		}
 	}
-	if count != 14 {
-		t.Fatalf("expected 14 perintis routes, found %d", count)
+	if count != 16 {
+		t.Fatalf("expected 16 perintis routes, found %d", count)
 	}
 }
