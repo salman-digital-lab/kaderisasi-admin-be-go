@@ -35,7 +35,10 @@ Role **Pengelola Perintis** (`perintis_manager`) is assigned by a Super Admin
 and cannot be requested. Super Admin also holds every `perintis.*` permission,
 and is the only role with `perintis.participants.add`: searching all kaderisasi
 members (name, email, member ID; at least 3 characters, 20 results) and enrolling
-one with roles. To let Pengelola Perintis do it too, add that permission to the
+one with roles. A mentee may be enrolled (or edited) without NIM,
+kategori and KIP-K; migration `1793195667780_relax_perintis_mentee_data` dropped
+the database check. The participant list flags them, and the web API locks the
+lapbul until a kategori is set, because the kategori picks the form. To let Pengelola Perintis do it too, add that permission to the
 role in `internal/auth/roles.json`.
 
 | Permission | Routes |

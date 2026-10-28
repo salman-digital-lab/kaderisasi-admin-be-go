@@ -284,8 +284,21 @@ func TestStaffWorkflows(t *testing.T) {
 	wantStatus(t, err, 404)
 	_, err = svc.AddParticipant(ctx, 9, AddParticipantInput{UserID: 21})
 	wantStatus(t, err, 422)
-	_, err = svc.AddParticipant(ctx, 9, AddParticipantInput{UserID: 22, UpdateParticipantInput: UpdateParticipantInput{IsMentee: true, Category: &cat, KipK: &yes}})
+	lain := "lain"
+	_, err = svc.AddParticipant(ctx, 9, AddParticipantInput{UserID: 22, UpdateParticipantInput: UpdateParticipantInput{IsMentee: true, Category: &lain}})
 	wantStatus(t, err, 422)
+	// NIM, kategori and KIP-K can be filled in later.
+	exec(`INSERT INTO public_users (id, email, account_status) VALUES (23, 'tanpa.data@example.test', 'active')`)
+	bare := must[ParticipantDetail](t)(svc.AddParticipant(ctx, 9, AddParticipantInput{UserID: 23, UpdateParticipantInput: UpdateParticipantInput{IsMentee: true, Nim: strPtr("  ")}}))
+	if bare.Participant.Status != "pending" || bare.Participant.Nim != nil || bare.Participant.Category != nil || bare.Participant.KipK != nil {
+		t.Fatalf("mentee without data: %+v", bare.Participant)
+	}
+	filled := must[ParticipantDetail](t)(svc.UpdateParticipant(ctx, 9, 23, UpdateParticipantInput{IsMentee: true, Nim: strPtr("13525888"), Category: &cat, KipK: &yes}))
+	if deref(filled.Participant.Nim) != "13525888" || deref(filled.Participant.Category) != "dasar" {
+		t.Fatalf("data filled in later: %+v", filled.Participant)
+	}
+	_, err = svc.UpdateParticipant(ctx, 9, 23, UpdateParticipantInput{IsMentee: true, Nim: strPtr("10525107")})
+	wantStatus(t, err, 409)
 	_, err = svc.AddParticipant(ctx, 9, AddParticipantInput{UserID: 22, UpdateParticipantInput: UpdateParticipantInput{IsMentee: true, Nim: strPtr("10525107"), Category: &cat, KipK: &yes}})
 	wantStatus(t, err, 409)
 	_, err = svc.AddParticipant(ctx, 9, AddParticipantInput{UserID: 20, UpdateParticipantInput: UpdateParticipantInput{IsMentor: true, CoordinatorUserID: ptr32(2)}})

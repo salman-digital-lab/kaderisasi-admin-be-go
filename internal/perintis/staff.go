@@ -466,19 +466,15 @@ func (s *StaffService) UpdateParticipant(ctx context.Context, staff, id int32, i
 		if p.IsCoordinator && !in.IsCoordinator && len(w.MentorsOf(id)) > 0 {
 			return fail(409, "Peran koordinator tidak bisa dicabut selama masih membawahi mentor.")
 		}
-		nim := nilIfEmpty(deref(in.Nim))
+		nim := nilIfEmpty(strings.TrimSpace(deref(in.Nim)))
 		if in.IsMentee {
-			if nim == nil {
-				return fail(422, "NIM wajib untuk mentee.")
-			}
-			if in.Category == nil || CategoryLabel[*in.Category] == "" {
-				return fail(422, "Kategori wajib untuk mentee.")
-			}
-			if in.KipK == nil {
-				return fail(422, "Status KIP-K wajib untuk mentee.")
+			// NIM, kategori and KIP-K may be filled in later; a mentee without
+			// a kategori cannot start a lapbul until it is set.
+			if err := checkMenteeData(nim, in.Category); err != nil {
+				return err
 			}
 			for _, other := range w.Participants {
-				if other.UserID != id && deref(other.Nim) == *nim {
+				if nim != nil && other.UserID != id && deref(other.Nim) == *nim {
 					return fail(409, "NIM sudah dipakai peserta lain.")
 				}
 			}
@@ -495,7 +491,7 @@ func (s *StaffService) UpdateParticipant(ctx context.Context, staff, id int32, i
 		p.IsMentee, p.IsMentor, p.IsCoordinator = in.IsMentee, in.IsMentor, in.IsCoordinator
 		p.Nim, p.KipK, p.Category, p.KaderisasiOverride, p.KaderisasiOverrideNote = nil, nil, nil, nil, nil
 		if in.IsMentee {
-			p.Nim, p.KipK, p.Category = nim, in.KipK, in.Category
+			p.Nim, p.KipK, p.Category = nim, in.KipK, nilIfEmpty(deref(in.Category))
 			p.KaderisasiOverride, p.KaderisasiOverrideNote = nilIfEmpty(deref(in.KaderisasiOverride)), nilIfEmpty(deref(in.KaderisasiOverrideNote))
 			if p.UniversityID == nil {
 				p.UniversityID = w.People[id].UniversityID
@@ -1069,6 +1065,17 @@ func (s *StaffService) SearchMembers(ctx context.Context, q string) ([]MemberCan
 	return out, nil
 }
 
+// checkMenteeData validates the optional mentee fields that were given.
+func checkMenteeData(nim *string, category *string) error {
+	if nim != nil && len(*nim) > 30 {
+		return fail(422, "NIM paling banyak 30 karakter.")
+	}
+	if c := deref(category); c != "" && CategoryLabel[c] == "" {
+		return fail(422, "Kategori tidak dikenal.")
+	}
+	return nil
+}
+
 // AddParticipantInput makes an existing kaderisasi member a participant.
 type AddParticipantInput struct {
 	UserID int32 `json:"userId"`
@@ -1077,8 +1084,9 @@ type AddParticipantInput struct {
 }
 
 // AddParticipant enrols a member found by SearchMembers with the chosen roles.
-// The checks match UpdateParticipant. Status follows the import: a mentee
-// without a mentor and a mentor without mentees start as pending/reserve.
+// The checks match UpdateParticipant; NIM, kategori and KIP-K are optional.
+// Status follows the import: a mentee without a mentor and a mentor without
+// mentees start as pending/reserve.
 func (s *StaffService) AddParticipant(ctx context.Context, staff int32, in AddParticipantInput) (ParticipantDetail, error) {
 	var out ParticipantDetail
 	err := s.write(ctx, func(w *World) error {
@@ -1101,19 +1109,13 @@ func (s *StaffService) AddParticipant(ctx context.Context, staff int32, in AddPa
 			IsCoordinator: in.IsCoordinator, Status: "active", UpdatedBy: &staff}
 		if in.IsMentee {
 			nim := nilIfEmpty(strings.TrimSpace(deref(in.Nim)))
-			if nim == nil {
-				return fail(422, "NIM wajib untuk mentee.")
+			if err := checkMenteeData(nim, in.Category); err != nil {
+				return err
 			}
-			if in.Category == nil || CategoryLabel[*in.Category] == "" {
-				return fail(422, "Kategori wajib untuk mentee.")
-			}
-			if in.KipK == nil {
-				return fail(422, "Status KIP-K wajib untuk mentee.")
-			}
-			if w.participantByNIM(*nim) != nil {
+			if nim != nil && w.participantByNIM(*nim) != nil {
 				return fail(409, "NIM sudah dipakai peserta lain.")
 			}
-			p.Nim, p.Category, p.KipK, p.UniversityID = nim, in.Category, in.KipK, w.People[in.UserID].UniversityID
+			p.Nim, p.Category, p.KipK, p.UniversityID = nim, nilIfEmpty(deref(in.Category)), in.KipK, w.People[in.UserID].UniversityID
 			p.Status = "pending"
 			if in.MentorUserID != nil {
 				m, ok := w.Participants[*in.MentorUserID]
