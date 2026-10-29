@@ -35,11 +35,24 @@ Role **Pengelola Perintis** (`perintis_manager`) is assigned by a Super Admin
 and cannot be requested. Super Admin also holds every `perintis.*` permission,
 and is the only role with `perintis.participants.add`: searching all kaderisasi
 members (name, email, member ID; at least 3 characters, 20 results) and enrolling
-one with roles. A mentee may be enrolled (or edited) without NIM,
-kategori and KIP-K; migration `1793195667780_relax_perintis_mentee_data` dropped
-the database check. The participant list flags them, and the web API locks the
-lapbul until a kategori is set, because the kategori picks the form. To let Pengelola Perintis do it too, add that permission to the
+one with roles. To let Pengelola Perintis do it too, add that permission to the
 role in `internal/auth/roles.json`.
+
+A mentee may be enrolled (or edited) without NIM, kategori and KIP-K; migration
+`1793195667780_relax_perintis_mentee_data` dropped the database check. The
+participant list flags them, and the web API locks the lapbul until a kategori
+is set, because the kategori picks the form. Until then the mentee gets no
+Lapbul marker, and the dashboard's on-time rate leaves them out of its
+denominator (unless a lapbul for the month already exists). The mentee CSV
+import follows the same rule: `nim`, `kategori` and `kip_k` may be empty, and an
+empty cell keeps what is already stored. A mentee without NIM gets a mentor
+through Pindah, since the matching import looks mentees up by NIM.
+
+When a mentee moves to another mentor, the open month's lapbul moves with them
+until it is answered; an answered lapbul stays with the mentor who answered it.
+The mentor dashboard follows that: the old mentor keeps a row for it
+(`formerMentee`, and `movedAway` on the lapbul, which hides the profile link),
+the new mentor sees the mentee with `heldBy` naming who holds that lapbul.
 
 | Permission | Routes |
 | --- | --- |

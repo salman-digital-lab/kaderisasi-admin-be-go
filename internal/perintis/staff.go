@@ -91,12 +91,18 @@ func (s *StaffService) Dashboard(ctx context.Context, month string) (StaffDashbo
 	for _, r := range reports {
 		reportOf[r.MentorUserID] = r
 	}
+	started := map[int32]bool{}
+	for _, j := range journals {
+		started[j.MenteeUserID] = true
+	}
 	mentees, withoutMentor := 0, 0
 	for _, p := range w.Participants {
 		if !p.IsMentee {
 			continue
 		}
-		if p.Status == "active" && p.MentorUserID != nil {
+		// A mentee without kategori cannot start a lapbul yet, so they do not
+		// count against the on-time rate until the pengelola sets it.
+		if p.Status == "active" && p.MentorUserID != nil && (p.Category != nil || started[p.UserID]) {
 			mentees++
 		}
 		if (p.Status == "active" || p.Status == "pending") && p.MentorUserID == nil {
@@ -799,29 +805,37 @@ func (w *World) preview(ctx context.Context, kind, text string) (ImportPreview, 
 		}
 		switch kind {
 		case "mentee":
+			// NIM, kategori and KIP-K may be left empty and filled in later
+			// (as in Tambah peserta); a value that is given must be valid.
 			nim, email, category, kip := values[0], strings.ToLower(values[2]), values[3], strings.ToLower(values[4])
-			if first, dup := seen[nim]; dup {
+			if first, dup := seen[nim]; dup && nim != "" {
 				rows = append(rows, row("error", fmt.Sprintf("NIM ganda dengan baris %d", first)))
 				continue
 			}
-			seen[nim] = line
-			if nim == "" || values[1] == "" || !strings.Contains(email, "@") {
-				rows = append(rows, row("error", "NIM, nama, dan email wajib diisi"))
+			if nim != "" {
+				seen[nim] = line
+			}
+			if values[1] == "" || !strings.Contains(email, "@") {
+				rows = append(rows, row("error", "Nama dan email wajib diisi"))
 				continue
 			}
-			if CategoryLabel[category] == "" {
+			if len(nim) > 30 {
+				rows = append(rows, row("error", "NIM paling banyak 30 karakter"))
+				continue
+			}
+			if category != "" && CategoryLabel[category] == "" {
 				rows = append(rows, row("error", "Kategori tidak dikenal: "+category))
 				continue
 			}
-			if kip != "ya" && kip != "tidak" {
-				rows = append(rows, row("error", "kip_k harus ya/tidak"))
+			if kip != "" && kip != "ya" && kip != "tidak" {
+				rows = append(rows, row("error", "kip_k harus ya/tidak atau dikosongkan"))
 				continue
 			}
 			user, err := w.participantByEmail(ctx, email)
 			if err != nil {
 				return ImportPreview{}, err
 			}
-			if owner := w.participantByNIM(nim); owner != nil && (user == nil || owner.UserID != user.ID) {
+			if owner := w.participantByNIM(nim); nim != "" && owner != nil && (user == nil || owner.UserID != user.ID) {
 				rows = append(rows, row("error", "NIM sudah dipakai peserta lain"))
 				continue
 			}
@@ -961,8 +975,18 @@ func (s *StaffService) ImportApply(ctx context.Context, staff int32, kind, text 
 				if !exists {
 					p = dbgen.PerintisParticipant{UserID: id, Status: "pending"}
 				}
-				kip := strings.ToLower(v[4]) == "ya"
-				p.IsMentee, p.Nim, p.Category, p.KipK, p.UpdatedBy = true, strPtr(v[0]), strPtr(v[3]), &kip, &staff
+				// An empty cell keeps what is stored (nothing, for a new mentee).
+				p.IsMentee, p.UpdatedBy = true, &staff
+				if v[0] != "" {
+					p.Nim = strPtr(v[0])
+				}
+				if v[3] != "" {
+					p.Category = strPtr(v[3])
+				}
+				if kip := strings.ToLower(v[4]); kip != "" {
+					yes := kip == "ya"
+					p.KipK = &yes
+				}
 				if p.UniversityID == nil {
 					p.UniversityID = w.People[id].UniversityID
 				}
@@ -1156,6 +1180,19 @@ func (s *StaffService) AddParticipant(ctx context.Context, staff int32, in AddPa
 // ---- export ------------------------------------------------------------------------
 
 // csvCell neutralises spreadsheet formulas and renders booleans as ya/tidak.
+// Export labels match the app's wording (content/labels.ts in the frontend).
+var (
+	exportRoleLabel   = map[string]string{"mentee": "Mentee", "mentor": "Mentor", "coordinator": "Koordinator"}
+	exportStatusLabel = map[string]string{"active": "Aktif", "pending": "Menunggu keputusan", "reserve": "Cadangan", "inactive": "Nonaktif"}
+)
+
+func labelOr(labels map[string]string, code string) string {
+	if label, ok := labels[code]; ok {
+		return label
+	}
+	return code
+}
+
 func csvCell(v any) string {
 	var s string
 	switch x := v.(type) {
@@ -1251,7 +1288,11 @@ func (s *StaffService) Export(ctx context.Context, kind, month string) (string, 
 			if p.KaderisasiOverride != nil {
 				status = *p.KaderisasiOverride
 			}
-			row := []any{p.Nim, profile.Name, profile.University, profile.Major, profile.IntakeYear, p.KipK,
+			var intake any // blank, not 0, when the profile has no angkatan
+			if profile.IntakeYear > 0 {
+				intake = profile.IntakeYear
+			}
+			row := []any{p.Nim, profile.Name, profile.University, profile.Major, intake, p.KipK,
 				CategoryLabel[deref(p.Category)], deref(w.NamePtr(p.MentorUserID)), coordinatorName(p.MentorUserID), status}
 			for _, m := range months {
 				if j, ok := byMentee[p.UserID][m]; ok {
@@ -1330,8 +1371,12 @@ func (s *StaffService) Export(ctx context.Context, kind, month string) (string, 
 		header = []string{"Nama", "Email", "NIM", "Peran", "Kategori", "Kampus", "Tingkat", "Mentor", "Koordinator", "Jumlah mentee", "Status"}
 		for _, p := range all {
 			r := w.row(p)
-			rows = append(rows, []any{r.Name, r.Email, r.Nim, strings.Join(r.Roles, "+"), CategoryLabel[deref(r.Category)], r.University,
-				r.Tingkat, r.MentorName, r.CoordinatorName, r.MenteeCount, r.Status})
+			roles := make([]string, len(r.Roles))
+			for i, role := range r.Roles {
+				roles[i] = labelOr(exportRoleLabel, role)
+			}
+			rows = append(rows, []any{r.Name, r.Email, r.Nim, strings.Join(roles, " + "), CategoryLabel[deref(r.Category)], r.University,
+				r.Tingkat, r.MentorName, r.CoordinatorName, r.MenteeCount, labelOr(exportStatusLabel, r.Status)})
 		}
 	default:
 		return "", "", fail(404, "Jenis ekspor tidak dikenal.")

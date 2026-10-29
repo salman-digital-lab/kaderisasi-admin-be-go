@@ -156,6 +156,21 @@ func TestStaffWorkflows(t *testing.T) {
 		len(dash.ByCoordinator) != 1 || dash.ByCoordinator[0].Mentors != 2 || dash.ByCoordinator[0].ActiveFlags != 1 {
 		t.Fatalf("dashboard: %+v", dash)
 	}
+	// A mentee waiting for a kategori cannot start a lapbul, so the on-time
+	// rate does not count them yet.
+	exec(`INSERT INTO public_users (id, email, account_status) VALUES (7, 'dewi@example.test', 'active')`)
+	exec(`INSERT INTO profiles (user_id, name, university_id) VALUES (7, 'Dewi', 1)`)
+	exec(`INSERT INTO perintis_participants (user_id, is_mentee, mentor_user_id) VALUES (7, true, 2)`)
+	if d := must[StaffDashboard](t)(svc.Dashboard(ctx, "")); d.Indicators[0].Denominator != 2 {
+		t.Fatalf("mentee without kategori counted: %+v", d.Indicators[0])
+	}
+	exec(`UPDATE perintis_participants SET category = 'dasar' WHERE user_id = 7`)
+	if d := must[StaffDashboard](t)(svc.Dashboard(ctx, "")); d.Indicators[0].Denominator != 3 {
+		t.Fatalf("mentee with kategori not counted: %+v", d.Indicators[0])
+	}
+	exec(`DELETE FROM perintis_participants WHERE user_id = 7`)
+	exec(`DELETE FROM profiles WHERE user_id = 7`)
+	exec(`DELETE FROM public_users WHERE id = 7`)
 
 	// follow-ups: one per source, closed with a note
 	items := must[[]FollowupItem](t)(svc.Followups(ctx, "", "open"))
@@ -256,6 +271,26 @@ func TestStaffWorkflows(t *testing.T) {
 	if len(dimas) != 1 || dimas[0].HasAccount || dimas[0].Status != "active" || deref(dimas[0].MentorName) != "mentor.baru" {
 		t.Fatalf("imported mentee: %+v", dimas)
 	}
+	// NIM, kategori and KIP-K may be empty, as in Tambah peserta; an empty
+	// cell keeps what is stored, and a value that is given is still checked.
+	blank := "nim,nama,email,kategori,kip_k\n,Eka Baru,eka@example.test,,\n,Fikri Baru,fikri@example.test,,\n10525107,Aisyah,aisyah@example.test,,\n"
+	if pv := must[ImportPreview](t)(svc.ImportPreview(ctx, "mentee", blank)); !pv.CanApply {
+		t.Fatalf("blank mentee data: %+v", pv.Rows)
+	}
+	if bad := must[ImportPreview](t)(svc.ImportPreview(ctx, "mentee", "nim,nama,email,kategori,kip_k\n,Z,z@example.test,,mungkin\n,,y@example.test,,\n")); bad.CanApply || bad.Rows[0].Result != "error" || bad.Rows[1].Result != "error" {
+		t.Fatalf("invalid optional values: %+v", bad.Rows)
+	}
+	if n := must[int](t)(svc.ImportApply(ctx, 9, "mentee", blank)); n != 3 {
+		t.Fatalf("applied %d", n)
+	}
+	eka := must[[]ParticipantRow](t)(svc.Participants(ctx, "", "", "eka@example.test"))
+	if len(eka) != 1 || eka[0].Nim != nil || eka[0].Category != nil || eka[0].KipK != nil {
+		t.Fatalf("imported without data: %+v", eka)
+	}
+	kept := must[[]ParticipantRow](t)(svc.Participants(ctx, "", "", "10525107"))
+	if len(kept) != 1 || deref(kept[0].Category) != "biaya_hidup" || kept[0].KipK == nil || !*kept[0].KipK {
+		t.Fatalf("empty cells keep stored data: %+v", kept)
+	}
 
 	// Super Admin: search kaderisasi members, then add them with roles
 	exec(`INSERT INTO public_users (id, email, account_status) VALUES (20, 'nadia@example.test', 'active'), (21, 'umar@example.test', 'no_account'), (22, 'nadia.k@example.test', 'active')`)
@@ -329,6 +364,17 @@ func TestStaffWorkflows(t *testing.T) {
 		}
 		if strings.Contains(csv, "\n=Bima") || strings.Contains(csv, ",=Bima") {
 			t.Fatalf("%s: spreadsheet formula not neutralised", kind)
+		}
+		switch kind {
+		case "rekap-mentee":
+			// Eka has no profile angkatan: blank, not 0.
+			if !strings.Contains(csv, ",Eka Baru,") || strings.Contains(csv, ",0,") {
+				t.Fatalf("rekap-mentee angkatan: %s", csv)
+			}
+		case "data-peserta":
+			if !strings.Contains(csv, ",Mentee,") || !strings.Contains(csv, ",Aktif") || strings.Contains(csv, ",active") || strings.Contains(csv, ",mentee") {
+				t.Fatalf("data-peserta labels: %s", csv)
+			}
 		}
 	}
 	_, _, err = svc.Export(ctx, "unknown", "")
