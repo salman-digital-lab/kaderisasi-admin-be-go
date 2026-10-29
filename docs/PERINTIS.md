@@ -56,6 +56,17 @@ import follows the same rule: `nim`, `kategori` and `kip_k` may be empty, and an
 empty cell keeps what is already stored. A mentee without NIM gets a mentor
 through Pindah, since the matching import looks mentees up by NIM.
 
+`/participants/{id}/profile` reads and edits the participant's kaderisasi
+profile in the same shape, and with the same `memberProfileUpdateValidator`,
+as the admin member page (`/v2/profiles`), so the pengelola can maintain it
+without `members.*` permissions. It only works for Perintis participants (404
+otherwise), never changes the password or `extra_data`, and answers 409 when
+the member has no profile row yet. Absent fields keep their value.
+
+Kampus, prodi and angkatan (and so tingkat) come from the latest
+`education_history` entry, which the member site and that form maintain; the
+older `university_id`, `major` and `intake_year` columns are the fallback.
+
 When a mentee moves to another mentor, the open month's lapbul moves with them
 until it is answered; an answered lapbul stays with the mentor who answered it.
 The mentor dashboard follows that: the old mentor keeps a row for it
@@ -66,8 +77,8 @@ the new mentor sees the mentee with `heldBy` naming who holds that lapbul.
 | --- | --- |
 | `perintis.recap.read` | `GET /v2/perintis/dashboard?month=` |
 | `perintis.followups.manage` | `GET /v2/perintis/followups?source=&status=`, `PUT /v2/perintis/followups/{source}/{id}` |
-| `perintis.participants.read` | `GET /v2/perintis/participants?role=&status=&mentor=none&q=`, `GET /v2/perintis/participants/{id}` |
-| `perintis.participants.manage` | `PUT /v2/perintis/participants/{id}`, `PUT …/{id}/mentor`, `PUT …/{id}/status`, `POST /v2/perintis/journals/reopen`, `POST /v2/perintis/imports/preview`, `POST /v2/perintis/imports/apply` |
+| `perintis.participants.read` | `GET /v2/perintis/participants?role=&status=&mentor=none&q=`, `GET /v2/perintis/participants/{id}`, `GET /v2/perintis/participants/{id}/profile` |
+| `perintis.participants.manage` | `PUT /v2/perintis/participants/{id}`, `PUT /v2/perintis/participants/{id}/profile`, `PUT …/{id}/mentor`, `PUT …/{id}/status`, `POST /v2/perintis/journals/reopen`, `POST /v2/perintis/imports/preview`, `POST /v2/perintis/imports/apply` |
 | `perintis.participants.add` | `GET /v2/perintis/members?q=`, `POST /v2/perintis/participants` |
 | `perintis.content.read` | `GET /v2/perintis/journals/{id}`, `GET /v2/perintis/files?key=` |
 | `perintis.recap.export` | `GET /v2/perintis/exports/{kind}?month=` |

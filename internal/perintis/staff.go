@@ -362,7 +362,7 @@ func (w *World) row(p dbgen.PerintisParticipant) ParticipantRow {
 		coordinator = p.CoordinatorUserID
 	}
 	row := ParticipantRow{UserID: p.UserID, Name: person.Name, Email: deref(person.Email), Nim: p.Nim, Roles: Roles(roleSource),
-		Category: p.Category, KipK: p.KipK, University: deref(person.University), Tingkat: w.TingkatOf(p.UserID),
+		Category: p.Category, KipK: p.KipK, University: deref(person.University), Tingkat: w.TingkatOf(p.UserID), Phone: person.Whatsapp,
 		MentorName: w.NamePtr(p.MentorUserID), CoordinatorName: w.NamePtr(coordinator), Status: p.Status,
 		HasAccount: w.HasAccount(p.UserID), ClubOK: w.HasClub(p.UserID)}
 	if p.IsMentor {
@@ -1043,6 +1043,19 @@ type MemberCandidate struct {
 var likeEscaper = strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`)
 
 // SearchMembers finds up to 20 kaderisasi members by name, email or member ID.
+// RequireParticipant fails with 404 unless the user is a Perintis
+// participant, so the pengelola edit only the profiles of their own people.
+func (s *StaffService) RequireParticipant(ctx context.Context, id int32) error {
+	w, err := s.read(ctx)
+	if err != nil {
+		return err
+	}
+	if _, ok := w.Participants[id]; !ok {
+		return fail(404, "Peserta tidak ditemukan.")
+	}
+	return nil
+}
+
 func (s *StaffService) SearchMembers(ctx context.Context, q string) ([]MemberCandidate, error) {
 	q = strings.TrimSpace(q)
 	if len([]rune(q)) < 3 {
@@ -1064,6 +1077,17 @@ func (s *StaffService) SearchMembers(ctx context.Context, q string) ([]MemberCan
 		c := MemberCandidate{UserID: r.UserID, Name: r.Name, Email: r.Email, MemberID: r.MemberID,
 			University: r.University, Major: r.Major, IntakeYear: r.IntakeYear,
 			HasAccount: r.AccountStatus != "no_account", Roles: []string{}}
+		if inst, major, intake, ok := CurrentEducation(r.EducationHistory); ok {
+			if inst != "" {
+				c.University = &inst
+			}
+			if major != "" {
+				c.Major = &major
+			}
+			if intake > 0 {
+				c.IntakeYear = &intake
+			}
+		}
 		if p, ok := w.Participants[r.UserID]; ok {
 			c.Participant = true
 			c.Roles = Roles(p)

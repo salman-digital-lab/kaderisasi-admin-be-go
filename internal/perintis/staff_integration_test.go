@@ -43,7 +43,7 @@ CREATE TABLE admin_users (id serial PRIMARY KEY, email varchar(255) NOT NULL, di
 CREATE TABLE provinces (id integer PRIMARY KEY, name varchar(100));
 CREATE TABLE cities (id integer PRIMARY KEY, province_id integer, name varchar(255));
 CREATE TABLE universities (id integer PRIMARY KEY, name varchar(100) NOT NULL);
-CREATE TABLE profiles (id serial PRIMARY KEY, user_id integer, name varchar(255) NOT NULL, gender varchar(1), whatsapp varchar(35), instagram varchar(50), linkedin varchar(255), province_id integer, city_id integer, university_id integer, major varchar(50), intake_year integer, level integer DEFAULT 0, badges jsonb DEFAULT '[]', created_at timestamptz, updated_at timestamptz);
+CREATE TABLE profiles (id serial PRIMARY KEY, user_id integer, name varchar(255) NOT NULL, gender varchar(1), whatsapp varchar(35), instagram varchar(50), linkedin varchar(255), province_id integer, city_id integer, university_id integer, major varchar(50), intake_year integer, level integer DEFAULT 0, badges jsonb DEFAULT '[]', education_history jsonb DEFAULT '[]', created_at timestamptz, updated_at timestamptz);
 CREATE TABLE activities (id serial PRIMARY KEY, name varchar(255) NOT NULL, activity_start date, activity_type integer, activity_category integer, certificate_template_id integer);
 CREATE TABLE activity_registrations (id serial PRIMARY KEY, user_id integer, activity_id integer, status varchar(50));
 CREATE TABLE clubs (id serial PRIMARY KEY, name varchar(255) NOT NULL);
@@ -156,6 +156,13 @@ func TestStaffWorkflows(t *testing.T) {
 		len(dash.ByCoordinator) != 1 || dash.ByCoordinator[0].Mentors != 2 || dash.ByCoordinator[0].ActiveFlags != 1 {
 		t.Fatalf("dashboard: %+v", dash)
 	}
+	// Kampus, prodi and angkatan come from the latest education entry (what
+	// the member site keeps), falling back to the older profile columns.
+	exec(`UPDATE profiles SET education_history = '[{"institution":"SMA 1"},{"institution":"Universitas Padjadjaran","major":"Farmasi","intake_year":"2024"}]' WHERE user_id = 1`)
+	if rows := must[[]ParticipantRow](t)(svc.Participants(ctx, "", "", "", "aisyah@example.test")); len(rows) != 1 || rows[0].University != "Universitas Padjadjaran" || rows[0].Tingkat != 3 {
+		t.Fatalf("education history: %+v", rows)
+	}
+	exec(`UPDATE profiles SET education_history = '[]' WHERE user_id = 1`)
 	// A mentee waiting for a kategori cannot start a lapbul, so the on-time
 	// rate does not count them yet.
 	exec(`INSERT INTO public_users (id, email, account_status) VALUES (7, 'dewi@example.test', 'active')`)

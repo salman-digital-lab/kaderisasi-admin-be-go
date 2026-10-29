@@ -3,13 +3,18 @@ package httpapi
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
+	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
+	"kaderisasi/admin/internal/member"
 	"kaderisasi/admin/internal/perintis"
+	"kaderisasi/admin/internal/validation"
 )
 
 // Pembinaan Beasiswa Perintis for the pengelola. Permissions come from the
@@ -74,6 +79,70 @@ func (s *Server) registerPerintis() {
 			return nil, err
 		}
 		return service.Participant(r.Context(), target)
+	})
+	// A participant's kaderisasi profile, in the same shape and with the same
+	// validation as the admin member page (/v2/profiles), limited to Perintis
+	// participants. Account fields (password) and extra_data are not editable
+	// here.
+	members := member.Service{Pool: s.Pool}
+	profileOf := func(r *http.Request, user int32) (*member.ProfileDetail, error) {
+		rows, err := dbgen.New(s.Pool).ProfileDetailsByIdentifier(r.Context(), dbgen.ProfileDetailsByIdentifierParams{ID: strconv.Itoa(int(user)), ByUser: true})
+		if err != nil || len(rows) == 0 {
+			return nil, err
+		}
+		detail, err := member.ProfileWithRelations(rows[0])
+		return &detail, err
+	}
+	type participantProfile struct {
+		Profile *member.ProfileDetail `json:"profile"`
+	}
+	register("participantProfile", func(_ http.ResponseWriter, r *http.Request) (any, error) {
+		target, err := id(r, "id")
+		if err != nil {
+			return nil, err
+		}
+		if err := service.RequireParticipant(r.Context(), target); err != nil {
+			return nil, err
+		}
+		profile, err := profileOf(r, target)
+		return participantProfile{Profile: profile}, err
+	})
+	register("updateParticipantProfile", func(w http.ResponseWriter, r *http.Request) (any, error) {
+		target, err := id(r, "id")
+		if err != nil {
+			return nil, err
+		}
+		if err := service.RequireParticipant(r.Context(), target); err != nil {
+			return nil, err
+		}
+		current, err := profileOf(r, target)
+		if err != nil {
+			return nil, err
+		}
+		if current == nil {
+			return nil, &perintis.Error{Status: 409, Message: "Anggota ini belum punya profil kaderisasi. Profil dibuat saat anggota melengkapinya di website kaderisasi."}
+		}
+		// Perintis routes read their own JSON body; it goes through the same
+		// validator as the admin member page, with Indonesian 422 messages.
+		var body validation.Object
+		if err := perintisInput(r, &body); err != nil {
+			return nil, err
+		}
+		validated, issues := validation.Validate("memberProfileUpdateValidator", body)
+		if len(issues) > 0 {
+			return nil, &perintis.Error{Status: 422, Message: profileIssue(issues[0].Field)}
+		}
+		data, ok := decodeInputAs[member.ProfileUpdate](w, validated)
+		if !ok {
+			return nil, nil
+		}
+		data.Password, data.ExtraData = nil, nil
+		if _, err := members.UpdateProfile(r.Context(), strconv.Itoa(int(current.ID)), data); err != nil {
+			legacyFailure(w, err)
+			return nil, nil
+		}
+		profile, err := profileOf(r, target)
+		return participantProfile{Profile: profile}, err
 	})
 	register("searchMembers", func(_ http.ResponseWriter, r *http.Request) (any, error) {
 		return service.SearchMembers(r.Context(), query(r, "q"))
@@ -204,6 +273,29 @@ func (s *Server) perintisClock() func() time.Time {
 	}
 	offset := time.Until(start)
 	return func() time.Time { return time.Now().Add(offset) }
+}
+
+// profileIssue names the profile field a validation issue is about, e.g.
+// "education_history.0.intake_year" → "Periksa tahun masuk pendidikan 1.".
+func profileIssue(field string) string {
+	labels := map[string]string{"name": "nama", "gender": "jenis kelamin", "personal_id": "nomor identitas",
+		"birth_date": "tanggal lahir", "badges": "lencana", "level": "jenjang", "province_id": "provinsi domisili",
+		"city_id": "kota domisili", "origin_province_id": "provinsi asal", "origin_city_id": "kota asal", "country": "negara",
+		"whatsapp": "WhatsApp", "line": "ID Line", "instagram": "Instagram", "tiktok": "TikTok", "linkedin": "LinkedIn",
+		"degree": "jenjang", "institution": "kampus", "faculty": "fakultas", "major": "program studi", "intake_year": "tahun masuk",
+		"job_title": "posisi", "company": "perusahaan", "start_year": "tahun mulai", "end_year": "tahun selesai"}
+	parts := strings.Split(field, ".")
+	if len(parts) == 3 && (parts[0] == "education_history" || parts[0] == "work_history") {
+		n, _ := strconv.Atoi(parts[1])
+		group := map[string]string{"education_history": "pendidikan", "work_history": "pekerjaan"}[parts[0]]
+		if label, ok := labels[parts[2]]; ok {
+			return fmt.Sprintf("Periksa %s %s %d.", label, group, n+1)
+		}
+	}
+	if label, ok := labels[parts[0]]; ok {
+		return "Periksa isian " + label + "."
+	}
+	return "Data profil tidak valid."
 }
 
 func perintisInput(r *http.Request, into any) error {
