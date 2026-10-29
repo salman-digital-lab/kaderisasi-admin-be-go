@@ -66,7 +66,7 @@ func (s *Server) registerPerintis() {
 		return ok, service.ResolveFollowup(r.Context(), actor(r).ID, r.PathValue("source"), target, in.Note)
 	})
 	register("participants", func(_ http.ResponseWriter, r *http.Request) (any, error) {
-		return service.Participants(r.Context(), query(r, "role"), query(r, "status"), query(r, "q"))
+		return service.Participants(r.Context(), query(r, "role"), query(r, "status"), query(r, "mentor"), query(r, "q"))
 	})
 	register("participant", func(_ http.ResponseWriter, r *http.Request) (any, error) {
 		target, err := id(r, "id")

@@ -132,10 +132,10 @@ func TestStaffWorkflows(t *testing.T) {
 	exec(`INSERT INTO club_registrations (club_id, member_id, status) VALUES (1, 1, 'APPROVED')`)
 	exec(`INSERT INTO perintis_participants (user_id, is_coordinator) VALUES (3, true)`)
 	exec(`INSERT INTO perintis_participants (user_id, is_mentor, coordinator_user_id) VALUES (2, true, 3)`)
-	exec(`INSERT INTO perintis_participants (user_id, is_mentor, coordinator_user_id, status) VALUES (5, true, 3, 'reserve')`)
+	exec(`INSERT INTO perintis_participants (user_id, is_mentor, coordinator_user_id, status) VALUES (5, true, 3, 'active')`)
 	exec(`INSERT INTO perintis_participants (user_id, is_mentee, nim, university_id, kip_k, category, mentor_user_id) VALUES
 		(1, true, '10525107', 1, true, 'biaya_hidup', 2), (4, true, '10525114', 1, false, 'dasar', 2)`)
-	exec(`INSERT INTO perintis_participants (user_id, is_mentee, nim, university_id, kip_k, category, status) VALUES (6, true, '10525121', 1, false, 'dasar', 'pending')`)
+	exec(`INSERT INTO perintis_participants (user_id, is_mentee, nim, university_id, kip_k, category, status) VALUES (6, true, '10525121', 1, false, 'dasar', 'active')`)
 	// Aisyah's December lapbul was flagged to the pengelola; Bima's wellbeing flag escalated.
 	exec(`INSERT INTO perintis_journals (id, mentee_user_id, month, mentor_user_id, category, form_version, status, submitted_at, honesty_confirmed_at,
 		files, response_appreciation, response_text, flag_reason, responded_by, responded_at, pulse_energy, pulse_academic, pulse_finance, pulse_relation)
@@ -206,12 +206,15 @@ func TestStaffWorkflows(t *testing.T) {
 	wantStatus(t, err, 404)
 
 	// participants
-	rows := must[[]ParticipantRow](t)(svc.Participants(ctx, "mentee", "", ""))
+	rows := must[[]ParticipantRow](t)(svc.Participants(ctx, "mentee", "", "", ""))
 	if len(rows) != 3 || rows[0].Name != "=Bima" {
 		t.Fatalf("mentees: %+v", rows)
 	}
-	if found := must[[]ParticipantRow](t)(svc.Participants(ctx, "", "", "10525107")); len(found) != 1 || !found[0].ClubOK || found[0].CoordinatorName == nil {
+	if found := must[[]ParticipantRow](t)(svc.Participants(ctx, "", "", "", "10525107")); len(found) != 1 || !found[0].ClubOK || found[0].CoordinatorName == nil {
 		t.Fatalf("search: %+v", found)
+	}
+	if loose := must[[]ParticipantRow](t)(svc.Participants(ctx, "", "active", "none", "")); len(loose) != 1 || loose[0].UserID != 6 {
+		t.Fatalf("mentees without mentor: %+v", loose)
 	}
 	nim := "10525114"
 	cat := "dasar"
@@ -229,10 +232,14 @@ func TestStaffWorkflows(t *testing.T) {
 		t.Fatalf("move: %+v", moved.Participant)
 	}
 	if salsa := must[ParticipantDetail](t)(svc.Participant(ctx, 5)); salsa.Participant.Status != "active" || len(salsa.Mentees) != 1 {
-		t.Fatalf("reserve mentor becomes active: %+v", salsa.Participant)
+		t.Fatalf("mentor gets the moved mentee: %+v", salsa.Participant)
 	}
 	_, err = svc.MoveMentee(ctx, 9, 6, ptr32(6))
 	wantStatus(t, err, 422)
+	for _, old := range []string{"pending", "reserve"} {
+		_, err = svc.SetStatus(ctx, 9, 6, old, "")
+		wantStatus(t, err, 422)
+	}
 	_, err = svc.SetStatus(ctx, 9, 2, "inactive", "Lulus")
 	wantStatus(t, err, 409)
 	_, err = svc.SetStatus(ctx, 9, 6, "inactive", "")
@@ -267,7 +274,7 @@ func TestStaffWorkflows(t *testing.T) {
 	}
 	must[int](t)(svc.ImportApply(ctx, 9, "mentor", "email,email_koordinator\nmentor.baru@example.test,hana@example.test\n"))
 	must[int](t)(svc.ImportApply(ctx, 9, "matching", "nim,email_mentor\n13525999,mentor.baru@example.test\n"))
-	dimas := must[[]ParticipantRow](t)(svc.Participants(ctx, "", "", "13525999"))
+	dimas := must[[]ParticipantRow](t)(svc.Participants(ctx, "", "", "", "13525999"))
 	if len(dimas) != 1 || dimas[0].HasAccount || dimas[0].Status != "active" || deref(dimas[0].MentorName) != "mentor.baru" {
 		t.Fatalf("imported mentee: %+v", dimas)
 	}
@@ -283,11 +290,11 @@ func TestStaffWorkflows(t *testing.T) {
 	if n := must[int](t)(svc.ImportApply(ctx, 9, "mentee", blank)); n != 3 {
 		t.Fatalf("applied %d", n)
 	}
-	eka := must[[]ParticipantRow](t)(svc.Participants(ctx, "", "", "eka@example.test"))
+	eka := must[[]ParticipantRow](t)(svc.Participants(ctx, "", "", "", "eka@example.test"))
 	if len(eka) != 1 || eka[0].Nim != nil || eka[0].Category != nil || eka[0].KipK != nil {
 		t.Fatalf("imported without data: %+v", eka)
 	}
-	kept := must[[]ParticipantRow](t)(svc.Participants(ctx, "", "", "10525107"))
+	kept := must[[]ParticipantRow](t)(svc.Participants(ctx, "", "", "", "10525107"))
 	if len(kept) != 1 || deref(kept[0].Category) != "biaya_hidup" || kept[0].KipK == nil || !*kept[0].KipK {
 		t.Fatalf("empty cells keep stored data: %+v", kept)
 	}
@@ -325,7 +332,7 @@ func TestStaffWorkflows(t *testing.T) {
 	// NIM, kategori and KIP-K can be filled in later.
 	exec(`INSERT INTO public_users (id, email, account_status) VALUES (23, 'tanpa.data@example.test', 'active')`)
 	bare := must[ParticipantDetail](t)(svc.AddParticipant(ctx, 9, AddParticipantInput{UserID: 23, UpdateParticipantInput: UpdateParticipantInput{IsMentee: true, Nim: strPtr("  ")}}))
-	if bare.Participant.Status != "pending" || bare.Participant.Nim != nil || bare.Participant.Category != nil || bare.Participant.KipK != nil {
+	if bare.Participant.Status != "active" || bare.Participant.Nim != nil || bare.Participant.Category != nil || bare.Participant.KipK != nil {
 		t.Fatalf("mentee without data: %+v", bare.Participant)
 	}
 	filled := must[ParticipantDetail](t)(svc.UpdateParticipant(ctx, 9, 23, UpdateParticipantInput{IsMentee: true, Nim: strPtr("13525888"), Category: &cat, KipK: &yes}))
@@ -343,7 +350,7 @@ func TestStaffWorkflows(t *testing.T) {
 		t.Fatalf("added coordinator: %+v", umar.Participant)
 	}
 	added := must[ParticipantDetail](t)(svc.AddParticipant(ctx, 9, AddParticipantInput{UserID: 20, UpdateParticipantInput: UpdateParticipantInput{IsMentor: true, CoordinatorUserID: ptr32(21)}}))
-	if added.Participant.Status != "reserve" || deref32(added.Participant.CoordinatorUserID) != 21 {
+	if added.Participant.Status != "active" || deref32(added.Participant.CoordinatorUserID) != 21 {
 		t.Fatalf("added mentor: %+v", added.Participant)
 	}
 	_, err = svc.AddParticipant(ctx, 9, AddParticipantInput{UserID: 22, MentorUserID: ptr32(21), UpdateParticipantInput: UpdateParticipantInput{IsMentee: true, Nim: strPtr("13525777"), Category: &cat, KipK: &yes}})
@@ -353,7 +360,7 @@ func TestStaffWorkflows(t *testing.T) {
 		t.Fatalf("added mentee: %+v %+v", mentee.Participant, mentee.Row)
 	}
 	if nadiaNow := must[ParticipantDetail](t)(svc.Participant(ctx, 20)); nadiaNow.Participant.Status != "active" || len(nadiaNow.Mentees) != 1 {
-		t.Fatalf("reserve mentor becomes active when a mentee is added: %+v", nadiaNow.Participant)
+		t.Fatalf("mentor gets the added mentee: %+v", nadiaNow.Participant)
 	}
 
 	// exports

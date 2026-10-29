@@ -16,6 +16,14 @@ creates three tables and alters none:
 | `perintis_journals` | One Catatan Perjalanan (lapbul) per mentee per month: answers, files, mentor response, wellbeing flag, follow-up |
 | `perintis_session_reports` | One mentoring report per mentor per month: session, photos, case, koordinator review |
 
+A participant's status is only `active` or `inactive` (with a reason).
+Whether a mentee has a mentor is read from `mentor_user_id`, and whether a
+mentor has mentees from the mentee rows; there is no waiting status. Ace
+migration `1793230000000_narrow_perintis_participant_statuses` turned the
+earlier `pending` (mentee without mentor) and `reserve` (mentor without
+mentees) rows into `active`. Deploy the admin API before running it, so the old
+API never writes a status the new CHECK rejects.
+
 Profiles, activities, clubs and achievements are read from the existing
 kaderisasi tables. The SQL is `database/queries/perintis.sql`, kept identical
 in both Go repositories (each generates `internal/dbgen`).
@@ -58,7 +66,7 @@ the new mentor sees the mentee with `heldBy` naming who holds that lapbul.
 | --- | --- |
 | `perintis.recap.read` | `GET /v2/perintis/dashboard?month=` |
 | `perintis.followups.manage` | `GET /v2/perintis/followups?source=&status=`, `PUT /v2/perintis/followups/{source}/{id}` |
-| `perintis.participants.read` | `GET /v2/perintis/participants?role=&status=&q=`, `GET /v2/perintis/participants/{id}` |
+| `perintis.participants.read` | `GET /v2/perintis/participants?role=&status=&mentor=none&q=`, `GET /v2/perintis/participants/{id}` |
 | `perintis.participants.manage` | `PUT /v2/perintis/participants/{id}`, `PUT …/{id}/mentor`, `PUT …/{id}/status`, `POST /v2/perintis/journals/reopen`, `POST /v2/perintis/imports/preview`, `POST /v2/perintis/imports/apply` |
 | `perintis.participants.add` | `GET /v2/perintis/members?q=`, `POST /v2/perintis/participants` |
 | `perintis.content.read` | `GET /v2/perintis/journals/{id}`, `GET /v2/perintis/files?key=` |

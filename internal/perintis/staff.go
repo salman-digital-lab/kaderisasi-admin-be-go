@@ -105,7 +105,7 @@ func (s *StaffService) Dashboard(ctx context.Context, month string) (StaffDashbo
 		if p.Status == "active" && p.MentorUserID != nil && (p.Category != nil || started[p.UserID]) {
 			mentees++
 		}
-		if (p.Status == "active" || p.Status == "pending") && p.MentorUserID == nil {
+		if p.Status == "active" && p.MentorUserID == nil {
 			withoutMentor++
 		}
 	}
@@ -379,7 +379,9 @@ func (w *World) allIDs() []int32 {
 	return ids
 }
 
-func (s *StaffService) Participants(ctx context.Context, role, status, q string) ([]ParticipantRow, error) {
+// Participants lists participants by role, status and search text. mentor
+// "none" keeps only mentees without a mentor.
+func (s *StaffService) Participants(ctx context.Context, role, status, mentor, q string) ([]ParticipantRow, error) {
 	w, err := s.read(ctx)
 	if err != nil {
 		return nil, err
@@ -396,7 +398,8 @@ func (s *StaffService) Participants(ctx context.Context, role, status, q string)
 			hasRole = hasRole || x == role
 		}
 		matches := q == "" || strings.Contains(strings.ToLower(r.Name), q) || strings.Contains(strings.ToLower(r.Email), q) || strings.Contains(deref(r.Nim), q)
-		if hasRole && (status == "" || r.Status == status) && matches {
+		noMentor := mentor != "none" || (p.IsMentee && p.MentorUserID == nil)
+		if hasRole && (status == "" || r.Status == status) && noMentor && matches {
 			rows = append(rows, r)
 		}
 	}
@@ -548,15 +551,6 @@ func (s *StaffService) MoveMentee(ctx context.Context, staff, id int32, mentor *
 			if err != nil {
 				return err
 			}
-			if m.Status == "reserve" {
-				m.Status, m.UpdatedBy = "active", &staff
-				if w.Participants[m.UserID], err = SaveParticipant(ctx, w.Q, m); err != nil {
-					return err
-				}
-			}
-			if p.Status == "pending" {
-				p.Status = "active"
-			}
 		}
 		p.MentorUserID, p.UpdatedBy = mentor, &staff
 		if w.Participants[id], err = SaveParticipant(ctx, w.Q, p); err != nil {
@@ -600,7 +594,7 @@ func (s *StaffService) SetStatus(ctx context.Context, staff, id int32, status, r
 				return fail(409, "Pindahkan dulu mentee mentor ini ke mentor lain.")
 			}
 			p.InactiveReason = &text
-		case "active", "pending", "reserve":
+		case "active":
 			p.InactiveReason = nil
 		default:
 			return fail(422, "Status tidak dikenal.")
@@ -973,7 +967,7 @@ func (s *StaffService) ImportApply(ctx context.Context, staff int32, kind, text 
 				}
 				p, exists := w.Participants[id]
 				if !exists {
-					p = dbgen.PerintisParticipant{UserID: id, Status: "pending"}
+					p = dbgen.PerintisParticipant{UserID: id, Status: "active"}
 				}
 				// An empty cell keeps what is stored (nothing, for a new mentee).
 				p.IsMentee, p.UpdatedBy = true, &staff
@@ -1005,7 +999,7 @@ func (s *StaffService) ImportApply(ctx context.Context, staff int32, kind, text 
 				}
 				p, exists := w.Participants[id]
 				if !exists {
-					p = dbgen.PerintisParticipant{UserID: id, Status: "reserve"}
+					p = dbgen.PerintisParticipant{UserID: id, Status: "active"}
 				}
 				p.IsMentor, p.CoordinatorUserID, p.UpdatedBy = true, &coordinator.ID, &staff
 				if err := w.upsert(ctx, p, exists); err != nil {
@@ -1017,17 +1011,7 @@ func (s *StaffService) ImportApply(ctx context.Context, staff int32, kind, text 
 				if err != nil {
 					return err
 				}
-				m := w.Participants[mentor.ID]
-				if m.Status == "reserve" {
-					m.Status, m.UpdatedBy = "active", &staff
-					if err := w.upsert(ctx, m, true); err != nil {
-						return err
-					}
-				}
 				mentee.MentorUserID, mentee.UpdatedBy = &mentor.ID, &staff
-				if mentee.Status == "pending" {
-					mentee.Status = "active"
-				}
 				if err := w.upsert(ctx, mentee, true); err != nil {
 					return err
 				}
@@ -1109,8 +1093,7 @@ type AddParticipantInput struct {
 
 // AddParticipant enrols a member found by SearchMembers with the chosen roles.
 // The checks match UpdateParticipant; NIM, kategori and KIP-K are optional.
-// Status follows the import: a mentee without a mentor and a mentor without
-// mentees start as pending/reserve.
+// New participants start active.
 func (s *StaffService) AddParticipant(ctx context.Context, staff int32, in AddParticipantInput) (ParticipantDetail, error) {
 	var out ParticipantDetail
 	err := s.write(ctx, func(w *World) error {
@@ -1140,19 +1123,12 @@ func (s *StaffService) AddParticipant(ctx context.Context, staff int32, in AddPa
 				return fail(409, "NIM sudah dipakai peserta lain.")
 			}
 			p.Nim, p.Category, p.KipK, p.UniversityID = nim, nilIfEmpty(deref(in.Category)), in.KipK, w.People[in.UserID].UniversityID
-			p.Status = "pending"
 			if in.MentorUserID != nil {
 				m, ok := w.Participants[*in.MentorUserID]
 				if !ok || !m.IsMentor || m.Status == "inactive" || m.UserID == in.UserID {
 					return fail(422, "Mentor tidak valid.")
 				}
-				p.MentorUserID, p.Status = in.MentorUserID, "active"
-				if m.Status == "reserve" {
-					m.Status, m.UpdatedBy = "active", &staff
-					if err := w.upsert(ctx, m, true); err != nil {
-						return err
-					}
-				}
+				p.MentorUserID = in.MentorUserID
 			}
 		}
 		if in.IsMentor {
@@ -1162,9 +1138,6 @@ func (s *StaffService) AddParticipant(ctx context.Context, staff int32, in AddPa
 					return fail(422, "Koordinator tidak valid.")
 				}
 				p.CoordinatorUserID = in.CoordinatorUserID
-			}
-			if !in.IsMentee && !in.IsCoordinator {
-				p.Status = "reserve"
 			}
 		}
 		if err := w.upsert(ctx, p, false); err != nil {
@@ -1183,7 +1156,7 @@ func (s *StaffService) AddParticipant(ctx context.Context, staff int32, in AddPa
 // Export labels match the app's wording (content/labels.ts in the frontend).
 var (
 	exportRoleLabel   = map[string]string{"mentee": "Mentee", "mentor": "Mentor", "coordinator": "Koordinator"}
-	exportStatusLabel = map[string]string{"active": "Aktif", "pending": "Menunggu keputusan", "reserve": "Cadangan", "inactive": "Nonaktif"}
+	exportStatusLabel = map[string]string{"active": "Aktif", "inactive": "Nonaktif"}
 )
 
 func labelOr(labels map[string]string, code string) string {
