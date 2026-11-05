@@ -66,6 +66,12 @@ func TestRegistrationWorkflowAndExport(t *testing.T) {
 	if err := json.Unmarshal(matches[0]["questionnaire_answer"], &guestAnswers); err != nil || string(guestAnswers["motivation"]) != `["Learn","Share"]` {
 		t.Fatalf("guest list answers %s: %v", matches[0]["questionnaire_answer"], err)
 	}
+	if string(matches[0]["member_id"]) != "null" || string(matches[0]["badges"]) != "null" {
+		t.Fatalf("guest member fields %s %s", matches[0]["member_id"], matches[0]["badges"])
+	}
+	if _, err := f.pool.Exec(ctx, `UPDATE profiles SET badges='["LMD","SSC"]' WHERE user_id=$1`, user.ID("id")); err != nil {
+		t.Fatal(err)
+	}
 	memberPage := objectData(t, f.call("GET", path+"?search=Registrant", nil, f.token, 200))
 	var memberMatches []database.Object
 	if err := json.Unmarshal(memberPage["data"], &memberMatches); err != nil || len(memberMatches) != 1 {
@@ -74,6 +80,12 @@ func TestRegistrationWorkflowAndExport(t *testing.T) {
 	var memberAnswers map[string]json.RawMessage
 	if err := json.Unmarshal(memberMatches[0]["questionnaire_answer"], &memberAnswers); err != nil || string(memberAnswers["motivation"]) != `"Learn"` {
 		t.Fatalf("member list answers %s: %v", memberMatches[0]["questionnaire_answer"], err)
+	}
+	if string(memberMatches[0]["member_id"]) != string(user["member_id"]) || string(memberMatches[0]["member_id"]) == "null" || string(memberMatches[0]["badges"]) != `["LMD","SSC"]` {
+		t.Fatalf("member list member fields %s %s (want %s)", memberMatches[0]["member_id"], memberMatches[0]["badges"], user["member_id"])
+	}
+	if _, err := f.pool.Exec(ctx, `UPDATE profiles SET badges='[]' WHERE user_id=$1`, user.ID("id")); err != nil {
+		t.Fatal(err)
 	}
 	f.call("PUT", "/v2/activity-registrations", map[string]interface{}{"registrations_id": []int32{id, guestReg.ID("id")}, "status": "LULUS KEGIATAN"}, f.token, 200)
 	f.call("PUT", "/v2/activity-registrations", map[string]interface{}{"registrations_id": []int32{id}, "status": "LULUS KEGIATAN"}, f.token, 200)

@@ -25,6 +25,7 @@ type RegistrationSummary struct {
 	CourseProgress      []CourseProgress           `json:"course_progress"`
 	ID                  int32                      `json:"id"`
 	UserID              *int32                     `json:"user_id"`
+	MemberID            *string                    `json:"member_id"`
 	Email               *string                    `json:"email"`
 	Name                *string                    `json:"name"`
 	Level               *int32                     `json:"level"`
@@ -38,6 +39,7 @@ type RegistrationSummary struct {
 	Line                *string                    `json:"line"`
 	PersonalID          *string                    `json:"personal_id"`
 	EducationHistory    json.RawMessage            `json:"education_history"`
+	Badges              json.RawMessage            `json:"badges"`
 	GuestData           json.RawMessage            `json:"guest_data"`
 	QuestionnaireAnswer json.RawMessage            `json:"questionnaire_answer"`
 	Status              *string                    `json:"status"`
@@ -118,7 +120,7 @@ func profileProjection(raw []byte) (map[string]json.RawMessage, error) {
 	return result, nil
 }
 func registrationSummary(row dbgen.ListRegistrationsFilteredRow, fields []string) (RegistrationSummary, error) {
-	result := RegistrationSummary{ID: row.ID, UserID: row.UserID, Email: row.Email, Level: row.Level, UniversityID: row.UniversityID, ProvinceID: row.ProvinceID, IntakeYear: row.IntakeYear, Major: row.Major, Gender: row.Gender, Whatsapp: row.Whatsapp, Instagram: row.Instagram, Line: row.Line, PersonalID: row.PersonalID, EducationHistory: row.EducationHistory, GuestData: row.GuestData, QuestionnaireAnswer: row.QuestionnaireAnswer, Status: row.Status, CreatedAt: domain.Timestamp(row.CreatedAt, time.UTC), ProfileFields: map[string]json.RawMessage{}}
+	result := RegistrationSummary{ID: row.ID, UserID: row.UserID, MemberID: row.MemberID, Email: row.Email, Level: row.Level, UniversityID: row.UniversityID, ProvinceID: row.ProvinceID, IntakeYear: row.IntakeYear, Major: row.Major, Gender: row.Gender, Whatsapp: row.Whatsapp, Instagram: row.Instagram, Line: row.Line, PersonalID: row.PersonalID, EducationHistory: row.EducationHistory, Badges: nullJSON(row.Badges), GuestData: row.GuestData, QuestionnaireAnswer: row.QuestionnaireAnswer, Status: row.Status, CreatedAt: domain.Timestamp(row.CreatedAt, time.UTC), ProfileFields: map[string]json.RawMessage{}}
 	if len(row.NameJson) > 0 {
 		if err := json.Unmarshal(row.NameJson, &result.Name); err != nil {
 			return result, err
@@ -157,4 +159,12 @@ func registrationSummary(row dbgen.ListRegistrationsFilteredRow, fields []string
 		}
 	}
 	return result, nil
+}
+
+// nullJSON keeps a missing JSON column (a guest without a profile) as null.
+func nullJSON(raw []byte) json.RawMessage {
+	if len(raw) == 0 {
+		return json.RawMessage("null")
+	}
+	return raw
 }
