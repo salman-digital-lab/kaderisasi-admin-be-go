@@ -87,7 +87,7 @@ func TestClubRegistrationRolesAndExport(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(rows) != 2 || rows[1][1] != "Club participant" || rows[1][10] != "REJECTED" {
+	if len(rows) != 2 || rows[1][1] != "Club participant" || rows[1][11] != "REJECTED" {
 		t.Fatalf("club export rows %v", rows)
 	}
 	cells := map[string]string{}
@@ -115,7 +115,7 @@ func TestClubRegistrationRolesAndExport(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer legacyBook.Close()
-	date, err := legacyBook.GetCellValue("Registrations", "L2")
+	date, err := legacyBook.GetCellValue("Registrations", "M2")
 	if err != nil || date != "" {
 		t.Fatalf("missing registration date: %q %v", date, err)
 	}

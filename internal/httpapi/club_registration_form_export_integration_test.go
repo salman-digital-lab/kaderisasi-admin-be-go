@@ -70,12 +70,12 @@ func TestClubRegistrationConfiguredProfileExport(t *testing.T) {
 	if err != nil || len(rows) != 2 {
 		t.Fatalf("export rows: %v (%v)", rows, err)
 	}
-	wantHeaders := []string{"No", "Nama Lengkap", "Jenis Kelamin", "Tanggal Lahir", "Provinsi Asal", "Kota Asal", "Provinsi Domisili", "WhatsApp", "Pendidikan Sekarang - Kampus/Sekolah", "Pendidikan Sekarang - Jenjang", "Pendidikan Sekarang - Fakultas", "Pendidikan Sekarang - Jurusan", "Pendidikan Sekarang - Tahun Masuk", "Email", "Status", "Tanggal Pendaftaran", "Kesediaan hadir", "Belum diisi", "Legacy answer"}
+	wantHeaders := []string{"No", "Nama Lengkap", "Jenis Kelamin", "Tanggal Lahir", "Provinsi Asal", "Kota Asal", "Provinsi Domisili", "WhatsApp", "Pendidikan Sekarang - Kampus/Sekolah", "Pendidikan Sekarang - Jenjang", "Pendidikan Sekarang - Fakultas", "Pendidikan Sekarang - Jurusan", "Pendidikan Sekarang - Tahun Masuk", "Email", "Jenjang", "Lencana Profil", "Status", "Tanggal Pendaftaran", "Kesediaan hadir", "Belum diisi", "Legacy answer"}
 	if !reflect.DeepEqual(rows[0], wantHeaders) {
 		t.Fatalf("columns: %v", rows[0])
 	}
 	wantProfile := []string{"1", "Club education fixture", "Perempuan", "2003-04-05", province, city, province, "081234567890", "Current campus", "S1", "Engineering", "Informatics", "2024"}
-	if !reflect.DeepEqual(rows[1][:len(wantProfile)], wantProfile) || rows[1][16] != "Bersedia" || rows[1][17] != "" || rows[1][18] != "Tidak" {
+	if !reflect.DeepEqual(rows[1][:len(wantProfile)], wantProfile) || rows[1][14] != "JAMAAH" || rows[1][18] != "Bersedia" || rows[1][19] != "" || rows[1][20] != "Tidak" {
 		t.Fatalf("export values: %v", rows[1])
 	}
 }

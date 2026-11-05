@@ -43,10 +43,17 @@ func ClubProfileFields(schema []byte) []ClubField {
 		}
 	}
 	if !hasProfile {
-		return clubDefaultProfileFields
+		fields = append(fields, clubDefaultProfileFields...)
+		for _, field := range fields {
+			seen[field.Key] = true
+		}
 	}
-	if !seen["email"] {
-		fields = append(fields, ClubField{Key: "email", Label: "Email"})
+	// Email, level and badges are always exported so admins can follow up and
+	// see each member's cadre standing, even when the form does not ask for them.
+	for _, field := range []ClubField{{Key: "email", Label: "Email"}, {Key: "level", Label: "Jenjang"}, {Key: "badges", Label: "Lencana Profil"}} {
+		if !seen[field.Key] {
+			fields = append(fields, field)
+		}
 	}
 	return fields
 }
