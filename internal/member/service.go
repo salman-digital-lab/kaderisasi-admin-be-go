@@ -49,6 +49,7 @@ func normalizeBadges(raw []byte) []string {
 
 func (s Service) Create(ctx context.Context, data CreateRequest) (Created, error) {
 	q := dbgen.New(s.Pool)
+	data.Email = NormalizeEmail(data.Email)
 	if text(data.Email) != "" {
 		_, err := q.PublicUserByEmail(ctx, data.Email)
 		if err == nil {
@@ -77,6 +78,9 @@ func (s Service) Create(ctx context.Context, data CreateRequest) (Created, error
 		}
 	}
 	user, err := q.CreateMemberUser(ctx, dbgen.CreateMemberUserParams{Email: data.Email, Password: password, AccountStatus: status})
+	if emailTaken(err) {
+		return Created{}, domain.Fail(409, "EMAIL_ALREADY_REGISTERED")
+	}
 	if err != nil {
 		return Created{}, err
 	}
@@ -108,6 +112,7 @@ func (s Service) Create(ctx context.Context, data CreateRequest) (Created, error
 
 func (s Service) GenerateAccount(ctx context.Context, identifier string, email, password string) error {
 	q := dbgen.New(s.Pool)
+	email = *NormalizeEmail(&email)
 	user, err := q.PublicUserByIdentifier(ctx, identifier)
 	err = database.LegacyQueryError(err, `select * from "public_users" where "id" = $1 limit $2`)
 	if errors.Is(err, pgx.ErrNoRows) {
@@ -130,5 +135,9 @@ func (s Service) GenerateAccount(ctx context.Context, identifier string, email, 
 	if err != nil {
 		return err
 	}
-	return q.ActivateMemberAccount(ctx, dbgen.ActivateMemberAccountParams{ID: user.ID, Email: &email, Password: &hash})
+	err = q.ActivateMemberAccount(ctx, dbgen.ActivateMemberAccountParams{ID: user.ID, Email: &email, Password: &hash})
+	if emailTaken(err) {
+		return domain.Fail(409, "EMAIL_ALREADY_REGISTERED")
+	}
+	return err
 }

@@ -26,6 +26,17 @@ func (q *Queries) ActivateMemberAccount(ctx context.Context, arg ActivateMemberA
 	return err
 }
 
+const cancelOpenEmailChanges = `-- name: CancelOpenEmailChanges :exec
+UPDATE public_user_email_changes SET cancelled_at=now(), updated_at=now()
+WHERE user_id=$1 AND used_at IS NULL AND cancelled_at IS NULL
+`
+
+// An admin email change replaces any pending self-service change.
+func (q *Queries) CancelOpenEmailChanges(ctx context.Context, userID int32) error {
+	_, err := q.db.Exec(ctx, cancelOpenEmailChanges, userID)
+	return err
+}
+
 const createMemberProfile = `-- name: CreateMemberProfile :one
 INSERT INTO profiles(user_id,name,gender,personal_id,whatsapp,instagram,tiktok,linkedin,line,birth_date,province_id,city_id,country,created_at,updated_at)
 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,

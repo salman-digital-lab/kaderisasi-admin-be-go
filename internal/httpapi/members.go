@@ -44,7 +44,7 @@ func (s *Server) registerMembers() {
 		}
 		reply(w, 200, "GENERATE_ACCOUNT_SUCCESS", struct {
 			Email string `json:"email"`
-		}{data.Email})
+		}{*member.NormalizeEmail(&data.Email)})
 		return nil
 	})
 

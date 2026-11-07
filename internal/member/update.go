@@ -25,6 +25,7 @@ func (s Service) UpdateCredentials(ctx context.Context, identifier string, data 
 	if err != nil {
 		return PublicResponse{}, err
 	}
+	data.Email = NormalizeEmail(data.Email)
 	if text(data.Email) != "" {
 		_, err = q.OtherPublicUserByEmail(ctx, dbgen.OtherPublicUserByEmailParams{ID: user.ID, Email: data.Email})
 		if err == nil {
@@ -41,11 +42,32 @@ func (s Service) UpdateCredentials(ctx context.Context, identifier string, data 
 		}
 		data.Password = &hash
 	}
+	// The email change and the cancelled self-service request commit together.
+	tx, err := s.Pool.Begin(ctx)
+	if err != nil {
+		return PublicResponse{}, err
+	}
+	defer tx.Rollback(ctx)
+	q = dbgen.New(tx)
 	updated, err := q.UpdateMemberCredentials(ctx, dbgen.UpdateMemberCredentialsParams{ID: user.ID, Email: data.Email, Password: data.Password})
 	if errors.Is(err, pgx.ErrNoRows) {
 		return PublicView(user), nil
 	}
-	return PublicView(updated), err
+	if emailTaken(err) {
+		return PublicResponse{}, domain.Fail(409, "EMAIL_ALREADY_REGISTERED")
+	}
+	if err != nil {
+		return PublicResponse{}, err
+	}
+	if text(user.Email) != text(updated.Email) {
+		if err := q.CancelOpenEmailChanges(ctx, user.ID); err != nil {
+			return PublicResponse{}, err
+		}
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return PublicResponse{}, err
+	}
+	return PublicView(updated), nil
 }
 
 func jsonField[T any](value *T) []byte {

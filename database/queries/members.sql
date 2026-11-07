@@ -32,3 +32,8 @@ WHERE id = @id::integer AND (email IS DISTINCT FROM COALESCE(sqlc.narg('email'):
 
 -- name: UpdateMemberPassword :exec
 UPDATE public_users SET password=$2,updated_at=now() WHERE id=$1;
+
+-- An admin email change replaces any pending self-service change.
+-- name: CancelOpenEmailChanges :exec
+UPDATE public_user_email_changes SET cancelled_at=now(), updated_at=now()
+WHERE user_id=$1 AND used_at IS NULL AND cancelled_at IS NULL;

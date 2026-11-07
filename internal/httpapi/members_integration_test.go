@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/database"
+	"strings"
 	"testing"
 )
 
@@ -81,6 +82,30 @@ func TestMemberProfileWorkflow(t *testing.T) {
 		t.Fatal("active account")
 	}
 	f.call("PUT", fmt.Sprintf("/v2/profiles/auth/%d", user2.ID("id")), map[string]string{"email": uid + "-updated@example.test", "password": "Fixture-change-2026!"}, f.token, 200)
+
+	// Email-only change: lowercased, password kept, pending
+	// self-service request cancelled; a case-only duplicate is refused.
+	authPath := fmt.Sprintf("/v2/profiles/auth/%d", user2.ID("id"))
+	if _, err := f.pool.Exec(ctx, "INSERT INTO public_user_email_changes(user_id,old_email,new_email,created_at,updated_at) VALUES($1,$2,$3,now(),now())", user2.ID("id"), uid+"-updated@example.test", uid+"-pending@example.test"); err != nil {
+		t.Fatal(err)
+	}
+	changed := objectData(t, f.call("PUT", authPath, map[string]string{"email": "Mixed-" + uid + "@Example.TEST"}, f.token, 200))
+	var changedEmail string
+	json.Unmarshal(changed["email"], &changedEmail)
+	var storedEmail, storedHash string
+	var open int
+	if err := f.pool.QueryRow(ctx, "SELECT email,password,(SELECT count(*) FROM public_user_email_changes WHERE user_id=$1 AND cancelled_at IS NULL) FROM public_users WHERE id=$1", user2.ID("id")).Scan(&storedEmail, &storedHash, &open); err != nil {
+		t.Fatal(err)
+	}
+	if want := "mixed-" + uid + "@example.test"; storedEmail != want || changedEmail != want || open != 0 || !auth.VerifyPassword(storedHash, "Fixture-change-2026!") {
+		t.Fatalf("email-only change: %q %q open=%d", storedEmail, changedEmail, open)
+	}
+	f.call("PUT", authPath, map[string]string{"email": strings.ToUpper(email)}, f.token, 409)
+	user3, _ := create(map[string]interface{}{"name": "Upper fixture", "email": "Upper-" + uid + "@Example.test", "password": "Fixture-active-2026!"})
+	if user3.String("email") != "upper-"+uid+"@example.test" {
+		t.Fatalf("created email %q", user3.String("email"))
+	}
+	f.call("POST", "/v2/members", map[string]interface{}{"name": "Duplicate case", "email": strings.ToUpper(email)}, f.token, 409)
 	f.call("DELETE", profilePath, nil, f.token, 200)
 	f.call("DELETE", profilePath, nil, f.token, 500)
 }
