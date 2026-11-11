@@ -25,13 +25,14 @@ func TestMergedRoles(t *testing.T) {
 	}
 }
 
-// The p3ri role only opens the P3RI pages, so it is left out of the checks
-// that every other role shares (calendar and short links).
-const p3riOnly = "p3ri"
+// The p3ri role only opens the P3RI pages and the alumni_manager role only
+// opens the member pages, so both are left out of the checks that every other
+// role shares (calendar and short links).
+var singlePageRoles = []string{"p3ri", "alumni_manager"}
 
 func TestCalendarAuthority(t *testing.T) {
 	for _, role := range Roles() {
-		if role.Code == p3riOnly {
+		if slices.Contains(singlePageRoles, role.Code) {
 			continue
 		}
 		access := ForRoles([]string{role.Code}, true)
@@ -50,9 +51,9 @@ func TestCalendarAuthority(t *testing.T) {
 	}
 }
 
-func TestEightRolesAndPublicationAuthority(t *testing.T) {
-	if len(Roles()) != 8 {
-		t.Fatal("exactly eight active roles required")
+func TestNineRolesAndPublicationAuthority(t *testing.T) {
+	if len(Roles()) != 9 {
+		t.Fatal("exactly nine active roles required")
 	}
 	for _, role := range Roles() {
 		permission := ForRole(&role.Code, true)
@@ -107,7 +108,7 @@ func TestCounselingRestrictedToSuperAdminAndKonselor(t *testing.T) {
 
 func TestShortLinksAvailableToEveryActiveRole(t *testing.T) {
 	for _, role := range Roles() {
-		if role.Code == p3riOnly {
+		if slices.Contains(singlePageRoles, role.Code) {
 			continue
 		}
 		for _, permission := range []string{"short_links.read", "short_links.manage"} {
@@ -170,5 +171,21 @@ func TestP3riIsAssignedOnlyAndP3riOnly(t *testing.T) {
 	}
 	if ForRoles([]string{"p3ri"}, false).Allows("p3ri.registrations.read") {
 		t.Fatal("inactive Panitia P3RI allowed")
+	}
+}
+
+func TestAlumniManagerIsAssignedOnlyAndMembersOnly(t *testing.T) {
+	role := RoleByCode("alumni_manager")
+	if role == nil || role.IsRequestable {
+		t.Fatal("Pengelola Alumni must exist and be assigned by Super Admin only")
+	}
+	access := ForRoles([]string{"alumni_manager"}, true)
+	actual := slices.Clone(access.Permissions)
+	slices.Sort(actual)
+	if expected := []string{"members.manage", "members.read"}; !slices.Equal(actual, expected) {
+		t.Fatalf("Pengelola Alumni access = %v, want only %v", actual, expected)
+	}
+	if ForRoles([]string{"alumni_manager"}, false).Allows("members.read") {
+		t.Fatal("inactive Pengelola Alumni allowed")
 	}
 }

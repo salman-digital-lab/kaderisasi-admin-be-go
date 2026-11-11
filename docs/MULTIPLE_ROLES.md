@@ -28,3 +28,11 @@ Super Admin assignments.
 The public Adonis backend does not read administrator RBAC assignments; its
 member roles and authentication remain unchanged. Older admin API binaries do
 not enforce additional roles and must not be used to manage multi-role accounts.
+
+## Single-page roles
+
+Two roles open one area only and have no dashboard, calendar or short links:
+`p3ri` (see `P3RI.md`) and `alumni_manager` ("Pengelola Alumni", `members.read`
+and `members.manage`, without `members.credentials.manage`). Both are assigned by
+a Super Admin and cannot be requested. The admin frontend lands them on `/p3ri`
+and `/member` (`src/utils/landing.ts`).

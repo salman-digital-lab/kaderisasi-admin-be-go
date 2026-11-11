@@ -261,5 +261,20 @@
       "p3ri.registrations.manage",
       "p3ri.registrations.export"
     ]
+  },
+  {
+    "code": "alumni_manager",
+    "name": "Pengelola Alumni",
+    "description": "Mengelola data anggota dan alumni.",
+    "capabilities": [
+      "Melihat dan mengekspor data anggota",
+      "Menambah, mengubah, dan menghapus data anggota"
+    ],
+    "limitation": "Peran ini ditetapkan oleh Super Admin dan hanya membuka halaman Anggota. Tidak dapat mengubah email atau kata sandi anggota.",
+    "is_requestable": false,
+    "permissions": [
+      "members.manage",
+      "members.read"
+    ]
   }
 ]

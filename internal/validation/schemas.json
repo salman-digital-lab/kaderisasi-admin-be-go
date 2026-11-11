@@ -1065,7 +1065,8 @@
               "club_manager",
               "konselor",
               "perintis_manager",
-              "p3ri"
+              "p3ri",
+              "alumni_manager"
             ]
           ],
           "chain": [
@@ -1093,7 +1094,8 @@
                   "club_manager",
                   "konselor",
                   "perintis_manager",
-                  "p3ri"
+                  "p3ri",
+                  "alumni_manager"
                 ]
               ],
               "chain": []
@@ -1243,7 +1245,8 @@
               "club_manager",
               "konselor",
               "perintis_manager",
-              "p3ri"
+              "p3ri",
+              "alumni_manager"
             ]
           ],
           "chain": [
@@ -1281,7 +1284,8 @@
                   "club_manager",
                   "konselor",
                   "perintis_manager",
-                  "p3ri"
+                  "p3ri",
+                  "alumni_manager"
                 ]
               ],
               "chain": []
@@ -4957,7 +4961,8 @@
               "club_manager",
               "konselor",
               "perintis_manager",
-              "p3ri"
+              "p3ri",
+              "alumni_manager"
             ]
           ],
           "chain": []

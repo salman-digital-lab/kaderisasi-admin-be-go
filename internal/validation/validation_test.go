@@ -29,6 +29,7 @@ func TestVineCompatibility(t *testing.T) {
 				f.Issues[0].Meta = map[string]interface{}{"choices": []interface{}{
 					"super_admin", "admin", "activity_manager", "achievement_manager",
 					"club_manager", "konselor", "perintis_manager", "p3ri",
+					"alumni_manager",
 				}}
 			}
 			output, issues := Validate(f.Name, f.Input)
