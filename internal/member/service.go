@@ -47,7 +47,7 @@ func normalizeBadges(raw []byte) []string {
 	return normalized
 }
 
-func (s Service) Create(ctx context.Context, data CreateRequest) (Created, error) {
+func (s Service) Create(ctx context.Context, actor Actor, data CreateRequest) (Created, error) {
 	q := dbgen.New(s.Pool)
 	data.Email = NormalizeEmail(data.Email)
 	if text(data.Email) != "" {
@@ -104,13 +104,23 @@ func (s Service) Create(ctx context.Context, data CreateRequest) (Created, error
 	if err != nil {
 		return Created{}, err
 	}
+	changes := diffFields(nil, createdFields(profile))
+	emailChange(changes, nil, user.Email)
+	changes["member_id"] = AuditChange{Before: null, After: auditValue(user.MemberID)}
+	changes["account_status"] = AuditChange{Before: null, After: auditValue(user.AccountStatus)}
+	if password != nil {
+		changes["password"] = passwordChanged
+	}
+	if err = actor.record(ctx, q, AuditCreated, &profile.ID, &user.ID, profile.Name, changes); err != nil {
+		return Created{}, err
+	}
 	if err = tx.Commit(ctx); err != nil {
 		return Created{}, err
 	}
 	return Created{User: PublicView(user), Profile: createdProfile(profile)}, nil
 }
 
-func (s Service) GenerateAccount(ctx context.Context, identifier string, email, password string) error {
+func (s Service) GenerateAccount(ctx context.Context, actor Actor, identifier string, email, password string) error {
 	q := dbgen.New(s.Pool)
 	email = *NormalizeEmail(&email)
 	user, err := q.PublicUserByIdentifier(ctx, identifier)
@@ -135,9 +145,43 @@ func (s Service) GenerateAccount(ctx context.Context, identifier string, email, 
 	if err != nil {
 		return err
 	}
+	// The activation and its audit row commit together.
+	tx, err := s.Pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	q = dbgen.New(tx)
 	err = q.ActivateMemberAccount(ctx, dbgen.ActivateMemberAccountParams{ID: user.ID, Email: &email, Password: &hash})
 	if emailTaken(err) {
 		return domain.Fail(409, "EMAIL_ALREADY_REGISTERED")
 	}
-	return err
+	if err != nil {
+		return err
+	}
+	changes := AuditChanges{"password": passwordChanged, "account_status": {Before: auditValue(user.AccountStatus), After: auditValue("active")}}
+	emailChange(changes, user.Email, &email)
+	if err = actor.recordAccount(ctx, q, AuditAccountGenerated, user.ID, changes); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
+}
+
+// Delete removes a profile and records what was removed in the same transaction.
+// It returns pgx.ErrNoRows when the profile does not exist.
+func (s Service) Delete(ctx context.Context, actor Actor, identifier string) error {
+	tx, err := s.Pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	q := dbgen.New(tx)
+	removed, err := q.DeleteProfileReturning(ctx, identifier)
+	if err != nil {
+		return err
+	}
+	if err = actor.record(ctx, q, AuditDeleted, &removed.ID, removed.UserID, removed.Name, diffFields(profileFields(removed), nil)); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
 }

@@ -37,6 +37,23 @@ func (q *Queries) CancelOpenEmailChanges(ctx context.Context, userID int32) erro
 	return err
 }
 
+const countMemberAuditLogs = `-- name: CountMemberAuditLogs :one
+SELECT count(*) FROM member_audit_logs
+WHERE profile_id = $1::integer OR user_id = $2::integer
+`
+
+type CountMemberAuditLogsParams struct {
+	ProfileID int32  `json:"profile_id"`
+	UserID    *int32 `json:"user_id"`
+}
+
+func (q *Queries) CountMemberAuditLogs(ctx context.Context, arg CountMemberAuditLogsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countMemberAuditLogs, arg.ProfileID, arg.UserID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createMemberProfile = `-- name: CreateMemberProfile :one
 INSERT INTO profiles(user_id,name,gender,personal_id,whatsapp,instagram,tiktok,linkedin,line,birth_date,province_id,city_id,country,created_at,updated_at)
 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,
@@ -143,6 +160,168 @@ func (q *Queries) CreateMemberUser(ctx context.Context, arg CreateMemberUserPara
 	return i, err
 }
 
+const deleteProfileReturning = `-- name: DeleteProfileReturning :one
+DELETE FROM profiles WHERE id=CAST(CAST($1 AS text) AS integer) RETURNING id, user_id, name, gender, personal_id, picture, whatsapp, line, instagram, tiktok, linkedin, province_id, city_id, university_id, major, intake_year, level, badges, created_at, updated_at, birth_date, origin_province_id, origin_city_id, country, education_history, work_history, extra_data
+`
+
+func (q *Queries) DeleteProfileReturning(ctx context.Context, identifier string) (Profile, error) {
+	row := q.db.QueryRow(ctx, deleteProfileReturning, identifier)
+	var i Profile
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.Gender,
+		&i.PersonalID,
+		&i.Picture,
+		&i.Whatsapp,
+		&i.Line,
+		&i.Instagram,
+		&i.Tiktok,
+		&i.Linkedin,
+		&i.ProvinceID,
+		&i.CityID,
+		&i.UniversityID,
+		&i.Major,
+		&i.IntakeYear,
+		&i.Level,
+		&i.Badges,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.BirthDate,
+		&i.OriginProvinceID,
+		&i.OriginCityID,
+		&i.Country,
+		&i.EducationHistory,
+		&i.WorkHistory,
+		&i.ExtraData,
+	)
+	return i, err
+}
+
+const insertMemberAuditLog = `-- name: InsertMemberAuditLog :exec
+INSERT INTO member_audit_logs(profile_id,user_id,member_name,action,changes,source,actor_admin_user_id,actor_name,request_id)
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+`
+
+type InsertMemberAuditLogParams struct {
+	ProfileID        *int32  `json:"profile_id"`
+	UserID           *int32  `json:"user_id"`
+	MemberName       string  `json:"member_name"`
+	Action           string  `json:"action"`
+	Changes          []byte  `json:"changes"`
+	Source           string  `json:"source"`
+	ActorAdminUserID *int32  `json:"actor_admin_user_id"`
+	ActorName        string  `json:"actor_name"`
+	RequestID        *string `json:"request_id"`
+}
+
+// Member audit trail: insert-only, written in the same transaction as the change.
+func (q *Queries) InsertMemberAuditLog(ctx context.Context, arg InsertMemberAuditLogParams) error {
+	_, err := q.db.Exec(ctx, insertMemberAuditLog,
+		arg.ProfileID,
+		arg.UserID,
+		arg.MemberName,
+		arg.Action,
+		arg.Changes,
+		arg.Source,
+		arg.ActorAdminUserID,
+		arg.ActorName,
+		arg.RequestID,
+	)
+	return err
+}
+
+const listMemberAuditLogs = `-- name: ListMemberAuditLogs :many
+SELECT id, profile_id, user_id, member_name, action, changes, source, actor_admin_user_id, actor_name, request_id, created_at FROM member_audit_logs
+WHERE profile_id = $1::integer OR user_id = $2::integer
+ORDER BY id DESC LIMIT $4 OFFSET $3
+`
+
+type ListMemberAuditLogsParams struct {
+	ProfileID int32  `json:"profile_id"`
+	UserID    *int32 `json:"user_id"`
+	RowOffset int32  `json:"row_offset"`
+	RowLimit  int32  `json:"row_limit"`
+}
+
+// A member's trail is matched by profile and, for account changes, by user.
+func (q *Queries) ListMemberAuditLogs(ctx context.Context, arg ListMemberAuditLogsParams) ([]MemberAuditLog, error) {
+	rows, err := q.db.Query(ctx, listMemberAuditLogs,
+		arg.ProfileID,
+		arg.UserID,
+		arg.RowOffset,
+		arg.RowLimit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []MemberAuditLog{}
+	for rows.Next() {
+		var i MemberAuditLog
+		if err := rows.Scan(
+			&i.ID,
+			&i.ProfileID,
+			&i.UserID,
+			&i.MemberName,
+			&i.Action,
+			&i.Changes,
+			&i.Source,
+			&i.ActorAdminUserID,
+			&i.ActorName,
+			&i.RequestID,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const lockProfileByID = `-- name: LockProfileByID :one
+SELECT id, user_id, name, gender, personal_id, picture, whatsapp, line, instagram, tiktok, linkedin, province_id, city_id, university_id, major, intake_year, level, badges, created_at, updated_at, birth_date, origin_province_id, origin_city_id, country, education_history, work_history, extra_data FROM profiles WHERE id=$1 FOR UPDATE
+`
+
+func (q *Queries) LockProfileByID(ctx context.Context, id int32) (Profile, error) {
+	row := q.db.QueryRow(ctx, lockProfileByID, id)
+	var i Profile
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.Gender,
+		&i.PersonalID,
+		&i.Picture,
+		&i.Whatsapp,
+		&i.Line,
+		&i.Instagram,
+		&i.Tiktok,
+		&i.Linkedin,
+		&i.ProvinceID,
+		&i.CityID,
+		&i.UniversityID,
+		&i.Major,
+		&i.IntakeYear,
+		&i.Level,
+		&i.Badges,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.BirthDate,
+		&i.OriginProvinceID,
+		&i.OriginCityID,
+		&i.Country,
+		&i.EducationHistory,
+		&i.WorkHistory,
+		&i.ExtraData,
+	)
+	return i, err
+}
+
 const otherPublicUserByEmail = `-- name: OtherPublicUserByEmail :one
 SELECT id FROM public_users WHERE email=$1 AND id<>$2
 `
@@ -157,6 +336,22 @@ func (q *Queries) OtherPublicUserByEmail(ctx context.Context, arg OtherPublicUse
 	var id int32
 	err := row.Scan(&id)
 	return id, err
+}
+
+const profileRefByUser = `-- name: ProfileRefByUser :one
+SELECT id,name FROM profiles WHERE user_id=$1 ORDER BY id LIMIT 1
+`
+
+type ProfileRefByUserRow struct {
+	ID   int32  `json:"id"`
+	Name string `json:"name"`
+}
+
+func (q *Queries) ProfileRefByUser(ctx context.Context, userID *int32) (ProfileRefByUserRow, error) {
+	row := q.db.QueryRow(ctx, profileRefByUser, userID)
+	var i ProfileRefByUserRow
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
 }
 
 const publicUserByEmail = `-- name: PublicUserByEmail :one

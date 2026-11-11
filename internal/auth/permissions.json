@@ -33,6 +33,7 @@
   "members.credentials.manage",
   "members.manage",
   "members.read",
+  "members.audit.read",
   "rbac.read",
   "reference_data.manage",
   "tickets.review",

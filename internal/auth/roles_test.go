@@ -189,3 +189,13 @@ func TestAlumniManagerIsAssignedOnlyAndMembersOnly(t *testing.T) {
 		t.Fatal("inactive Pengelola Alumni allowed")
 	}
 }
+
+// The trail holds earlier values of personal data, so it is narrower than members.read.
+func TestMemberAuditTrailIsLimitedToProgramAdmins(t *testing.T) {
+	for _, role := range Roles() {
+		allowed := role.Code == "super_admin" || role.Code == "admin"
+		if ForRoles([]string{role.Code}, true).Allows("members.audit.read") != allowed {
+			t.Fatalf("%s has wrong members.audit.read authority", role.Code)
+		}
+	}
+}

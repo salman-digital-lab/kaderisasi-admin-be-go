@@ -15,7 +15,7 @@ import (
 	"unicode/utf16"
 )
 
-func (s Service) UpdateCredentials(ctx context.Context, identifier string, data CredentialRequest) (PublicResponse, error) {
+func (s Service) UpdateCredentials(ctx context.Context, actor Actor, identifier string, data CredentialRequest) (PublicResponse, error) {
 	q := dbgen.New(s.Pool)
 	user, err := q.PublicUserByIdentifier(ctx, identifier)
 	err = database.LegacyQueryError(err, `select * from "public_users" where "id" = $1 limit $2`)
@@ -42,7 +42,9 @@ func (s Service) UpdateCredentials(ctx context.Context, identifier string, data 
 		}
 		data.Password = &hash
 	}
-	// The email change and the cancelled self-service request commit together.
+	passwordSet := text(data.Password) != ""
+	// The email change, the cancelled self-service request and the audit row
+	// commit together.
 	tx, err := s.Pool.Begin(ctx)
 	if err != nil {
 		return PublicResponse{}, err
@@ -63,6 +65,14 @@ func (s Service) UpdateCredentials(ctx context.Context, identifier string, data 
 		if err := q.CancelOpenEmailChanges(ctx, user.ID); err != nil {
 			return PublicResponse{}, err
 		}
+	}
+	changes := AuditChanges{}
+	emailChange(changes, user.Email, updated.Email)
+	if passwordSet {
+		changes["password"] = passwordChanged
+	}
+	if err := actor.recordAccount(ctx, q, AuditCredentialsUpdated, user.ID, changes); err != nil {
+		return PublicResponse{}, err
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return PublicResponse{}, err
@@ -117,7 +127,7 @@ func mergeExtra(current, incoming []byte) []byte {
 	return raw
 }
 
-func (s Service) UpdateProfile(ctx context.Context, identifier string, data ProfileUpdate) (ProfileResponse, error) {
+func (s Service) UpdateProfile(ctx context.Context, actor Actor, identifier string, data ProfileUpdate) (ProfileResponse, error) {
 	q := dbgen.New(s.Pool)
 	original, err := q.ProfileByIdentifier(ctx, identifier)
 	err = database.LegacyQueryError(err, `select * from "profiles" where "id" = $1 limit $2`)
@@ -144,7 +154,7 @@ func (s Service) UpdateProfile(ctx context.Context, identifier string, data Prof
 		if err != nil {
 			return ProfileResponse{}, err
 		}
-		if err = q.UpdateMemberPassword(ctx, dbgen.UpdateMemberPasswordParams{ID: *original.UserID, Password: &hash}); err != nil {
+		if err = s.setPassword(ctx, actor, original, hash); err != nil {
 			return ProfileResponse{}, err
 		}
 	}
@@ -155,7 +165,7 @@ func (s Service) UpdateProfile(ctx context.Context, identifier string, data Prof
 	if data.ExtraData != nil {
 		params.ExtraData = mergeExtra(original.ExtraData, jsonField(data.ExtraData))
 	}
-	updated, err := q.UpdateMemberProfile(ctx, params)
+	updated, err := s.saveProfile(ctx, actor, AuditProfileUpdated, params)
 	if errors.Is(err, pgx.ErrNoRows) {
 		updated = original
 		err = nil
@@ -172,7 +182,51 @@ func (s Service) UpdateProfile(ctx context.Context, identifier string, data Prof
 	return view, nil
 }
 
-func (s Service) UpdateRegionalAssignment(ctx context.Context, identifier string, data RegionalRequest) error {
+// setPassword saves a member password with its audit row, apart from the rest
+// of a profile update.
+func (s Service) setPassword(ctx context.Context, actor Actor, profile dbgen.Profile, hash string) error {
+	tx, err := s.Pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	q := dbgen.New(tx)
+	if err = q.UpdateMemberPassword(ctx, dbgen.UpdateMemberPasswordParams{ID: *profile.UserID, Password: &hash}); err != nil {
+		return err
+	}
+	if err = actor.record(ctx, q, AuditCredentialsUpdated, &profile.ID, profile.UserID, profile.Name, AuditChanges{"password": passwordChanged}); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
+}
+
+// saveProfile applies a profile update and records the fields it changed in
+// the same transaction. The row is locked first so the recorded "before"
+// values are the ones the update replaced. It returns pgx.ErrNoRows when the
+// update changes nothing.
+func (s Service) saveProfile(ctx context.Context, actor Actor, action string, params dbgen.UpdateMemberProfileParams) (dbgen.Profile, error) {
+	tx, err := s.Pool.Begin(ctx)
+	if err != nil {
+		return dbgen.Profile{}, err
+	}
+	defer tx.Rollback(ctx)
+	q := dbgen.New(tx)
+	before, err := q.LockProfileByID(ctx, params.ID)
+	if err != nil {
+		return dbgen.Profile{}, err
+	}
+	updated, err := q.UpdateMemberProfile(ctx, params)
+	if err != nil {
+		return dbgen.Profile{}, err
+	}
+	changes := diffFields(profileFields(before), profileFields(updated))
+	if err = actor.record(ctx, q, action, &updated.ID, updated.UserID, updated.Name, changes); err != nil {
+		return dbgen.Profile{}, err
+	}
+	return updated, tx.Commit(ctx)
+}
+
+func (s Service) UpdateRegionalAssignment(ctx context.Context, actor Actor, identifier string, data RegionalRequest) error {
 	q := dbgen.New(s.Pool)
 	original, err := q.ProfileByIdentifier(ctx, identifier)
 	err = database.LegacyQueryError(err, `select * from "profiles" where "id" = $1 limit $2`)
@@ -182,7 +236,7 @@ func (s Service) UpdateRegionalAssignment(ctx context.Context, identifier string
 	if err != nil {
 		return err
 	}
-	_, err = q.UpdateMemberProfile(ctx, dbgen.UpdateMemberProfileParams{ID: original.ID, ExtraData: mergeExtra(original.ExtraData, jsonField(&data))})
+	_, err = s.saveProfile(ctx, actor, AuditRegionalAssignment, dbgen.UpdateMemberProfileParams{ID: original.ID, ExtraData: mergeExtra(original.ExtraData, jsonField(&data))})
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil
 	}

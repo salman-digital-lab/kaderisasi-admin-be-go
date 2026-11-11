@@ -37,3 +37,27 @@ UPDATE public_users SET password=$2,updated_at=now() WHERE id=$1;
 -- name: CancelOpenEmailChanges :exec
 UPDATE public_user_email_changes SET cancelled_at=now(), updated_at=now()
 WHERE user_id=$1 AND used_at IS NULL AND cancelled_at IS NULL;
+
+-- name: LockProfileByID :one
+SELECT * FROM profiles WHERE id=$1 FOR UPDATE;
+
+-- name: ProfileRefByUser :one
+SELECT id,name FROM profiles WHERE user_id=$1 ORDER BY id LIMIT 1;
+
+-- name: DeleteProfileReturning :one
+DELETE FROM profiles WHERE id=CAST(CAST(@identifier AS text) AS integer) RETURNING *;
+
+-- Member audit trail: insert-only, written in the same transaction as the change.
+-- name: InsertMemberAuditLog :exec
+INSERT INTO member_audit_logs(profile_id,user_id,member_name,action,changes,source,actor_admin_user_id,actor_name,request_id)
+VALUES (sqlc.narg('profile_id'),sqlc.narg('user_id'),@member_name,@action,@changes,@source,sqlc.narg('actor_admin_user_id'),@actor_name,sqlc.narg('request_id'));
+
+-- A member's trail is matched by profile and, for account changes, by user.
+-- name: ListMemberAuditLogs :many
+SELECT * FROM member_audit_logs
+WHERE profile_id = @profile_id::integer OR user_id = sqlc.narg('user_id')::integer
+ORDER BY id DESC LIMIT @row_limit OFFSET @row_offset;
+
+-- name: CountMemberAuditLogs :one
+SELECT count(*) FROM member_audit_logs
+WHERE profile_id = @profile_id::integer OR user_id = sqlc.narg('user_id')::integer;

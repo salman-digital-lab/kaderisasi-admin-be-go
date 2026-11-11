@@ -1668,5 +1668,6 @@
   {"method":"GET","path":"/v2/p3ri/registrations/export","controller":"p3ri_controller","action":"export","auth":true,"trusted_origin":true,"permission":"p3ri.registrations.export"},
   {"method":"GET","path":"/v2/p3ri/registrations/:id","controller":"p3ri_controller","action":"show","auth":true,"trusted_origin":true,"permission":"p3ri.registrations.read"},
   {"method":"PUT","path":"/v2/p3ri/registrations/:id/status","controller":"p3ri_controller","action":"updateStatus","auth":true,"trusted_origin":true,"permission":"p3ri.registrations.manage"},
-  {"method":"GET","path":"/v2/p3ri/files","controller":"p3ri_controller","action":"file","auth":true,"trusted_origin":true,"permission":"p3ri.registrations.read"}
+  {"method":"GET","path":"/v2/p3ri/files","controller":"p3ri_controller","action":"file","auth":true,"trusted_origin":true,"permission":"p3ri.registrations.read"},
+  {"method":"GET","path":"/v2/profiles/:id/audit-logs","controller":"member_audit_controller","action":"index","auth":true,"trusted_origin":true,"permission":"members.audit.read"}
 ]
