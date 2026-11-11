@@ -33,7 +33,8 @@ not enforce additional roles and must not be used to manage multi-role accounts.
 
 Two roles open one area only and have no dashboard, calendar or short links:
 `p3ri` (see `P3RI.md`) and `alumni_manager` ("Pengelola Alumni", `members.read`
-and `members.manage`, without `members.credentials.manage`). Both are assigned by
-a Super Admin and cannot be requested. The admin frontend lands `alumni_manager`
+and `members.manage`, without `members.credentials.manage`). `p3ri` is assigned
+by a Super Admin and cannot be requested; `alumni_manager` can be requested
+through an access ticket. The admin frontend lands `alumni_manager`
 on `/member` (`src/utils/landing.ts`); its P3RI pages were removed, so `p3ri` has
 no page to open.

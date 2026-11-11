@@ -272,8 +272,8 @@
       "Melihat dan mengekspor data anggota",
       "Menambah, mengubah, dan menghapus data anggota"
     ],
-    "limitation": "Peran ini ditetapkan oleh Super Admin dan hanya membuka halaman Anggota. Tidak dapat mengubah email atau kata sandi anggota.",
-    "is_requestable": false,
+    "limitation": "Hanya membuka halaman Anggota. Tidak dapat mengubah email atau kata sandi anggota.",
+    "is_requestable": true,
     "permissions": [
       "members.manage",
       "members.read"

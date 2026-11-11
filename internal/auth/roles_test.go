@@ -174,10 +174,10 @@ func TestP3riIsAssignedOnlyAndP3riOnly(t *testing.T) {
 	}
 }
 
-func TestAlumniManagerIsAssignedOnlyAndMembersOnly(t *testing.T) {
+func TestAlumniManagerIsRequestableAndMembersOnly(t *testing.T) {
 	role := RoleByCode("alumni_manager")
-	if role == nil || role.IsRequestable {
-		t.Fatal("Pengelola Alumni must exist and be assigned by Super Admin only")
+	if role == nil || !role.IsRequestable {
+		t.Fatal("Pengelola Alumni must exist and be requestable through an access ticket")
 	}
 	access := ForRoles([]string{"alumni_manager"}, true)
 	actual := slices.Clone(access.Permissions)
