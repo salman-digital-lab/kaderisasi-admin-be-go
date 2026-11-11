@@ -40,8 +40,9 @@ Change both copies together; `cmp` them before committing.
 | `p3ri.registrations.export` | xlsx export |
 
 Role `p3ri` ("Panitia P3RI") has only these three permissions, no dashboard,
-calendar or short links, so the admin frontend lands it on `/p3ri`. It is not
-requestable; Super Admin assigns it in "Akun Admin". Super Admin holds the same
+calendar or short links. The admin frontend no longer has P3RI pages, so the
+routes below have no dashboard consumer and this role has no page to open. It is
+not requestable; Super Admin assigns it in "Akun Admin". Super Admin holds the same
 permissions. `TestP3riIsAssignedOnlyAndP3riOnly` and
 `TestP3riRoutesAreImplementedAndGuarded` guard this.
 
