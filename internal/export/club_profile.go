@@ -21,7 +21,7 @@ var clubEducationColumns = []struct{ Key, Label string }{
 }
 
 var clubDegreeLabels = map[string]string{
-	"high_school": "SMA/SMK", "diploma": "D3", "bachelor": "S1", "master": "S2", "doctoral": "S3",
+	"high_school": "SMP/SMA/SMK", "diploma": "D3", "bachelor": "S1", "master": "S2", "doctoral": "S3",
 }
 
 func ClubProfileFields(schema []byte) []ClubField {
