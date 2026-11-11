@@ -8,7 +8,7 @@ import (
 func TestMemberProfileHistoryValidation(t *testing.T) {
 	for _, input := range []string{
 		`{"education_history":[{"degree":"high_school","institution":"SMA","faculty":""},{"degree":"diploma","institution":"Politeknik"}]}`,
-		`{"education_history":[{"major":"Physics","intake_year":null}],"work_history":[{"job_title":" Engineer ","company":" Company ","start_year":"2021","end_year":""}]}`,
+		`{"education_history":[{"institution":" ITB ","major":"Physics","intake_year":null}],"work_history":[{"job_title":" Engineer ","company":" Company ","start_year":"2021","end_year":""}]}`,
 		`{"education_history":[],"work_history":[]}`,
 		`{"name":"Fixture"}`,
 	} {
@@ -23,13 +23,17 @@ func TestMemberProfileHistoryValidation(t *testing.T) {
 		}
 	}
 	for _, input := range []string{
-		`{"education_history":[{"intake_year":2017.5}]}`,
-		`{"education_history":[{"intake_year":0}]}`,
+		`{"education_history":[{"institution":"ITB","intake_year":2017.5}]}`,
+		`{"education_history":[{"institution":"ITB","intake_year":0}]}`,
 		`{"work_history":[{"job_title":"Engineer","company":"Company","start_year":2025,"end_year":2021}]}`,
 		`{"work_history":[{"job_title":" ","company":"Company"}]}`,
 		`{"work_history":[{"job_title":"Engineer","company":"Company","start_year":2021.5}]}`,
 		`{"education_history":[null]}`,
-		`{"education_history":[{"degree":"unknown"}]}`,
+		`{"education_history":[{"institution":"ITB","degree":"unknown"}]}`,
+		`{"education_history":[{"major":"Physics","intake_year":2017}]}`,
+		`{"education_history":[{"institution":"","major":"Physics"}]}`,
+		`{"education_history":[{"institution":"   "}]}`,
+		`{"education_history":[{"institution":null,"degree":"bachelor"}]}`,
 	} {
 		var request Object
 		_ = json.Unmarshal([]byte(input), &request)

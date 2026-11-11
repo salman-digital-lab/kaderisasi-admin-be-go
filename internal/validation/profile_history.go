@@ -8,7 +8,8 @@ import (
 )
 
 // Keep the historical Vine schema for compatibility fixtures; the active
-// profile endpoint accepts partial education records produced by web-be/imports.
+// profile endpoint accepts partial education records produced by web-be/imports,
+// except that every entry must name its institution.
 func memberProfileRule(base Rule) Rule {
 	var fields map[string]Rule
 	_ = json.Unmarshal(base.Args[0], &fields)
@@ -20,6 +21,11 @@ func memberProfileRule(base Rule) Rule {
 	for key, rule := range education {
 		if key == "degree" {
 			rule.Args = []json.RawMessage{marshal([]string{"high_school", "diploma", "bachelor", "master", "doctoral"})}
+		}
+		if key == "institution" {
+			rule.Chain = append(withoutOptional(rule.Chain), Constraint{Method: "trim", Args: []json.RawMessage{}}, Constraint{Method: "minLength", Args: []json.RawMessage{marshal(1)}})
+			education[key] = rule
+			continue
 		}
 		rule.Chain = append(rule.Chain, Constraint{Method: "optional", Args: []json.RawMessage{}})
 		if rule.Kind == "string" {
@@ -52,6 +58,16 @@ func memberProfileRule(base Rule) Rule {
 	fields["work_history"] = workArray
 	base.Args[0] = orderedRuleUpdates(base.Args[0], fields)
 	return base
+}
+
+func withoutOptional(chain []Constraint) []Constraint {
+	kept := make([]Constraint, 0, len(chain))
+	for _, constraint := range chain {
+		if constraint.Method != "optional" && constraint.Method != "nullable" {
+			kept = append(kept, constraint)
+		}
+	}
+	return kept
 }
 
 func orderedRuleUpdates(original json.RawMessage, fields map[string]Rule) json.RawMessage {
