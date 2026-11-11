@@ -75,6 +75,11 @@ func TestShortLinksWorkflow(t *testing.T) {
 	for i, role := range auth.Roles() {
 		token := f.tokenFor(f.admin(role.Code))
 		code := fmt.Sprintf("Role%d", i)
+		// Single-page roles (p3ri, alumni_manager) have no short links.
+		if !auth.ForRoles([]string{role.Code}, true).Allows("short_links.manage") {
+			call("GET", "/v2/short-links", nil, token, 403)
+			continue
+		}
 		call("POST", "/v2/short-links", map[string]string{"code": code, "original_url": "https://example.com"}, token, 201)
 		call("GET", "/v2/short-links", nil, token, 200)
 		call("PATCH", "/v2/short-links/"+code, map[string]string{"original_url": "https://example.org"}, token, 200)

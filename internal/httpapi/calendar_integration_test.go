@@ -101,6 +101,12 @@ func TestCalendarWorkflow(t *testing.T) {
 	f.call("DELETE", root+"/bad", nil, f.token, 404)
 	for _, role := range auth.Roles() {
 		token := f.tokenFor(f.admin(role.Code))
+		// Single-page roles (p3ri, alumni_manager) have no calendar.
+		if !auth.ForRoles([]string{role.Code}, true).Allows("calendar.read") {
+			f.call("GET", root+rangeQuery, nil, token, 403)
+			f.call("GET", path, nil, token, 403)
+			continue
+		}
 		f.call("GET", root+rangeQuery, nil, token, 200)
 		f.call("GET", path, nil, token, 200)
 		expected := 403
