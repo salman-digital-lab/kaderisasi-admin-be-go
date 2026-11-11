@@ -31,3 +31,31 @@ func TestHistoryNormalization(t *testing.T) {
 		t.Fatal("null history changed")
 	}
 }
+
+func TestUnlistedInstitution(t *testing.T) {
+	school, bachelor := "high_school", "bachelor"
+	stored := StoredInstitutions(json.RawMessage(`[{"degree":"bachelor","institution":" Kampus Lama "},{"degree":"high_school","institution":"SMA 3"},{"institution":"Tanpa Jenjang"}]`))
+	if !stored["Kampus Lama"] || !stored["Tanpa Jenjang"] || stored["SMA 3"] {
+		t.Fatalf("stored: %v", stored)
+	}
+	listed := []string{"Institut Teknologi Bandung"}
+	for _, entries := range [][]EducationEntry{
+		nil,
+		{{Degree: &school, Institution: "SMA apa saja"}},
+		{{Degree: &bachelor, Institution: "Institut Teknologi Bandung"}, {Institution: "Kampus Lama"}},
+	} {
+		if unlisted := UnlistedInstitution(entries, listed, stored); unlisted != nil {
+			t.Fatalf("rejected %+v: %+v", entries, unlisted)
+		}
+	}
+	// A school name does not become acceptable by switching the entry to S1.
+	for _, entries := range [][]EducationEntry{
+		{{Degree: &school, Institution: "SMA 3"}, {Degree: &bachelor, Institution: "SMA 3"}},
+		{{Institution: "Institut Teknologi Bandung"}, {Institution: "asal ketik"}},
+	} {
+		unlisted := UnlistedInstitution(entries, listed, stored)
+		if unlisted == nil || unlisted.Field() != "education_history.1.institution" {
+			t.Fatalf("accepted %+v: %+v", entries, unlisted)
+		}
+	}
+}

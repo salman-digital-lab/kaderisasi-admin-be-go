@@ -87,3 +87,58 @@ func NormalizeWorkHistory(raw json.RawMessage) json.RawMessage {
 	encoded, _ := json.Marshal(result)
 	return encoded
 }
+
+// InstitutionError reports an education entry whose institution is not in the
+// universities list.
+type InstitutionError struct {
+	Index int
+	Name  string
+}
+
+func (e *InstitutionError) Error() string {
+	return "The selected institution is not in the universities list"
+}
+
+// Field is the Vine-style path of the offending value.
+func (e *InstitutionError) Field() string {
+	return "education_history." + strconv.Itoa(e.Index) + ".institution"
+}
+
+// ListedInstitution tells whether an entry's institution must come from the
+// universities list: every entry except SMA/SMK, whose schools are free text.
+func ListedInstitution(degree string) bool { return degree != "high_school" }
+
+// StoredInstitutions returns the non-school institutions a profile already
+// holds. They stay acceptable so that a profile saved before the list became
+// mandatory can still be edited without re-entering its education.
+func StoredInstitutions(raw json.RawMessage) map[string]bool {
+	stored := map[string]bool{}
+	for _, entry := range HistoryEntries(raw) {
+		var degree, institution string
+		_ = json.Unmarshal(entry["degree"], &degree)
+		_ = json.Unmarshal(entry["institution"], &institution)
+		if ListedInstitution(degree) {
+			stored[strings.TrimSpace(institution)] = true
+		}
+	}
+	return stored
+}
+
+// UnlistedInstitution returns the first entry whose institution is neither in
+// listed (the matching universities) nor already stored on the profile.
+func UnlistedInstitution(entries []EducationEntry, listed []string, stored map[string]bool) *InstitutionError {
+	known := map[string]bool{}
+	for _, name := range listed {
+		known[name] = true
+	}
+	for index, entry := range entries {
+		degree := ""
+		if entry.Degree != nil {
+			degree = *entry.Degree
+		}
+		if ListedInstitution(degree) && !known[entry.Institution] && !stored[entry.Institution] {
+			return &InstitutionError{Index: index, Name: entry.Institution}
+		}
+	}
+	return nil
+}

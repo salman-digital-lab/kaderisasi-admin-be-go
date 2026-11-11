@@ -68,3 +68,6 @@ SELECT count(id)::text AS profile_amounts, level FROM profiles GROUP BY level;
 
 -- name: CountProfilesByGender :many
 SELECT count(id)::text AS profile_amounts, gender FROM profiles GROUP BY gender;
+
+-- name: UniversityNamesIn :many
+SELECT name FROM universities WHERE name = ANY(@names::text[]);

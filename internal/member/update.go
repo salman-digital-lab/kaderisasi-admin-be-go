@@ -124,6 +124,19 @@ func (s Service) UpdateProfile(ctx context.Context, identifier string, data Prof
 	if err != nil {
 		return ProfileResponse{}, err
 	}
+	if data.EducationHistory != nil {
+		names := make([]string, 0, len(*data.EducationHistory))
+		for _, entry := range *data.EducationHistory {
+			names = append(names, entry.Institution)
+		}
+		listed, err := q.UniversityNamesIn(ctx, names)
+		if err != nil {
+			return ProfileResponse{}, err
+		}
+		if unlisted := UnlistedInstitution(*data.EducationHistory, listed, StoredInstitutions(original.EducationHistory)); unlisted != nil {
+			return ProfileResponse{}, unlisted
+		}
+	}
 	// The legacy workflow saves a password separately from the profile update.
 	// Preserve that transaction boundary and ignore a missing associated user.
 	if text(data.Password) != "" && original.UserID != nil {

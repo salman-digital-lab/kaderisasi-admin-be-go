@@ -48,6 +48,12 @@ func TestMemberProfileWorkflow(t *testing.T) {
 	f.call("POST", "/v2/members", map[string]interface{}{"name": "Duplicate ID", "member_id": user.String("member_id")}, f.token, 409)
 	f.call("POST", "/v2/members/2147483647/generate-account", map[string]string{"email": email, "password": "Fixture-generated-2026!"}, f.token, 404)
 	profilePath := fmt.Sprintf("/v2/profiles/%d", profile.ID("id"))
+	if _, err := f.pool.Exec(ctx, "INSERT INTO universities (name) VALUES ('Fixture University')"); err != nil {
+		t.Fatal(err)
+	}
+	// An institution outside the universities list is refused; a school name is free text.
+	f.call("PUT", profilePath, map[string]interface{}{"education_history": []interface{}{map[string]interface{}{"degree": "bachelor", "institution": "Not In The List"}}}, f.token, 500)
+	f.call("PUT", profilePath, map[string]interface{}{"education_history": []interface{}{map[string]interface{}{"degree": "high_school", "institution": "Any School"}}}, f.token, 200)
 	f.call("PUT", profilePath, map[string]interface{}{"name": "Updated member", "badges": []string{"LMD"}, "education_history": []interface{}{map[string]interface{}{"degree": "bachelor", "institution": "Fixture University", "faculty": "Science", "major": "Physics", "intake_year": 2020}}, "extra_data": map[string]interface{}{"preferred_name": "Fixture"}}, f.token, 200)
 	f.call("PUT", profilePath+"/regional-assignment", map[string]interface{}{"alumni_regional_assignment": []string{"Bandung"}}, f.token, 200)
 	f.call("PUT", profilePath, map[string]interface{}{"extra_data": map[string]interface{}{"salman_activity_history": []string{"Fixture activity"}}, "password": "Fixture-reset-2026!"}, f.token, 200)

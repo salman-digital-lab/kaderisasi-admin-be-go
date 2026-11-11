@@ -137,7 +137,12 @@ func (s *Server) registerPerintis() {
 			return nil, nil
 		}
 		data.Password, data.ExtraData = nil, nil
-		if _, err := members.UpdateProfile(r.Context(), strconv.Itoa(int(current.ID)), data); err != nil {
+		_, err = members.UpdateProfile(r.Context(), strconv.Itoa(int(current.ID)), data)
+		var unlisted *member.InstitutionError
+		if errors.As(err, &unlisted) {
+			return nil, &perintis.Error{Status: 422, Message: fmt.Sprintf("Pilih kampus pendidikan %d dari daftar.", unlisted.Index+1)}
+		}
+		if err != nil {
 			legacyFailure(w, err)
 			return nil, nil
 		}

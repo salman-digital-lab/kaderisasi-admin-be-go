@@ -7,6 +7,7 @@ import (
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
 	"kaderisasi/admin/internal/member"
+	"kaderisasi/admin/internal/validation"
 	"net/http"
 )
 
@@ -68,6 +69,16 @@ func (s *Server) registerMembers() {
 			return nil
 		}
 		updated, err := service.UpdateProfile(r.Context(), pathID(r, "id"), data)
+		var unlisted *member.InstitutionError
+		if errors.As(err, &unlisted) {
+			// Same envelope as this route's other validation failures.
+			issues := []validation.Issue{{Message: unlisted.Error(), Rule: "database.exists", Field: unlisted.Field()}}
+			write(w, 500, struct {
+				Message string             `json:"message"`
+				Error   []validation.Issue `json:"error"`
+			}{issues[0].Message, issues})
+			return nil
+		}
 		if err != nil {
 			legacyFailure(w, err)
 			return nil

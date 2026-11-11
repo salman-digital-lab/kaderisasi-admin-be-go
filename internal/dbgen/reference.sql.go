@@ -407,6 +407,30 @@ func (q *Queries) UniversityByID(ctx context.Context, id int32) (UniversityByIDR
 	return i, err
 }
 
+const universityNamesIn = `-- name: UniversityNamesIn :many
+SELECT name FROM universities WHERE name = ANY($1::text[])
+`
+
+func (q *Queries) UniversityNamesIn(ctx context.Context, names []string) ([]string, error) {
+	rows, err := q.db.Query(ctx, universityNamesIn, names)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []string{}
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			return nil, err
+		}
+		items = append(items, name)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateCity = `-- name: UpdateCity :one
 UPDATE cities SET name = $1,
 province_id = CASE WHEN $2::boolean THEN CAST(CAST($3 AS text) AS integer) ELSE province_id END
