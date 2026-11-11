@@ -4789,6 +4789,26 @@
                   }
                 ]
               },
+              "address_detail": {
+                "kind": "string",
+                "args": [],
+                "chain": [
+                  {
+                    "method": "maxLength",
+                    "args": [
+                      1024
+                    ]
+                  },
+                  {
+                    "method": "nullable",
+                    "args": []
+                  },
+                  {
+                    "method": "optional",
+                    "args": []
+                  }
+                ]
+              },
               "salman_activity_history": {
                 "kind": "array",
                 "args": [

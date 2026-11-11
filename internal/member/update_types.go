@@ -20,11 +20,15 @@ type WorkEntry struct {
 	StartYear *json.Number `json:"start_year,omitempty"`
 	EndYear   *json.Number `json:"end_year,omitempty"`
 }
+
+// AddressDetail keeps an explicit null (a cleared textarea arrives as "" and is
+// validated to null) so the merge overwrites the stored address.
 type ProfileExtra struct {
-	PreferredName            *string   `json:"preferred_name,omitempty"`
-	SalmanActivityHistory    *[]string `json:"salman_activity_history,omitempty"`
-	CurrentActivityFocus     *[]string `json:"current_activity_focus,omitempty"`
-	AlumniRegionalAssignment *[]string `json:"alumni_regional_assignment,omitempty"`
+	PreferredName            *string         `json:"preferred_name,omitempty"`
+	AddressDetail            json.RawMessage `json:"address_detail,omitempty"`
+	SalmanActivityHistory    *[]string       `json:"salman_activity_history,omitempty"`
+	CurrentActivityFocus     *[]string       `json:"current_activity_focus,omitempty"`
+	AlumniRegionalAssignment *[]string       `json:"alumni_regional_assignment,omitempty"`
 }
 type RegionalRequest struct {
 	AlumniRegionalAssignment []string `json:"alumni_regional_assignment"`
