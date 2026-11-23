@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"kaderisasi/admin/internal/dbgen"
 	"slices"
+	"sync"
 )
 
 //go:embed roles.json
@@ -13,13 +14,25 @@ var rolesJSON []byte
 //go:embed permissions.json
 var permissionsJSON []byte
 
-func Permissions() []string {
+// The embedded tables never change at runtime, so they are parsed once; every
+// permission check reads them.
+var parsedPermissions = sync.OnceValue(func() []string {
 	var permissions []string
 	if err := json.Unmarshal(permissionsJSON, &permissions); err != nil {
 		panic(err)
 	}
 	return permissions
-}
+})
+
+var parsedRoles = sync.OnceValue(func() []Role {
+	var roles []Role
+	if err := json.Unmarshal(rolesJSON, &roles); err != nil {
+		panic(err)
+	}
+	return roles
+})
+
+func Permissions() []string { return slices.Clone(parsedPermissions()) }
 
 type Role struct {
 	Code          string   `json:"code"`
@@ -42,15 +55,9 @@ type Authorization struct {
 	IsSuperAdmin bool           `json:"is_super_admin"`
 }
 
-func Roles() []Role {
-	var roles []Role
-	if err := json.Unmarshal(rolesJSON, &roles); err != nil {
-		panic(err)
-	}
-	return roles
-}
+func Roles() []Role { return slices.Clone(parsedRoles()) }
 func RoleByCode(code string) *Role {
-	for _, role := range Roles() {
+	for _, role := range parsedRoles() {
 		if role.Code == code {
 			return &role
 		}
