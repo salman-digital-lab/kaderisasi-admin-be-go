@@ -55,7 +55,7 @@ func TestCertificateDirectPublicationAndCorrection(t *testing.T) {
 	if verification.Bool("valid") {
 		t.Fatal("withdrawn certificate must be invalid")
 	}
-	if _, err := f.pool.Exec(ctx, `UPDATE activity_registrations SET guest_data=jsonb_set(guest_data,'{name}','"Corrected participant"'), certificate_group='Group B' WHERE id=$1`, fixture.ids[0]); err != nil {
+	if _, err := f.pool.Exec(ctx, `UPDATE activity_registrations SET guest_data=jsonb_set(guest_data,'{name}','"Corrected participant"') WHERE id=$1`, fixture.ids[0]); err != nil {
 		t.Fatal(err)
 	}
 	prepared := objectData(t, f.call("POST", "/v2/certificates/prepare-issuance", map[string]interface{}{"activity_id": fixture.activity.ID("id"), "registration_ids": fixture.ids}, session.AccessToken, 200))
