@@ -24,10 +24,12 @@ SELECT a.* FROM activities a JOIN activity_registrations ar ON a.id=ar.activity_
 SELECT id FROM public_users WHERE email=ANY($1::text[]);
 
 -- name: RegistrationsByActivityUsers :many
-SELECT id FROM activity_registrations WHERE activity_id=$1 AND user_id=ANY($2::integer[]);
+SELECT id,user_id FROM activity_registrations WHERE activity_id=$1 AND user_id=ANY($2::integer[]);
 
+-- Only registrations of the given activity: its level and badge rule must not
+-- reach members whose listed registration belongs to another activity.
 -- name: UsersForRegistrationIDs :many
-SELECT user_id FROM activity_registrations WHERE id=ANY(CAST(CAST(@ids AS text[]) AS integer[]));
+SELECT user_id FROM activity_registrations WHERE id=ANY(CAST(CAST(@ids AS text[]) AS integer[])) AND activity_id = @activity_id::integer;
 
 -- name: ChangeRegistrationStatusByIDs :execrows
 UPDATE activity_registrations SET status = @status::text WHERE id=ANY(CAST(CAST(@ids AS text[]) AS integer[]));
@@ -38,8 +40,9 @@ UPDATE activity_registrations SET status=$1 WHERE activity_id=$2 AND user_id=ANY
 -- name: ChangeRegistrationStatusBulk :execrows
 UPDATE activity_registrations SET status = @new_status::text WHERE activity_id = CAST(CAST(@activity_id AS text) AS integer) AND (sqlc.narg('current_status')::text IS NULL OR status=sqlc.narg('current_status')::text);
 
+-- Graduating never lowers a level the member already holds.
 -- name: SetRegistrationProfileLevel :exec
-UPDATE profiles SET level=$1 WHERE user_id=ANY($2::integer[]);
+UPDATE profiles SET level=GREATEST(COALESCE(level,0),$1) WHERE user_id=ANY($2::integer[]);
 
 -- name: RegistrationProfilesByUsers :many
 SELECT * FROM profiles WHERE user_id=ANY($1::integer[]);

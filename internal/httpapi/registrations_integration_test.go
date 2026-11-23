@@ -93,6 +93,23 @@ func TestRegistrationWorkflowAndExport(t *testing.T) {
 	if err = f.pool.QueryRow(ctx, "SELECT level,jsonb_array_length(badges) FROM profiles WHERE id=$1", profile.ID("id")).Scan(&level, &badgeCount); err != nil || level != 3 || badgeCount != 1 {
 		t.Fatal("idempotent profile upgrade", level, badgeCount, err)
 	}
+	// Graduating by email reaches only members registered for the activity
+	// and never lowers a level a member already holds.
+	bystanderEmail := "bystander-" + email
+	bystanderData := objectData(t, f.call("POST", "/v2/members", map[string]interface{}{"name": "Bystander fixture", "email": bystanderEmail}, f.token, 201))
+	var bystander database.Object
+	json.Unmarshal(bystanderData["user"], &bystander)
+	users = append(users, bystander.ID("id"))
+	if _, err := f.pool.Exec(ctx, `UPDATE profiles SET level=10 WHERE id=$1`, profile.ID("id")); err != nil {
+		t.Fatal(err)
+	}
+	f.call("PUT", path+"/status-by-email", map[string]interface{}{"emails": []string{email, bystanderEmail}, "status": "LULUS KEGIATAN"}, f.token, 200)
+	if err = f.pool.QueryRow(ctx, "SELECT level FROM profiles WHERE id=$1", profile.ID("id")).Scan(&level); err != nil || level != 10 {
+		t.Fatal("graduation lowered a level", level, err)
+	}
+	if err = f.pool.QueryRow(ctx, "SELECT COALESCE(level,0),COALESCE(jsonb_array_length(badges),0) FROM profiles WHERE user_id=$1", bystander.ID("id")).Scan(&level, &badgeCount); err != nil || level != 0 || badgeCount != 0 {
+		t.Fatal("unregistered member graduated", level, badgeCount, err)
+	}
 	f.call("PUT", path+"/status-by-email", map[string]interface{}{"emails": []string{email}, "status": "DITERIMA"}, f.token, 200)
 	f.call("PUT", path+"/status-by-email", map[string]interface{}{"emails": []string{"missing-" + email}, "status": "DITERIMA"}, f.token, 404)
 	f.call("PUT", path, map[string]string{"current_status": "DITERIMA", "new_status": "TERDAFTAR"}, f.token, 200)

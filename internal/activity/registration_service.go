@@ -156,7 +156,7 @@ func (s Service) ChangeRegistrationStatuses(ctx context.Context, data Registrati
 	q := dbgen.New(tx)
 	ids := registrationNumbers(data.IDs)
 	if specialGraduation(activity, data.Status) {
-		rows, err := q.UsersForRegistrationIDs(ctx, ids)
+		rows, err := q.UsersForRegistrationIDs(ctx, dbgen.UsersForRegistrationIDsParams{Ids: ids, ActivityID: activity.ID})
 		if err != nil {
 			return 0, err
 		}
@@ -205,7 +205,15 @@ func (s Service) ChangeRegistrationStatusesByEmail(ctx context.Context, identifi
 	if len(registrations) == 0 {
 		return 0, domain.Fail(404, "NO_REGISTRATIONS_FOUND")
 	}
-	if err = upgradeRegistrationProfiles(ctx, q, activity, users, data.Status); err != nil {
+	// Only members registered for this activity graduate from it; the email
+	// list may also name accounts that never registered.
+	registered := []int32{}
+	for _, registration := range registrations {
+		if registration.UserID != nil && !slices.Contains(registered, *registration.UserID) {
+			registered = append(registered, *registration.UserID)
+		}
+	}
+	if err = upgradeRegistrationProfiles(ctx, q, activity, registered, data.Status); err != nil {
 		return 0, err
 	}
 	count, err := q.ChangeRegistrationStatusByUsers(ctx, dbgen.ChangeRegistrationStatusByUsersParams{Status: &data.Status, ActivityID: &id, Column3: users})

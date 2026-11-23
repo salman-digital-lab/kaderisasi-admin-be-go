@@ -372,7 +372,7 @@ func (q *Queries) RegistrationTotal(ctx context.Context, identifier string) (int
 }
 
 const registrationsByActivityUsers = `-- name: RegistrationsByActivityUsers :many
-SELECT id FROM activity_registrations WHERE activity_id=$1 AND user_id=ANY($2::integer[])
+SELECT id,user_id FROM activity_registrations WHERE activity_id=$1 AND user_id=ANY($2::integer[])
 `
 
 type RegistrationsByActivityUsersParams struct {
@@ -380,19 +380,24 @@ type RegistrationsByActivityUsersParams struct {
 	Column2    []int32 `json:"column_2"`
 }
 
-func (q *Queries) RegistrationsByActivityUsers(ctx context.Context, arg RegistrationsByActivityUsersParams) ([]int32, error) {
+type RegistrationsByActivityUsersRow struct {
+	ID     int32  `json:"id"`
+	UserID *int32 `json:"user_id"`
+}
+
+func (q *Queries) RegistrationsByActivityUsers(ctx context.Context, arg RegistrationsByActivityUsersParams) ([]RegistrationsByActivityUsersRow, error) {
 	rows, err := q.db.Query(ctx, registrationsByActivityUsers, arg.ActivityID, arg.Column2)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []int32{}
+	items := []RegistrationsByActivityUsersRow{}
 	for rows.Next() {
-		var id int32
-		if err := rows.Scan(&id); err != nil {
+		var i RegistrationsByActivityUsersRow
+		if err := rows.Scan(&i.ID, &i.UserID); err != nil {
 			return nil, err
 		}
-		items = append(items, id)
+		items = append(items, i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -455,7 +460,7 @@ func (q *Queries) SetRegistrationProfileBadges(ctx context.Context, arg SetRegis
 }
 
 const setRegistrationProfileLevel = `-- name: SetRegistrationProfileLevel :exec
-UPDATE profiles SET level=$1 WHERE user_id=ANY($2::integer[])
+UPDATE profiles SET level=GREATEST(COALESCE(level,0),$1) WHERE user_id=ANY($2::integer[])
 `
 
 type SetRegistrationProfileLevelParams struct {
@@ -463,17 +468,25 @@ type SetRegistrationProfileLevelParams struct {
 	Column2 []int32 `json:"column_2"`
 }
 
+// Graduating never lowers a level the member already holds.
 func (q *Queries) SetRegistrationProfileLevel(ctx context.Context, arg SetRegistrationProfileLevelParams) error {
 	_, err := q.db.Exec(ctx, setRegistrationProfileLevel, arg.Level, arg.Column2)
 	return err
 }
 
 const usersForRegistrationIDs = `-- name: UsersForRegistrationIDs :many
-SELECT user_id FROM activity_registrations WHERE id=ANY(CAST(CAST($1 AS text[]) AS integer[]))
+SELECT user_id FROM activity_registrations WHERE id=ANY(CAST(CAST($1 AS text[]) AS integer[])) AND activity_id = $2::integer
 `
 
-func (q *Queries) UsersForRegistrationIDs(ctx context.Context, ids []string) ([]*int32, error) {
-	rows, err := q.db.Query(ctx, usersForRegistrationIDs, ids)
+type UsersForRegistrationIDsParams struct {
+	Ids        []string `json:"ids"`
+	ActivityID int32    `json:"activity_id"`
+}
+
+// Only registrations of the given activity: its level and badge rule must not
+// reach members whose listed registration belongs to another activity.
+func (q *Queries) UsersForRegistrationIDs(ctx context.Context, arg UsersForRegistrationIDsParams) ([]*int32, error) {
+	rows, err := q.db.Query(ctx, usersForRegistrationIDs, arg.Ids, arg.ActivityID)
 	if err != nil {
 		return nil, err
 	}
