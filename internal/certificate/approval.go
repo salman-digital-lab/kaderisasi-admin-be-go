@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"strconv"
 	"strings"
 	"time"
@@ -97,6 +98,8 @@ func approvalFailure(id, registrationID int32, err error) ApprovalOutcome {
 	var d *domain.Error
 	if errors.As(err, &d) {
 		result.Reason = d.Message
+	} else {
+		slog.Default().Error("certificate_approval_failed", "event", "certificate_approval_failed", "approval_id", id, "registration_id", registrationID, "error", err.Error())
 	}
 	return result
 }

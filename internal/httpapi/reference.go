@@ -6,6 +6,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/dbgen"
+	"log/slog"
 	"net/http"
 )
 
@@ -16,6 +17,9 @@ func plural(w http.ResponseWriter, message string, data interface{}) {
 	}{message, data})
 }
 func legacyFailure(w http.ResponseWriter, err error) {
+	// The handler reports success to the router after writing this response,
+	// so this is the only place the cause reaches the log.
+	slog.Default().Error("request failed", "error", err.Error())
 	text := err.Error()
 	if errors.Is(err, pgx.ErrNoRows) {
 		text = "Row not found"

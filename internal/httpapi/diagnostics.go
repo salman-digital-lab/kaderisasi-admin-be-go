@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/jackc/pgx/v5"
+	"log/slog"
 	"net/http"
 	"runtime"
 	"strings"
@@ -13,6 +14,7 @@ import (
 // the error identity and string shape while reporting this implementation's
 // actual call sites, never invented JavaScript frames.
 func diagnosticFailure(w http.ResponseWriter, err error) {
+	slog.Default().Error("request failed", "error", err.Error())
 	identity := err.Error()
 	if errors.Is(err, pgx.ErrNoRows) {
 		identity = "E_ROW_NOT_FOUND: Row not found"

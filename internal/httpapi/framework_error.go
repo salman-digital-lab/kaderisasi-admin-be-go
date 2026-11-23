@@ -35,6 +35,10 @@ func (s *Server) frameworkError(err error, statement string) error {
 	if statement != "" {
 		err = database.LegacyQueryError(err, statement)
 	}
+	// The error is returned as a domain error, which the router does not log.
+	if s.Logger != nil {
+		s.Logger.Error("request failed", "error", err.Error())
+	}
 	if !s.Config.ExposeErrorDetails {
 		return domain.Fail(500, err.Error())
 	}

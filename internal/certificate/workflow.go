@@ -60,6 +60,9 @@ func (s Issuance) Bulk(ctx context.Context, ids []float64, actor *int32, request
 				}
 				out.Skipped = append(out.Skipped, Failure{id, d.Message})
 			} else {
+				if s.Logger != nil {
+					s.Logger.Error("certificate_issue_failed", "event", "certificate_issue_failed", "request_id", requestID, "registration_id", id, "error", err.Error())
+				}
 				out.Failed = append(out.Failed, Failure{id, "GENERAL_ERROR"})
 			}
 		} else if result.Created {
