@@ -110,6 +110,9 @@ func TestRegistrationWorkflowAndExport(t *testing.T) {
 	if err = f.pool.QueryRow(ctx, "SELECT COALESCE(level,0),COALESCE(jsonb_array_length(badges),0) FROM profiles WHERE user_id=$1", bystander.ID("id")).Scan(&level, &badgeCount); err != nil || level != 0 || badgeCount != 0 {
 		t.Fatal("unregistered member graduated", level, badgeCount, err)
 	}
+	if _, err := f.pool.Exec(ctx, `UPDATE profiles SET level=3 WHERE id=$1`, profile.ID("id")); err != nil {
+		t.Fatal(err)
+	}
 	f.call("PUT", path+"/status-by-email", map[string]interface{}{"emails": []string{email}, "status": "DITERIMA"}, f.token, 200)
 	f.call("PUT", path+"/status-by-email", map[string]interface{}{"emails": []string{"missing-" + email}, "status": "DITERIMA"}, f.token, 404)
 	f.call("PUT", path, map[string]string{"current_status": "DITERIMA", "new_status": "TERDAFTAR"}, f.token, 200)
