@@ -2,6 +2,7 @@ package jobs
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgtype"
 	"kaderisasi/admin/internal/dbgen"
@@ -51,19 +52,34 @@ func (r Runner) Run(ctx context.Context, name string, now time.Time) (Result, er
 		if r.Storage == nil {
 			return result, fmt.Errorf("form upload storage unavailable")
 		}
+		var failed error
+		tried := map[pgtype.UUID]bool{}
 		for {
 			files, err := q.ExpiredFormAttachments(ctx)
 			if err != nil {
 				return result, r.failure(name, err)
 			}
 			if len(files) == 0 {
+				if failed != nil {
+					return result, r.failure(name, failed)
+				}
 				return result, nil
 			}
 			batchRemoved := 0
 			for _, file := range files {
+				if tried[file.ID] {
+					continue
+				}
 				removed, err := r.cleanFormUpload(ctx, file)
 				if err != nil {
-					return result, r.failure(name, err)
+					// One file that cannot be removed must not keep the rest
+					// of the batch; report it once the run ends.
+					if ctx.Err() != nil {
+						return result, r.failure(name, err)
+					}
+					tried[file.ID] = true
+					failed = errors.Join(failed, fmt.Errorf("attachment %x: %w", file.ID.Bytes, err))
+					continue
 				}
 				if removed {
 					result.Count++
@@ -72,6 +88,9 @@ func (r Runner) Run(ctx context.Context, name string, now time.Time) (Result, er
 			}
 			// A batch that removed nothing would be selected again forever.
 			if batchRemoved == 0 {
+				if failed != nil {
+					return result, r.failure(name, failed)
+				}
 				return result, nil
 			}
 		}
