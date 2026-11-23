@@ -67,4 +67,4 @@ The identical `routing.fixtures.json` vectors are copied into `internal/formsche
 
 Browser suites: `tests/browser/form-builder.spec.mjs` and `tests/public-browser/form-routing.spec.mjs`. Run them through `scripts/browser.mjs --borrow-workspace` (with `--public` for public forms). Both run at 1440px and 390px using owned database fixtures. `history-custom-form.spec.mjs` and `clubs.spec.mjs` guard existing profile and registration behavior.
 
-Database suites must run sequentially through the fixture lease. `make clean-fixtures` removes only recorded owned schemas and storage objects. Verification results and the UI review are recorded in `FORM_BUILDER_VERIFICATION.md`.
+Database suites must run sequentially through the fixture lease. `make clean-fixtures` removes only recorded owned schemas and storage objects.
