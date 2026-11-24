@@ -7,6 +7,7 @@ import (
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/export"
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -50,10 +51,8 @@ func registrationExportLocations(ctx context.Context, q *dbgen.Queries, records 
 	add := func(ids *[]string, raw json.RawMessage) {
 		if value, ok := guestLocationNumber(raw); ok {
 			text := database.JSNumber(value)
-			for _, id := range *ids {
-				if id == text {
-					return
-				}
+			if slices.Contains(*ids, text) {
+				return
 			}
 			*ids = append(*ids, text)
 		}

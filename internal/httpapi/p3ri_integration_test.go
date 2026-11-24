@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -99,8 +100,7 @@ func TestP3riRegistrationReview(t *testing.T) {
 		t.Fatalf("accepted division kept: %s", updated["accepted_division"])
 	}
 
-	// Export is an xlsx.
-	r := httptest.NewRequest("GET", "/v2/p3ri/registrations/export?division=website", nil)
+	r := httptest.NewRequest(http.MethodGet, "/v2/p3ri/registrations/export?division=website", nil)
 	r.Header.Set("Authorization", "Bearer "+panitia)
 	w := httptest.NewRecorder()
 	f.handler.ServeHTTP(w, r)

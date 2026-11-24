@@ -6,6 +6,7 @@ import (
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
 	"kaderisasi/admin/internal/member"
+	"maps"
 	"time"
 )
 
@@ -131,7 +132,8 @@ func registrationSummary(row dbgen.ListRegistrationsFilteredRow, fields []string
 		return result, err
 	}
 	for _, field := range fields {
-		if field == "current_education" {
+		switch field {
+		case "current_education":
 			current := json.RawMessage("null")
 			history := member.NormalizeEducationHistory(row.EducationHistory)
 			if row.UserID == nil {
@@ -150,11 +152,9 @@ func registrationSummary(row dbgen.ListRegistrationsFilteredRow, fields []string
 				current = entries[len(entries)-1]
 			}
 			result.ProfileFields[field] = current
-		} else if field == "*" {
-			for key, value := range profile {
-				result.ProfileFields[key] = value
-			}
-		} else {
+		case "*":
+			maps.Copy(result.ProfileFields, profile)
+		default:
 			result.ProfileFields[field] = profile[field]
 		}
 	}

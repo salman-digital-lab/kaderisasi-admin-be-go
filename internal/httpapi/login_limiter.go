@@ -36,7 +36,6 @@ func (l *loginLimiter) clock() time.Time {
 	return time.Now()
 }
 
-// blocked reports whether either key has used up its failures in the window.
 func (l *loginLimiter) blocked(email, client string) bool {
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -86,7 +85,6 @@ func (l *loginLimiter) fail(email, client string) {
 	}
 }
 
-// reset clears the email counter after a successful login.
 func (l *loginLimiter) reset(email string) {
 	l.mu.Lock()
 	defer l.mu.Unlock()

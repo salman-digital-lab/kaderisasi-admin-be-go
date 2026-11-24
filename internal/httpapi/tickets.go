@@ -2,13 +2,14 @@ package httpapi
 
 import (
 	"errors"
-	"github.com/jackc/pgx/v5"
 	"kaderisasi/admin/internal/access"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
 	"net/http"
 	"strconv"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func (s *Server) ticketReply(w http.ResponseWriter, r *http.Request, status int, msg string, id string) error {
@@ -53,7 +54,7 @@ func (s *Server) registerTickets() {
 		return nil
 	})
 	s.register("access_requests_controller", "ownShow", func(w http.ResponseWriter, r *http.Request) error {
-		ticket, err := q.TicketByIdentifier(r.Context(), pathID(r, "id"))
+		ticket, err := q.TicketByIdentifier(r.Context(), pathID(r))
 		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 			return s.frameworkError(err, `select * from "tickets" where "id" = $1 limit $2`)
 		}
@@ -82,10 +83,10 @@ func (s *Server) registerTickets() {
 		return nil
 	})
 	s.register("access_requests_controller", "reviewShow", func(w http.ResponseWriter, r *http.Request) error {
-		return s.ticketReply(w, r, 200, "GET_DATA_SUCCESS", database.NumberIdentifier(pathID(r, "id")))
+		return s.ticketReply(w, r, 200, "GET_DATA_SUCCESS", database.NumberIdentifier(pathID(r)))
 	})
 	s.register("access_requests_controller", "cancel", func(w http.ResponseWriter, r *http.Request) error {
-		id := pathID(r, "id")
+		id := pathID(r)
 		if err := service.Cancel(r.Context(), id, actor(r).ID); err != nil {
 			if errors.Is(err, access.ErrTicketAccess) {
 				policyDenied(w)
@@ -109,7 +110,7 @@ func (s *Server) registerTickets() {
 				}
 				reason = &data.Reason
 			}
-			id := pathID(r, "id")
+			id := pathID(r)
 			if err := service.Resolve(r.Context(), id, actor(r).ID, resolution, reason); err != nil {
 				return s.frameworkError(err, "")
 			}

@@ -41,10 +41,10 @@ func newGoogleFixture(t *testing.T) *googleFixture {
 		t.Fatal(err)
 	}
 	f := &googleFixture{key: key}
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		f.requests.Add(1)
 		w.Header().Set("Cache-Control", "public, max-age=600")
-		_ = json.NewEncoder(w).Encode(map[string]interface{}{"keys": []interface{}{map[string]string{"kid": "synthetic-key", "alg": "RS256", "kty": "RSA", "use": "sig", "n": base64.RawURLEncoding.EncodeToString(key.N.Bytes()), "e": base64.RawURLEncoding.EncodeToString(big.NewInt(int64(key.E)).Bytes())}}})
+		_ = json.NewEncoder(w).Encode(map[string]any{"keys": []any{map[string]string{"kid": "synthetic-key", "alg": "RS256", "kty": "RSA", "use": "sig", "n": base64.RawURLEncoding.EncodeToString(key.N.Bytes()), "e": base64.RawURLEncoding.EncodeToString(big.NewInt(int64(key.E)).Bytes())}}})
 	}))
 	t.Cleanup(server.Close)
 	endpoint, err := url.Parse(server.URL)

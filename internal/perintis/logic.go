@@ -2,6 +2,7 @@ package perintis
 
 import (
 	"context"
+	"slices"
 	"sort"
 	"time"
 
@@ -54,7 +55,6 @@ func journalIndex(journals []dbgen.PerintisJournal) map[string]dbgen.PerintisJou
 	return index
 }
 
-// ListItem is one month in a mentee's lapbul list.
 func (w *World) ListItem(month string, j *dbgen.PerintisJournal) JournalListItem {
 	item := JournalListItem{Month: month, Status: "not_started", Window: Window(month, w.Now)}
 	if j == nil {
@@ -222,9 +222,9 @@ func (w *World) FullProfile(ctx context.Context, id int32, sensitiveHidden bool)
 		}
 		out.Summary.JournalStatus = &status
 	}
-	for i := len(journals) - 1; i >= 0; i-- {
-		if journals[i].RespondedAt.Valid {
-			out.Summary.LastResponse = journals[i].ResponseText
+	for _, journal := range slices.Backward(journals) {
+		if journal.RespondedAt.Valid {
+			out.Summary.LastResponse = journal.ResponseText
 			break
 		}
 	}
@@ -279,7 +279,7 @@ func (w *World) ReaderView(ctx context.Context, j dbgen.PerintisJournal, canResp
 // RespondLock is why a mentor can no longer edit the response (after the 15th).
 func RespondLock(month string, now time.Time) *string {
 	if now.After(DeadlinesFor(month).ResponseEditableUntil) {
-		return strPtr("Tanggapan hanya bisa disunting sampai tanggal 15.")
+		return new("Tanggapan hanya bisa disunting sampai tanggal 15.")
 	}
 	return nil
 }

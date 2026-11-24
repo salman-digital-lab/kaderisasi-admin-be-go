@@ -7,10 +7,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/xuri/excelize/v2"
 	"kaderisasi/admin/internal/database"
+	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/xuri/excelize/v2"
 )
 
 func TestClubRegistrationRolesAndExport(t *testing.T) {
@@ -36,13 +38,13 @@ func TestClubRegistrationRolesAndExport(t *testing.T) {
 	c := objectData(t, f.call("POST", "/v2/clubs", map[string]string{"name": "Club roles fixture"}, f.token, 200))
 	clubs = append(clubs, c.ID("id"))
 	clubPath := fmt.Sprintf("/v2/clubs/%d", c.ID("id"))
-	payload := map[string]interface{}{"member_id": user.ID("id"), "additional_data": map[string]interface{}{"available": false, "count": 0, "old_question": []string{"A", "B"}}}
+	payload := map[string]any{"member_id": user.ID("id"), "additional_data": map[string]any{"available": false, "count": 0, "old_question": []string{"A", "B"}}}
 	reg := objectData(t, f.call("POST", clubPath+"/registrations", payload, f.token, 200))
 	regPath := fmt.Sprintf("/v2/club-registrations/%d", reg.ID("id"))
 	f.call("POST", clubPath+"/registrations", payload, f.token, 409)
-	roleBody := map[string]interface{}{"club_registration_id": reg.ID("id"), "role_name": "Chairperson", "is_primary": true}
+	roleBody := map[string]any{"club_registration_id": reg.ID("id"), "role_name": "Chairperson", "is_primary": true}
 	f.call("POST", clubPath+"/member-roles", roleBody, f.token, 400)
-	f.call("PUT", regPath, map[string]interface{}{"status": "APPROVED"}, f.token, 200)
+	f.call("PUT", regPath, map[string]any{"status": "APPROVED"}, f.token, 200)
 	primary := objectData(t, f.call("POST", clubPath+"/member-roles", roleBody, f.token, 201))
 	roleBody["role_name"] = "Secretary"
 	secondary := objectData(t, f.call("POST", clubPath+"/member-roles", roleBody, f.token, 201))
@@ -50,28 +52,28 @@ func TestClubRegistrationRolesAndExport(t *testing.T) {
 	if err := f.pool.QueryRow(ctx, "SELECT is_primary FROM club_member_roles WHERE id=$1", primary.ID("id")).Scan(&isPrimary); err != nil || isPrimary {
 		t.Fatal("primary role replacement", err)
 	}
-	f.call("PUT", fmt.Sprintf("/v2/club-registrations/member-roles/%d", primary.ID("id")), map[string]interface{}{"is_primary": true, "sort_order": -1, "start_date": "2026-01-01"}, f.token, 200)
+	f.call("PUT", fmt.Sprintf("/v2/club-registrations/member-roles/%d", primary.ID("id")), map[string]any{"is_primary": true, "sort_order": -1, "start_date": "2026-01-01"}, f.token, 200)
 	for _, path := range []string{clubPath + "/registrations?status=APPROVED&sort_order=asc&limit=1", clubPath + "/members?search=participant", regPath, clubPath + "/member-roles", clubPath + "/member-role-suggestions"} {
 		f.call("GET", path, nil, f.token, 200)
 	}
-	f.call("PUT", "/v2/club-registrations/bulk-update", map[string]interface{}{"registrations": []interface{}{map[string]interface{}{"id": reg.ID("id"), "status": "REJECTED"}, map[string]interface{}{"id": reg.ID("id"), "status": "APPROVED"}}}, f.token, 400)
-	f.call("PUT", "/v2/club-registrations/bulk-update", map[string]interface{}{"registrations": []interface{}{map[string]interface{}{"id": reg.ID("id"), "status": "REJECTED"}, map[string]interface{}{"id": 2147483647, "status": "APPROVED"}}}, f.token, 404)
+	f.call("PUT", "/v2/club-registrations/bulk-update", map[string]any{"registrations": []any{map[string]any{"id": reg.ID("id"), "status": "REJECTED"}, map[string]any{"id": reg.ID("id"), "status": "APPROVED"}}}, f.token, 400)
+	f.call("PUT", "/v2/club-registrations/bulk-update", map[string]any{"registrations": []any{map[string]any{"id": reg.ID("id"), "status": "REJECTED"}, map[string]any{"id": 2147483647, "status": "APPROVED"}}}, f.token, 404)
 	after := objectData(t, f.call("GET", regPath, nil, f.token, 200))
-	var preserved map[string]interface{}
+	var preserved map[string]any
 	if err := json.Unmarshal(after["additional_data"], &preserved); err != nil {
 		t.Fatal(err)
 	}
-	if preserved["available"] != false || preserved["count"] != float64(0) {
+	if available, ok := preserved["available"].(bool); !ok || available || preserved["count"] != float64(0) {
 		t.Fatalf("review changed submitted answers: %v", preserved)
 	}
 	if after.String("status") != "APPROVED" {
 		t.Fatal("bulk missing ID changed other registrations")
 	}
-	f.call("PUT", "/v2/club-registrations/bulk-update", map[string]interface{}{"registrations": []interface{}{map[string]interface{}{"id": reg.ID("id"), "status": "REJECTED"}}}, f.token, 200)
+	f.call("PUT", "/v2/club-registrations/bulk-update", map[string]any{"registrations": []any{map[string]any{"id": reg.ID("id"), "status": "REJECTED"}}}, f.token, 200)
 	if _, err := f.pool.Exec(ctx, "UPDATE club_registrations SET created_at='2026-02-28T17:00:00Z' WHERE id=$1", reg.ID("id")); err != nil {
 		t.Fatal(err)
 	}
-	r := httptest.NewRequest("GET", clubPath+"/registrations/export", nil)
+	r := httptest.NewRequest(http.MethodGet, clubPath+"/registrations/export", nil)
 	r.Header.Set("Authorization", "Bearer "+f.token)
 	w := httptest.NewRecorder()
 	f.handler.ServeHTTP(w, r)

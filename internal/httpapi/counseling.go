@@ -52,8 +52,7 @@ func (s *Server) registerCounseling() {
 		}
 		result, err := service.Update(r.Context(), r.PathValue("id"), input)
 		if err != nil {
-			var failure *domain.Error
-			if errors.As(err, &failure) {
+			if _, ok := errors.AsType[*domain.Error](err); ok {
 				return err
 			}
 			legacyFailure(w, err)

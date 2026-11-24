@@ -16,7 +16,7 @@ func TestCourseDocumentsUsePrivateUploads(t *testing.T) {
 		cache = r.Header.Get("Cache-Control")
 		path = r.URL.Path
 		_, _ = io.Copy(io.Discard, r.Body)
-		w.WriteHeader(200)
+		w.WriteHeader(http.StatusOK)
 	}))
 	defer server.Close()
 	c := config.Config{DriveRegion: "test", DriveKey: "synthetic", DriveSecret: "synthetic", DriveEndpoint: server.URL, DriveDisk: "minio", DriveBucket: "shared"}

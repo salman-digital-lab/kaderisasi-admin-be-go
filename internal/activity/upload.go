@@ -85,8 +85,13 @@ func (s Service) UploadImage(ctx context.Context, id string, body []byte) (*Uplo
 		return nil, domain.Fail(409, "ACTIVITY_IMAGE_LIMIT_REACHED")
 	}
 	images = append(images, key)
-	data["images"], _ = json.Marshal(images)
-	raw, _ := json.Marshal(data)
+	if data["images"], err = json.Marshal(images); err != nil {
+		return nil, err
+	}
+	raw, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
 	if err = q.SetActivityConfig(ctx, dbgen.SetActivityConfigParams{ID: locked.ID, AdditionalConfig: raw}); err != nil {
 		return nil, err
 	}

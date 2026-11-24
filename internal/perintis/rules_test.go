@@ -56,11 +56,9 @@ func TestTingkat(t *testing.T) {
 	}
 }
 
-func p(v int16) *int16 { return &v }
-
 func TestFlagTrigger(t *testing.T) {
-	low := Pulse{Energy: p(2), Academic: p(1), Finance: p(4), Relation: p(5)}
-	one := Pulse{Energy: p(2), Academic: p(3), Finance: p(4), Relation: p(5)}
+	low := Pulse{Energy: new(int16(2)), Academic: new(int16(1)), Finance: new(int16(4)), Relation: new(int16(5))}
+	one := Pulse{Energy: new(int16(2)), Academic: new(int16(3)), Finance: new(int16(4)), Relation: new(int16(5))}
 	if FlagTrigger(low, false) != "low_pulse" || FlagTrigger(low, true) != "both" || FlagTrigger(one, true) != "contact_request" || FlagTrigger(one, false) != "" {
 		t.Fatal("wellbeing rule")
 	}
@@ -71,7 +69,7 @@ func TestMissingItemsPerCategoryAndMonth(t *testing.T) {
 	pages, ip, changed := 10.0, 3.5, true
 	full := Answers{S1b: text("a"), S1c: text("b\nc"), S2b: text("d"), Targets: []string{"x", "y", "z"}, S3a: text("e"),
 		S5aPages: &pages, S5aVerse: text("f"), S5b: text("g"), S5cKinds: []string{"Waktu"}, S6: text("h")}
-	pulse := Pulse{Energy: p(3), Academic: p(3), Finance: p(3), Relation: p(3)}
+	pulse := Pulse{Energy: new(int16(3)), Academic: new(int16(3)), Finance: new(int16(3)), Relation: new(int16(3))}
 	if m := MissingItems("dasar", "2026-12-01", full, pulse, nil, nil); len(m) != 0 {
 		t.Fatalf("complete dasar lapbul: %v", m)
 	}

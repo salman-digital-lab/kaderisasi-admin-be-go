@@ -9,8 +9,7 @@ import (
 )
 
 func clubFailure(w http.ResponseWriter, err error) error {
-	var business *domain.Error
-	if errors.As(err, &business) {
+	if _, ok := errors.AsType[*domain.Error](err); ok {
 		return err
 	}
 	legacyFailure(w, err)

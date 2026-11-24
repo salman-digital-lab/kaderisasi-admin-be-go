@@ -12,7 +12,7 @@ func (s *Server) registerActivityMedia() {
 		if !ok {
 			return nil
 		}
-		result, err := service.DeleteImage(r.Context(), pathID(r, "id"), data)
+		result, err := service.DeleteImage(r.Context(), pathID(r), data)
 		if err != nil {
 			return err
 		}
@@ -24,7 +24,7 @@ func (s *Server) registerActivityMedia() {
 		if !ok {
 			return nil
 		}
-		result, err := service.ReorderImages(r.Context(), pathID(r, "id"), data)
+		result, err := service.ReorderImages(r.Context(), pathID(r), data)
 		if err != nil {
 			return err
 		}

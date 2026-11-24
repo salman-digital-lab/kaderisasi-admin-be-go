@@ -7,12 +7,14 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/xuri/excelize/v2"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
+	"maps"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/xuri/excelize/v2"
 )
 
 const MaxWorkbookBytes = 5 << 20
@@ -74,15 +76,15 @@ func (s Service) Workbook(ctx context.Context, id int32, mode string) ([]byte, e
 	if _, err = f.NewSheet("Metadata"); err != nil {
 		return nil, err
 	}
-	metadata := [][]interface{}{{"schema_version", 1}, {"activity_id", id}, {"rubric_revision", r.Revision}, {"mode", mode}, {"instructions", "Isi nilai mentah. Sel kosong tidak mengubah nilai. Jangan ubah ID atau revisi. Catatan kosong tidak mengubah catatan."}}
+	metadata := [][]any{{"schema_version", 1}, {"activity_id", id}, {"rubric_revision", r.Revision}, {"mode", mode}, {"instructions", "Isi nilai mentah. Sel kosong tidak mengubah nilai. Jangan ubah ID atau revisi. Catatan kosong tidak mengubah catatan."}}
 	for i, row := range metadata {
 		if err = f.SetSheetRow("Metadata", fmt.Sprintf("A%d", i+1), &row); err != nil {
 			return nil, err
 		}
 	}
 	criteria := Criteria(r.Definition)
-	header := []interface{}{"registration_id", "name", "revision", "note"}
-	labels := []interface{}{"ID peserta", "Nama peserta", "Revisi", "Catatan peserta"}
+	header := []any{"registration_id", "name", "revision", "note"}
+	labels := []any{"ID peserta", "Nama peserta", "Revisi", "Catatan peserta"}
 	for _, c := range criteria {
 		header = append(header, "criterion:"+c.ID)
 		labels = append(labels, fmt.Sprintf("%s (maks. %g, bobot %g)", c.Name, c.Maximum, c.Weight))
@@ -111,7 +113,7 @@ func (s Service) Workbook(ctx context.Context, id int32, mode string) ([]byte, e
 			draft = e.Data.Published.Draft
 			result = &e.Data.Published.Result
 		}
-		row := []interface{}{e.RegistrationID, e.Name, revision(e.Data), draft.Note}
+		row := []any{e.RegistrationID, e.Name, revision(e.Data), draft.Note}
 		for _, c := range criteria {
 			if score := draft.Scores[c.ID]; score != nil {
 				row = append(row, *score)
@@ -120,7 +122,7 @@ func (s Service) Workbook(ctx context.Context, id int32, mode string) ([]byte, e
 			}
 		}
 		if mode != "template" {
-			var total, grade interface{} = "", ""
+			var total, grade any = "", ""
 			if result != nil && result.Total != nil {
 				total = *result.Total
 			}
@@ -230,9 +232,7 @@ func parseWorkbook(body []byte, r *Rubric, id int32, p Page) (Preview, error) {
 		draft := Draft{Scores: map[string]*float64{}}
 		if entry.Data != nil {
 			draft.Note = entry.Data.Draft.Note
-			for key, value := range entry.Data.Draft.Scores {
-				draft.Scores[key] = value
-			}
+			maps.Copy(draft.Scores, entry.Data.Draft.Scores)
 		}
 		changed := false
 		if cell(3) != "" {

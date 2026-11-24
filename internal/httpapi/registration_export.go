@@ -9,7 +9,7 @@ import (
 func sendWorkbook(w http.ResponseWriter, filename string, body []byte) {
 	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", filename))
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(body)
 }
 func (s *Server) exportRegistrations(w http.ResponseWriter, r *http.Request) error {

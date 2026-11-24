@@ -1,7 +1,6 @@
 package httpapi
 
 import (
-	"io"
 	"log/slog"
 	"strings"
 	"testing"
@@ -10,7 +9,7 @@ import (
 )
 
 func TestPerintisRoutesAreImplementedAndGuarded(t *testing.T) {
-	s := &Server{Logger: slog.New(slog.NewTextHandler(io.Discard, nil))}
+	s := &Server{Logger: slog.New(slog.DiscardHandler)}
 	s.Handler()
 	known := map[string]bool{}
 	for _, permission := range auth.Permissions() {

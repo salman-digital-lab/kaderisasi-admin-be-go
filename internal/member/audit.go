@@ -85,7 +85,6 @@ func profileFields(p dbgen.Profile) map[string]json.RawMessage {
 	return fields
 }
 
-// createdFields lists the values a new profile starts with.
 func createdFields(row dbgen.CreateMemberProfileRow) map[string]json.RawMessage {
 	fields := map[string]json.RawMessage{}
 	if err := json.Unmarshal(auditValue(row), &fields); err != nil {

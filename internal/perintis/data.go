@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -95,8 +96,8 @@ func CurrentEducation(raw []byte) (institution, major string, intake int32, ok b
 	if json.Unmarshal(raw, &entries) != nil {
 		return "", "", 0, false
 	}
-	for i := len(entries) - 1; i >= 0; i-- {
-		e := entries[i]
+	for _, e := range slices.Backward(entries) {
+
 		if e == nil {
 			continue
 		}
@@ -165,8 +166,6 @@ func (w *World) AdminName(ctx context.Context, id *int32) string {
 	return name
 }
 
-// ---- participants and roles ----------------------------------------------------
-
 // Participant returns the row, or a 403 telling the person they are not enrolled.
 func (w *World) Participant(id int32) (dbgen.PerintisParticipant, error) {
 	p, ok := w.Participants[id]
@@ -202,12 +201,7 @@ func Roles(p dbgen.PerintisParticipant) []string {
 }
 
 func HasRole(p dbgen.PerintisParticipant, role string) bool {
-	for _, r := range Roles(p) {
-		if r == role {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(Roles(p), role)
 }
 
 func (w *World) RequireRole(id int32, role string) (dbgen.PerintisParticipant, error) {
@@ -271,8 +265,6 @@ func (w *World) CoordinatorOfMentor(mentor *int32) *int32 {
 	}
 	return nil
 }
-
-// ---- people --------------------------------------------------------------------
 
 func deref(s *string) string {
 	if s == nil {
@@ -472,8 +464,6 @@ func (w *World) Achievements(ctx context.Context, id int32) ([]Achievement, erro
 	return list, nil
 }
 
-// ---- journals and reports --------------------------------------------------------
-
 func timestamptz(t time.Time) pgtype.Timestamptz { return pgtype.Timestamptz{Time: t, Valid: true} }
 
 func DateOf(month string) pgtype.Date {
@@ -583,7 +573,7 @@ func (w *World) ReportView(ctx context.Context, r dbgen.PerintisSessionReport, h
 		view.SessionDate = &date
 	}
 	if r.ReviewedAt.Valid {
-		reviewer := ""
+		var reviewer string
 		if deref(r.ReviewerKind) == "admin" {
 			reviewer = w.AdminName(ctx, r.ReviewedBy)
 		} else {
@@ -639,8 +629,6 @@ func SaveParticipant(ctx context.Context, q *dbgen.Queries, p dbgen.PerintisPart
 		CoordinatorUserID: p.CoordinatorUserID, Status: p.Status, InactiveReason: p.InactiveReason, UpdatedBy: p.UpdatedBy,
 	})
 }
-
-func strPtr(s string) *string { return &s }
 
 func nilIfEmpty(s string) *string {
 	if strings.TrimSpace(s) == "" {

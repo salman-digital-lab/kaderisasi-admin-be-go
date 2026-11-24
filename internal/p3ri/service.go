@@ -24,7 +24,6 @@ type Service struct {
 	Storage storage.Store
 }
 
-// File is an uploaded file referenced by a file question.
 type File struct {
 	Field string `json:"field"`
 	Key   string `json:"key"`
@@ -38,7 +37,6 @@ type Answers struct {
 	Divisions map[string]map[string]any `json:"divisions"`
 }
 
-// Registration is one registration as the review shows it.
 type Registration struct {
 	ID                  int32      `json:"id"`
 	UserID              int32      `json:"user_id"`
@@ -274,19 +272,19 @@ func (s *Service) Export(ctx context.Context, f Filter) (string, []byte, error) 
 	}
 	headers = append(headers, "Catatan panitia")
 
-	data := make([][]interface{}, 0, len(rows))
+	data := make([][]any, 0, len(rows))
 	for i, row := range rows {
 		r := view(row.P3riRegistration, row.Email)
 		accepted := ""
 		if r.AcceptedDivision != nil {
 			accepted = divisionName(*r.AcceptedDivision)
 		}
-		line := []interface{}{i + 1, r.Email, StatusLabels[r.Status], accepted,
+		line := []any{i + 1, r.Email, StatusLabels[r.Status], accepted,
 			r.SubmittedAt.In(wib).Format("2006-01-02 15:04"), r.UpdatedAt.In(wib).Format("2006-01-02 15:04")}
 		for _, q := range common {
 			line = append(line, cell(q, r.Answers.Common[q.ID]))
 		}
-		for n := 0; n < 3; n++ {
+		for n := range 3 {
 			if n >= len(r.Choices) {
 				line = append(line, "")
 				for range form.ChoiceQuestions {
@@ -329,7 +327,6 @@ func divisionName(code string) string {
 	return code
 }
 
-// cell renders an answer as text.
 func cell(q Question, v any) string {
 	switch value := v.(type) {
 	case nil:

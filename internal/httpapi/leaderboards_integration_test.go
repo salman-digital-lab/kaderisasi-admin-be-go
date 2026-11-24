@@ -7,10 +7,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/xuri/excelize/v2"
 	"kaderisasi/admin/internal/database"
+	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/xuri/excelize/v2"
 )
 
 func TestCounselingAchievementAndLeaderboard(t *testing.T) {
@@ -35,14 +37,14 @@ func TestCounselingAchievementAndLeaderboard(t *testing.T) {
 	f.call("GET", "/v2/ruang-curhat?name=Achievement&gender=F&status=0&admin_display_name=Contract", nil, f.token, 200)
 	cp := fmt.Sprintf("/v2/ruang-curhat/%d", counseling.ID("id"))
 	f.call("GET", cp, nil, f.token, 200)
-	f.call("PUT", cp, map[string]interface{}{"status": 1, "additional_notes": "Synthetic notes"}, f.token, 200)
+	f.call("PUT", cp, map[string]any{"status": 1, "additional_notes": "Synthetic notes"}, f.token, 200)
 	counselorID := f.admin("konselor")
 	counselorToken := f.tokenFor(counselorID)
 	assistantID := f.admin("admin")
 	assistantToken := f.tokenFor(assistantID)
 	f.call("GET", "/v2/ruang-curhat", nil, assistantToken, 403)
 	f.call("GET", cp, nil, assistantToken, 403)
-	f.call("PUT", cp, map[string]interface{}{"status": 1}, assistantToken, 403)
+	f.call("PUT", cp, map[string]any{"status": 1}, assistantToken, 403)
 	f.call("GET", "/v2/ruang-curhat/counselors", nil, assistantToken, 403)
 	f.call("GET", cp, nil, counselorToken, 200)
 	options := f.call("GET", "/v2/ruang-curhat/counselors", nil, counselorToken, 200)
@@ -65,10 +67,10 @@ func TestCounselingAchievementAndLeaderboard(t *testing.T) {
 	if !foundCounselor {
 		t.Fatal("active counselor missing from counseling-scoped options")
 	}
-	f.call("PUT", cp, map[string]interface{}{"counselor_id": counselorID}, counselorToken, 200)
-	f.call("PUT", cp, map[string]interface{}{"counselor_id": assistantID}, counselorToken, 422)
+	f.call("PUT", cp, map[string]any{"counselor_id": counselorID}, counselorToken, 200)
+	f.call("PUT", cp, map[string]any{"counselor_id": assistantID}, counselorToken, 422)
 	ineligibleID := f.admin("member_manager")
-	f.call("PUT", cp, map[string]interface{}{"counselor_id": ineligibleID}, counselorToken, 422)
+	f.call("PUT", cp, map[string]any{"counselor_id": ineligibleID}, counselorToken, 422)
 	f.call("GET", fmt.Sprintf("/v2/profiles/user/%d", u.ID("id")), nil, counselorToken, 403)
 	f.call("GET", "/v2/admin-users", nil, counselorToken, 403)
 	a := database.Object{}
@@ -86,15 +88,15 @@ func TestCounselingAchievementAndLeaderboard(t *testing.T) {
 	managerToken := f.tokenFor(managerID)
 	panitiaToken := f.tokenFor(f.admin("activity_manager"))
 	f.call("GET", ap, nil, panitiaToken, 403)
-	f.call("PUT", ap+"/approve-reject", map[string]interface{}{"status": 1, "score": 20}, panitiaToken, 403)
+	f.call("PUT", ap+"/approve-reject", map[string]any{"status": 1, "score": 20}, panitiaToken, 403)
 	f.call("GET", "/v2/leaderboards/monthly", nil, panitiaToken, 403)
 	f.call("GET", "/v2/ruang-curhat", nil, managerToken, 403)
 	f.call("GET", "/v2/admin-users", nil, managerToken, 403)
 	f.call("GET", ap, nil, managerToken, 200)
 	f.call("GET", "/v2/achievements?name=Achievement&type=2&status=0&sort_by=achievement_date&sort_order=asc", nil, managerToken, 200)
-	f.call("PUT", ap, map[string]interface{}{"description": "Synthetic description", "score": 15}, managerToken, 200)
-	f.call("PUT", ap+"/approve-reject", map[string]interface{}{"score": 20}, managerToken, 400)
-	approved := objectData(t, f.call("PUT", ap+"/approve-reject", map[string]interface{}{"status": 1, "score": 20}, managerToken, 200))
+	f.call("PUT", ap, map[string]any{"description": "Synthetic description", "score": 15}, managerToken, 200)
+	f.call("PUT", ap+"/approve-reject", map[string]any{"score": 20}, managerToken, 400)
+	approved := objectData(t, f.call("PUT", ap+"/approve-reject", map[string]any{"status": 1, "score": 20}, managerToken, 200))
 	if approved.ID("approver_id") != managerID || approved.String("approved_at") == "" {
 		t.Fatal("approval attribution")
 	}
@@ -110,12 +112,12 @@ func TestCounselingAchievementAndLeaderboard(t *testing.T) {
 	f.call("GET", "/v2/leaderboards/monthly?year=2026", nil, f.token, 200)
 	// Legacy review adds the approved score on every approval, and rejection
 	// leaves accumulated scores unchanged. Differential tests must preserve it.
-	f.call("PUT", ap+"/approve-reject", map[string]interface{}{"status": 1, "score": 20}, f.token, 200)
-	f.call("PUT", ap+"/approve-reject", map[string]interface{}{"status": 2, "remark": "Synthetic rejection"}, managerToken, 200)
+	f.call("PUT", ap+"/approve-reject", map[string]any{"status": 1, "score": 20}, f.token, 200)
+	f.call("PUT", ap+"/approve-reject", map[string]any{"status": 2, "remark": "Synthetic rejection"}, managerToken, 200)
 	if err = f.pool.QueryRow(ctx, "SELECT score FROM monthly_leaderboards WHERE user_id=$1", u.ID("id")).Scan(&total); err != nil || total != 40 {
 		t.Fatal("legacy repeated-review effects", total, err)
 	}
-	r := httptest.NewRequest("GET", "/v2/achievements/export", nil)
+	r := httptest.NewRequest(http.MethodGet, "/v2/achievements/export", nil)
 	r.Header.Set("Authorization", "Bearer "+managerToken)
 	w := httptest.NewRecorder()
 	f.handler.ServeHTTP(w, r)
@@ -135,5 +137,5 @@ func TestCounselingAchievementAndLeaderboard(t *testing.T) {
 		t.Fatalf("achievement export content %v", rows)
 	}
 	f.call("GET", "/v2/achievements/2147483647", nil, f.token, 404)
-	f.call("PUT", "/v2/achievements/2147483647", map[string]interface{}{"name": "missing"}, f.token, 404)
+	f.call("PUT", "/v2/achievements/2147483647", map[string]any{"name": "missing"}, f.token, 404)
 }

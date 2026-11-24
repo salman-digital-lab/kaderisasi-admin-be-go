@@ -54,7 +54,7 @@ func (s *Server) registerProfileReads() {
 		byUser bool
 	}{{"show", false}, {"showByUserId", true}} {
 		s.register("profiles_controller", target.action, func(w http.ResponseWriter, r *http.Request) error {
-			rows, err := q.ProfileDetailsByIdentifier(r.Context(), dbgen.ProfileDetailsByIdentifierParams{ID: pathID(r, "id"), ByUser: target.byUser})
+			rows, err := q.ProfileDetailsByIdentifier(r.Context(), dbgen.ProfileDetailsByIdentifierParams{ID: pathID(r), ByUser: target.byUser})
 			if err != nil {
 				column := "id"
 				if target.byUser {

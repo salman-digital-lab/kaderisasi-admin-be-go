@@ -54,7 +54,6 @@ func mustForm() Form {
 	return f
 }
 
-// Current returns the hardcoded 1448 H form.
 func Current() Form { return form }
 
 // FormJSON is the form definition as stored, for the admin frontend.

@@ -107,7 +107,7 @@ func ClubQuestions(schema []byte, answerSets [][]byte) []ClubField {
 	return result
 }
 
-func (field ClubField) Answer(raw json.RawMessage) interface{} {
+func (field ClubField) Answer(raw json.RawMessage) any {
 	if len(raw) == 0 || bytes.Equal(bytes.TrimSpace(raw), []byte("null")) {
 		return ""
 	}
@@ -126,7 +126,7 @@ func (field ClubField) Answer(raw json.RawMessage) interface{} {
 	}
 	return ClubAnswer(raw)
 }
-func ClubAnswer(raw json.RawMessage) interface{} {
+func ClubAnswer(raw json.RawMessage) any {
 	if len(raw) == 0 || bytes.Equal(raw, []byte("null")) {
 		return ""
 	}

@@ -212,7 +212,6 @@ func TestStaffWorkflows(t *testing.T) {
 	_, _, err = svc.File(ctx, "perintis/reports/2/other.jpg")
 	wantStatus(t, err, 404)
 
-	// participants
 	rows := must[[]ParticipantRow](t)(svc.Participants(ctx, "mentee", "", "", ""))
 	if len(rows) != 3 || rows[0].Name != "=Bima" {
 		t.Fatalf("mentees: %+v", rows)
@@ -370,7 +369,6 @@ func TestStaffWorkflows(t *testing.T) {
 		t.Fatalf("mentor gets the added mentee: %+v", nadiaNow.Participant)
 	}
 
-	// exports
 	for _, kind := range []string{"rekap-mentee", "tugas-mentor", "status-lapbul", "laporan-mentoring", "data-peserta"} {
 		name, csv, err := svc.Export(ctx, kind, "2026-12-01")
 		if err != nil || name != "perintis-"+kind+"-2026-12.csv" || !strings.Contains(csv, "\n") {

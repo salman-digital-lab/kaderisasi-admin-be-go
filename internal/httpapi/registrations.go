@@ -17,8 +17,7 @@ func affected(w http.ResponseWriter, count int64) {
 	}{"UPDATE_DATA_SUCCESS", []int64{count}})
 }
 func registrationFailure(w http.ResponseWriter, err error) error {
-	var business *domain.Error
-	if errors.As(err, &business) {
+	if _, ok := errors.AsType[*domain.Error](err); ok {
 		return err
 	}
 	legacyFailure(w, err)
@@ -54,7 +53,7 @@ func (s *Server) registerRegistrations() {
 		id := r.PathValue("id")
 		rows, err := dbgen.New(s.Pool).RegistrationsByUser(r.Context(), id)
 		if err != nil {
-			diagnosticFailure(w, fmt.Errorf("error: %s", database.LegacyQueryError(err, `select * from "activity_registrations" where "user_id" = $1`)))
+			diagnosticFailure(w, fmt.Errorf("error: %w", database.LegacyQueryError(err, `select * from "activity_registrations" where "user_id" = $1`)))
 			return nil
 		}
 		result := make([]activity.UserRegistration, 0, len(rows))

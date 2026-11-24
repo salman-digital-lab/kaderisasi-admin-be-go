@@ -44,13 +44,13 @@ func (s *Server) registerReferenceCRUD() {
 		return q.ListProvinces(r.Context())
 	}))
 	s.register("provinces_controller", "show", referenceHandler("GET_DATA_SUCCESS", false, func(r *http.Request) (dbgen.Province, error) {
-		return q.ProvinceByIdentifier(r.Context(), pathID(r, "id"))
+		return q.ProvinceByIdentifier(r.Context(), pathID(r))
 	}))
 	s.register("provinces_controller", "store", referenceMutation("provinceValidator", "CREATE_DATA_SUCCESS", func(r *http.Request, request provinceRequest) (dbgen.CreateProvinceRow, error) {
 		return q.CreateProvince(r.Context(), &request.Name)
 	}))
 	s.register("provinces_controller", "update", referenceMutation("provinceValidator", "UPDATE_DATA_SUCCESS", func(r *http.Request, request provinceRequest) (dbgen.Province, error) {
-		row, err := q.ProvinceByIdentifier(r.Context(), pathID(r, "id"))
+		row, err := q.ProvinceByIdentifier(r.Context(), pathID(r))
 		if err != nil {
 			return dbgen.Province{}, database.LegacyQueryError(err, `select * from "provinces" where "id" = $1 limit $2`)
 		}
@@ -60,17 +60,17 @@ func (s *Server) registerReferenceCRUD() {
 		return q.ListCities(r.Context())
 	}))
 	s.register("cities_controller", "getByProvinceId", referenceHandler("GET_DATA_SUCCESS", true, func(r *http.Request) ([]dbgen.City, error) {
-		return q.CitiesByProvinceIdentifier(r.Context(), pathID(r, "id"))
+		return q.CitiesByProvinceIdentifier(r.Context(), pathID(r))
 	}))
 	s.register("cities_controller", "show", referenceHandler("GET_DATA_SUCCESS", false, func(r *http.Request) (dbgen.City, error) {
-		return q.CityByIdentifier(r.Context(), pathID(r, "id"))
+		return q.CityByIdentifier(r.Context(), pathID(r))
 	}))
 	s.register("cities_controller", "store", referenceMutation("cityValidator", "CREATE_DATA_SUCCESS", func(r *http.Request, request cityRequest) (dbgen.CreateCityRow, error) {
 		row, err := q.CreateCity(r.Context(), dbgen.CreateCityParams{Name: &request.Name, ProvinceID: numberText(request.ProvinceID)})
 		return row, database.LegacyQueryError(err, `insert into "cities" ("name", "province_id") values ($1, $2) returning "id"`)
 	}))
 	s.register("cities_controller", "update", referenceMutation("cityValidator", "UPDATE_DATA_SUCCESS", func(r *http.Request, request cityRequest) (dbgen.City, error) {
-		row, err := q.CityByIdentifier(r.Context(), pathID(r, "id"))
+		row, err := q.CityByIdentifier(r.Context(), pathID(r))
 		if err != nil {
 			return dbgen.City{}, database.LegacyQueryError(err, `select * from "cities" where "id" = $1 limit $2`)
 		}
@@ -101,7 +101,7 @@ func (s *Server) registerReferenceCRUD() {
 		return universityPage{Meta: database.Meta(total, page, size), Data: data}, nil
 	}))
 	s.register("universities_controller", "show", referenceHandler("GET_DATA_SUCCESS", false, func(r *http.Request) (universityResponse, error) {
-		row, err := q.UniversityByIdentifier(r.Context(), pathID(r, "id"))
+		row, err := q.UniversityByIdentifier(r.Context(), pathID(r))
 		return universityResponse{University: row.University, Province: referenceProvince(row.ParentID, row.ParentName, row.ParentActive)}, err
 	}))
 	s.register("universities_controller", "store", referenceMutation("UniversityValidator", "CREATE_DATA_SUCCESS", func(r *http.Request, request universityRequest) (dbgen.CreateUniversityRow, error) {
@@ -109,7 +109,7 @@ func (s *Server) registerReferenceCRUD() {
 		return row, database.LegacyQueryError(err, `insert into "universities" ("name", "province_id") values ($1, $2) returning "id"`)
 	}))
 	s.register("universities_controller", "update", referenceMutation("UniversityValidator", "UPDATE_DATA_SUCCESS", func(r *http.Request, request universityRequest) (dbgen.University, error) {
-		row, err := q.UniversityByIdentifier(r.Context(), pathID(r, "id"))
+		row, err := q.UniversityByIdentifier(r.Context(), pathID(r))
 		if err != nil {
 			return dbgen.University{}, database.LegacyQueryError(err, `select * from "universities" where "id" = $1 limit $2`)
 		}
@@ -124,7 +124,7 @@ func (s *Server) registerReferenceCRUD() {
 		{"universities_controller", "UNIVERSITY_NOT_FOUND", q.DeleteUniversityByIdentifier},
 	} {
 		s.register(resource.controller, "delete", func(w http.ResponseWriter, r *http.Request) error {
-			count, err := resource.remove(r.Context(), pathID(r, "id"))
+			count, err := resource.remove(r.Context(), pathID(r))
 			if err != nil {
 				legacyFailure(w, paginationError(r, referencePathError(r, err)))
 			} else if count == 0 {
@@ -141,7 +141,7 @@ func referencePathError(r *http.Request, err error) error {
 	if r.PathValue("id") == "" {
 		return err
 	}
-	table := strings.Split(strings.TrimPrefix(r.URL.Path, "/v2/"), "/")[0]
+	table, _, _ := strings.Cut(strings.TrimPrefix(r.URL.Path, "/v2/"), "/")
 	if strings.HasSuffix(r.URL.Path, "/cities") {
 		return database.LegacyQueryError(err, `select * from "cities" where "province_id" = $1`)
 	}

@@ -5,13 +5,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/certificate"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
+	"maps"
 	"time"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func numberText(value *json.Number) *string {
@@ -37,7 +39,7 @@ func (s Service) checkTemplate(ctx context.Context, id *json.Number, canManage b
 	}
 	readiness := certificate.CheckReadinessValues(template.ID, template.Name, template.TemplateData)
 	if template.LifecycleStatus != "published" || !readiness.Ready {
-		return domain.Details(422, "CERTIFICATE_TEMPLATE_NOT_READY", map[string]interface{}{"errors": readiness.Errors})
+		return domain.Details(422, "CERTIFICATE_TEMPLATE_NOT_READY", map[string]any{"errors": readiness.Errors})
 	}
 	return nil
 }
@@ -155,9 +157,7 @@ func (s Service) Update(ctx context.Context, identifier string, data Input, perm
 		if err = json.Unmarshal(raw, &incoming); err != nil {
 			return Updated{}, err
 		}
-		for key, value := range incoming {
-			config[key] = value
-		}
+		maps.Copy(config, incoming)
 	}
 	config["images"] = images
 	if assignment.Present {
@@ -188,7 +188,7 @@ func (s Service) Update(ctx context.Context, identifier string, data Input, perm
 		location, _ := time.LoadLocation("Asia/Jakarta")
 		readiness := EvaluateReadiness(row, form, time.Now().In(location))
 		if becomingPublic && !readiness.CanPublish || opening && (!readiness.CanOpenRegistration || row.IsPublished == nil || !*row.IsPublished) {
-			return Updated{}, domain.Details(422, "ACTIVITY_NOT_READY", map[string]interface{}{"readiness": readiness})
+			return Updated{}, domain.Details(422, "ACTIVITY_NOT_READY", map[string]any{"readiness": readiness})
 		}
 	}
 	if data.IsPublished != nil {

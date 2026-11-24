@@ -1,8 +1,9 @@
 package scoring
 
 import (
-	"github.com/xuri/excelize/v2"
 	"testing"
+
+	"github.com/xuri/excelize/v2"
 )
 
 func testWorkbook(t *testing.T, edit func(*excelize.File)) []byte {
@@ -11,12 +12,12 @@ func testWorkbook(t *testing.T, edit func(*excelize.File)) []byte {
 	defer f.Close()
 	f.SetSheetName("Sheet1", "Scores")
 	f.NewSheet("Metadata")
-	for cell, value := range map[string]interface{}{"B1": 1, "B2": 7, "B3": 1, "B4": "template"} {
+	for cell, value := range map[string]any{"B1": 1, "B2": 7, "B3": 1, "B4": "template"} {
 		if err := f.SetCellValue("Metadata", cell, value); err != nil {
 			t.Fatal(err)
 		}
 	}
-	for i, row := range [][]interface{}{{"registration_id", "name", "revision", "note", "criterion:honesty", "criterion:trust"}, {"id", "name", "rev", "note", "honesty", "trust"}, {9, "Guest", 2, "", 0, "35,5"}} {
+	for i, row := range [][]any{{"registration_id", "name", "revision", "note", "criterion:honesty", "criterion:trust"}, {"id", "name", "rev", "note", "honesty", "trust"}, {9, "Guest", 2, "", 0, "35,5"}} {
 		cell, _ := excelize.CoordinatesToCellName(1, i+1)
 		if err := f.SetSheetRow("Scores", cell, &row); err != nil {
 			t.Fatal(err)
@@ -33,7 +34,7 @@ func testWorkbook(t *testing.T, edit func(*excelize.File)) []byte {
 }
 func TestExcelPreview(t *testing.T) {
 	r := &Rubric{Definition: testDefinition(), Revision: 1}
-	p := Page{Entries: []Entry{{RegistrationID: 9, Name: "Guest", Data: &Data{Revision: 2, Draft: Draft{Scores: map[string]*float64{"honesty": ptr(80)}, Note: "Keep note"}}}}}
+	p := Page{Entries: []Entry{{RegistrationID: 9, Name: "Guest", Data: &Data{Revision: 2, Draft: Draft{Scores: map[string]*float64{"honesty": new(float64(80))}, Note: "Keep note"}}}}}
 	preview, err := parseWorkbook(testWorkbook(t, nil), r, 7, p)
 	if err != nil || len(preview.Errors) != 0 || len(preview.Changes) != 1 {
 		t.Fatalf("preview %#v %v", preview, err)
@@ -59,7 +60,7 @@ func TestExcelPreview(t *testing.T) {
 			f.SetCellStyle("Scores", "F3", "F3", style)
 		}},
 		{"duplicate", func(f *excelize.File) {
-			row := []interface{}{9, "Guest", 2, "", 5, 10}
+			row := []any{9, "Guest", 2, "", 5, 10}
 			f.SetSheetRow("Scores", "A4", &row)
 		}},
 	} {

@@ -8,13 +8,15 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"github.com/xuri/excelize/v2"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/database"
+	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
+
+	"github.com/xuri/excelize/v2"
 )
 
 func TestMemberExportWorkflow(t *testing.T) {
@@ -27,7 +29,7 @@ func TestMemberExportWorkflow(t *testing.T) {
 			t.Error(err)
 		}
 	}()
-	for i := 0; i < 12; i++ {
+	for i := range 12 {
 		data := objectData(t, f.call("POST", "/v2/members", map[string]string{"name": fmt.Sprintf("%s %02d", id, i), "email": fmt.Sprintf("%s-%d@example.test", id, i), "whatsapp": "00123456789"}, f.token, 201))
 		var user database.Object
 		if err := json.Unmarshal(data["user"], &user); err != nil {
@@ -39,7 +41,7 @@ func TestMemberExportWorkflow(t *testing.T) {
 		t.Fatal(err)
 	}
 	request := func(path, format string) []byte {
-		r := httptest.NewRequest("POST", path, strings.NewReader(`{"columns":["whatsapp","email","name"],"format":"`+format+`"}`))
+		r := httptest.NewRequest(http.MethodPost, path, strings.NewReader(`{"columns":["whatsapp","email","name"],"format":"`+format+`"}`))
 		r.Header.Set("Content-Type", "application/json")
 		r.Header.Set("Authorization", "Bearer "+f.token)
 		w := httptest.NewRecorder()
@@ -92,10 +94,10 @@ func TestMemberExportWorkflow(t *testing.T) {
 			}
 		}
 	}
-	for _, body := range []interface{}{
-		map[string]interface{}{"columns": []string{"password"}, "format": "csv"},
-		map[string]interface{}{"columns": []string{}, "format": "xlsx"},
-		map[string]interface{}{"columns": []string{"email"}, "format": "pdf"},
+	for _, body := range []any{
+		map[string]any{"columns": []string{"password"}, "format": "csv"},
+		map[string]any{"columns": []string{}, "format": "xlsx"},
+		map[string]any{"columns": []string{"email"}, "format": "pdf"},
 	} {
 		f.call("POST", "/v2/profiles/export", body, f.token, 422)
 	}

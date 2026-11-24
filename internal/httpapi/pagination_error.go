@@ -3,10 +3,11 @@ package httpapi
 import (
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5/pgconn"
 	"net/http"
 	"slices"
 	"strings"
+
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 // Legacy controllers expose the prepared statement in pagination failures.
@@ -22,7 +23,8 @@ func paginationError(r *http.Request, err error) error {
 	argument := func() string { bind++; return fmt.Sprintf("$%d", bind) }
 	conditions := []string{}
 	add := func(column, op string) { conditions = append(conditions, `"`+column+`" `+op+` `+argument()) }
-	columns, table, order := "*", "", ""
+	columns := "*"
+	var table, order string
 	switch r.URL.Path {
 	case "/v2/admin-users":
 		table, order = "admin_users", `"created_at" desc`

@@ -17,7 +17,7 @@ func (s *Server) featureDeletion(remove func(context.Context, string, string) er
 		if !user.IsActive || (!slices.Contains(codes, "super_admin") && !slices.Contains(codes, "admin")) {
 			return domain.Fail(403, "FORBIDDEN")
 		}
-		identifier := pathID(r, "id")
+		identifier := pathID(r)
 		if id, err := strconv.ParseInt(identifier, 10, 32); err != nil || id < 1 {
 			return domain.Fail(404, "DATA_NOT_FOUND")
 		}

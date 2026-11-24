@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"unicode/utf16"
@@ -10,18 +11,13 @@ import (
 // The installed Node runtime's JSON diagnostics are observable in production.
 // Convert syntax categories and UTF-16 positions, without evaluating JavaScript.
 func jsonDiagnostic(raw []byte, err error) string {
-	syntax, ok := err.(*json.SyntaxError)
+	syntax := &json.SyntaxError{}
+	ok := errors.As(err, &syntax)
 	if !ok {
 		return err.Error()
 	}
 	text := string(raw)
-	position := int(syntax.Offset) - 1
-	if position < 0 {
-		position = 0
-	}
-	if position > len(raw) {
-		position = len(raw)
-	}
+	position := min(max(int(syntax.Offset)-1, 0), len(raw))
 	reason := syntax.Error()
 	prefix := strings.TrimRight(text[:position], " \t\r\n")
 	located := func(message string) string {

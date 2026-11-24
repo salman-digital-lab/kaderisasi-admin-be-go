@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/jackc/pgx/v5"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
 	"kaderisasi/admin/internal/export"
 	"kaderisasi/admin/internal/member"
 	"strings"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type RegistrationExport struct {
@@ -42,7 +43,7 @@ func (s Service) ExportRegistrations(ctx context.Context, id string) (Registrati
 	for _, question := range questions {
 		headers = append(headers, question.Label)
 	}
-	data := make([][]interface{}, 0, len(rows))
+	data := make([][]any, 0, len(rows))
 	for i, row := range rows {
 		user, err := member.UserFromRelation(row.Member, row.Profile, true)
 		if err != nil {
@@ -56,7 +57,7 @@ func (s Service) ExportRegistrations(ctx context.Context, id string) (Registrati
 			registeredAt = row.ClubRegistration.CreatedAt.Time.In(domain.Jakarta()).Format("2006-01-02 15:04:05")
 		}
 		locations := export.RegistrationLocations{Province: row.Province, City: row.City, OriginProvince: row.OriginProvince, OriginCity: row.OriginCity, University: row.University}
-		values := append([]interface{}{i + 1}, export.ClubProfileRow(profileFields, user.Profile.Value, user.Email, locations)...)
+		values := append([]any{i + 1}, export.ClubProfileRow(profileFields, user.Profile.Value, user.Email, locations)...)
 		values = append(values, stringValue(row.ClubRegistration.Status), registeredAt)
 		var submitted map[string]json.RawMessage
 		_ = json.Unmarshal(row.ClubRegistration.AdditionalData, &submitted)

@@ -93,17 +93,18 @@ func clubEducationHistory(raw json.RawMessage) string {
 	return strings.Join(lines, "; ")
 }
 
-func ClubProfileRow(fields []ClubField, profile *member.ProfileResponse, email *string, locations RegistrationLocations) []interface{} {
+func ClubProfileRow(fields []ClubField, profile *member.ProfileResponse, email *string, locations RegistrationLocations) []any {
 	if profile == nil {
-		values := []interface{}{}
+		values := []any{}
 		for _, field := range fields {
-			if field.Key == "email" {
+			switch field.Key {
+			case "email":
 				values = append(values, stringValue(email))
-			} else if field.Key == "current_education" {
+			case "current_education":
 				for range clubEducationColumns {
 					values = append(values, "")
 				}
-			} else {
+			default:
 				values = append(values, "")
 			}
 		}
@@ -114,7 +115,7 @@ func ClubProfileRow(fields []ClubField, profile *member.ProfileResponse, email *
 	if len(education) > 0 {
 		current = education[len(education)-1]
 	}
-	values := []interface{}{}
+	values := []any{}
 	for _, field := range fields {
 		if field.Key == "current_education" {
 			for _, column := range clubEducationColumns {
@@ -126,7 +127,7 @@ func ClubProfileRow(fields []ClubField, profile *member.ProfileResponse, email *
 			}
 			continue
 		}
-		var value interface{} = ""
+		var value any = ""
 		switch field.Key {
 		case "name":
 			value = profile.Name
@@ -187,7 +188,7 @@ func ClubProfileRow(fields []ClubField, profile *member.ProfileResponse, email *
 		case "education_history":
 			value = clubEducationHistory(profile.EducationHistory)
 		case "work_history":
-			value, _ = historyText(member.NormalizeWorkHistory(profile.WorkHistory), "job_title", "company", "start_year", "end_year")
+			value = historyText(member.NormalizeWorkHistory(profile.WorkHistory), "job_title", "company", "start_year", "end_year")
 		case "badges":
 			value = strings.Join(profile.Badges, ", ")
 		case "extra_data":

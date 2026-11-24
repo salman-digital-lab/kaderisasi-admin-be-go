@@ -24,7 +24,7 @@ libvips with JPEG, PNG, and WebP support. The verified macOS setup uses libvips
 **8.18.6** and pkgconf **3.0.0**. govips requires libvips 8.14 or later.
 
 ```sh
-brew install go vips pkgconf libpq
+brew install go vips pkgconf libpq golangci-lint
 go install github.com/sqlc-dev/sqlc/cmd/sqlc@v1.31.1
 # Confirm these match the pinned Go/sqlc versions before generating code.
 go version

@@ -22,7 +22,7 @@ func (s *Server) uploadClubMedia(w http.ResponseWriter, r *http.Request) error {
 	if !logo {
 		raw, _ := json.Marshal(r.FormValue("media_type"))
 		if _, issues := validation.ValidateField("imageMediaValidator", "media_type", raw); len(issues) != 0 {
-			return domain.Details(422, "", map[string]interface{}{"errors": issues})
+			return domain.Details(422, "", map[string]any{"errors": issues})
 		}
 	}
 	result, err := s.clubService().Upload(r.Context(), r.PathValue("id"), body, logo)

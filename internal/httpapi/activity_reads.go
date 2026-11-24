@@ -2,12 +2,13 @@ package httpapi
 
 import (
 	"errors"
-	"github.com/jackc/pgx/v5"
 	"kaderisasi/admin/internal/activity"
 	"kaderisasi/admin/internal/club"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"net/http"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type activityPage struct {
@@ -57,7 +58,7 @@ func (s *Server) registerActivityReads() {
 		return nil
 	})
 	s.register("activities_controller", "show", func(w http.ResponseWriter, r *http.Request) error {
-		row, err := q.ActivityDetailsByIdentifier(r.Context(), pathID(r, "id"))
+		row, err := q.ActivityDetailsByIdentifier(r.Context(), pathID(r))
 		err = database.LegacyQueryError(err, `select * from "activities" where "id" = $1 limit $2`)
 		if errors.Is(err, pgx.ErrNoRows) {
 			reply(w, 200, "GET_DATA_SUCCESS", nil)

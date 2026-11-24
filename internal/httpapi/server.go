@@ -6,13 +6,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/config"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
 	"kaderisasi/admin/internal/storage"
 	"log/slog"
+	"maps"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -21,6 +21,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 //go:embed routes.json
@@ -172,8 +174,7 @@ func (s *Server) Handler() http.Handler {
 				return
 			}
 			if err := h(w, r); err != nil {
-				var d *domain.Error
-				if !errors.As(err, &d) {
+				if _, ok := errors.AsType[*domain.Error](err); !ok {
 					s.Logger.Error("request failed", "route", route.Path, "error", err.Error())
 				}
 				returnError(w, err)
@@ -207,8 +208,8 @@ func (s *Server) Handler() http.Handler {
 				continue
 			}
 			for i, p := range pattern {
-				if strings.HasPrefix(p, ":") {
-					r.SetPathValue(strings.TrimPrefix(p, ":"), parts[i])
+				if after, ok := strings.CutPrefix(p, ":"); ok {
+					r.SetPathValue(after, parts[i])
 				}
 			}
 			entry.handler(w, r)
@@ -241,13 +242,13 @@ func (s *Server) Handler() http.Handler {
 				w.Header().Set("Access-Control-Allow-Credentials", "true")
 			}
 		}
-		if r.Method == "OPTIONS" {
+		if r.Method == http.MethodOptions {
 			if origin != "" && slices.Contains(s.Config.Origins, origin) {
 				w.Header().Set("Access-Control-Allow-Methods", "GET,HEAD,POST,PUT,PATCH,DELETE")
 				w.Header().Set("Access-Control-Allow-Headers", r.Header.Get("Access-Control-Request-Headers"))
 				w.Header().Set("Access-Control-Max-Age", "90")
 			}
-			w.WriteHeader(204)
+			w.WriteHeader(http.StatusNoContent)
 			return
 		}
 		requestID := strings.TrimSpace(r.Header.Get("X-Request-ID"))
@@ -275,15 +276,15 @@ func actor(r *http.Request) dbgen.AdminUser {
 	user, _ := r.Context().Value(userContextKey{}).(dbgen.AdminUser)
 	return user
 }
-func write(w http.ResponseWriter, status int, data interface{}) {
+func write(w http.ResponseWriter, status int, data any) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(data)
 }
-func reply(w http.ResponseWriter, status int, message string, data interface{}) {
+func reply(w http.ResponseWriter, status int, message string, data any) {
 	write(w, status, struct {
-		Message string      `json:"message"`
-		Data    interface{} `json:"data"`
+		Message string `json:"message"`
+		Data    any    `json:"data"`
 	}{message, data})
 }
 func message(w http.ResponseWriter, status int, value string) {
@@ -292,16 +293,13 @@ func message(w http.ResponseWriter, status int, value string) {
 	}{value})
 }
 func returnError(w http.ResponseWriter, err error) {
-	var d *domain.Error
-	if errors.As(err, &d) {
+	if d, ok := errors.AsType[*domain.Error](err); ok {
 		if d.Fields != nil {
-			body := map[string]interface{}{}
+			body := map[string]any{}
 			if d.Message != "" {
 				body["message"] = d.Message
 			}
-			for key, value := range d.Fields {
-				body[key] = value
-			}
+			maps.Copy(body, d.Fields)
 			write(w, d.Status, body)
 			return
 		}
@@ -311,7 +309,6 @@ func returnError(w http.ResponseWriter, err error) {
 	message(w, 500, "GENERAL_ERROR")
 }
 
-// accessToken returns the admin access JWT from its cookie, else the bearer header.
 func accessToken(r *http.Request) string {
 	if cookie, err := r.Cookie("admin_access_jwt"); err == nil && cookie.Value != "" {
 		return cookie.Value
@@ -321,7 +318,7 @@ func accessToken(r *http.Request) string {
 
 func unauthorized(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(401)
+	w.WriteHeader(http.StatusUnauthorized)
 	_, _ = w.Write([]byte("Unauthorized access"))
 }
 

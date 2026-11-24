@@ -20,7 +20,7 @@ func truthyText(raw json.RawMessage) string {
 	}
 	return Text(raw)
 }
-func historyText(raw json.RawMessage, fields ...string) (string, error) {
+func historyText(raw json.RawMessage, fields ...string) string {
 	lines := []string{}
 	for _, entry := range member.HistoryEntries(raw) {
 		parts := []string{}
@@ -34,20 +34,20 @@ func historyText(raw json.RawMessage, fields ...string) (string, error) {
 			lines = append(lines, strings.Join(parts, " - "))
 		}
 	}
-	return strings.Join(lines, "; "), nil
+	return strings.Join(lines, "; ")
 }
-func currentEducationCell(raw json.RawMessage, key string) interface{} {
+func currentEducationCell(raw json.RawMessage, key string) any {
 	value, _ := documentProperty(raw, key)
 	if !database.JSONTruthy(value) {
 		return ""
 	}
-	var result interface{}
+	var result any
 	if json.Unmarshal(value, &result) != nil {
 		return ""
 	}
 	return result
 }
-func RegistrationRow(number int, registration Registration, questions []Question, badge string) ([]interface{}, error) {
+func RegistrationRow(number int, registration Registration, questions []Question, badge string) ([]any, error) {
 	profile := registration.Profile
 	if profile == nil {
 		profile = &member.ProfileResponse{}
@@ -76,21 +76,15 @@ func RegistrationRow(number int, registration Registration, questions []Question
 		education = member.NormalizeEducationHistory(education)
 		work = member.NormalizeWorkHistory(guest.WorkHistory)
 	}
-	educationText, err := historyText(education, "degree", "institution", "faculty", "major", "intake_year")
-	if err != nil {
-		return nil, err
-	}
-	workText, err := historyText(work, "job_title", "company", "start_year", "end_year")
-	if err != nil {
-		return nil, err
-	}
+	educationText := historyText(education, "degree", "institution", "faculty", "major", "intake_year")
+	workText := historyText(work, "job_title", "company", "start_year", "end_year")
 	current := guest.CurrentEducation
 	var history []json.RawMessage
 	if (registration.UserID != nil || !database.JSONTruthy(current)) && json.Unmarshal(education, &history) == nil && len(history) > 0 {
 		current = history[len(history)-1]
 	}
 	locations := registration.Locations
-	row := []interface{}{number, name, stringValue(profile.Gender), email, stringValue(profile.Picture), whatsapp, stringValue(profile.PersonalID), strings.Split(birthDate, "T")[0], stringValue(profile.Line), stringValue(profile.Instagram), stringValue(profile.Tiktok), stringValue(profile.Linkedin), stringValue(locations.Province), stringValue(locations.City), country, stringValue(locations.OriginProvince), stringValue(locations.OriginCity), stringValue(locations.University), major, intakeYear, currentEducationCell(current, "institution"), currentEducationCell(current, "faculty"), currentEducationCell(current, "major"), currentEducationCell(current, "intake_year"), educationText, workText, Text(profile.ExtraData), level, strings.Join(profile.Badges, ", "), badge}
+	row := []any{number, name, stringValue(profile.Gender), email, stringValue(profile.Picture), whatsapp, stringValue(profile.PersonalID), strings.Split(birthDate, "T")[0], stringValue(profile.Line), stringValue(profile.Instagram), stringValue(profile.Tiktok), stringValue(profile.Linkedin), stringValue(locations.Province), stringValue(locations.City), country, stringValue(locations.OriginProvince), stringValue(locations.OriginCity), stringValue(locations.University), major, intakeYear, currentEducationCell(current, "institution"), currentEducationCell(current, "faculty"), currentEducationCell(current, "major"), currentEducationCell(current, "intake_year"), educationText, workText, Text(profile.ExtraData), level, strings.Join(profile.Badges, ", "), badge}
 	for _, question := range questions {
 		answer, err := documentProperty(registration.Answers, question.Key)
 		if err != nil {

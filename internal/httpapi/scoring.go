@@ -107,7 +107,7 @@ func (s *Server) registerScoring() {
 		}
 		w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 		w.Header().Set("Content-Disposition", `attachment; filename="activity-scoring.xlsx"`)
-		w.WriteHeader(200)
+		w.WriteHeader(http.StatusOK)
 		_, err = w.Write(body)
 		return err
 	})

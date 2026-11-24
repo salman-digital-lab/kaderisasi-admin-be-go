@@ -31,7 +31,7 @@ func TestMemberAuditTrail(t *testing.T) {
 	uid, _ := auth.UUID()
 	email := uid + "@example.test"
 
-	created := objectData(t, f.call("POST", "/v2/members", map[string]interface{}{"name": "Audit fixture", "gender": "M"}, f.token, 201))
+	created := objectData(t, f.call("POST", "/v2/members", map[string]any{"name": "Audit fixture", "gender": "M"}, f.token, 201))
 	var user, profile database.Object
 	json.Unmarshal(created["user"], &user)
 	json.Unmarshal(created["profile"], &profile)
@@ -73,19 +73,19 @@ func TestMemberAuditTrail(t *testing.T) {
 	}
 
 	// Only the changed fields are recorded, with the replaced value.
-	f.call("PUT", profilePath, map[string]interface{}{"name": "Audit renamed", "gender": "M", "whatsapp": "0811000"}, f.token, 200)
+	f.call("PUT", profilePath, map[string]any{"name": "Audit renamed", "gender": "M", "whatsapp": "0811000"}, f.token, 200)
 	updated := latest("profile_updated")
 	if len(updated.Changes) != 2 || string(updated.Changes["name"]["before"]) != `"Audit fixture"` || string(updated.Changes["name"]["after"]) != `"Audit renamed"` ||
 		string(updated.Changes["whatsapp"]["before"]) != "null" {
 		t.Fatalf("update entry %+v", updated.Changes)
 	}
 	// A save that changes nothing leaves no entry.
-	f.call("PUT", profilePath, map[string]interface{}{"name": "Audit renamed"}, f.token, 200)
+	f.call("PUT", profilePath, map[string]any{"name": "Audit renamed"}, f.token, 200)
 	if rows, _ := trail("", f.token); len(rows) != 2 {
 		t.Fatalf("unchanged save was recorded: %d entries", len(rows))
 	}
 
-	f.call("PUT", profilePath+"/regional-assignment", map[string]interface{}{"alumni_regional_assignment": []string{"Bandung"}}, f.token, 200)
+	f.call("PUT", profilePath+"/regional-assignment", map[string]any{"alumni_regional_assignment": []string{"Bandung"}}, f.token, 200)
 	regional := latest("regional_assignment_updated")
 	if len(regional.Changes) != 1 || string(regional.Changes["extra_data.alumni_regional_assignment"]["after"]) != `["Bandung"]` {
 		t.Fatalf("regional entry %+v", regional.Changes)
@@ -102,7 +102,7 @@ func TestMemberAuditTrail(t *testing.T) {
 	if string(credentials.Changes["email"]["before"]) != `"`+email+`"` || string(credentials.Changes["password"]["changed"]) != "true" {
 		t.Fatalf("credential entry %+v", credentials.Changes)
 	}
-	f.call("PUT", profilePath, map[string]interface{}{"password": "Fixture-reset-2026!"}, f.token, 200)
+	f.call("PUT", profilePath, map[string]any{"password": "Fixture-reset-2026!"}, f.token, 200)
 	if reset := latest("credentials_updated"); len(reset.Changes) != 1 || string(reset.Changes["password"]["changed"]) != "true" {
 		t.Fatalf("password reset entry %+v", reset.Changes)
 	}

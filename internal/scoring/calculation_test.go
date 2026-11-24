@@ -6,7 +6,6 @@ import (
 	"testing"
 )
 
-func ptr(n float64) *float64 { return &n }
 func testDefinition() Definition {
 	return Definition{Groups: []Group{{ID: "character", Name: "Karakter", Criteria: []Criterion{{ID: "honesty", Name: "Shiddiq", Maximum: 100, Weight: 1}, {ID: "trust", Name: "Amanah", Maximum: 50, Weight: 3}}}}, Grades: []Grade{{Label: "B", Minimum: 0}, {Label: "A", Minimum: 80}, {Label: "A+", Minimum: 89}}}
 }
@@ -20,16 +19,16 @@ func TestCalculate(t *testing.T) {
 		complete bool
 		invalid  bool
 	}{
-		{"normalized weighted", map[string]*float64{"honesty": ptr(100), "trust": ptr(35)}, ptr(77.5), "B", true, false},
-		{"zero is complete", map[string]*float64{"honesty": ptr(0), "trust": ptr(0)}, ptr(0), "B", true, false},
-		{"blank incomplete", map[string]*float64{"honesty": ptr(0)}, nil, "", false, false},
-		{"boundary", map[string]*float64{"honesty": ptr(80), "trust": ptr(40)}, ptr(80), "A", true, false},
-		{"decimal", map[string]*float64{"honesty": ptr(86.4), "trust": ptr(50)}, ptr(96.6), "A+", true, false},
-		{"overflow", map[string]*float64{"trust": ptr(51)}, nil, "", false, true},
-		{"negative", map[string]*float64{"trust": ptr(-1)}, nil, "", false, true},
-		{"extra precision", map[string]*float64{"trust": ptr(1.001)}, nil, "", false, true},
-		{"nan", map[string]*float64{"trust": ptr(math.NaN())}, nil, "", false, true},
-		{"unknown", map[string]*float64{"wrong": ptr(1)}, nil, "", false, true},
+		{"normalized weighted", map[string]*float64{"honesty": new(float64(100)), "trust": new(float64(35))}, new(77.5), "B", true, false},
+		{"zero is complete", map[string]*float64{"honesty": new(float64(0)), "trust": new(float64(0))}, new(float64(0)), "B", true, false},
+		{"blank incomplete", map[string]*float64{"honesty": new(float64(0))}, nil, "", false, false},
+		{"boundary", map[string]*float64{"honesty": new(float64(80)), "trust": new(float64(40))}, new(float64(80)), "A", true, false},
+		{"decimal", map[string]*float64{"honesty": new(86.4), "trust": new(float64(50))}, new(96.6), "A+", true, false},
+		{"overflow", map[string]*float64{"trust": new(float64(51))}, nil, "", false, true},
+		{"negative", map[string]*float64{"trust": new(float64(-1))}, nil, "", false, true},
+		{"extra precision", map[string]*float64{"trust": new(1.001)}, nil, "", false, true},
+		{"nan", map[string]*float64{"trust": new(math.NaN())}, nil, "", false, true},
+		{"unknown", map[string]*float64{"wrong": new(float64(1))}, nil, "", false, true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			r, err := Calculate(d, Draft{Scores: tc.scores})
@@ -53,7 +52,7 @@ func TestRoundingBeforeGrade(t *testing.T) {
 	d.Groups[0].Criteria = d.Groups[0].Criteria[:1]
 	d.Groups[0].Criteria[0].Maximum = 3
 	d.Grades = []Grade{{Label: "Low", Minimum: 0}, {Label: "High", Minimum: 66.67}}
-	r, err := Calculate(d, Draft{Scores: map[string]*float64{"honesty": ptr(2)}})
+	r, err := Calculate(d, Draft{Scores: map[string]*float64{"honesty": new(float64(2))}})
 	if err != nil || *r.Total != 66.67 || *r.Grade != "High" || *r.Criteria[0].Normalized != 66.67 {
 		t.Fatalf("rounding %#v %v", r, err)
 	}
@@ -70,25 +69,25 @@ func TestRubricValidation(t *testing.T) {
 	}
 	d := testDefinition()
 	d.Grades = nil
-	r, err := Calculate(d, Draft{Scores: map[string]*float64{"honesty": ptr(100), "trust": ptr(50)}})
+	r, err := Calculate(d, Draft{Scores: map[string]*float64{"honesty": new(float64(100)), "trust": new(float64(50))}})
 	if err != nil || r.Grade != nil {
 		t.Fatal("optional grades", err)
 	}
 }
 func TestScoringJSONAndState(t *testing.T) {
-	d := Data{SchemaVersion: 1, Draft: Draft{Scores: map[string]*float64{"honesty": ptr(0)}, Note: "draft"}}
+	d := Data{SchemaVersion: 1, Draft: Draft{Scores: map[string]*float64{"honesty": new(float64(0))}, Note: "draft"}}
 	setState(&d, Result{Complete: false})
 	if d.State != "incomplete" {
 		t.Fatal(d.State)
 	}
-	d.Published = &Snapshot{Draft: Draft{Scores: map[string]*float64{"honesty": ptr(0)}, Note: "published"}}
+	d.Published = &Snapshot{Draft: Draft{Scores: map[string]*float64{"honesty": new(float64(0))}, Note: "published"}}
 	setState(&d, Result{Complete: true})
 	if d.State != "changed" {
 		t.Fatal(d.State)
 	}
 	raw, _ := json.Marshal(d)
-	copy, err := decode(raw)
-	if err != nil || *copy.Draft.Scores["honesty"] != 0 || copy.Published.Draft.Note != "published" {
+	decoded, err := decode(raw)
+	if err != nil || *decoded.Draft.Scores["honesty"] != 0 || decoded.Published.Draft.Note != "published" {
 		t.Fatal("round trip", err)
 	}
 	if data, err := decode(nil); data != nil || err != nil {

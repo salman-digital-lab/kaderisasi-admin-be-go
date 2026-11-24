@@ -8,8 +8,7 @@ import (
 )
 
 func status(err error) int {
-	var failure *domain.Error
-	if errors.As(err, &failure) {
+	if failure, ok := errors.AsType[*domain.Error](err); ok {
 		return failure.Status
 	}
 	return 0

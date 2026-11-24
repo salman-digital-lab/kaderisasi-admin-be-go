@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/database"
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"sync"
@@ -43,8 +44,8 @@ func TestCertificateTemplateLifecycleAndAssets(t *testing.T) {
 	if bg.ID("templateVersion") != 2 || bg.ID("assetVersion") != 1 {
 		t.Fatal("background versions", bg)
 	}
-	design := map[string]interface{}{"backgroundUrl": nil, "canvasWidth": 800, "canvasHeight": 566, "elements": []interface{}{map[string]interface{}{"id": "name", "type": "variable-text", "variable": "{{name}}", "x": 100, "y": 100, "width": 600, "height": 80}, map[string]interface{}{"id": "signature", "type": "signature", "imageUrl": asset.String("asset_key"), "x": 100, "y": 200, "width": 100, "height": 100}}}
-	tmpl = objectData(t, f.call("PUT", path, map[string]interface{}{"expectedVersion": 2, "templateData": design}, f.token, 200))
+	design := map[string]any{"backgroundUrl": nil, "canvasWidth": 800, "canvasHeight": 566, "elements": []any{map[string]any{"id": "name", "type": "variable-text", "variable": "{{name}}", "x": 100, "y": 100, "width": 600, "height": 80}, map[string]any{"id": "signature", "type": "signature", "imageUrl": asset.String("asset_key"), "x": 100, "y": 200, "width": 100, "height": 100}}}
+	tmpl = objectData(t, f.call("PUT", path, map[string]any{"expectedVersion": 2, "templateData": design}, f.token, 200))
 	if tmpl.ID("version") != 3 || !nestedObject(tmpl, "readiness").Bool("ready") {
 		t.Fatal("draft version/readiness")
 	}
@@ -68,14 +69,14 @@ func TestCertificateTemplateLifecycleAndAssets(t *testing.T) {
 		t.Fatal("element not copied")
 	}
 	f.call("POST", path+"/publish", map[string]int{"expectedVersion": 3}, f.token, 200)
-	f.call("PUT", path, map[string]interface{}{"expectedVersion": 4, "name": "Forbidden edit"}, f.token, 409)
+	f.call("PUT", path, map[string]any{"expectedVersion": 4, "name": "Forbidden edit"}, f.token, 409)
 	conflict := f.call("POST", path+"/archive", map[string]int{"expectedVersion": 3}, f.token, 409)
 	if conflict.ID("currentVersion") != 4 || !conflict.Has("updatedAt") {
 		t.Fatal("version conflict envelope")
 	}
 	f.call("POST", path+"/archive", map[string]int{"expectedVersion": 4}, f.token, 200)
 	f.call("POST", path+"/publish", map[string]int{"expectedVersion": 5}, f.token, 200)
-	activity := objectData(t, f.call("POST", "/v2/activities", map[string]interface{}{"name": "Certificate activity", "certificate_template_id": tmpl.ID("id")}, f.token, 200))
+	activity := objectData(t, f.call("POST", "/v2/activities", map[string]any{"name": "Certificate activity", "certificate_template_id": tmpl.ID("id")}, f.token, 200))
 	activities = append(activities, activity.ID("id"))
 	shown := objectData(t, f.call("GET", path, nil, f.token, 200))
 	if shown.ID("activity_usage_count") != 1 {
@@ -92,7 +93,7 @@ func TestCertificateTemplateLifecycleAndAssets(t *testing.T) {
 	uuid, _ := auth.UUID()
 	copiedElements[1].Set("imageUrl", prefix+"assets/missing-"+uuid+".webp")
 	copyDesign.Set("elements", copiedElements)
-	f.call("PUT", copyPath, map[string]interface{}{"expectedVersion": 1, "templateData": copyDesign}, f.token, 200)
+	f.call("PUT", copyPath, map[string]any{"expectedVersion": 1, "templateData": copyDesign}, f.token, 200)
 	tracked := []string{}
 	originalRecorder := f.storage.Created
 	f.storage.Created = func(key string) error { tracked = append(tracked, key); return originalRecorder(key) }
@@ -113,10 +114,10 @@ func TestCertificateTemplateLifecycleAndAssets(t *testing.T) {
 	// Optimistic locking permits exactly one of two mutations with version 2.
 	codes := make(chan int, 2)
 	var wg sync.WaitGroup
-	for i := 0; i < 2; i++ {
+	for i := range 2 {
 		wg.Go(func() {
-			body, _ := json.Marshal(map[string]interface{}{"expectedVersion": 2, "description": fmt.Sprintf("competing %d", i)})
-			r := httptest.NewRequest("PUT", copyPath, bytes.NewReader(body))
+			body, _ := json.Marshal(map[string]any{"expectedVersion": 2, "description": fmt.Sprintf("competing %d", i)})
+			r := httptest.NewRequest(http.MethodPut, copyPath, bytes.NewReader(body))
 			r.Header.Set("Content-Type", "application/json")
 			r.Header.Set("Authorization", "Bearer "+f.token)
 			w := httptest.NewRecorder()

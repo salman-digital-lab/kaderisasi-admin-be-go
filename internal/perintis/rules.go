@@ -19,7 +19,6 @@ var WIB = time.FixedZone("WIB", 7*60*60)
 // FirstMonth is the first reporting month; its lapbul opens 1 Oct 2026.
 const FirstMonth = "2026-09-01"
 
-// FormVersion is the version of the lapbul form defined in code.
 const FormVersion = 1
 
 const (
@@ -40,8 +39,6 @@ func (e *Error) Error() string { return e.Message }
 func fail(status int, format string, args ...any) error {
 	return &Error{Status: status, Message: fmt.Sprintf(format, args...)}
 }
-
-// ---- months and deadlines -------------------------------------------------
 
 // MonthStart parses a YYYY-MM-DD month key as midnight WIB on the 1st.
 func MonthStart(month string) (time.Time, bool) {
@@ -154,8 +151,6 @@ func FormatDate(t time.Time) string {
 	return fmt.Sprintf("%d %s %d", t.Day(), monthNames[t.Month()-1][:3], t.Year())
 }
 
-// ---- labels ---------------------------------------------------------------
-
 var CategoryLabel = map[string]string{"dasar": "Beswan dasar", "biaya_hidup": "Penerima biaya hidup"}
 
 var JournalStatusLabel = map[string]string{
@@ -177,8 +172,6 @@ func Responded(status string) bool {
 }
 
 func Waiting(status string) bool { return status == "submitted" || status == "revised" }
-
-// ---- lapbul form ------------------------------------------------------------
 
 // Answers are the lapbul answers kept in perintis_journals.answers. Text may
 // be multiline; line breaks are stored as typed.

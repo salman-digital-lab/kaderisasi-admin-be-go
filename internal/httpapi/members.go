@@ -11,7 +11,6 @@ import (
 	"strings"
 )
 
-// memberActor attributes a member change to the signed-in admin for the audit trail.
 func memberActor(r *http.Request, source string) member.Actor {
 	admin := actor(r)
 	name := admin.Email
@@ -48,8 +47,7 @@ func (s *Server) registerMembers() {
 		}
 		created, err := service.Create(r.Context(), memberActor(r, "admin"), data)
 		if err != nil {
-			var d *domain.Error
-			if errors.As(err, &d) {
+			if _, ok := errors.AsType[*domain.Error](err); ok {
 				return err
 			}
 			legacyFailure(w, paginationError(r, err))
@@ -63,9 +61,8 @@ func (s *Server) registerMembers() {
 		if !ok {
 			return nil
 		}
-		if err := service.GenerateAccount(r.Context(), memberActor(r, "admin"), pathID(r, "id"), data.Email, data.Password); err != nil {
-			var d *domain.Error
-			if errors.As(err, &d) {
+		if err := service.GenerateAccount(r.Context(), memberActor(r, "admin"), pathID(r), data.Email, data.Password); err != nil {
+			if _, ok := errors.AsType[*domain.Error](err); ok {
 				return err
 			}
 			legacyFailure(w, paginationError(r, err))
@@ -82,7 +79,7 @@ func (s *Server) registerMembers() {
 		if !ok {
 			return nil
 		}
-		updated, err := service.UpdateCredentials(r.Context(), memberActor(r, "admin"), pathID(r, "id"), data)
+		updated, err := service.UpdateCredentials(r.Context(), memberActor(r, "admin"), pathID(r), data)
 		if err != nil {
 			return s.frameworkError(err, "")
 		}
@@ -96,9 +93,8 @@ func (s *Server) registerMembers() {
 		if !ok {
 			return nil
 		}
-		updated, err := service.UpdateProfile(r.Context(), memberActor(r, "admin"), pathID(r, "id"), data)
-		var unlisted *member.InstitutionError
-		if errors.As(err, &unlisted) {
+		updated, err := service.UpdateProfile(r.Context(), memberActor(r, "admin"), pathID(r), data)
+		if unlisted, ok := errors.AsType[*member.InstitutionError](err); ok {
 			// Same envelope as this route's other validation failures.
 			issues := []validation.Issue{{Message: unlisted.Error(), Rule: "database.exists", Field: unlisted.Field()}}
 			write(w, 500, struct {
@@ -119,9 +115,8 @@ func (s *Server) registerMembers() {
 		if !ok {
 			return nil
 		}
-		if err := service.UpdateRegionalAssignment(r.Context(), memberActor(r, "admin"), pathID(r, "id"), data); err != nil {
-			var d *domain.Error
-			if errors.As(err, &d) {
+		if err := service.UpdateRegionalAssignment(r.Context(), memberActor(r, "admin"), pathID(r), data); err != nil {
+			if _, ok := errors.AsType[*domain.Error](err); ok {
 				return err
 			}
 			legacyFailure(w, err)
@@ -131,7 +126,7 @@ func (s *Server) registerMembers() {
 		return nil
 	})
 	s.register("profiles_controller", "delete", func(w http.ResponseWriter, r *http.Request) error {
-		err := service.Delete(r.Context(), memberActor(r, "admin"), pathID(r, "id"))
+		err := service.Delete(r.Context(), memberActor(r, "admin"), pathID(r))
 		err = database.LegacyQueryError(err, `select * from "profiles" where "id" = $1 limit $2`)
 		if err != nil {
 			legacyFailure(w, err)

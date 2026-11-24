@@ -51,14 +51,14 @@ func TestApprovalReadinessRequiresVisibleQR(t *testing.T) {
 	if CheckReadinessValues(1, "E-sign", []byte(data)).Ready {
 		t.Fatal("approval without QR accepted")
 	}
-	var document map[string]interface{}
+	var document map[string]any
 	_ = json.Unmarshal([]byte(data), &document)
-	document["elements"] = append(document["elements"].([]interface{}), map[string]interface{}{"id": "qr", "type": "qr-code", "x": 500, "y": 100, "width": 100, "height": 100})
+	document["elements"] = append(document["elements"].([]any), map[string]any{"id": "qr", "type": "qr-code", "x": 500, "y": 100, "width": 100, "height": 100})
 	raw, _ := json.Marshal(document)
 	if !CheckReadinessValues(1, "E-sign", raw).Ready {
 		t.Fatal("valid approval design rejected")
 	}
-	document["elements"].([]interface{})[2].(map[string]interface{})["visible"] = false
+	document["elements"].([]any)[2].(map[string]any)["visible"] = false
 	raw, _ = json.Marshal(document)
 	if CheckReadinessValues(1, "E-sign", raw).Ready {
 		t.Fatal("hidden QR accepted")

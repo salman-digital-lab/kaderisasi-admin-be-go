@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -38,7 +39,7 @@ func TestRegistrationExportAfterChoiceRename(t *testing.T) {
 	if _, err := f.pool.Exec(ctx, `UPDATE custom_forms SET form_schema=jsonb_set(form_schema,'{fields,0,fields,0,options,0,label}','"New label"'),updated_at=now() WHERE id=$1`, formID); err != nil {
 		t.Fatal(err)
 	}
-	request := httptest.NewRequest("GET", fmt.Sprintf("/v2/activities/%d/registrations-export", id), nil)
+	request := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/v2/activities/%d/registrations-export", id), nil)
 	request.Header.Set("Authorization", "Bearer "+f.token)
 	response := httptest.NewRecorder()
 	f.handler.ServeHTTP(response, request)

@@ -2,18 +2,19 @@ package httpapi
 
 import (
 	"errors"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/dbgen"
 	"log/slog"
 	"net/http"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
-func plural(w http.ResponseWriter, message string, data interface{}) {
+func plural(w http.ResponseWriter, message string, data any) {
 	write(w, 200, struct {
-		Messages string      `json:"messages"`
-		Data     interface{} `json:"data"`
+		Messages string `json:"messages"`
+		Data     any    `json:"data"`
 	}{message, data})
 }
 func legacyFailure(w http.ResponseWriter, err error) {
@@ -24,8 +25,7 @@ func legacyFailure(w http.ResponseWriter, err error) {
 	if errors.Is(err, pgx.ErrNoRows) {
 		text = "Row not found"
 	}
-	var pg *pgconn.PgError
-	if errors.As(err, &pg) {
+	if pg, ok := errors.AsType[*pgconn.PgError](err); ok {
 		text = pg.Message
 	}
 	write(w, 500, struct {
@@ -38,7 +38,7 @@ func (s *Server) registerReference() {
 	s.register("countries_controller", "index", referenceHandler("GET_DATA_SUCCESS", false, func(r *http.Request) ([]dbgen.Country, error) {
 		return dbgen.New(s.Pool).ListCountries(r.Context())
 	}))
-	s.register("rbac_roles_controller", "index", func(w http.ResponseWriter, r *http.Request) error {
+	s.register("rbac_roles_controller", "index", func(w http.ResponseWriter, _ *http.Request) error {
 		reply(w, 200, "GET_DATA_SUCCESS", auth.Roles())
 		return nil
 	})
@@ -51,11 +51,11 @@ func (s *Server) registerReference() {
 		reply(w, 200, "GET_DATA_SUCCESS", role)
 		return nil
 	})
-	s.register("rbac_permissions_controller", "index", func(w http.ResponseWriter, r *http.Request) error {
+	s.register("rbac_permissions_controller", "index", func(w http.ResponseWriter, _ *http.Request) error {
 		reply(w, 200, "GET_DATA_SUCCESS", auth.Permissions())
 		return nil
 	})
-	s.register("rbac_permissions_controller", "requestableTargets", func(w http.ResponseWriter, r *http.Request) error {
+	s.register("rbac_permissions_controller", "requestableTargets", func(w http.ResponseWriter, _ *http.Request) error {
 		roles := []auth.Role{}
 		for _, role := range auth.Roles() {
 			if role.IsRequestable {

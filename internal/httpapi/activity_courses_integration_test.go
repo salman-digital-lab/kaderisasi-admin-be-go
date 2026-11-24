@@ -7,11 +7,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/xuri/excelize/v2"
 	"kaderisasi/admin/internal/activity"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
@@ -19,6 +19,8 @@ import (
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/xuri/excelize/v2"
 )
 
 type activityCourseCheck struct {
@@ -33,7 +35,7 @@ type activityCourseFixture struct {
 	checks []activityCourseCheck
 }
 
-func (f *activityCourseFixture) call(method, path string, body interface{}, token string, status int) database.Object {
+func (f *activityCourseFixture) call(method, path string, body any, token string, status int) database.Object {
 	f.t.Helper()
 	result := f.httpFixture.call(method, path, body, token, status)
 	label := method + " " + path
@@ -96,7 +98,7 @@ func TestActivityCoursesWorkflow(t *testing.T) {
 		lessons = append(lessons, lessonID)
 	}
 	regs := []int32{}
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		var userID, regID int32
 		if err := f.pool.QueryRow(ctx, `INSERT INTO public_users(email,password,created_at,updated_at) VALUES($1,'fixture',now(),now()) RETURNING id`, fmt.Sprintf("%s-%d@example.test", uuid, i)).Scan(&userID); err != nil {
 			t.Fatal(err)
@@ -114,7 +116,7 @@ func TestActivityCoursesWorkflow(t *testing.T) {
 	if err := f.pool.QueryRow(ctx, `INSERT INTO activity_registrations(activity_id,guest_data,status,created_at,updated_at) VALUES($1,'{"name":"Guest","email":"guest@example.test"}','TERDAFTAR',now(),now()) RETURNING id`, activityID).Scan(&guestID); err != nil {
 		t.Fatal(err)
 	}
-	exec := func(sql string, args ...interface{}) {
+	exec := func(sql string, args ...any) {
 		t.Helper()
 		if _, err := f.pool.Exec(ctx, sql, args...); err != nil {
 			t.Fatal(err)
@@ -226,7 +228,7 @@ func TestActivityCoursesWorkflow(t *testing.T) {
 		}
 	}
 	setLinks([]int32{courses[1], courses[0]})
-	r := httptest.NewRequest("GET", fmt.Sprintf("/v2/activities/%d/registrations-export", activityID), nil)
+	r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/v2/activities/%d/registrations-export", activityID), nil)
 	r.Header.Set("Authorization", "Bearer "+manager)
 	w := httptest.NewRecorder()
 	f.handler.ServeHTTP(w, r)

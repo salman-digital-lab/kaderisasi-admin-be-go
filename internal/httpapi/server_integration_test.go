@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"image"
 	"image/png"
-	"io"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/config"
 	"kaderisasi/admin/internal/database"
@@ -82,7 +81,7 @@ func TestHTTPAuthAndImage(t *testing.T) {
 		}
 		// The harness verifies absence with HeadObject and archives this journal.
 	}()
-	app := &Server{Config: c, Pool: pool, Auth: &auth.Service{Pool: pool, Key: c.AppKey}, Storage: store, Logger: slog.New(slog.NewTextHandler(io.Discard, nil))}
+	app := &Server{Config: c, Pool: pool, Auth: &auth.Service{Pool: pool, Key: c.AppKey}, Storage: store, Logger: slog.New(slog.DiscardHandler)}
 	handler := app.Handler()
 	request := func(method, path, body, token string, cookie *http.Cookie) *httptest.ResponseRecorder {
 		r := httptest.NewRequest(method, path, strings.NewReader(body))
@@ -140,7 +139,7 @@ func TestHTTPAuthAndImage(t *testing.T) {
 	if err = writer.Close(); err != nil {
 		t.Fatal(err)
 	}
-	r := httptest.NewRequest("POST", fmt.Sprintf("/v2/activities/%d/images", activityID), &imageBody)
+	r := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/v2/activities/%d/images", activityID), &imageBody)
 	r.Header.Set("Content-Type", writer.FormDataContentType())
 	r.Header.Set("Authorization", "Bearer "+response.Data.AccessToken)
 	w := httptest.NewRecorder()

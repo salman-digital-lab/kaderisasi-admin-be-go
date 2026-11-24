@@ -68,8 +68,6 @@ func (w *World) staffMonth(month string) (string, error) {
 	return month, nil
 }
 
-// ---- dashboard -------------------------------------------------------------------
-
 func (s *StaffService) Dashboard(ctx context.Context, month string) (StaffDashboard, error) {
 	w, err := s.read(ctx)
 	if err != nil {
@@ -201,8 +199,6 @@ func (s *StaffService) Dashboard(ctx context.Context, month string) (StaffDashbo
 	return out, nil
 }
 
-// ---- follow-ups ----------------------------------------------------------------
-
 func (w *World) followup(ctx context.Context, by *int32, at pgtype.Timestamptz, note *string) *Followup {
 	if !at.Valid {
 		return nil
@@ -268,7 +264,7 @@ func (w *World) followups(ctx context.Context) ([]FollowupItem, error) {
 		}
 		name := w.Name(r.MentorUserID)
 		item := FollowupItem{Source: "report", ID: r.ID, Month: monthOf(r.Month), Subject: "Kelompok " + name,
-			MentorName: strPtr(name), CoordinatorName: w.NamePtr(w.Participants[r.MentorUserID].CoordinatorUserID),
+			MentorName: new(name), CoordinatorName: w.NamePtr(w.Participants[r.MentorUserID].CoordinatorUserID),
 			Detail: *r.CaseNote, OpenedAt: isoValue(r.SubmittedAt), Status: "open"}
 		if deref(r.CaseStatus) == "resolved" {
 			item.Status, item.Handled = "handled", w.followup(ctx, r.FollowupBy, r.FollowupAt, r.FollowupNote)
@@ -326,7 +322,7 @@ func (s *StaffService) ResolveFollowup(ctx context.Context, staff int32, source 
 				if deref(j.FlagStatus) != "escalated" {
 					return fail(409, "Sudah ditangani.")
 				}
-				j.FlagStatus = strPtr("resolved")
+				j.FlagStatus = new("resolved")
 			}
 			j.FollowupBy, j.FollowupAt, j.FollowupNote = &staff, timestamptz(w.Now), &text
 			_, err = SaveJournal(ctx, w.Q, j)
@@ -342,7 +338,7 @@ func (s *StaffService) ResolveFollowup(ctx context.Context, staff int32, source 
 			if deref(r.CaseStatus) != "open" || r.Status == "draft" {
 				return fail(409, "Sudah ditangani.")
 			}
-			r.CaseStatus = strPtr("resolved")
+			r.CaseStatus = new("resolved")
 			r.FollowupBy, r.FollowupAt, r.FollowupNote = &staff, timestamptz(w.Now), &text
 			_, err = SaveReport(ctx, w.Q, r)
 			return err
@@ -350,8 +346,6 @@ func (s *StaffService) ResolveFollowup(ctx context.Context, staff int32, source 
 		return fail(404, "Sumber tidak dikenal.")
 	})
 }
-
-// ---- participants ----------------------------------------------------------------
 
 func (w *World) row(p dbgen.PerintisParticipant) ParticipantRow {
 	person := w.People[p.UserID]
@@ -609,8 +603,6 @@ func (s *StaffService) SetStatus(ctx context.Context, staff, id int32, status, r
 	return out, err
 }
 
-// ---- lapbul (read + reopen) -----------------------------------------------------------
-
 func (s *StaffService) Journal(ctx context.Context, id int32) (JournalForMentor, error) {
 	w, err := s.read(ctx)
 	if err != nil {
@@ -623,7 +615,7 @@ func (s *StaffService) Journal(ctx context.Context, id int32) (JournalForMentor,
 	if err != nil {
 		return JournalForMentor{}, err
 	}
-	return w.ReaderView(ctx, j, false, strPtr("Pengelola hanya membaca."))
+	return w.ReaderView(ctx, j, false, new("Pengelola hanya membaca."))
 }
 
 // Reopen lets a mentee fill a locked month (reason required); only a lapbul
@@ -719,8 +711,6 @@ func scanKey(key, pattern string, into *int32) bool {
 	*into = n
 	return true
 }
-
-// ---- import ------------------------------------------------------------------------
 
 var importColumns = map[string][]string{
 	"mentee":   {"nim", "nama", "email", "kategori", "kip_k"},
@@ -972,10 +962,10 @@ func (s *StaffService) ImportApply(ctx context.Context, staff int32, kind, text 
 				// An empty cell keeps what is stored (nothing, for a new mentee).
 				p.IsMentee, p.UpdatedBy = true, &staff
 				if v[0] != "" {
-					p.Nim = strPtr(v[0])
+					p.Nim = new(v[0])
 				}
 				if v[3] != "" {
-					p.Category = strPtr(v[3])
+					p.Category = new(v[3])
 				}
 				if kip := strings.ToLower(v[4]); kip != "" {
 					yes := kip == "ya"
@@ -1022,8 +1012,6 @@ func (s *StaffService) ImportApply(ctx context.Context, staff int32, kind, text 
 	})
 	return applied, err
 }
-
-// ---- add from kaderisasi members (Super Admin) ---------------------------------
 
 // MemberCandidate is one kaderisasi member found by the member search. Roles
 // lists the Perintis roles they already hold; empty means not yet a participant.
@@ -1097,7 +1085,6 @@ func (s *StaffService) SearchMembers(ctx context.Context, q string) ([]MemberCan
 	return out, nil
 }
 
-// checkMenteeData validates the optional mentee fields that were given.
 func checkMenteeData(nim *string, category *string) error {
 	if nim != nil && len(*nim) > 30 {
 		return fail(422, "NIM paling banyak 30 karakter.")
@@ -1108,7 +1095,6 @@ func checkMenteeData(nim *string, category *string) error {
 	return nil
 }
 
-// AddParticipantInput makes an existing kaderisasi member a participant.
 type AddParticipantInput struct {
 	UserID int32 `json:"userId"`
 	UpdateParticipantInput
@@ -1173,8 +1159,6 @@ func (s *StaffService) AddParticipant(ctx context.Context, staff int32, in AddPa
 	})
 	return out, err
 }
-
-// ---- export ------------------------------------------------------------------------
 
 // csvCell neutralises spreadsheet formulas and renders booleans as ya/tidak.
 // Export labels match the app's wording (content/labels.ts in the frontend).

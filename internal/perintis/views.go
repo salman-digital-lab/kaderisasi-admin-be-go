@@ -358,8 +358,6 @@ type CoordinatorOverview struct {
 	Rows  []CoordinatorRow `json:"rows"`
 }
 
-// ---- pengelola ----------------------------------------------------------------
-
 type Indicator struct {
 	Key         string  `json:"key"`
 	Label       string  `json:"label"`

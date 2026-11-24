@@ -7,9 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"io"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/database"
@@ -20,6 +17,10 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 const EligibleStatus = "LULUS KEGIATAN"
@@ -100,7 +101,7 @@ func Error(code string, details ...[]string) error {
 		status = 422
 	}
 	if len(details) > 0 {
-		return domain.Details(status, code, map[string]interface{}{"errors": details[0]})
+		return domain.Details(status, code, map[string]any{"errors": details[0]})
 	}
 	return domain.Fail(status, code)
 }
@@ -201,9 +202,18 @@ func (s Issuance) Issue(ctx context.Context, id float64, actor *int32, requestID
 		if err != nil {
 			return IssueResult{}, err
 		}
-		templateJSON, _ := json.Marshal(source.Data.Template)
-		participantJSON, _ := json.Marshal(source.Data.Participant)
-		activityJSON, _ := json.Marshal(source.Data.Activity)
+		templateJSON, err := json.Marshal(source.Data.Template)
+		if err != nil {
+			return IssueResult{}, err
+		}
+		participantJSON, err := json.Marshal(source.Data.Participant)
+		if err != nil {
+			return IssueResult{}, err
+		}
+		activityJSON, err := json.Marshal(source.Data.Activity)
+		if err != nil {
+			return IssueResult{}, err
+		}
 		certificateID, err := typed.InsertIssuedCertificate(ctx, dbgen.InsertIssuedCertificateParams{Code: code, RegistrationID: source.Registration.ID, ActivityID: source.Activity.ID, UserID: source.Data.Participant.UserID, TemplateID: source.Template.ID, TemplateSnapshot: templateJSON, ParticipantSnapshot: participantJSON, ActivitySnapshot: activityJSON, TemplateVersion: source.Template.Version, IssuedBy: actor, IssuedAt: pgtype.Timestamptz{Time: now, Valid: true}})
 		created = err == nil
 		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
@@ -214,7 +224,10 @@ func (s Issuance) Issue(ctx context.Context, id float64, actor *int32, requestID
 			if hashErr != nil {
 				return IssueResult{}, hashErr
 			}
-			evidence, _ := json.Marshal(ApprovalEvidence{DocumentSigner: profile, ApprovedBy: actor, SignerID: *actor, SignerName: profile.Name, SignerTitle: profile.Title, ApprovedAt: ISO(now, s.Location), ContentHash: hash})
+			evidence, err := json.Marshal(ApprovalEvidence{DocumentSigner: profile, ApprovedBy: actor, SignerID: *actor, SignerName: profile.Name, SignerTitle: profile.Title, ApprovedAt: ISO(now, s.Location), ContentHash: hash})
+			if err != nil {
+				return IssueResult{}, err
+			}
 			if err = q.SetCertificateApprovalSnapshot(ctx, dbgen.SetCertificateApprovalSnapshotParams{ID: certificateID, ApprovalSnapshot: evidence}); err != nil {
 				return IssueResult{}, err
 			}

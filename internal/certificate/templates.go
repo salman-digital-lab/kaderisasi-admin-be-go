@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/domain"
 	"kaderisasi/admin/internal/storage"
 	"net/url"
 	"regexp"
 	"strings"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Templates struct {
@@ -29,7 +30,7 @@ func rawObject(raw []byte) database.Object {
 	return out
 }
 func notReady(readiness Readiness) error {
-	return domain.Details(422, "CERTIFICATE_TEMPLATE_NOT_READY", map[string]interface{}{"errors": readiness.Errors})
+	return domain.Details(422, "CERTIFICATE_TEMPLATE_NOT_READY", map[string]any{"errors": readiness.Errors})
 }
 func AssetKey(value string, id int32) (string, error) {
 	prefix := fmt.Sprintf("certificate/templates/%d/", id)
@@ -54,7 +55,7 @@ func AssetKey(value string, id int32) (string, error) {
 	if !strings.HasPrefix(key, prefix) || strings.Contains(key, "?") {
 		return "", errors.New("INVALID_CERTIFICATE_ASSET_KEY")
 	}
-	for _, part := range strings.Split(key, "/") {
+	for part := range strings.SplitSeq(key, "/") {
 		if part == "." || part == ".." {
 			return "", errors.New("INVALID_CERTIFICATE_ASSET_KEY")
 		}

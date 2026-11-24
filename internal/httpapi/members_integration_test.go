@@ -25,7 +25,7 @@ func TestMemberProfileWorkflow(t *testing.T) {
 	f.call("POST", "/v2/members", map[string]string{"name": "Fixture"}, "", 401)
 	uid, _ := auth.UUID()
 	email := uid + "@example.test"
-	create := func(body map[string]interface{}) (database.Object, database.Object) {
+	create := func(body map[string]any) (database.Object, database.Object) {
 		data := objectData(t, f.call("POST", "/v2/members", body, f.token, 201))
 		var user, profile database.Object
 		json.Unmarshal(data["user"], &user)
@@ -33,7 +33,7 @@ func TestMemberProfileWorkflow(t *testing.T) {
 		users = append(users, user.ID("id"))
 		return user, profile
 	}
-	user, profile := create(map[string]interface{}{"name": "Fixture no account", "gender": "M", "birth_date": "1999-03-15"})
+	user, profile := create(map[string]any{"name": "Fixture no account", "gender": "M", "birth_date": "1999-03-15"})
 	if user.String("account_status") != "no_account" || user.String("member_id") != fmt.Sprintf("%08d", user.ID("id")) || user.Has("password") {
 		t.Fatalf("user contract %v", user)
 	}
@@ -44,19 +44,19 @@ func TestMemberProfileWorkflow(t *testing.T) {
 	path := fmt.Sprintf("/v2/members/%d/generate-account", user.ID("id"))
 	f.call("POST", path, map[string]string{"email": email, "password": "Fixture-generated-2026!"}, f.token, 200)
 	f.call("POST", path, map[string]string{"email": email, "password": "Fixture-generated-2026!"}, f.token, 400)
-	f.call("POST", "/v2/members", map[string]interface{}{"name": "Duplicate", "email": email}, f.token, 409)
-	f.call("POST", "/v2/members", map[string]interface{}{"name": "Duplicate ID", "member_id": user.String("member_id")}, f.token, 409)
+	f.call("POST", "/v2/members", map[string]any{"name": "Duplicate", "email": email}, f.token, 409)
+	f.call("POST", "/v2/members", map[string]any{"name": "Duplicate ID", "member_id": user.String("member_id")}, f.token, 409)
 	f.call("POST", "/v2/members/2147483647/generate-account", map[string]string{"email": email, "password": "Fixture-generated-2026!"}, f.token, 404)
 	profilePath := fmt.Sprintf("/v2/profiles/%d", profile.ID("id"))
 	if _, err := f.pool.Exec(ctx, "INSERT INTO universities (name) VALUES ('Fixture University')"); err != nil {
 		t.Fatal(err)
 	}
 	// An institution outside the universities list is refused; a school name is free text.
-	f.call("PUT", profilePath, map[string]interface{}{"education_history": []interface{}{map[string]interface{}{"degree": "bachelor", "institution": "Not In The List"}}}, f.token, 500)
-	f.call("PUT", profilePath, map[string]interface{}{"education_history": []interface{}{map[string]interface{}{"degree": "high_school", "institution": "Any School"}}}, f.token, 200)
-	f.call("PUT", profilePath, map[string]interface{}{"name": "Updated member", "badges": []string{"LMD"}, "education_history": []interface{}{map[string]interface{}{"degree": "bachelor", "institution": "Fixture University", "faculty": "Science", "major": "Physics", "intake_year": 2020}}, "extra_data": map[string]interface{}{"preferred_name": "Fixture"}}, f.token, 200)
-	f.call("PUT", profilePath+"/regional-assignment", map[string]interface{}{"alumni_regional_assignment": []string{"Bandung"}}, f.token, 200)
-	f.call("PUT", profilePath, map[string]interface{}{"extra_data": map[string]interface{}{"salman_activity_history": []string{"Fixture activity"}}, "password": "Fixture-reset-2026!"}, f.token, 200)
+	f.call("PUT", profilePath, map[string]any{"education_history": []any{map[string]any{"degree": "bachelor", "institution": "Not In The List"}}}, f.token, 500)
+	f.call("PUT", profilePath, map[string]any{"education_history": []any{map[string]any{"degree": "high_school", "institution": "Any School"}}}, f.token, 200)
+	f.call("PUT", profilePath, map[string]any{"name": "Updated member", "badges": []string{"LMD"}, "education_history": []any{map[string]any{"degree": "bachelor", "institution": "Fixture University", "faculty": "Science", "major": "Physics", "intake_year": 2020}}, "extra_data": map[string]any{"preferred_name": "Fixture"}}, f.token, 200)
+	f.call("PUT", profilePath+"/regional-assignment", map[string]any{"alumni_regional_assignment": []string{"Bandung"}}, f.token, 200)
+	f.call("PUT", profilePath, map[string]any{"extra_data": map[string]any{"salman_activity_history": []string{"Fixture activity"}}, "password": "Fixture-reset-2026!"}, f.token, 200)
 	got := objectData(t, f.call("GET", profilePath, nil, f.token, 200))
 	var profiles []database.Object
 	json.Unmarshal(got["profile"], &profiles)
@@ -82,8 +82,8 @@ func TestMemberProfileWorkflow(t *testing.T) {
 	if len(rows) != 1 {
 		t.Fatalf("filtered profiles: %s", page["data"])
 	}
-	f.call("PUT", "/v2/profiles/2147483647/regional-assignment", map[string]interface{}{"alumni_regional_assignment": []string{}}, f.token, 404)
-	user2, _ := create(map[string]interface{}{"name": "Active fixture", "email": uid + "-2@example.test", "password": "Fixture-active-2026!"})
+	f.call("PUT", "/v2/profiles/2147483647/regional-assignment", map[string]any{"alumni_regional_assignment": []string{}}, f.token, 404)
+	user2, _ := create(map[string]any{"name": "Active fixture", "email": uid + "-2@example.test", "password": "Fixture-active-2026!"})
 	if user2.String("account_status") != "active" {
 		t.Fatal("active account")
 	}
@@ -107,11 +107,11 @@ func TestMemberProfileWorkflow(t *testing.T) {
 		t.Fatalf("email-only change: %q %q open=%d", storedEmail, changedEmail, open)
 	}
 	f.call("PUT", authPath, map[string]string{"email": strings.ToUpper(email)}, f.token, 409)
-	user3, _ := create(map[string]interface{}{"name": "Upper fixture", "email": "Upper-" + uid + "@Example.test", "password": "Fixture-active-2026!"})
+	user3, _ := create(map[string]any{"name": "Upper fixture", "email": "Upper-" + uid + "@Example.test", "password": "Fixture-active-2026!"})
 	if user3.String("email") != "upper-"+uid+"@example.test" {
 		t.Fatalf("created email %q", user3.String("email"))
 	}
-	f.call("POST", "/v2/members", map[string]interface{}{"name": "Duplicate case", "email": strings.ToUpper(email)}, f.token, 409)
+	f.call("POST", "/v2/members", map[string]any{"name": "Duplicate case", "email": strings.ToUpper(email)}, f.token, 409)
 	f.call("DELETE", profilePath, nil, f.token, 200)
 	f.call("DELETE", profilePath, nil, f.token, 500)
 }

@@ -43,7 +43,7 @@ func TestStorageDNSRetry(t *testing.T) {
 				if err != nil || string(body) != "synthetic content" {
 					t.Errorf("retried upload body: %q %v", body, err)
 				}
-				w.WriteHeader(200)
+				w.WriteHeader(http.StatusOK)
 			}))
 			defer endpoint.Close()
 			attempts := 0

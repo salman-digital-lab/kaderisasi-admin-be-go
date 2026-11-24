@@ -23,7 +23,7 @@ func TestFormRoutingRoundTrip(t *testing.T) {
 	if err = json.Unmarshal(raw, &fixture); err != nil {
 		t.Fatal(err)
 	}
-	created := objectData(t, f.call("POST", "/v2/custom-forms", map[string]interface{}{"formName": "Routing contract", "formSchema": fixture.Schema}, f.token, 201))
+	created := objectData(t, f.call("POST", "/v2/custom-forms", map[string]any{"formName": "Routing contract", "formSchema": fixture.Schema}, f.token, 201))
 	id := created.ID("id")
 	t.Cleanup(func() {
 		if _, err := f.pool.Exec(context.Background(), "DELETE FROM custom_forms WHERE id=$1", id); err != nil {
@@ -33,7 +33,7 @@ func TestFormRoutingRoundTrip(t *testing.T) {
 	path := fmt.Sprintf("/v2/custom-forms/%d", id)
 	assertSchema := func(raw json.RawMessage) {
 		t.Helper()
-		var expected, actual interface{}
+		var expected, actual any
 		_ = json.Unmarshal(fixture.Schema, &expected)
 		if err := json.Unmarshal(raw, &actual); err != nil {
 			t.Fatal(err)
@@ -43,7 +43,7 @@ func TestFormRoutingRoundTrip(t *testing.T) {
 		}
 	}
 	assertSchema(created["form_schema"])
-	updated := objectData(t, f.call("PUT", path, map[string]interface{}{"formName": "Renamed routing contract", "formSchema": fixture.Schema}, f.token, 200))
+	updated := objectData(t, f.call("PUT", path, map[string]any{"formName": "Renamed routing contract", "formSchema": fixture.Schema}, f.token, 200))
 	assertSchema(updated["form_schema"])
 	shown := objectData(t, f.call("GET", path, nil, f.token, 200))
 	assertSchema(shown["form_schema"])
@@ -52,7 +52,7 @@ func TestFormRoutingRoundTrip(t *testing.T) {
 		`{"version":2,"fields":[{"id":"one","section_name":"One","fields":[],"navigation":{"defaultTarget":{"type":"submit"},"questionKey":"gender"}}]}`,
 		`{"version":2,"fields":[{"id":"one","section_name":"One","fields":[]},{"id":"one","section_name":"Two","fields":[]}]}`,
 	} {
-		f.call("PUT", path, map[string]interface{}{"formSchema": json.RawMessage(invalid)}, f.token, 500)
+		f.call("PUT", path, map[string]any{"formSchema": json.RawMessage(invalid)}, f.token, 500)
 	}
 	shown = objectData(t, f.call("GET", path, nil, f.token, 200))
 	assertSchema(shown["form_schema"])

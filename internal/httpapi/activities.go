@@ -13,7 +13,7 @@ func (s *Server) registerActivities() {
 	s.registerActivityMedia()
 	service := activity.Service{Pool: s.Pool, Storage: s.Storage}
 	s.register("activities_controller", "readiness", func(w http.ResponseWriter, r *http.Request) error {
-		result, err := service.Readiness(r.Context(), pathID(r, "id"), auth.ForUser(actor(r)))
+		result, err := service.Readiness(r.Context(), pathID(r), auth.ForUser(actor(r)))
 		if err != nil {
 			return err
 		}
@@ -34,8 +34,7 @@ func (s *Server) registerActivities() {
 			if action == "store" {
 				created, err := service.Create(r.Context(), data, permissions)
 				if err != nil {
-					var d *domain.Error
-					if errors.As(err, &d) {
+					if _, ok := errors.AsType[*domain.Error](err); ok {
 						return err
 					}
 					legacyFailure(w, err)
@@ -43,10 +42,9 @@ func (s *Server) registerActivities() {
 				}
 				reply(w, 200, "CREATE_DATA_SUCCESS", created)
 			} else {
-				updated, err := service.Update(r.Context(), pathID(r, "id"), data, permissions)
+				updated, err := service.Update(r.Context(), pathID(r), data, permissions)
 				if err != nil {
-					var d *domain.Error
-					if errors.As(err, &d) {
+					if _, ok := errors.AsType[*domain.Error](err); ok {
 						return err
 					}
 					legacyFailure(w, err)

@@ -23,7 +23,7 @@ func approvalInput[T any](r *http.Request) (T, error) {
 func (s *Server) registerCertificateApprovals() {
 	service := certificate.Issuance{Pool: s.Pool, Location: s.Config.Location, Logger: s.Logger}
 	const controller = "certificate_approvals_controller"
-	s.register(controller, "documentSigners", func(w http.ResponseWriter, r *http.Request) error {
+	s.register(controller, "documentSigners", func(w http.ResponseWriter, _ *http.Request) error {
 		reply(w, 200, "GET_DATA_SUCCESS", certificate.DocumentSigners())
 		return nil
 	})

@@ -13,16 +13,16 @@ func TestLucidPaginationBoundaries(t *testing.T) {
 		name        string
 		total       int64
 		page, size  float64
-		current     interface{}
-		last        interface{}
+		current     any
+		last        any
 		lastURL     string
 		next, prior *string
 	}{
 		{"invalid", 3, math.NaN(), math.NaN(), nil, nil, "/?page=NaN", nil, nil},
-		{"zero with rows", 3, 0, 0, float64(0), nil, "/?page=Infinity", stringPointer("/?page=1"), nil},
+		{"zero with rows", 3, 0, 0, float64(0), nil, "/?page=Infinity", new("/?page=1"), nil},
 		{"zero without rows", 0, 0, 0, float64(0), nil, "/?page=NaN", nil, nil},
-		{"fraction", 3, 1.5, 1.5, 1.5, float64(2), "/?page=2", stringPointer("/?page=2.5"), stringPointer("/?page=1")},
-		{"negative empty page", 0, -1, -1, float64(-1), float64(1), "/?page=1", stringPointer("/?page=1"), nil},
+		{"fraction", 3, 1.5, 1.5, 1.5, float64(2), "/?page=2", new("/?page=2.5"), new("/?page=1")},
+		{"negative empty page", 0, -1, -1, float64(-1), float64(1), "/?page=1", new("/?page=1"), nil},
 	} {
 		t.Run(example.name, func(t *testing.T) {
 			meta := Meta(example.total, example.page, example.size)
@@ -30,7 +30,7 @@ func TestLucidPaginationBoundaries(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			var decoded map[string]interface{}
+			var decoded map[string]any
 			if err := json.Unmarshal(raw, &decoded); err != nil {
 				t.Fatal(err)
 			}
@@ -62,8 +62,6 @@ func TestKnexPaginationConversion(t *testing.T) {
 		t.Fatal("negative SQL offsets must fail")
 	}
 }
-
-func stringPointer(value string) *string { return &value }
 
 func TestPaginationEncodesScientificNotation(t *testing.T) {
 	meta := Meta(1, 1e30, 10.0)

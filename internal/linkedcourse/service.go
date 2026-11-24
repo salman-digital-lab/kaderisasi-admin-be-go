@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"kaderisasi/admin/internal/course"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
 	"kaderisasi/admin/internal/export"
 	"strconv"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Service struct{ Pool *pgxpool.Pool }
@@ -50,7 +51,8 @@ type Result struct {
 
 func links(ctx context.Context, q *dbgen.Queries, scope Scope) ([]Course, error) {
 	result := []Course{}
-	if scope.Kind == "activity" {
+	switch scope.Kind {
+	case "activity":
 		if _, err := q.RegistrationActivityByIdentifier(ctx, strconv.Itoa(int(scope.ID))); err != nil {
 			return nil, missing(err, "ACTIVITY_NOT_FOUND")
 		}
@@ -61,7 +63,7 @@ func links(ctx context.Context, q *dbgen.Queries, scope Scope) ([]Course, error)
 		for _, r := range rows {
 			result = append(result, Course{r.ID, r.Title, r.Status, r.Summary, r.MinimumLevel, r.LessonCount})
 		}
-	} else if scope.Kind == "club" {
+	case "club":
 		if _, err := q.ClubByIdentifier(ctx, strconv.Itoa(int(scope.ID))); err != nil {
 			return nil, missing(err, "CLUB_NOT_FOUND")
 		}
@@ -72,7 +74,7 @@ func links(ctx context.Context, q *dbgen.Queries, scope Scope) ([]Course, error)
 		for _, r := range rows {
 			result = append(result, Course{r.ID, r.Title, r.Status, r.Summary, r.MinimumLevel, r.LessonCount})
 		}
-	} else {
+	default:
 		return nil, domain.Fail(404, "NOT_FOUND")
 	}
 	return result, nil
@@ -213,9 +215,9 @@ func (s Service) Export(ctx context.Context, scope Scope) ([]byte, error) {
 		prefix := fmt.Sprintf("%s (#%d)", c.Title, c.ID)
 		headers = append(headers, prefix+" - Status", prefix+" - Materi selesai/total")
 	}
-	data := make([][]interface{}, 0, len(result.Data))
+	data := make([][]any, 0, len(result.Data))
 	for i, p := range result.Data {
-		row := []interface{}{i + 1, p.Name, p.Email, p.RegistrationStatus}
+		row := []any{i + 1, p.Name, p.Email, p.RegistrationStatus}
 		for _, progress := range p.CourseProgress {
 			count := ""
 			if progress.Status != "unverifiable" {

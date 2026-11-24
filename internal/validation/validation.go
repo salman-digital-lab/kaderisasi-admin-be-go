@@ -28,11 +28,11 @@ type Constraint struct {
 	Args   []json.RawMessage `json:"args"`
 }
 type Issue struct {
-	Message string                 `json:"message"`
-	Rule    string                 `json:"rule"`
-	Field   string                 `json:"field"`
-	Meta    map[string]interface{} `json:"meta,omitempty"`
-	Index   *int                   `json:"index,omitempty"`
+	Message string         `json:"message"`
+	Rule    string         `json:"rule"`
+	Field   string         `json:"field"`
+	Meta    map[string]any `json:"meta,omitempty"`
+	Index   *int           `json:"index,omitempty"`
 }
 type Object map[string]json.RawMessage
 
@@ -58,9 +58,9 @@ func (o Object) Bool(key string) bool {
 	_ = json.Unmarshal(o[key], &value)
 	return value
 }
-func (o Object) Has(key string) bool               { _, ok := o[key]; return ok }
-func (o Object) Null(key string) bool              { return bytes.Equal(o[key], []byte("null")) }
-func (o Object) Set(key string, value interface{}) { o[key], _ = json.Marshal(value) }
+func (o Object) Has(key string) bool       { _, ok := o[key]; return ok }
+func (o Object) Null(key string) bool      { return bytes.Equal(o[key], []byte("null")) }
+func (o Object) Set(key string, value any) { o[key], _ = json.Marshal(value) }
 
 func Validate(name string, input Object) (Object, []Issue) {
 	var schemas map[string]Rule
@@ -131,8 +131,8 @@ func has(rule Rule, name string) bool {
 	}
 	return false
 }
-func issue(field, rule, message string, metadata ...map[string]interface{}) []Issue {
-	var meta map[string]interface{}
+func issue(field, rule, message string, metadata ...map[string]any) []Issue {
+	var meta map[string]any
 	if len(metadata) > 0 {
 		meta = metadata[0]
 	}
@@ -142,7 +142,7 @@ func issue(field, rule, message string, metadata ...map[string]interface{}) []Is
 	}
 	return []Issue{{Message: strings.ReplaceAll(message, "{field}", name), Rule: rule, Field: field, Meta: meta}}
 }
-func marshal(value interface{}) json.RawMessage {
+func marshal(value any) json.RawMessage {
 	raw, err := json.Marshal(value)
 	if err != nil {
 		panic(err)
@@ -272,15 +272,15 @@ func validate(rule Rule, raw json.RawMessage, field string) (json.RawMessage, []
 			}
 		}
 		if !found {
-			var choices interface{}
+			var choices any
 			_ = json.Unmarshal(rule.Args[0], &choices)
-			return nil, issue(field, "enum", "The selected {field} is invalid", map[string]interface{}{"choices": choices})
+			return nil, issue(field, "enum", "The selected {field} is invalid", map[string]any{"choices": choices})
 		}
 	case "literal":
 		if !bytes.Equal(raw, rule.Args[0]) {
-			var expected interface{}
+			var expected any
 			_ = json.Unmarshal(rule.Args[0], &expected)
-			return nil, issue(field, "literal", "The {field} field must be "+strings.Trim(string(rule.Args[0]), `"`), map[string]interface{}{"expectedValue": expected})
+			return nil, issue(field, "literal", "The {field} field must be "+strings.Trim(string(rule.Args[0]), `"`), map[string]any{"expectedValue": expected})
 		}
 	case "date":
 		if err := json.Unmarshal(raw, &str); err != nil {
@@ -354,7 +354,7 @@ func validate(rule Rule, raw json.RawMessage, field string) (json.RawMessage, []
 				if c.Method == "maxLength" {
 					bound = "max"
 				}
-				return nil, issue(field, kind, text, map[string]interface{}{bound: n})
+				return nil, issue(field, kind, text, map[string]any{bound: n})
 			}
 		case "range":
 			var bounds []float64
@@ -363,7 +363,7 @@ func validate(rule Rule, raw json.RawMessage, field string) (json.RawMessage, []
 				panic("invalid range")
 			}
 			if num < bounds[0] || num > bounds[1] {
-				return nil, issue(field, "range", fmt.Sprintf("The {field} field must be between %s and %s", strconv.FormatFloat(bounds[0], 'f', -1, 64), strconv.FormatFloat(bounds[1], 'f', -1, 64)), map[string]interface{}{"min": bounds[0], "max": bounds[1]})
+				return nil, issue(field, "range", fmt.Sprintf("The {field} field must be between %s and %s", strconv.FormatFloat(bounds[0], 'f', -1, 64), strconv.FormatFloat(bounds[1], 'f', -1, 64)), map[string]any{"min": bounds[0], "max": bounds[1]})
 			}
 		default:
 			panic("unsupported validation constraint: " + c.Method)

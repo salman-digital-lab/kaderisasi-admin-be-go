@@ -108,7 +108,7 @@ func (s *Server) registerCourses() {
 			return err
 		}
 		var lessonID int32
-		if r.Method == "PUT" {
+		if r.Method == http.MethodPut {
 			lessonID, err = courseID(r, "lessonId")
 			if err != nil {
 				return err
@@ -221,7 +221,7 @@ func (s *Server) registerCourses() {
 		w.Header().Set("Content-Type", "application/pdf")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Content-Disposition", mime.FormatMediaType("attachment", map[string]string{"filename": document.Filename}))
-		w.WriteHeader(200)
+		w.WriteHeader(http.StatusOK)
 		_, err = w.Write(body)
 		return err
 	})

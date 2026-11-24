@@ -5,13 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/xuri/excelize/v2"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
 	"strings"
 	"time"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/xuri/excelize/v2"
 )
 
 type Attachment struct {
@@ -90,7 +91,7 @@ func (s Service) ExportResponses(ctx context.Context, formID int32, downloadBase
 	if err := book.SetSheetName("Sheet1", sheet); err != nil {
 		return nil, err
 	}
-	headings := []interface{}{"ID respons", "Dikirim", "ID anggota", "Bagian", "Pertanyaan", "Jawaban"}
+	headings := []any{"ID respons", "Dikirim", "ID anggota", "Bagian", "Pertanyaan", "Jawaban"}
 	if err := book.SetSheetRow(sheet, "A1", &headings); err != nil {
 		return nil, err
 	}
@@ -98,7 +99,7 @@ func (s Service) ExportResponses(ctx context.Context, formID int32, downloadBase
 	if _, err := book.NewSheet("Berkas"); err != nil {
 		return nil, err
 	}
-	fileHeadings := []interface{}{"ID respons", "Pertanyaan", "Nama berkas", "Unduh (login admin)"}
+	fileHeadings := []any{"ID respons", "Pertanyaan", "Nama berkas", "Unduh (login admin)"}
 	if err := book.SetSheetRow("Berkas", "A1", &fileHeadings); err != nil {
 		return nil, err
 	}
@@ -150,7 +151,7 @@ func (s Service) ExportResponses(ctx context.Context, formID int32, downloadBase
 							for _, file := range detail.Attachments {
 								if file.ID.String() == id {
 									lines = append(lines, file.Name+"\n"+downloadBase+"/"+id)
-									cells := []interface{}{detail.ID.String(), safeCell(field.Label), safeCell(file.Name), "Unduh berkas"}
+									cells := []any{detail.ID.String(), safeCell(field.Label), safeCell(file.Name), "Unduh berkas"}
 									if err = book.SetSheetRow("Berkas", fmt.Sprintf("A%d", fileRow), &cells); err != nil {
 										return nil, err
 									}
@@ -163,7 +164,7 @@ func (s Service) ExportResponses(ctx context.Context, formID int32, downloadBase
 						}
 						text = strings.Join(lines, "\n")
 					}
-					cells := []interface{}{detail.ID.String(), detail.CreatedAt.Format(time.RFC3339), user, safeCell(section.Name), safeCell(field.Label), safeCell(text)}
+					cells := []any{detail.ID.String(), detail.CreatedAt.Format(time.RFC3339), user, safeCell(section.Name), safeCell(field.Label), safeCell(text)}
 					if err = book.SetSheetRow(sheet, fmt.Sprintf("A%d", rowNumber), &cells); err != nil {
 						return nil, err
 					}
@@ -172,7 +173,7 @@ func (s Service) ExportResponses(ctx context.Context, formID int32, downloadBase
 			}
 			if rowNumber == firstRow {
 				// An intentionally empty response still has an identity and timestamp.
-				cells := []interface{}{detail.ID.String(), detail.CreatedAt.Format(time.RFC3339), user}
+				cells := []any{detail.ID.String(), detail.CreatedAt.Format(time.RFC3339), user}
 				if err = book.SetSheetRow(sheet, fmt.Sprintf("A%d", rowNumber), &cells); err != nil {
 					return nil, err
 				}

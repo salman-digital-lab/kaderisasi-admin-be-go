@@ -10,12 +10,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/golang-jwt/jwt/v5"
-	"golang.org/x/crypto/scrypt"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/scrypt"
 )
 
 const RefreshCookie = "admin_refresh_token"
@@ -40,7 +41,7 @@ func VerifyPassword(encoded, password string) bool {
 		return false
 	}
 	params := map[string]int{}
-	for _, part := range strings.Split(parts[2], ",") {
+	for part := range strings.SplitSeq(parts[2], ",") {
 		pair := strings.SplitN(part, "=", 2)
 		if len(pair) != 2 {
 			return false
@@ -81,7 +82,7 @@ func SignAccess(key string, userID int32, email string, now time.Time) (string, 
 
 func VerifyAccess(key, token string, now time.Time) (Claims, error) {
 	var claims Claims
-	_, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) { return []byte(key), nil }, jwt.WithValidMethods([]string{"HS256"}), jwt.WithExpirationRequired(), jwt.WithTimeFunc(func() time.Time { return now }))
+	_, err := jwt.ParseWithClaims(token, &claims, func(*jwt.Token) (any, error) { return []byte(key), nil }, jwt.WithValidMethods([]string{"HS256"}), jwt.WithExpirationRequired(), jwt.WithTimeFunc(func() time.Time { return now }))
 	if err != nil || claims.UserID <= 0 {
 		return Claims{}, errors.New("invalid access token")
 	}

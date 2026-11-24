@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
@@ -13,6 +12,8 @@ import (
 	"kaderisasi/admin/internal/media"
 	"strconv"
 	"unicode/utf16"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func (s Templates) Duplicate(ctx context.Context, id string) (result dbgen.CertificateTemplate, err error) {
@@ -41,12 +42,12 @@ func (s Templates) Duplicate(ctx context.Context, id string) (result dbgen.Certi
 	original := rawObject(source.TemplateData)
 	design := rawObject(source.TemplateData)
 	design.Set("backgroundUrl", nil)
-	design.Set("elements", []interface{}{})
+	design.Set("elements", []any{})
 	raw, err := json.Marshal(design)
 	if err != nil {
 		return result, err
 	}
-	copy, err := q.CreateCertificateTemplate(ctx, dbgen.CreateCertificateTemplateParams{Name: string(utf16.Decode(name)) + " (Salinan)", Description: source.Description, TemplateData: raw, LifecycleStatus: "draft"})
+	duplicate, err := q.CreateCertificateTemplate(ctx, dbgen.CreateCertificateTemplateParams{Name: string(utf16.Decode(name)) + " (Salinan)", Description: source.Description, TemplateData: raw, LifecycleStatus: "draft"})
 	if err != nil {
 		return result, err
 	}
@@ -67,7 +68,7 @@ func (s Templates) Duplicate(ctx context.Context, id string) (result dbgen.Certi
 		if err != nil {
 			return "", err
 		}
-		target := fmt.Sprintf("certificate/templates/%d/assets/%s%s", copy.ID, uuid, extension)
+		target := fmt.Sprintf("certificate/templates/%d/assets/%s%s", duplicate.ID, uuid, extension)
 		copied = append(copied, target)
 		if err = s.Storage.Copy(ctx, key, target); err != nil {
 			return "", err
@@ -111,7 +112,7 @@ func (s Templates) Duplicate(ctx context.Context, id string) (result dbgen.Certi
 	if err != nil {
 		return result, err
 	}
-	result, err = q.CompleteDuplicatedTemplate(ctx, dbgen.CompleteDuplicatedTemplateParams{ID: copy.ID, BackgroundImage: backgroundKey, TemplateData: raw})
+	result, err = q.CompleteDuplicatedTemplate(ctx, dbgen.CompleteDuplicatedTemplateParams{ID: duplicate.ID, BackgroundImage: backgroundKey, TemplateData: raw})
 	if err != nil {
 		return result, err
 	}

@@ -17,7 +17,7 @@ func TestClubExportQuestionOrder(t *testing.T) {
 func TestClubExportValues(t *testing.T) {
 	for _, test := range []struct {
 		raw  string
-		want interface{}
+		want any
 	}{{"false", "Tidak"}, {"0", float64(0)}, {`["A","B"]`, "A, B"}, {`{"note":"A"}`, `{"note":"A"}`}, {"null", ""}} {
 		if got := ClubAnswer(json.RawMessage(test.raw)); !reflect.DeepEqual(got, test.want) {
 			t.Errorf("%s = %#v", test.raw, got)

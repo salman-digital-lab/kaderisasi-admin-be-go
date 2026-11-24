@@ -27,8 +27,7 @@ func (s *Server) registerPerintis() {
 			w.Header().Set("Cache-Control", "private, no-store")
 			data, err := h(w, r)
 			if err != nil {
-				var failure *perintis.Error
-				if errors.As(err, &failure) {
+				if failure, ok := errors.AsType[*perintis.Error](err); ok {
 					return domain.Fail(failure.Status, failure.Message)
 				}
 				return err
@@ -39,8 +38,8 @@ func (s *Server) registerPerintis() {
 			return nil
 		})
 	}
-	id := func(r *http.Request, name string) (int32, error) {
-		n, err := strconv.ParseInt(r.PathValue(name), 10, 32)
+	id := func(r *http.Request) (int32, error) {
+		n, err := strconv.ParseInt(r.PathValue("id"), 10, 32)
 		if err != nil || n <= 0 {
 			return 0, &perintis.Error{Status: 404, Message: "Data tidak ditemukan."}
 		}
@@ -58,7 +57,7 @@ func (s *Server) registerPerintis() {
 		return service.Followups(r.Context(), query(r, "source"), query(r, "status"))
 	})
 	register("resolveFollowup", func(_ http.ResponseWriter, r *http.Request) (any, error) {
-		target, err := id(r, "id")
+		target, err := id(r)
 		if err != nil {
 			return nil, err
 		}
@@ -74,7 +73,7 @@ func (s *Server) registerPerintis() {
 		return service.Participants(r.Context(), query(r, "role"), query(r, "status"), query(r, "mentor"), query(r, "q"))
 	})
 	register("participant", func(_ http.ResponseWriter, r *http.Request) (any, error) {
-		target, err := id(r, "id")
+		target, err := id(r)
 		if err != nil {
 			return nil, err
 		}
@@ -97,7 +96,7 @@ func (s *Server) registerPerintis() {
 		Profile *member.ProfileDetail `json:"profile"`
 	}
 	register("participantProfile", func(_ http.ResponseWriter, r *http.Request) (any, error) {
-		target, err := id(r, "id")
+		target, err := id(r)
 		if err != nil {
 			return nil, err
 		}
@@ -108,7 +107,7 @@ func (s *Server) registerPerintis() {
 		return participantProfile{Profile: profile}, err
 	})
 	register("updateParticipantProfile", func(w http.ResponseWriter, r *http.Request) (any, error) {
-		target, err := id(r, "id")
+		target, err := id(r)
 		if err != nil {
 			return nil, err
 		}
@@ -138,8 +137,7 @@ func (s *Server) registerPerintis() {
 		}
 		data.Password, data.ExtraData = nil, nil
 		_, err = members.UpdateProfile(r.Context(), memberActor(r, "perintis"), strconv.Itoa(int(current.ID)), data)
-		var unlisted *member.InstitutionError
-		if errors.As(err, &unlisted) {
+		if unlisted, ok := errors.AsType[*member.InstitutionError](err); ok {
 			return nil, &perintis.Error{Status: 422, Message: fmt.Sprintf("Pilih kampus pendidikan %d dari daftar.", unlisted.Index+1)}
 		}
 		if err != nil {
@@ -160,7 +158,7 @@ func (s *Server) registerPerintis() {
 		return service.AddParticipant(r.Context(), actor(r).ID, in)
 	})
 	register("updateParticipant", func(_ http.ResponseWriter, r *http.Request) (any, error) {
-		target, err := id(r, "id")
+		target, err := id(r)
 		if err != nil {
 			return nil, err
 		}
@@ -171,7 +169,7 @@ func (s *Server) registerPerintis() {
 		return service.UpdateParticipant(r.Context(), actor(r).ID, target, in)
 	})
 	register("moveMentee", func(_ http.ResponseWriter, r *http.Request) (any, error) {
-		target, err := id(r, "id")
+		target, err := id(r)
 		if err != nil {
 			return nil, err
 		}
@@ -184,7 +182,7 @@ func (s *Server) registerPerintis() {
 		return service.MoveMentee(r.Context(), actor(r).ID, target, in.MentorUserID)
 	})
 	register("setStatus", func(_ http.ResponseWriter, r *http.Request) (any, error) {
-		target, err := id(r, "id")
+		target, err := id(r)
 		if err != nil {
 			return nil, err
 		}
@@ -198,7 +196,7 @@ func (s *Server) registerPerintis() {
 		return service.SetStatus(r.Context(), actor(r).ID, target, in.Status, in.Reason)
 	})
 	register("journal", func(_ http.ResponseWriter, r *http.Request) (any, error) {
-		target, err := id(r, "id")
+		target, err := id(r)
 		if err != nil {
 			return nil, err
 		}

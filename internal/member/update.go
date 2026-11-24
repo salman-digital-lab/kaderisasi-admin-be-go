@@ -5,14 +5,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
+	"maps"
 	"reflect"
 	"strconv"
 	"unicode/utf16"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func (s Service) UpdateCredentials(ctx context.Context, actor Actor, identifier string, data CredentialRequest) (PublicResponse, error) {
@@ -117,9 +119,7 @@ func spreadJSON(raw []byte) map[string]json.RawMessage {
 }
 func mergeExtra(current, incoming []byte) []byte {
 	values := spreadJSON(current)
-	for key, value := range spreadJSON(incoming) {
-		values[key] = value
-	}
+	maps.Copy(values, spreadJSON(incoming))
 	raw, err := json.Marshal(values)
 	if err != nil {
 		panic(err)

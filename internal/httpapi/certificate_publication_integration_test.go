@@ -58,7 +58,7 @@ func TestCertificateDirectPublicationAndCorrection(t *testing.T) {
 	if _, err := f.pool.Exec(ctx, `UPDATE activity_registrations SET guest_data=jsonb_set(guest_data,'{name}','"Corrected participant"') WHERE id=$1`, fixture.ids[0]); err != nil {
 		t.Fatal(err)
 	}
-	prepared := objectData(t, f.call("POST", "/v2/certificates/prepare-issuance", map[string]interface{}{"activity_id": fixture.activity.ID("id"), "registration_ids": fixture.ids}, session.AccessToken, 200))
+	prepared := objectData(t, f.call("POST", "/v2/certificates/prepare-issuance", map[string]any{"activity_id": fixture.activity.ID("id"), "registration_ids": fixture.ids}, session.AccessToken, 200))
 	var ids []int32
 	_ = json.Unmarshal(prepared["registration_ids"], &ids)
 	if len(ids) != 1 {
@@ -72,7 +72,7 @@ func TestCertificateDirectPublicationAndCorrection(t *testing.T) {
 	if old.Participant.Name != first.Participant.Name || old.Certificate.RevokedAt == nil {
 		t.Fatal("previous version must remain immutable and withdrawn")
 	}
-	lookup := f.call("POST", "/v2/certificates/lookup", map[string]interface{}{"activity_id": fixture.activity.ID("id"), "registration_ids": fixture.ids}, f.token, 200)
+	lookup := f.call("POST", "/v2/certificates/lookup", map[string]any{"activity_id": fixture.activity.ID("id"), "registration_ids": fixture.ids}, f.token, 200)
 	var rows []certificate.IssuedListItem
 	_ = json.Unmarshal(lookup["data"], &rows)
 	if len(rows) != 1 || rows[0].ID != second.Certificate.ID {

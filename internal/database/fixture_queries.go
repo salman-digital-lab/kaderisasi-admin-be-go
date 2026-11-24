@@ -8,12 +8,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5"
 	"kaderisasi/admin/internal/dbgen"
 	"sort"
 	"strings"
 	"time"
 	"unicode"
+
+	"github.com/jackc/pgx/v5"
 )
 
 //go:embed columns.json
@@ -21,7 +22,7 @@ var columnsJSON []byte
 
 type JSONQueries struct{ DB dbgen.DBTX }
 
-func (q JSONQueries) One(ctx context.Context, sql string, args ...interface{}) (Object, error) {
+func (q JSONQueries) One(ctx context.Context, sql string, args ...any) (Object, error) {
 	var raw []byte
 	err := q.DB.QueryRow(ctx, "SELECT row_to_json(result) FROM ("+sql+") result", args...).Scan(&raw)
 	if err != nil {
@@ -31,7 +32,7 @@ func (q JSONQueries) One(ctx context.Context, sql string, args ...interface{}) (
 	err = json.Unmarshal(raw, &object)
 	return object, err
 }
-func (q JSONQueries) All(ctx context.Context, sql string, args ...interface{}) ([]Object, error) {
+func (q JSONQueries) All(ctx context.Context, sql string, args ...any) ([]Object, error) {
 	rows, err := q.DB.Query(ctx, "SELECT row_to_json(result) FROM ("+sql+") result", args...)
 	if err != nil {
 		return nil, err
@@ -51,7 +52,7 @@ func (q JSONQueries) All(ctx context.Context, sql string, args ...interface{}) (
 	}
 	return objects, rows.Err()
 }
-func (q JSONQueries) Count(ctx context.Context, sql string, args ...interface{}) (int64, error) {
+func (q JSONQueries) Count(ctx context.Context, sql string, args ...any) (int64, error) {
 	var total int64
 	err := q.DB.QueryRow(ctx, "SELECT count(*) FROM ("+sql+") counted", args...).Scan(&total)
 	return total, err
@@ -122,7 +123,7 @@ func (q JSONQueries) mutation(ctx context.Context, table string, id int32, input
 	}
 	name := pgx.Identifier{table}.Sanitize()
 	var command string
-	args := []interface{}{encoded}
+	args := []any{encoded}
 	if insert {
 		list := strings.Join(quoted, ",")
 		command = "INSERT INTO " + name + " (" + list + ") SELECT " + list + " FROM json_populate_record(NULL::" + name + ",$1::json) RETURNING *"

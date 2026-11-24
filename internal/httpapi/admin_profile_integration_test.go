@@ -26,7 +26,7 @@ func TestAdminProfileAndFilters(t *testing.T) {
 	}
 	f.call("PUT", "/v2/auth/profile", map[string]string{}, token, 422)
 	f.call("PUT", "/v2/auth/profile", map[string]string{"displayName": "No session"}, "", 401)
-	f.call("PUT", path, map[string]interface{}{"displayName": "Nama Baru", "isActive": false}, f.token, 200)
+	f.call("PUT", path, map[string]any{"displayName": "Nama Baru", "isActive": false}, f.token, 200)
 	user = mustUser(t, f.pool, id)
 	if user.DisplayName == nil || *user.DisplayName != "Nama Baru" || user.IsActive {
 		t.Fatal("administrator edit did not persist")

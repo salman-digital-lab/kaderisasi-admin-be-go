@@ -3,7 +3,6 @@ package httpapi
 import (
 	"context"
 	"errors"
-	"github.com/jackc/pgx/v5"
 	"kaderisasi/admin/internal/access"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/database"
@@ -13,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func (s *Server) adminView(ctx context.Context, user dbgen.AdminUser) (adminResponse, error) {
@@ -115,7 +116,7 @@ func (s *Server) registerAdmin() {
 		return nil
 	})
 	s.register("adminusers_controller", "show", func(w http.ResponseWriter, r *http.Request) error {
-		return s.adminReply(w, r, 200, "GET_DATA_SUCCESS", pathID(r, "id"))
+		return s.adminReply(w, r, 200, "GET_DATA_SUCCESS", pathID(r))
 	})
 	s.register("adminusers_controller", "create", func(w http.ResponseWriter, r *http.Request) error {
 		data, ok := inputAs[adminCreateRequest](w, r, "registerValidator")
@@ -149,7 +150,7 @@ func (s *Server) registerAdmin() {
 		if !ok {
 			return nil
 		}
-		id := pathID(r, "id")
+		id := pathID(r)
 		user, err := dbgen.New(s.Pool).FindAdminByIdentifier(r.Context(), id)
 		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 			err = s.frameworkError(err, `select * from "admin_users" where "id" = $1 limit $2`)
@@ -188,7 +189,7 @@ func (s *Server) registerAdmin() {
 		if !ok {
 			return nil
 		}
-		id := pathID(r, "id")
+		id := pathID(r)
 		currentActor := actor(r)
 		if data.IsActive.Present && data.IsActive.Value != nil && !*data.IsActive.Value && database.NumberIdentifier(id) == strconv.FormatInt(int64(currentActor.ID), 10) {
 			return domain.Fail(409, "SELF_DEACTIVATION_NOT_ALLOWED")

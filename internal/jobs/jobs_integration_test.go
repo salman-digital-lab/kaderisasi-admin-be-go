@@ -12,10 +12,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"kaderisasi/admin/internal/config"
 	"kaderisasi/admin/internal/database"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func jobPool(t *testing.T) *pgxpool.Pool {
@@ -65,7 +66,7 @@ func TestJobsDateBoundariesAndRepeatedExecution(t *testing.T) {
 					cutoff := Cutoff(now, location, name == "clubs:update-visibility")
 					ids := make([]int32, 5)
 					for i, days := range []int{-1, 0, 1, -1, 0} {
-						var date interface{} = cutoff.AddDate(0, 0, days).Format("2006-01-02")
+						var date any = cutoff.AddDate(0, 0, days).Format("2006-01-02")
 						if i == 4 {
 							date = nil
 						}
@@ -103,11 +104,12 @@ func TestJobsDateBoundariesAndRepeatedExecution(t *testing.T) {
 						}
 						var active, other bool
 						var updated time.Time
-						if name == "close:registration" {
+						switch name {
+						case "close:registration":
 							err = tx.QueryRow(ctx, "SELECT is_published,is_registration_open,updated_at FROM activities WHERE id=$1", id).Scan(&active, &other, &updated)
-						} else if name == "clubs:close-registration" {
+						case "clubs:close-registration":
 							err = tx.QueryRow(ctx, "SELECT is_registration_open,is_show,updated_at FROM clubs WHERE id=$1", id).Scan(&active, &other, &updated)
-						} else {
+						default:
 							err = tx.QueryRow(ctx, "SELECT is_show,is_registration_open,updated_at FROM clubs WHERE id=$1", id).Scan(&active, &other, &updated)
 						}
 						if err != nil {

@@ -10,7 +10,7 @@ import (
 func TestLoginLimiterBlocksAfterRepeatedFailures(t *testing.T) {
 	now := time.Now()
 	l := loginLimiter{now: func() time.Time { return now }}
-	for i := 0; i < loginEmailLimit; i++ {
+	for i := range loginEmailLimit {
 		if l.blocked("a@example.test", "1.1.1.1") {
 			t.Fatalf("blocked after %d failures", i)
 		}
@@ -35,7 +35,7 @@ func TestLoginLimiterResetAndClientLimit(t *testing.T) {
 	if _, ok := l.failures["email:a@example.test"]; ok {
 		t.Fatal("reset kept email counter")
 	}
-	for i := 0; i < loginClientLimit; i++ {
+	for range loginClientLimit {
 		l.fail("", "2.2.2.2")
 	}
 	if !l.blocked("", "2.2.2.2") || l.blocked("", "3.3.3.3") {
@@ -44,7 +44,7 @@ func TestLoginLimiterResetAndClientLimit(t *testing.T) {
 }
 
 func TestLimiterClientUsesLastForwardedAddress(t *testing.T) {
-	r := httptest.NewRequest("POST", "/", nil)
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
 	r.RemoteAddr = "10.0.0.1:5555"
 	if got := limiterClient(r); got != "10.0.0.1" {
 		t.Fatalf("got %q", got)
@@ -56,7 +56,7 @@ func TestLimiterClientUsesLastForwardedAddress(t *testing.T) {
 }
 
 func TestAccessTokenAndMutatingMethods(t *testing.T) {
-	r := httptest.NewRequest("GET", "/", nil)
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
 	if accessToken(r) != "" {
 		t.Fatal("expected no token")
 	}

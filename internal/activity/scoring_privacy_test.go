@@ -9,7 +9,7 @@ import (
 
 func TestRegistrationViewHidesScoring(t *testing.T) {
 	row := dbgen.ActivityRegistration{ID: 1, ScoringData: []byte(`{"draft":{"note":"private"}}`)}
-	for _, view := range []interface{}{RegistrationView(row), CreatedRegistrationView(row)} {
+	for _, view := range []any{RegistrationView(row), CreatedRegistrationView(row)} {
 		body, err := json.Marshal(view)
 		if err != nil {
 			t.Fatal(err)

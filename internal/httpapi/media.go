@@ -17,7 +17,7 @@ func readImage(w http.ResponseWriter, r *http.Request, limit int64) ([]byte, err
 	invalidFile := func(rule, text string) error {
 		issue := validation.Issue{Message: text, Rule: rule, Field: "file"}
 		if rule == "file.size" || rule == "file.extname" {
-			issue.Meta = map[string]interface{}{"size": fmt.Sprintf("%dmb", limit>>20), "extnames": []string{"jpg", "png", "jpeg", "webp"}}
+			issue.Meta = map[string]any{"size": fmt.Sprintf("%dmb", limit>>20), "extnames": []string{"jpg", "png", "jpeg", "webp"}}
 		}
 		message := ""
 		if strings.HasPrefix(r.URL.Path, "/v2/certificate-templates/") {
@@ -32,7 +32,7 @@ func readImage(w http.ResponseWriter, r *http.Request, limit int64) ([]byte, err
 			_, other := validation.ValidateField("imageMediaValidator", "media_type", raw)
 			issues = append(issues, other...)
 		}
-		return domain.Details(422, message, map[string]interface{}{"errors": issues})
+		return domain.Details(422, message, map[string]any{"errors": issues})
 	}
 	if !strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
 		jsonBody = requestData(r)
@@ -43,8 +43,7 @@ func readImage(w http.ResponseWriter, r *http.Request, limit int64) ([]byte, err
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, 6<<20)
 	if err := r.ParseMultipartForm(6 << 20); err != nil {
-		var oversized *http.MaxBytesError
-		if errors.As(err, &oversized) {
+		if _, ok := errors.AsType[*http.MaxBytesError](err); ok {
 			return nil, domain.Fail(413, "request entity too large")
 		}
 		return nil, invalidFile("required", "The file field must be defined")

@@ -26,7 +26,7 @@ func TestVineCompatibility(t *testing.T) {
 			// Role choices intentionally changed after the captured Vine baseline.
 			// Keep every other error property and validation contract unchanged.
 			if f.Label == "invalid-role_code" {
-				f.Issues[0].Meta = map[string]interface{}{"choices": []interface{}{
+				f.Issues[0].Meta = map[string]any{"choices": []any{
 					"super_admin", "admin", "activity_manager", "achievement_manager",
 					"club_manager", "konselor", "perintis_manager", "p3ri",
 					"alumni_manager",
@@ -44,7 +44,7 @@ func TestVineCompatibility(t *testing.T) {
 			}
 			a, _ := json.Marshal(output)
 			b, _ := json.Marshal(f.Output)
-			var decodedA, decodedB interface{}
+			var decodedA, decodedB any
 			_ = json.Unmarshal(a, &decodedA)
 			_ = json.Unmarshal(b, &decodedB)
 			if !reflect.DeepEqual(decodedA, decodedB) {

@@ -3,6 +3,7 @@ package httpapi
 import (
 	"net/url"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -54,19 +55,13 @@ func parseFields(raw string, emptyNull bool) map[string]any {
 		if len(segments) == 0 {
 			continue
 		}
-		blocked := false
-		for _, segment := range segments {
-			if prototypeField(segment) {
-				blocked = true
-				break
-			}
-		}
+		blocked := slices.ContainsFunc(segments, prototypeField)
 		if blocked {
 			continue
 		}
-		var value any = grouped[key]
-		for i := len(segments) - 1; i >= 0; i-- {
-			segment := segments[i]
+		var value = grouped[key]
+		for i, segment := range slices.Backward(segments) {
+
 			if i > 0 && segment == "" {
 				if _, ok := value.([]any); !ok {
 					value = []any{value}

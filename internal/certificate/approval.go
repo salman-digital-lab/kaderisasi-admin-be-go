@@ -13,11 +13,12 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type ApprovalEvidence struct {
@@ -69,7 +70,7 @@ func ApprovalHash(data Response, signerID int32, signerName, signerTitle string)
 		return "", err
 	}
 	// JSONB reorders object keys. Canonicalize the JSON document before hashing.
-	var document interface{}
+	var document any
 	if err = json.Unmarshal(raw, &document); err != nil {
 		return "", err
 	}
@@ -95,8 +96,7 @@ func (s Issuance) Signers(ctx context.Context) ([]Signer, error) {
 }
 func approvalFailure(id, registrationID int32, err error) ApprovalOutcome {
 	result := ApprovalOutcome{ID: id, RegistrationID: registrationID, Status: "failed", Reason: "GENERAL_ERROR"}
-	var d *domain.Error
-	if errors.As(err, &d) {
+	if d, ok := errors.AsType[*domain.Error](err); ok {
 		result.Reason = d.Message
 	} else {
 		slog.Default().Error("certificate_approval_failed", "event", "certificate_approval_failed", "approval_id", id, "registration_id", registrationID, "error", err.Error())
@@ -306,9 +306,18 @@ func (s Issuance) decideApproval(ctx context.Context, item ApprovalDecisionItem,
 		if err != nil {
 			return empty, err
 		}
-		templateJSON, _ := json.Marshal(snapshot.Template)
-		participantJSON, _ := json.Marshal(snapshot.Participant)
-		activityJSON, _ := json.Marshal(snapshot.Activity)
+		templateJSON, err := json.Marshal(snapshot.Template)
+		if err != nil {
+			return empty, err
+		}
+		participantJSON, err := json.Marshal(snapshot.Participant)
+		if err != nil {
+			return empty, err
+		}
+		activityJSON, err := json.Marshal(snapshot.Activity)
+		if err != nil {
+			return empty, err
+		}
 		id, err := q.InsertIssuedCertificate(ctx, dbgen.InsertIssuedCertificateParams{Code: code, RegistrationID: row.RegistrationID, ActivityID: row.ActivityID, UserID: snapshot.Participant.UserID, TemplateID: snapshot.Template.ID, TemplateSnapshot: templateJSON, ParticipantSnapshot: participantJSON, ActivitySnapshot: activityJSON, TemplateVersion: snapshot.Template.Version, IssuedBy: &row.RequestedBy, IssuedAt: now})
 		if errors.Is(err, pgx.ErrNoRows) {
 			return empty, domain.Fail(409, "CERTIFICATE_ALREADY_ISSUED")
@@ -317,7 +326,10 @@ func (s Issuance) decideApproval(ctx context.Context, item ApprovalDecisionItem,
 			return empty, err
 		}
 		certificateID = &id
-		evidence, _ := json.Marshal(ApprovalEvidence{DocumentSigner: snapshot.DocumentSigner, ApprovedBy: &actor, RequestID: row.ID, SignerID: actor, SignerName: row.SignerName, SignerTitle: row.SignerTitle, ApprovedAt: ISO(now.Time, s.Location), ContentHash: hash})
+		evidence, err := json.Marshal(ApprovalEvidence{DocumentSigner: snapshot.DocumentSigner, ApprovedBy: &actor, RequestID: row.ID, SignerID: actor, SignerName: row.SignerName, SignerTitle: row.SignerTitle, ApprovedAt: ISO(now.Time, s.Location), ContentHash: hash})
+		if err != nil {
+			return empty, err
+		}
 		if err = q.SetCertificateApprovalSnapshot(ctx, dbgen.SetCertificateApprovalSnapshotParams{ID: id, ApprovalSnapshot: evidence}); err != nil {
 			return empty, err
 		}

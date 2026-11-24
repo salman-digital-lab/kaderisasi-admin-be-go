@@ -28,7 +28,7 @@ type calendarFixture struct {
 	checks []calendarCheck
 }
 
-func (f *calendarFixture) call(method, path string, body interface{}, token string, status int) database.Object {
+func (f *calendarFixture) call(method, path string, body any, token string, status int) database.Object {
 	f.t.Helper()
 	result := f.httpFixture.call(method, path, body, token, status)
 	label := method + " " + path
@@ -73,7 +73,7 @@ func TestCalendarWorkflow(t *testing.T) {
 		}
 	})
 	rangeQuery := "?" + url.Values{"start": {"2026-09-01T00:00:00+07:00"}, "end": {"2026-10-01T00:00:00+07:00"}}.Encode()
-	input := map[string]interface{}{"title": "Independent title", "description": "Public description", "location": "Salman", "starts_at": "2026-08-31T00:00:00+07:00", "ends_at": "2026-09-02T00:00:00+07:00", "all_day": true, "activity_id": activityID}
+	input := map[string]any{"title": "Independent title", "description": "Public description", "location": "Salman", "starts_at": "2026-08-31T00:00:00+07:00", "ends_at": "2026-09-02T00:00:00+07:00", "all_day": true, "activity_id": activityID}
 	root := "/v2/admin/calendar-events"
 	f.call("GET", "/v2/calendar-events", nil, "", 422)
 	f.call("GET", root+rangeQuery, nil, "", 401)
@@ -96,7 +96,7 @@ func TestCalendarWorkflow(t *testing.T) {
 	f.call("GET", root+rangeQuery, nil, unassigned, 403)
 	f.call("GET", path, nil, unassigned, 403)
 	f.call("GET", root, nil, f.token, 422)
-	f.call("PUT", path, map[string]interface{}{"title": ""}, f.token, 422)
+	f.call("PUT", path, map[string]any{"title": ""}, f.token, 422)
 	f.call("PUT", root+"/2147483647", input, f.token, 404)
 	f.call("DELETE", root+"/bad", nil, f.token, 404)
 	for _, role := range auth.Roles() {

@@ -22,7 +22,7 @@ func TestFeatureDeletionGuardsAndEffects(t *testing.T) {
 		Status int    `json:"status"`
 	}
 	checks := []check{}
-	call := func(label, path string, body interface{}, token string, status int) {
+	call := func(label, path string, body any, token string, status int) {
 		f.call("DELETE", path, body, token, status)
 		checks = append(checks, check{"admin", label, "DELETE", path[len("/v2"):], status})
 	}
@@ -90,7 +90,7 @@ func TestFeatureDeletionGuardsAndEffects(t *testing.T) {
 							t.Errorf("club member role remains: %v", err)
 						}
 					}()
-					linked := objectData(t, f.call("POST", "/v2/activities", map[string]interface{}{"name": "Preserved activity", "club_id": id}, f.token, 200))
+					linked := objectData(t, f.call("POST", "/v2/activities", map[string]any{"name": "Preserved activity", "club_id": id}, f.token, 200))
 					linkedID := linked.ID("id")
 					t.Cleanup(func() {
 						if _, err := f.pool.Exec(ctx, "DELETE FROM activities WHERE id=$1", linkedID); err != nil {
@@ -111,7 +111,7 @@ func TestFeatureDeletionGuardsAndEffects(t *testing.T) {
 						call("forbidden role "+role, path, body, token, 403)
 					}
 				}
-				for _, invalid := range []interface{}{nil, map[string]string{"confirmation": ""}, map[string]string{"confirmation": "wrong"}, map[string]int{"confirmation": 123}} {
+				for _, invalid := range []any{nil, map[string]string{"confirmation": ""}, map[string]string{"confirmation": "wrong"}, map[string]int{"confirmation": 123}} {
 					call("invalid confirmation", path, invalid, tokens[allowedRole], 422)
 				}
 				call("delete as "+allowedRole, path, body, tokens[allowedRole], 200)

@@ -15,7 +15,7 @@ func TestAdminMultipleRoles(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	created := objectData(t, f.call("POST", "/v2/admin-users", map[string]interface{}{
+	created := objectData(t, f.call("POST", "/v2/admin-users", map[string]any{
 		"displayName": "Multiple roles", "email": uuid + "@example.test", "password": "Fixture-password-2026!",
 		"role_codes": []string{"activity_manager", "konselor", "activity_manager"},
 	}, f.token, 201))
@@ -35,17 +35,17 @@ func TestAdminMultipleRoles(t *testing.T) {
 		t.Fatal("secondary role filter failed")
 	}
 	path := fmt.Sprintf("/v2/admin-users/%d", id)
-	f.call("PUT", path, map[string]interface{}{"role_codes": []string{"konselor"}}, f.token, 200)
+	f.call("PUT", path, map[string]any{"role_codes": []string{"konselor"}}, f.token, 200)
 	f.call("GET", "/v2/activities", nil, token, 403)
 	f.call("GET", "/v2/ruang-curhat", nil, token, 200)
-	f.call("PUT", path, map[string]interface{}{"displayName": "Retain roles"}, f.token, 200)
+	f.call("PUT", path, map[string]any{"displayName": "Retain roles"}, f.token, 200)
 	if !auth.ForUser(mustUser(t, f.pool, id)).Allows("counseling.manage") {
 		t.Fatal("omitted roles cleared access")
 	}
-	f.call("PUT", path, map[string]interface{}{"role_codes": []string{}}, f.token, 200)
+	f.call("PUT", path, map[string]any{"role_codes": []string{}}, f.token, 200)
 	f.call("GET", "/v2/ruang-curhat", nil, token, 403)
 	superPath := fmt.Sprintf("/v2/admin-users/%d", f.adminID)
-	f.call("PUT", superPath, map[string]interface{}{"role_codes": []string{"konselor", "super_admin"}}, f.token, 200)
-	f.call("PUT", superPath, map[string]interface{}{"role_codes": []string{"konselor"}}, f.token, 409)
-	f.call("PUT", superPath, map[string]interface{}{"role_code": "super_admin"}, f.token, 200)
+	f.call("PUT", superPath, map[string]any{"role_codes": []string{"konselor", "super_admin"}}, f.token, 200)
+	f.call("PUT", superPath, map[string]any{"role_codes": []string{"konselor"}}, f.token, 409)
+	f.call("PUT", superPath, map[string]any{"role_code": "super_admin"}, f.token, 200)
 }

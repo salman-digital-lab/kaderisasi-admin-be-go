@@ -23,7 +23,7 @@ func talentInput[T any](r *http.Request) (T, error) {
 }
 func (s *Server) registerTalentAssessment() {
 	service := talent.Service{Pool: s.Pool}
-	s.register("talent_assessment", "definition", func(w http.ResponseWriter, r *http.Request) error {
+	s.register("talent_assessment", "definition", func(w http.ResponseWriter, _ *http.Request) error {
 		w.Header().Set("Cache-Control", "no-store")
 		reply(w, 200, "GET_DATA_SUCCESS", talent.PublicDefinition())
 		return nil
@@ -83,7 +83,7 @@ func (s *Server) registerTalentAssessment() {
 		if !auth.ForUser(actor(r)).IsSuperAdmin {
 			return domain.Fail(403, "FORBIDDEN")
 		}
-		id, err := strconv.ParseInt(pathID(r, "id"), 10, 32)
+		id, err := strconv.ParseInt(pathID(r), 10, 32)
 		if err != nil || id < 1 {
 			return domain.Fail(404, "DATA_NOT_FOUND")
 		}

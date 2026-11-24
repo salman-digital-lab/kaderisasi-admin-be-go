@@ -12,12 +12,6 @@ import (
 	"time"
 )
 
-type validationIssue struct {
-	Message string `json:"message"`
-	Rule    string `json:"rule"`
-	Field   string `json:"field"`
-}
-
 type loginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -27,18 +21,6 @@ type googleLoginRequest struct {
 	Credential string `json:"credential"`
 }
 
-func invalid(w http.ResponseWriter, field, rule string) {
-	text := "The " + field + " field must be defined"
-	if rule == "email" {
-		text = "The " + field + " field must be a valid email address"
-	}
-	if rule == "minLength" {
-		text = "The " + field + " field must have at least 20 characters"
-	}
-	write(w, 422, struct {
-		Errors []validationIssue `json:"errors"`
-	}{[]validationIssue{{text, rule, field}}})
-}
 func clientInfo(r *http.Request) auth.ClientInfo {
 	ua := r.UserAgent()
 	if len(ua) > 500 {
@@ -58,6 +40,7 @@ func clientInfo(r *http.Request) auth.ClientInfo {
 	return result
 }
 func (s *Server) setRefresh(w http.ResponseWriter, value string) {
+	//nolint:gosec // Secure is off only outside production, where the API runs on plain HTTP
 	http.SetCookie(w, &http.Cookie{Name: auth.RefreshCookie, Value: url.QueryEscape(auth.SignRefreshCookie(s.Config.AppKey, value)), Path: "/v2/auth", HttpOnly: true, Secure: s.Config.Environment == "production", SameSite: http.SameSiteLaxMode, MaxAge: int(auth.RefreshTTL.Seconds())})
 }
 func (s *Server) readRefresh(r *http.Request) string {
@@ -167,6 +150,7 @@ func (s *Server) registerAuth() {
 		if err := s.Auth.Logout(r.Context(), s.readRefresh(r)); err != nil {
 			return err
 		}
+		//nolint:gosec // Secure is off only outside production, where the API runs on plain HTTP
 		cookie := (&http.Cookie{Name: auth.RefreshCookie, Value: "", Path: "/v2/auth", HttpOnly: true, Secure: s.Config.Environment == "production", SameSite: http.SameSiteLaxMode, MaxAge: -1, Expires: time.Unix(0, 0).UTC()}).String()
 		w.Header().Add("Set-Cookie", strings.Replace(cookie, "Max-Age=0", "Max-Age=-1", 1))
 		message(w, 200, "LOGOUT_SUCCESS")

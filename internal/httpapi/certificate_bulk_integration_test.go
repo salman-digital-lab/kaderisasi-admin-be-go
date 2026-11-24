@@ -5,7 +5,6 @@ package httpapi
 import (
 	"context"
 	"fmt"
-	"io"
 	"kaderisasi/admin/internal/certificate"
 	"kaderisasi/admin/internal/database"
 	"log/slog"
@@ -20,7 +19,7 @@ type issuanceLogHook struct {
 	after func() error
 }
 
-func (h issuanceLogHook) Handle(ctx context.Context, record slog.Record) error {
+func (h issuanceLogHook) Handle(_ context.Context, record slog.Record) error {
 	if record.Message == "certificate_issued" {
 		return h.after()
 	}
@@ -33,7 +32,7 @@ func TestCertificateBulkPausesOnConcurrentTemplateChange(t *testing.T) {
 	expected := certificate.Expectation{ActivityID: float64(fixture.activity.ID("id")), TemplateID: float64(fixture.template.ID("id")), TemplateVersion: 2}
 	var once sync.Once
 	var mutationErr error
-	hook := issuanceLogHook{Handler: slog.NewTextHandler(io.Discard, nil), after: func() error {
+	hook := issuanceLogHook{Handler: slog.DiscardHandler, after: func() error {
 		once.Do(func() {
 			_, mutationErr = f.pool.Exec(ctx, "UPDATE certificate_templates SET version=version+1 WHERE id=$1", int32(expected.TemplateID))
 		})
@@ -62,7 +61,7 @@ func TestCertificateBulkPausesOnConcurrentTemplateChange(t *testing.T) {
 	if err != nil || frozen.Template.Version != 2 {
 		t.Fatal("prior snapshot changed", err)
 	}
-	f.call("PUT", fmt.Sprintf("/v2/activities/%d", int32(expected.ActivityID)), map[string]interface{}{"certificate_template_id": nil}, f.token, 409)
+	f.call("PUT", fmt.Sprintf("/v2/activities/%d", int32(expected.ActivityID)), map[string]any{"certificate_template_id": nil}, f.token, 409)
 	if _, err = f.pool.Exec(ctx, "UPDATE activities SET certificate_template_id=NULL WHERE id=$1", int32(expected.ActivityID)); err != nil {
 		t.Fatal(err)
 	}

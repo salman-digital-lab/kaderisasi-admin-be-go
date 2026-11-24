@@ -26,10 +26,11 @@ func parseInteger(raw string) float64 {
 		return math.NaN()
 	}
 	sign := 1.0
-	if text[0] == '-' {
+	switch text[0] {
+	case '-':
 		sign = -1
 		text = text[1:]
-	} else if text[0] == '+' {
+	case '+':
 		text = text[1:]
 	}
 	value, _ := strconv.ParseFloat(database.NumberIdentifier(text), 64)

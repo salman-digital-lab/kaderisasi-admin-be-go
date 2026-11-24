@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
@@ -29,7 +30,7 @@ type talentFixture struct {
 	checks []talentCheck
 }
 
-func (f *talentFixture) call(method, path string, body interface{}, token string, status int, label string) database.Object {
+func (f *talentFixture) call(method, path string, body any, token string, status int, label string) database.Object {
 	f.t.Helper()
 	result := f.httpFixture.call(method, path, body, token, status)
 	f.checks = append(f.checks, talentCheck{"admin", method, path[3:], label, status})
@@ -101,7 +102,7 @@ func TestTalentAssessmentWorkflow(t *testing.T) {
 	var wg sync.WaitGroup
 	for range 2 {
 		wg.Go(func() {
-			r := httptest.NewRequest("PUT", base+"/draft", bytes.NewReader(body))
+			r := httptest.NewRequest(http.MethodPut, base+"/draft", bytes.NewReader(body))
 			r.Header.Set("Content-Type", "application/json")
 			r.Header.Set("Authorization", "Bearer "+token)
 			w := httptest.NewRecorder()
@@ -113,9 +114,10 @@ func TestTalentAssessmentWorkflow(t *testing.T) {
 	close(statuses)
 	successes, conflicts := 0, 0
 	for status := range statuses {
-		if status == 200 {
+		switch status {
+		case 200:
 			successes++
-		} else if status == 409 {
+		case 409:
 			conflicts++
 		}
 	}

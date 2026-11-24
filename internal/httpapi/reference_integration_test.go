@@ -7,7 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/config"
 	"kaderisasi/admin/internal/database"
@@ -21,6 +20,8 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type httpFixture struct {
@@ -130,7 +131,7 @@ func (f *httpFixture) tokenFor(id int32) string {
 	}
 	return token
 }
-func (f *httpFixture) call(method, path string, body interface{}, token string, status int) database.Object {
+func (f *httpFixture) call(method, path string, body any, token string, status int) database.Object {
 	f.t.Helper()
 	var data []byte
 	if body != nil {
@@ -193,8 +194,8 @@ func TestReferenceAndDashboardContracts(t *testing.T) {
 	f.call("POST", "/v2/provinces", map[string]string{"name": "Fixture province"}, "", 401)
 	f.call("POST", "/v2/provinces", map[string]string{}, f.token, 422)
 	provinceID = objectData(t, f.call("POST", "/v2/provinces", map[string]string{"name": "Fixture province"}, f.token, 200)).ID("id")
-	cityID = objectData(t, f.call("POST", "/v2/cities", map[string]interface{}{"name": "Fixture city", "province_id": provinceID}, f.token, 200)).ID("id")
-	universityID = objectData(t, f.call("POST", "/v2/universities", map[string]interface{}{"name": "Fixture university", "provinceId": provinceID}, f.token, 200)).ID("id")
+	cityID = objectData(t, f.call("POST", "/v2/cities", map[string]any{"name": "Fixture city", "province_id": provinceID}, f.token, 200)).ID("id")
+	universityID = objectData(t, f.call("POST", "/v2/universities", map[string]any{"name": "Fixture university", "provinceId": provinceID}, f.token, 200)).ID("id")
 	for _, target := range []struct {
 		table string
 		id    int32
@@ -204,7 +205,7 @@ func TestReferenceAndDashboardContracts(t *testing.T) {
 		if got.ID("id") != target.id {
 			t.Fatal("wrong reference identity")
 		}
-		body := map[string]interface{}{"name": "Updated fixture"}
+		body := map[string]any{"name": "Updated fixture"}
 		if target.table == "universities" {
 			body["provinceId"] = provinceID
 		}

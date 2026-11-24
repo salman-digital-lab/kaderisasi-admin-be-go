@@ -65,7 +65,7 @@ func Load() (Config, error) {
 		DBPort: uint16(dbPort), DBUser: os.Getenv("DB_USER"), DBPassword: os.Getenv("DB_PASSWORD"), DBName: os.Getenv("DB_DATABASE"), DBSchema: schema,
 		GoogleClientID: os.Getenv("GOOGLE_CLIENT_ID"), DriveDisk: os.Getenv("DRIVE_DISK"), DriveKey: os.Getenv("DRIVE_ACCESS_KEY_ID"),
 		DriveSecret: os.Getenv("DRIVE_SECRET_ACCESS_KEY"), DriveEndpoint: os.Getenv("DRIVE_ENDPOINT"), DriveBucket: os.Getenv("DRIVE_BUCKET"), DriveRegion: os.Getenv("DRIVE_REGION"), Location: location}
-	for _, origin := range strings.Split(value("ADMIN_CORS_ORIGINS", "http://localhost:3005"), ",") {
+	for origin := range strings.SplitSeq(value("ADMIN_CORS_ORIGINS", "http://localhost:3005"), ",") {
 		if origin = strings.TrimSpace(origin); origin != "" {
 			c.Origins = append(c.Origins, origin)
 		}

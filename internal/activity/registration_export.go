@@ -5,11 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/export"
 	"kaderisasi/admin/internal/member"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func (s Service) ExportRegistrations(ctx context.Context, identifier string) (export.Document, error) {
@@ -24,7 +25,7 @@ func (s Service) ExportRegistrations(ctx context.Context, identifier string) (ex
 		if errors.Is(err, pgx.ErrNoRows) {
 			return export.Document{}, err
 		}
-		return export.Document{}, fmt.Errorf("error: %s", database.LegacyQueryError(err, `select * from "activities" where "id" = $1 limit $2`))
+		return export.Document{}, fmt.Errorf("error: %w", database.LegacyQueryError(err, `select * from "activities" where "id" = $1 limit $2`))
 	}
 	rows, err := q.RegistrationExportRows(ctx, &activity.ID)
 	if err != nil {
@@ -59,7 +60,7 @@ func (s Service) ExportRegistrations(ctx context.Context, identifier string) (ex
 		}
 		for _, item := range []struct {
 			raw    []byte
-			target interface{}
+			target any
 		}{{row.GuestData, &record.Guest}, {relation.Locations, &record.Locations}} {
 			if len(item.raw) > 0 {
 				if err = json.Unmarshal(item.raw, item.target); err != nil {
@@ -104,7 +105,7 @@ func (s Service) ExportRegistrations(ctx context.Context, identifier string) (ex
 		prefix := fmt.Sprintf("%s (#%d)", link.Title, link.ID)
 		headers = append(headers, prefix+" - Status", prefix+" - Materi selesai/total")
 	}
-	cells := make([][]interface{}, len(registrations))
+	cells := make([][]any, len(registrations))
 	badge := ""
 	if activity.Badge != nil {
 		badge = *activity.Badge

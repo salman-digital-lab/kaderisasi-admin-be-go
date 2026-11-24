@@ -25,7 +25,7 @@ func TestAnnouncementWorkflow(t *testing.T) {
 	t.Cleanup(func() {
 		for _, item := range []struct {
 			sql   string
-			value interface{}
+			value any
 		}{
 			{"DELETE FROM announcements WHERE id=ANY($1::integer[])", announcementIDs},
 			{"DELETE FROM activity_registrations WHERE activity_id=$1", activityID}, {"DELETE FROM activities WHERE id=$1", activityID},

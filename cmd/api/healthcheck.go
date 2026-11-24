@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -13,8 +14,13 @@ func healthcheck() error {
 	if port == "" {
 		port = "3334"
 	}
-	client := http.Client{Timeout: 4 * time.Second}
-	response, err := client.Get("http://127.0.0.1:" + port + "/health")
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
+	defer cancel()
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://127.0.0.1:"+port+"/health", nil)
+	if err != nil {
+		return err
+	}
+	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return err
 	}

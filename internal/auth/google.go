@@ -59,7 +59,7 @@ func (v *GoogleValidator) Validate(ctx context.Context, credential, audience str
 	// Google's Go helper has no clock-skew option. Adonis permits 300 seconds.
 	// Within that window, still verify the ORIGINAL signature against Google's
 	// fixed key endpoint. Never accept the unverified parsed payload alone.
-	_, err = jwt.Parse(credential, func(token *jwt.Token) (interface{}, error) {
+	_, err = jwt.Parse(credential, func(token *jwt.Token) (any, error) {
 		kid, ok := token.Header["kid"].(string)
 		if !ok {
 			return nil, errors.New("missing Google key ID")

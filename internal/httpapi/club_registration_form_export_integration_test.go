@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"kaderisasi/admin/internal/database"
+	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
@@ -38,7 +39,7 @@ func TestClubRegistrationConfiguredProfileExport(t *testing.T) {
 	}()
 	province, city := "Fixture province", "Fixture city"
 	provinceID = objectData(t, f.call("POST", "/v2/provinces", map[string]string{"name": province}, f.token, 200)).ID("id")
-	cityID = objectData(t, f.call("POST", "/v2/cities", map[string]interface{}{"name": city, "province_id": provinceID}, f.token, 200)).ID("id")
+	cityID = objectData(t, f.call("POST", "/v2/cities", map[string]any{"name": city, "province_id": provinceID}, f.token, 200)).ID("id")
 	if _, err := f.pool.Exec(ctx, `UPDATE profiles SET gender='F',birth_date='2003-04-05',whatsapp='081234567890',origin_province_id=$2,origin_city_id=$3,province_id=$2,major='Stale major',education_history='[{"degree":"high_school","institution":"Previous school"},{"degree":"bachelor","institution":"Current campus","faculty":"Engineering","major":"Informatics","intake_year":2024}]' WHERE user_id=$1`, user.ID("id"), provinceID, cityID); err != nil {
 		t.Fatal(err)
 	}
@@ -47,14 +48,14 @@ func TestClubRegistrationConfiguredProfileExport(t *testing.T) {
 		t.Fatal(err)
 	}
 	clubPath := fmt.Sprintf("/v2/clubs/%d", club.ID("id"))
-	reg := objectData(t, f.call("POST", clubPath+"/registrations", map[string]interface{}{"member_id": user.ID("id"), "additional_data": map[string]interface{}{"attendance": "06e119d1-e88e-4e57-8211-6b10a480d13d", "legacy_answer": false}}, f.token, 200))
+	reg := objectData(t, f.call("POST", clubPath+"/registrations", map[string]any{"member_id": user.ID("id"), "additional_data": map[string]any{"attendance": "06e119d1-e88e-4e57-8211-6b10a480d13d", "legacy_answer": false}}, f.token, 200))
 	detail := objectData(t, f.call("GET", fmt.Sprintf("/v2/club-registrations/%d", reg.ID("id")), nil, f.token, 200))
 	profile := nestedObject(nestedObject(detail, "member"), "profile")
 	var education []database.Object
 	if err := json.Unmarshal(profile["education_history"], &education); err != nil || len(education) != 2 || education[1].String("institution") != "Current campus" {
 		t.Fatalf("drawer profile missing current education: %s (%v)", profile["education_history"], err)
 	}
-	request := httptest.NewRequest("GET", clubPath+"/registrations/export", nil)
+	request := httptest.NewRequest(http.MethodGet, clubPath+"/registrations/export", nil)
 	request.Header.Set("Authorization", "Bearer "+f.token)
 	response := httptest.NewRecorder()
 	f.handler.ServeHTTP(response, request)

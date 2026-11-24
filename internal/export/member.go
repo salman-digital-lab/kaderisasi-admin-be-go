@@ -30,9 +30,9 @@ func MemberFile(headers []string, rows [][]string, format string) ([]byte, error
 		writer.Flush()
 		return buffer.Bytes(), writer.Error()
 	}
-	values := make([][]interface{}, len(rows))
+	values := make([][]any, len(rows))
 	for i, row := range rows {
-		values[i] = make([]interface{}, len(row))
+		values[i] = make([]any, len(row))
 		for j, cell := range row {
 			values[i][j] = cell
 		}

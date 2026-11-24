@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/config"
+	"net/http"
 	"net/http/httptest"
 	"sync"
 	"testing"
@@ -16,7 +17,7 @@ import (
 func TestConcurrentLastSuperAdminProtection(t *testing.T) {
 	f := newHTTPFixture(t)
 	second := f.admin("super_admin")
-	f.call("PUT", fmt.Sprintf("/v2/admin-users/%d", second), map[string]interface{}{"role_codes": []string{"konselor", "super_admin"}}, f.token, 200)
+	f.call("PUT", fmt.Sprintf("/v2/admin-users/%d", second), map[string]any{"role_codes": []string{"konselor", "super_admin"}}, f.token, 200)
 	c, err := config.Load()
 	if err != nil {
 		t.Fatal(err)
@@ -35,7 +36,7 @@ func TestConcurrentLastSuperAdminProtection(t *testing.T) {
 	}{{f.adminID, f.token}, {second, session.AccessToken}} {
 		wg.Go(func() {
 			<-start
-			r := httptest.NewRequest("PUT", fmt.Sprintf("/v2/admin-users/%d", actor.id), bytes.NewBufferString(`{"role_codes":[]}`))
+			r := httptest.NewRequest(http.MethodPut, fmt.Sprintf("/v2/admin-users/%d", actor.id), bytes.NewBufferString(`{"role_codes":[]}`))
 			r.Header.Set("Content-Type", "application/json")
 			r.Header.Set("Authorization", "Bearer "+actor.token)
 			w := httptest.NewRecorder()

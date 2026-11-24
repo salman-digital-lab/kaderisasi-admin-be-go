@@ -6,10 +6,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/dbgen"
 	"testing"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func mustUser(t *testing.T, pool *pgxpool.Pool, id int32) dbgen.AdminUser {
@@ -64,7 +65,7 @@ func TestAdministratorAndTicketWorkflows(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	created := objectData(t, f.call("POST", "/v2/admin-users", map[string]interface{}{"displayName": "New fixture", "email": uuid + "@example.test", "password": "Fixture-password-2026!", "role_code": nil}, f.token, 201))
+	created := objectData(t, f.call("POST", "/v2/admin-users", map[string]any{"displayName": "New fixture", "email": uuid + "@example.test", "password": "Fixture-password-2026!", "role_code": nil}, f.token, 201))
 	id := created.ID("id")
 	f.admins = append(f.admins, id)
 	if created.Has("password") {
@@ -75,7 +76,7 @@ func TestAdministratorAndTicketWorkflows(t *testing.T) {
 	f.call("PUT", fmt.Sprintf("/v2/admin-users/%d", id), map[string]string{"role_code": "konselor"}, f.token, 200)
 	f.call("PUT", fmt.Sprintf("/v2/admin-users/%d/password", id), map[string]string{"password": "Updated-password"}, f.token, 200)
 	f.call("PUT", fmt.Sprintf("/v2/admin-users/%d", f.adminID), map[string]bool{"isActive": false}, f.token, 409)
-	f.call("PUT", fmt.Sprintf("/v2/admin-users/%d", f.adminID), map[string]interface{}{"role_code": nil}, f.token, 409)
+	f.call("PUT", fmt.Sprintf("/v2/admin-users/%d", f.adminID), map[string]any{"role_code": nil}, f.token, 409)
 	user := mustUser(t, f.pool, id)
 	// Obtain the real session through the public HTTP contract.
 	login := objectData(t, f.call("POST", "/v2/auth/login", map[string]string{"email": user.Email, "password": "Updated-password"}, "", 200))

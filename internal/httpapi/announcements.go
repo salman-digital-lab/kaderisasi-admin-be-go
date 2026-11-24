@@ -3,8 +3,6 @@ package httpapi
 import (
 	"encoding/json"
 	"errors"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 	"io"
 	"kaderisasi/admin/internal/announcement"
 	"kaderisasi/admin/internal/dbgen"
@@ -13,6 +11,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func announcementID(r *http.Request) (int32, error) {
@@ -22,7 +23,7 @@ func announcementID(r *http.Request) (int32, error) {
 	}
 	return int32(v), nil
 }
-func announcementInput(r *http.Request, v interface{}) error {
+func announcementInput(r *http.Request, v any) error {
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if e := d.Decode(v); e != nil {

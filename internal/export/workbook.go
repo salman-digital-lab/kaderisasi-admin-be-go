@@ -2,9 +2,10 @@ package export
 
 import (
 	"fmt"
-	"github.com/xuri/excelize/v2"
 	"regexp"
 	"unicode/utf16"
+
+	"github.com/xuri/excelize/v2"
 )
 
 var filenameDisallowed = regexp.MustCompile(`[^\w\s-]`)
@@ -13,13 +14,13 @@ var whitespace = regexp.MustCompile(`\s+`)
 func Filename(name string) string {
 	return whitespace.ReplaceAllString(filenameDisallowed.ReplaceAllString(name, ""), "-") + ".xlsx"
 }
-func Workbook(sheet string, headers []string, rows [][]interface{}) ([]byte, error) {
+func Workbook(sheet string, headers []string, rows [][]any) ([]byte, error) {
 	book := excelize.NewFile()
 	defer book.Close()
 	if err := book.SetSheetName("Sheet1", sheet); err != nil {
 		return nil, err
 	}
-	header := make([]interface{}, len(headers))
+	header := make([]any, len(headers))
 	widths := make([]int, len(headers))
 	for i, value := range headers {
 		header[i] = value

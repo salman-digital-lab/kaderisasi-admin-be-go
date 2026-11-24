@@ -49,9 +49,6 @@ type MediaRequest struct {
 type MediaResponse struct {
 	Media Media `json:"media"`
 }
-type LogoResponse struct {
-	Logo string `json:"logo"`
-}
 
 func dateValue(value domain.Optional[pgtype.Date]) pgtype.Date {
 	if value.Value != nil {

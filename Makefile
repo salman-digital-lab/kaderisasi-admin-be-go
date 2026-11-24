@@ -2,7 +2,7 @@ BORROW_WORKSPACE ?= --borrow-workspace
 
 .DEFAULT_GOAL := build
 
-.PHONY: prepare-reference check build package run test-unit fixtures test-integration \
+.PHONY: prepare-reference check lint lint-fix build package run test-unit fixtures test-integration \
 	test-browser test-courses test-courses-browser test-shared test-calendar \
 	test-activity-courses test-feature-deletion test-short-links test-scoring \
 	test-talent-assessment benchmark verify clean-fixtures
@@ -14,6 +14,12 @@ prepare-reference:
 
 check:
 	node scripts/check.mjs
+
+lint:
+	golangci-lint run ./...
+
+lint-fix:
+	golangci-lint run --fix ./...
 
 build:
 	mkdir -p bin

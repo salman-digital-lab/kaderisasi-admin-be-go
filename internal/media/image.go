@@ -5,10 +5,11 @@ import (
 	"context"
 	"encoding/binary"
 	"errors"
-	"github.com/davidbyttow/govips/v2/vips"
 	"kaderisasi/admin/internal/storage"
 	"math"
 	"sync"
+
+	"github.com/davidbyttow/govips/v2/vips"
 )
 
 type Preset string
@@ -24,7 +25,10 @@ type options struct{ Width, Height, Pixels, Quality int }
 
 var presets = map[Preset]options{Logo: {1024, 1024, 16_000_000, 90}, Gallery: {2400, 2400, 40_000_000, 85}, Certificate: {5000, 5000, 40_000_000, 90}, FormUpload: {2400, 2400, 40_000_000, 85}}
 var ErrInvalidImage = errors.New("INVALID_IMAGE")
-var startup sync.Once
+var (
+	startup    sync.Once
+	errStartup error
+)
 
 func Optimize(data []byte, preset Preset) ([]byte, error) {
 	options, ok := presets[preset]
@@ -34,7 +38,10 @@ func Optimize(data []byte, preset Preset) ([]byte, error) {
 	if preset == FormUpload && hasAnimation(data) {
 		return nil, ErrInvalidImage
 	}
-	startup.Do(func() { vips.Startup(&vips.Config{ConcurrencyLevel: 2}) })
+	startup.Do(func() { errStartup = vips.Startup(&vips.Config{ConcurrencyLevel: 2}) })
+	if errStartup != nil {
+		return nil, errStartup
+	}
 	img, err := vips.NewImageFromBuffer(data)
 	if err != nil {
 		return nil, ErrInvalidImage

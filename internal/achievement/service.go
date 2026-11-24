@@ -4,15 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Service struct {
@@ -116,7 +117,7 @@ func (s Service) Review(ctx context.Context, row dbgen.Achievement, input Input,
 func updateStatement(row dbgen.Achievement, params dbgen.UpdateAchievementParams) string {
 	fields := []struct {
 		name          string
-		before, after interface{}
+		before, after any
 	}{
 		{"name", row.Name, params.Name}, {"description", row.Description, params.Description}, {"type", number(row.Type), params.Type}, {"score", number(row.Score), params.Score}, {"proof", row.Proof, params.Proof}, {"status", number(row.Status), params.Status}, {"remark", row.Remark, params.Remark}, {"approver_id", number(row.ApproverID), params.ApproverID}, {"approved_at", row.ApprovedAt, params.ApprovedAt},
 	}

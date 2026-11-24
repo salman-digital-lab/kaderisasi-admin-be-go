@@ -3,11 +3,13 @@ package club
 import (
 	"context"
 	"errors"
-	"github.com/jackc/pgx/v5"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
 	"strconv"
+	"strings"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func (s Service) RequireRegistrationClub(ctx context.Context, id string) error {
@@ -146,12 +148,13 @@ func roleUpdateStatement(row dbgen.ClubMemberRole, params dbgen.UpdateClubRolePa
 		columns = append(columns, "sort_order")
 	}
 	columns = append(columns, "updated_at")
-	result := `update "club_member_roles" set `
+	var result strings.Builder
+	result.WriteString(`update "club_member_roles" set `)
 	for i, column := range columns {
 		if i > 0 {
-			result += ", "
+			result.WriteString(", ")
 		}
-		result += `"` + column + `" = $` + strconv.Itoa(i+1)
+		result.WriteString(`"` + column + `" = $` + strconv.Itoa(i+1))
 	}
-	return result + ` where "id" = $` + strconv.Itoa(len(columns)+1)
+	return result.String() + ` where "id" = $` + strconv.Itoa(len(columns)+1)
 }

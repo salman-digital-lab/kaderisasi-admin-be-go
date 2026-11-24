@@ -26,7 +26,7 @@ func TestClubConfiguredProfileExport(t *testing.T) {
 		}
 		profile := &member.ProfileResponse{Profile: dbgen.Profile{Name: "Applicant", Gender: &gender, Major: &oldMajor, Level: &level}, Badges: []string{"LMD", "SSC"}, EducationHistory: raw}
 		row := ClubProfileRow(fields, profile, &email, RegistrationLocations{OriginProvince: &province, OriginCity: &city})
-		want := []interface{}{"Applicant", "Perempuan", "Jawa Barat", "Bandung", "Current campus", "S1", "Engineering", "Informatics", float64(2024), email, "KADER", "LMD, SSC"}
+		want := []any{"Applicant", "Perempuan", "Jawa Barat", "Bandung", "Current campus", "S1", "Engineering", "Informatics", float64(2024), email, "KADER", "LMD, SSC"}
 		if !reflect.DeepEqual(row, want) {
 			t.Fatalf("serialized=%v row: %#v", serialized, row)
 		}

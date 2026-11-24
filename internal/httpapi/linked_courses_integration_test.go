@@ -7,13 +7,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/xuri/excelize/v2"
 	"kaderisasi/admin/internal/auth"
 	"kaderisasi/admin/internal/linkedcourse"
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/xuri/excelize/v2"
 )
 
 func testLinkedCoursePeople(t *testing.T, f *activityCourseFixture, activityID int32, courses, users, lessons []int32) {
@@ -47,7 +49,7 @@ func testLinkedCoursePeople(t *testing.T, f *activityCourseFixture, activityID i
 	f.call("GET", "/v2/courses", nil, manager, 200)
 	for _, route := range []struct{ method, path string }{{"GET", "/v2/clubs/course-options"}, {"GET", base + "/courses"}, {"PUT", base + "/courses"}, {"GET", base + "/course-progress"}, {"GET", base + "/course-progress/export"}} {
 		f.call(route.method, route.path, nil, "", 401)
-		f.call(route.method, route.path, map[string]interface{}{"course_ids": []int32{}}, denied, 403)
+		f.call(route.method, route.path, map[string]any{"course_ids": []int32{}}, denied, 403)
 	}
 	f.call("GET", "/v2/clubs/course-options?search="+uuid, nil, manager, 200)
 	for _, ids := range [][]int32{nil, {0}, {courses[0], courses[0]}, {2147483647}} {
@@ -125,7 +127,7 @@ func testLinkedCoursePeople(t *testing.T, f *activityCourseFixture, activityID i
 		f.call("GET", progress, nil, "", 401)
 		f.call("GET", progress, nil, denied, 403)
 		f.call("GET", strings.Replace(path, fmt.Sprint(map[string]int32{"activity": activityID, "club": clubID}[kind]), "2147483647", 1)+"/course-progress", nil, token, 404)
-		r := httptest.NewRequest("GET", progress+"/export?course_completion=completed", nil)
+		r := httptest.NewRequest(http.MethodGet, progress+"/export?course_completion=completed", nil)
 		r.Header.Set("Authorization", "Bearer "+token)
 		w := httptest.NewRecorder()
 		f.handler.ServeHTTP(w, r)
@@ -153,7 +155,7 @@ func testLinkedCoursePeople(t *testing.T, f *activityCourseFixture, activityID i
 		}
 	}
 	progress := base + "/course-progress"
-	exec := func(query string, args ...interface{}) {
+	exec := func(query string, args ...any) {
 		t.Helper()
 		if _, err := f.pool.Exec(ctx, query, args...); err != nil {
 			t.Fatal(err)

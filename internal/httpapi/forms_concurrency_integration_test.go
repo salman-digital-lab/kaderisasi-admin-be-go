@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"sync"
 	"testing"
@@ -30,7 +31,7 @@ func TestCustomFormAttachmentConcurrency(t *testing.T) {
 			}
 		}
 	})
-	for i := 0; i < 2; i++ {
+	for i := range 2 {
 		club := objectData(t, f.call("POST", "/v2/clubs", map[string]string{"name": fmt.Sprintf("Form locking club %d", i)}, f.token, 200))
 		clubs = append(clubs, club.ID("id"))
 		form := objectData(t, f.call("POST", "/v2/custom-forms", map[string]string{"formName": fmt.Sprintf("Form locking %d", i)}, f.token, 201))
@@ -38,7 +39,7 @@ func TestCustomFormAttachmentConcurrency(t *testing.T) {
 	}
 	type operation struct {
 		path  string
-		input interface{}
+		input any
 	}
 	race := func(ops []operation) map[int]int {
 		t.Helper()
@@ -48,7 +49,7 @@ func TestCustomFormAttachmentConcurrency(t *testing.T) {
 		for _, op := range ops {
 			wg.Go(func() {
 				body, _ := json.Marshal(op.input)
-				request := httptest.NewRequest("PUT", op.path, bytes.NewReader(body)).WithContext(ctx)
+				request := httptest.NewRequest(http.MethodPut, op.path, bytes.NewReader(body)).WithContext(ctx)
 				request.Header.Set("Content-Type", "application/json")
 				request.Header.Set("Authorization", "Bearer "+f.token)
 				response := httptest.NewRecorder()
@@ -103,7 +104,7 @@ func TestCustomFormAttachmentConcurrency(t *testing.T) {
 		t.Fatal(err)
 	}
 	path := fmt.Sprintf("/v2/custom-forms/%d", forms[0])
-	for _, op := range []operation{{path, map[string]bool{"isActive": false}}, {path + "/detach-club", map[string]string{}}, {path, map[string]interface{}{"formSchema": map[string]interface{}{"fields": []interface{}{}}}}} {
+	for _, op := range []operation{{path, map[string]bool{"isActive": false}}, {path + "/detach-club", map[string]string{}}, {path, map[string]any{"formSchema": map[string]any{"fields": []any{}}}}} {
 		f.call("PUT", op.path, op.input, f.token, 400)
 	}
 	f.call("PUT", path, map[string]string{"formName": "An open form may be renamed"}, f.token, 200)

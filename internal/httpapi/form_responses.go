@@ -3,8 +3,6 @@ package httpapi
 import (
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
 	"kaderisasi/admin/internal/form"
@@ -13,6 +11,9 @@ import (
 	"net/http"
 	"slices"
 	"strconv"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func (s *Server) registerFormResponses() {
@@ -87,7 +88,7 @@ func (s *Server) registerFormResponses() {
 				w.Header().Set("Content-Type", file.MimeType)
 				w.Header().Set("X-Content-Type-Options", "nosniff")
 				w.Header().Set("Content-Disposition", mime.FormatMediaType("attachment", map[string]string{"filename": file.DownloadName}))
-				w.WriteHeader(200)
+				w.WriteHeader(http.StatusOK)
 				_, err = w.Write(body)
 				return err
 			}

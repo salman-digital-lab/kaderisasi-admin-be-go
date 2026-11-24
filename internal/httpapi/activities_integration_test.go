@@ -19,9 +19,9 @@ func TestActivityLifecycle(t *testing.T) {
 			t.Error(err)
 		}
 	}()
-	config := map[string]interface{}{"custom_selection_status": []string{"LULUS"}, "mandatory_profile_data": []interface{}{}, "additional_questionnaire": []interface{}{}, "allow_guest_registration": true}
-	body := map[string]interface{}{"name": "Fixture café — 2026", "activity_start": "2026-09-10", "activity_end": "2026-09-11", "is_published": 0, "additional_config": config, "activity_type": 1, "minimum_level": 0}
-	f.call("POST", "/v2/activities", map[string]interface{}{}, f.token, 422)
+	config := map[string]any{"custom_selection_status": []string{"LULUS"}, "mandatory_profile_data": []any{}, "additional_questionnaire": []any{}, "allow_guest_registration": true}
+	body := map[string]any{"name": "Fixture café — 2026", "activity_start": "2026-09-10", "activity_end": "2026-09-11", "is_published": 0, "additional_config": config, "activity_type": 1, "minimum_level": 0}
+	f.call("POST", "/v2/activities", map[string]any{}, f.token, 422)
 	one := objectData(t, f.call("POST", "/v2/activities", body, f.token, 200))
 	ids = append(ids, one.ID("id"))
 	two := objectData(t, f.call("POST", "/v2/activities", body, f.token, 200))
@@ -34,7 +34,7 @@ func TestActivityLifecycle(t *testing.T) {
 	if got.String("activity_start") != "2026-09-10" {
 		t.Fatalf("calendar date %s", got["activity_start"])
 	}
-	updated := objectData(t, f.call("PUT", path, map[string]interface{}{"name": "Renamed activity"}, f.token, 200))
+	updated := objectData(t, f.call("PUT", path, map[string]any{"name": "Renamed activity"}, f.token, 200))
 	if updated.String("slug") != one.String("slug") {
 		t.Fatal("slug changed on rename")
 	}
@@ -43,18 +43,18 @@ func TestActivityLifecycle(t *testing.T) {
 	if string(missing["data"]) != "null" {
 		t.Fatal("missing activity contract")
 	}
-	f.call("PUT", path, map[string]interface{}{"certificate_template_id": 2147483647}, f.token, 422)
-	f.call("PUT", path+"/reorder-images", map[string]interface{}{"images": []string{}}, f.token, 200)
-	f.call("PUT", path+"/reorder-images", map[string]interface{}{"images": []string{"foreign-object"}}, f.token, 400)
-	f.call("PUT", path+"/delete-image", map[string]interface{}{"image": "foreign-object"}, f.token, 404)
-	f.call("PUT", "/v2/activities/2147483647/reorder-images", map[string]interface{}{"images": []string{}}, f.token, 404)
+	f.call("PUT", path, map[string]any{"certificate_template_id": 2147483647}, f.token, 422)
+	f.call("PUT", path+"/reorder-images", map[string]any{"images": []string{}}, f.token, 200)
+	f.call("PUT", path+"/reorder-images", map[string]any{"images": []string{"foreign-object"}}, f.token, 400)
+	f.call("PUT", path+"/delete-image", map[string]any{"image": "foreign-object"}, f.token, 404)
+	f.call("PUT", "/v2/activities/2147483647/reorder-images", map[string]any{"images": []string{}}, f.token, 404)
 	var c database.Object
 	json.Unmarshal(updated["additional_config"], &c)
 	if !c.Bool("allow_guest_registration") || string(c["images"]) != "[]" {
 		t.Fatalf("config merge %s", updated["additional_config"])
 	}
-	features := map[string]interface{}{"custom_selection_status": []string{"LULUS"}, "mandatory_profile_data": []interface{}{}, "additional_questionnaire": []interface{}{}, "allow_guest_registration": true, "optional_features": map[string]bool{"scoring": true, "courses": false}}
-	toggled := objectData(t, f.call("PUT", path, map[string]interface{}{"additional_config": features}, f.token, 200))
+	features := map[string]any{"custom_selection_status": []string{"LULUS"}, "mandatory_profile_data": []any{}, "additional_questionnaire": []any{}, "allow_guest_registration": true, "optional_features": map[string]bool{"scoring": true, "courses": false}}
+	toggled := objectData(t, f.call("PUT", path, map[string]any{"additional_config": features}, f.token, 200))
 	var tc database.Object
 	json.Unmarshal(toggled["additional_config"], &tc)
 	var flags struct {

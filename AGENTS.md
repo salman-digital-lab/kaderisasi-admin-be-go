@@ -88,3 +88,19 @@ make clean-fixtures
   HTTP, authorization, validation, database-effect, and browser tests as appropriate.
   Do not claim a suite passed if skipped or blocked; record the exact limitation.
 - Use `docs/COOLIFY.md` for deployment and rollback (redeploy the previous Go image).
+
+## Lint and comments
+
+- `make lint` runs golangci-lint v2 with `.golangci.yml` (`brew install golangci-lint`);
+  `make check` includes it and must report `0 issues`. `make lint-fix` applies the
+  automatic fixes. The same config is used in `../kaderisasi-web-be-go`.
+- Fix a finding in the code. Use `//nolint:<linter> // reason` only for a finding that
+  is wrong for a stated reason; never disable a linter or widen an exclusion in
+  `.golangci.yml` to get a change through.
+- Rules deliberately left off: error-string style (`ST1005`, revive `error-strings`),
+  because many error strings are API responses, and doc-comment requirements, because
+  of the comment rule below.
+- Comments say what the code cannot: the JavaScript/Adonis behavior being mirrored, an
+  invariant, a lock order, a security or contract reason. Do not write comments that
+  restate a name, a signature or the next line, and do not add section-divider comments.
+  When a comment only explains what code does, rename or restructure the code instead.

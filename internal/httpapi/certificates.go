@@ -167,11 +167,10 @@ func (s *Server) registerCertificates() {
 			}
 			if err != nil {
 				if action == "verify" {
-					var d *domain.Error
-					if errors.As(err, &d) {
+					if d, ok := errors.AsType[*domain.Error](err); ok {
 						write(w, 404, struct {
-							Message string      `json:"message"`
-							Data    interface{} `json:"data"`
+							Message string `json:"message"`
+							Data    any    `json:"data"`
 						}{d.Message, struct {
 							Valid bool `json:"valid"`
 						}{false}})

@@ -10,9 +10,6 @@ import (
 	"strconv"
 )
 
-func input(w http.ResponseWriter, r *http.Request, schema string) (validation.Object, bool) {
-	return validatedInput(w, r, schema, false)
-}
 func validatedInput(w http.ResponseWriter, r *http.Request, schema string, legacyErrors bool) (validation.Object, bool) {
 	style := "unhandled"
 	if legacyErrors {
@@ -53,7 +50,7 @@ func inputWithErrors(w http.ResponseWriter, r *http.Request, schema, style strin
 	}
 	return validated, true
 }
-func pathID(r *http.Request, key string) string { return r.PathValue(key) }
+func pathID(r *http.Request) string { return r.PathValue("id") }
 func queryNumber(r *http.Request, key string, fallback float64) float64 {
 	if !r.URL.Query().Has(key) {
 		return fallback
@@ -69,7 +66,6 @@ func queryNumber(r *http.Request, key string, fallback float64) float64 {
 	return number
 }
 
-// defaultMaxPerPage bounds list endpoints that declare no limit of their own.
 const defaultMaxPerPage = 1000
 
 func pageParams(r *http.Request, defaultPerPage, maxPerPage int) (float64, float64) {

@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
@@ -14,6 +12,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func (s Templates) List(ctx context.Context, filters TemplateFilters) (TemplatePage[TemplateResponse], error) {
@@ -68,7 +69,7 @@ func typedVersionConflict(row dbgen.CertificateTemplate) error {
 	if !row.UpdatedAt.Valid {
 		return errors.New("Cannot read properties of null (reading 'toISO')")
 	}
-	return domain.Details(409, "CERTIFICATE_TEMPLATE_VERSION_CONFLICT", map[string]interface{}{"currentVersion": row.Version, "updatedAt": domain.ModelTimestamp(row.UpdatedAt, time.Local)})
+	return domain.Details(409, "CERTIFICATE_TEMPLATE_VERSION_CONFLICT", map[string]any{"currentVersion": row.Version, "updatedAt": domain.ModelTimestamp(row.UpdatedAt, time.Local)})
 }
 func (s Templates) Mutate(ctx context.Context, id string, input TemplateInput, action string) (dbgen.CertificateTemplate, error) {
 	tx, err := s.Pool.Begin(ctx)

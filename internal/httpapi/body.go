@@ -10,6 +10,7 @@ import (
 	"io"
 	"kaderisasi/admin/internal/domain"
 	"kaderisasi/admin/internal/validation"
+	"maps"
 	"mime"
 	"net/http"
 	"strings"
@@ -43,7 +44,7 @@ func prepareRequest(w http.ResponseWriter, r *http.Request, route Route) (*http.
 	}
 	body := map[string]any{}
 	kind, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
-	allowed := r.Method == "POST" || r.Method == "PUT" || r.Method == "PATCH" || r.Method == "DELETE"
+	allowed := r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodPatch || r.Method == http.MethodDelete
 	if allowed && r.Body != nil && r.ContentLength != 0 {
 		jsonType := kind == "application/json" || kind == "application/json-patch+json" || kind == "application/vnd.api+json" || kind == "application/csp-report"
 		formType := kind == "application/x-www-form-urlencoded"
@@ -81,8 +82,7 @@ func prepareRequest(w http.ResponseWriter, r *http.Request, route Route) (*http.
 			}
 			r.Body = http.MaxBytesReader(w, r.Body, limit)
 			if err := r.ParseMultipartForm(6 << 20); err != nil {
-				var large *http.MaxBytesError
-				if errors.As(err, &large) {
+				if _, ok := errors.AsType[*http.MaxBytesError](err); ok {
 					return r, domain.Fail(413, "request entity too large")
 				}
 				return r, domain.Fail(400, "Invalid multipart request")
@@ -96,9 +96,7 @@ func prepareRequest(w http.ResponseWriter, r *http.Request, route Route) (*http.
 			}
 		}
 	}
-	for key, value := range parseFields(r.URL.RawQuery, false) {
-		body[key] = value
-	}
+	maps.Copy(body, parseFields(r.URL.RawQuery, false))
 	encoded, err := json.Marshal(body)
 	if err != nil {
 		return r, err
@@ -155,8 +153,7 @@ func readRequestBody(w http.ResponseWriter, r *http.Request, limit int64) ([]byt
 	}
 	raw, err := io.ReadAll(reader)
 	if err != nil {
-		var large *http.MaxBytesError
-		if errors.As(err, &large) {
+		if _, ok := errors.AsType[*http.MaxBytesError](err); ok {
 			return nil, domain.Fail(413, "request entity too large")
 		}
 		return nil, err

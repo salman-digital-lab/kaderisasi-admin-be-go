@@ -65,7 +65,7 @@ func ProfileWithRelations(row dbgen.ProfileDetailsByIdentifierRow) (ProfileDetai
 	}
 	for _, relation := range []struct {
 		raw    []byte
-		target interface{}
+		target any
 	}{
 		{row.Province, &result.Province}, {row.City, &result.City}, {row.University, &result.University},
 	} {

@@ -13,9 +13,9 @@ func TestExportColumnsCoverProfileAndRejectAccountSecrets(t *testing.T) {
 	for _, column := range exportColumns {
 		keys[column.Key] = true
 	}
-	for i := 0; i < profile.NumField(); i++ {
-		if !keys[profile.Field(i).Tag.Get("json")] {
-			t.Fatalf("missing profile field %s", profile.Field(i).Name)
+	for field := range profile.Fields() {
+		if !keys[field.Tag.Get("json")] {
+			t.Fatalf("missing profile field %s", field.Name)
 		}
 	}
 	for _, columns := range [][]string{nil, {"password"}, {"email", "email"}, {"publicUser"}, {"unknown"}} {

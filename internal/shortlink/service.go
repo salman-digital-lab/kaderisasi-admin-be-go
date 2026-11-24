@@ -10,10 +10,11 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Service struct {
@@ -122,7 +123,7 @@ func (s Service) create(ctx context.Context, in Input, generate func() (string, 
 			return Link{}, err
 		}
 	}
-	for attempt := 0; attempt < 5; attempt++ {
+	for range 5 {
 		code := in.Code
 		if code == "" {
 			var err error

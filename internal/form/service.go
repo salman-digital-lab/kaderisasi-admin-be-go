@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
@@ -17,6 +15,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Service struct {
@@ -28,7 +29,7 @@ func EqualJSON(a, b []byte) bool {
 	if len(a) == 0 && len(b) == 0 {
 		return true
 	}
-	var av, bv interface{}
+	var av, bv any
 	if json.Unmarshal(a, &av) != nil || json.Unmarshal(b, &bv) != nil {
 		return false
 	}

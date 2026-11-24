@@ -3,13 +3,14 @@ package certificate
 import (
 	"context"
 	"errors"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgtype"
 	"kaderisasi/admin/internal/database"
 	"kaderisasi/admin/internal/dbgen"
 	"kaderisasi/admin/internal/domain"
 	"strings"
 	"time"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Failure struct {
@@ -52,8 +53,7 @@ func (s Issuance) Bulk(ctx context.Context, ids []float64, actor *int32, request
 		}
 		result, err := s.Issue(ctx, id, actor, requestID, expected)
 		if err != nil {
-			var d *domain.Error
-			if errors.As(err, &d) {
+			if d, ok := errors.AsType[*domain.Error](err); ok {
 				if d.Message == "CERTIFICATE_CONTEXT_CHANGED" {
 					out.RemainingIDs = ids[i:]
 					break

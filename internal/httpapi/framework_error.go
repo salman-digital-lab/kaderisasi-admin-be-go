@@ -28,8 +28,7 @@ func (s *Server) frameworkError(err error, statement string) error {
 	if err == nil {
 		return nil
 	}
-	var domainError *domain.Error
-	if errors.As(err, &domainError) {
+	if _, ok := errors.AsType[*domain.Error](err); ok {
 		return err
 	}
 	if statement != "" {
@@ -54,5 +53,5 @@ func (s *Server) frameworkError(err error, statement string) error {
 			break
 		}
 	}
-	return domain.Details(500, err.Error(), map[string]interface{}{"name": "error", "status": 500, "frames": frames})
+	return domain.Details(500, err.Error(), map[string]any{"name": "error", "status": 500, "frames": frames})
 }
